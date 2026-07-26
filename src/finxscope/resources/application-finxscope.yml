@@ -1,0 +1,63 @@
+spring:
+  config:
+    activate:
+      on-profile: finxscope
+  health:
+    redis:
+      enabled: false
+
+app:
+  mode: ${APP_MODE:internal}
+  review:
+    mode: ${CASE_REVIEW_MODE:openai}
+  knowledge:
+    answer-mode: ${KNOWLEDGE_ANSWER_MODE:openai}
+  model:
+    transport: ${MODEL_TRANSPORT:finxscope}
+  finxscope:
+    agent-name: ${FINXSCOPE_AGENT_NAME:custody_training_agent}
+    executor-threads: ${FINXSCOPE_EXECUTOR_THREADS:4}
+
+# 3.0.4 verified baseline. Keep local cache and do not enable unused stateful features.
+ccb:
+  framework:
+    finxscope:
+      cache:
+        type: local
+      agent:
+        embedding:
+          enabled: false
+        memory:
+          stm:
+            enabled: false
+          ltm:
+            enabled: false
+        intent:
+          enabled: false
+        executor:
+          session:
+            enable-history: false
+            enable-stm: false
+          execution-log:
+            enabled: false
+            file:
+              enabled: false
+        todolist:
+          enabled: false
+      vector:
+        enabled: false
+      hitl:
+        enabled: false
+      agentscope:
+        config:
+          models-config-location: classpath:config/models-config.yml
+        skillbox:
+          code-execution:
+            enabled: false
+      config:
+        import:
+          - optional:classpath:config/agent-config.yml
+          - optional:classpath:config/skill-config.yml
+      finxscope-mng:
+        config-mode: local
+        redis-subscribe-enabled: false

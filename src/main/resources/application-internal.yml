@@ -1,0 +1,45 @@
+spring:
+  config:
+    activate:
+      on-profile: internal
+  datasource:
+    url: ${DB_URL:}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+    driver-class-name: ${DB_DRIVER:com.mysql.cj.jdbc.Driver}
+
+app:
+  mode: ${APP_MODE:internal}
+  review:
+    mode: ${CASE_REVIEW_MODE:mock}
+  knowledge:
+    answer-mode: ${KNOWLEDGE_ANSWER_MODE:mock}
+  model:
+    transport: ${MODEL_TRANSPORT:openai}
+    base-url: ${MODEL_BASE_URL:}
+    chat-path: ${MODEL_CHAT_PATH:/chat/completions}
+    api-key: ${MODEL_API_KEY:}
+    model-name: ${MODEL_NAME:}
+    send-user-id-header: ${MODEL_SEND_USER_ID_HEADER:true}
+    connect-timeout: ${MODEL_CONNECT_TIMEOUT:3s}
+    review-time-budget: ${MODEL_REVIEW_TIME_BUDGET:15s}
+    max-tokens: ${MODEL_MAX_TOKENS:3000}
+    temperature: ${MODEL_TEMPERATURE:0.1}
+    max-repair-attempts: ${MODEL_MAX_REPAIR_ATTEMPTS:1}
+    thinking-mode: ${MODEL_THINKING_MODE:omit}
+  auth:
+    bootstrap:
+      user1:
+        employee-no: ${BOOTSTRAP_USER1_EMPLOYEE_NO:}
+        display-name: ${BOOTSTRAP_USER1_DISPLAY_NAME:}
+        password: ${BOOTSTRAP_USER1_PASSWORD:}
+      user2:
+        employee-no: ${BOOTSTRAP_USER2_EMPLOYEE_NO:}
+        display-name: ${BOOTSTRAP_USER2_DISPLAY_NAME:}
+        password: ${BOOTSTRAP_USER2_PASSWORD:}
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: ${SESSION_COOKIE_SECURE:true}

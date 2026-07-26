@@ -1,0 +1,50 @@
+{
+  "id": "C003",
+  "version": "0.1",
+  "rubricVersion": "0.1",
+  "placeholder": true,
+  "line": "SUPERVISION",
+  "title": "关键风险识别（占位案例）",
+  "summary": "围绕关键风险识别、升级监督和闭环留痕进行练习。",
+  "background": "日常监督中发现一项可能影响托管业务连续性的异常。本案例为占位数据，用于验证训练流程。",
+  "tasks": [
+    "说明你会如何判断该异常是否构成关键风险。",
+    "说明风险升级、处置跟踪和监督反馈安排。"
+  ],
+  "difficulty": "基础",
+  "estimatedMinutes": 10,
+  "referenceAnswer": "应结合影响范围、发生概率和控制有效性识别关键风险，及时升级并明确责任人与时限，持续跟踪整改并形成监督闭环。",
+  "dimensions": {
+    "CONCEPT": {
+      "maxScore": 25,
+      "points": [
+        {"pointId":"C003-CON-01","description":"说明关键风险的识别依据","weight":10,"keywords":["关键风险","识别依据"],"knowledgeTopicIds":["SUPERVISION-01"]},
+        {"pointId":"C003-CON-02","description":"考虑影响范围和发生概率","weight":8,"keywords":["影响范围","发生概率"],"knowledgeTopicIds":["SUPERVISION-02"]},
+        {"pointId":"C003-CON-03","description":"关注控制有效性","weight":7,"keywords":["控制有效性","控制措施"],"knowledgeTopicIds":["SUPERVISION-03"]}
+      ]
+    },
+    "PROCESS": {
+      "maxScore": 30,
+      "points": [
+        {"pointId":"C003-PRO-01","description":"先核实异常事实和影响","weight":12,"keywords":["核实事实","影响范围"],"knowledgeTopicIds":["SUPERVISION-01"]},
+        {"pointId":"C003-PRO-02","description":"按权限和流程进行风险升级","weight":10,"keywords":["风险升级","报告"],"knowledgeTopicIds":["SUPERVISION-04"]},
+        {"pointId":"C003-PRO-03","description":"明确责任人、时限并跟踪整改","weight":8,"keywords":["责任人","整改跟踪"],"knowledgeTopicIds":["SUPERVISION-05"]}
+      ]
+    },
+    "RISK": {
+      "maxScore": 25,
+      "points": [
+        {"pointId":"C003-RIS-01","description":"识别业务连续性等关键影响","weight":10,"keywords":["业务连续性","关键影响"],"knowledgeTopicIds":["RISK-06"]},
+        {"pointId":"C003-RIS-02","description":"评估风险发生概率和影响程度","weight":8,"keywords":["概率和影响","影响程度"],"knowledgeTopicIds":["RISK-07"]},
+        {"pointId":"C003-RIS-03","description":"设置持续监督和复核","weight":7,"keywords":["持续监督","定期复核"],"knowledgeTopicIds":["SUPERVISION-06"]}
+      ]
+    },
+    "EXPRESSION": {
+      "maxScore": 20,
+      "points": [
+        {"pointId":"C003-EXP-01","description":"用事实和影响说明风险判断","weight":10,"keywords":["事实和影响","风险判断"],"knowledgeTopicIds":["EXPRESSION-01"]},
+        {"pointId":"C003-EXP-02","description":"清楚表达升级、处置和反馈安排","weight":10,"keywords":["处置安排","监督反馈"],"knowledgeTopicIds":["EXPRESSION-02"]}
+      ]
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "C002",
+  "version": "0.1",
+  "rubricVersion": "0.1",
+  "placeholder": true,
+  "line": "ACCOUNTING",
+  "title": "估值处理（占位案例）",
+  "summary": "围绕估值信息核验、差异处理和风险沟通进行练习。",
+  "background": "某托管组合的估值结果与前一工作日相比出现异常变化。本案例为占位数据，用于验证训练流程。",
+  "tasks": [
+    "说明你会如何核实估值变化及其来源。",
+    "说明差异处理、复核留痕和风险沟通安排。"
+  ],
+  "difficulty": "基础",
+  "estimatedMinutes": 10,
+  "referenceAnswer": "应先核实估值数据、估值日期和变动来源，再区分市场变动与数据或流程差错，完成复核留痕并及时沟通重大风险。",
+  "dimensions": {
+    "CONCEPT": {
+      "maxScore": 25,
+      "points": [
+        {"pointId":"C002-CON-01","description":"说明估值日期和估值数据的基本核验要求","weight":10,"keywords":["估值日期","估值数据"],"knowledgeTopicIds":["ACCOUNTING-01"]},
+        {"pointId":"C002-CON-02","description":"区分市场变动与数据差错来源","weight":8,"keywords":["市场变动","数据差错"],"knowledgeTopicIds":["ACCOUNTING-02"]},
+        {"pointId":"C002-CON-03","description":"说明估值差异的分类思路","weight":7,"keywords":["估值差异","来源分析"],"knowledgeTopicIds":["ACCOUNTING-03"]}
+      ]
+    },
+    "PROCESS": {
+      "maxScore": 30,
+      "points": [
+        {"pointId":"C002-PRO-01","description":"核对数据、日期和计算过程","weight":12,"keywords":["核对数据","计算过程"],"knowledgeTopicIds":["ACCOUNTING-01"]},
+        {"pointId":"C002-PRO-02","description":"完成复核并处理差异","weight":10,"keywords":["复核","处理差异"],"knowledgeTopicIds":["ACCOUNTING-03"]},
+        {"pointId":"C002-PRO-03","description":"保留处理记录并跟踪结果","weight":8,"keywords":["留痕","跟踪结果"],"knowledgeTopicIds":["ACCOUNTING-04"]}
+      ]
+    },
+    "RISK": {
+      "maxScore": 25,
+      "points": [
+        {"pointId":"C002-RIS-01","description":"识别估值异常和错估风险","weight":10,"keywords":["估值异常","错估风险"],"knowledgeTopicIds":["RISK-04"]},
+        {"pointId":"C002-RIS-02","description":"评估异常对净值或业务的影响","weight":8,"keywords":["影响评估","净值影响"],"knowledgeTopicIds":["RISK-05"]},
+        {"pointId":"C002-RIS-03","description":"对重大异常设置升级和复核","weight":7,"keywords":["重大异常","升级复核"],"knowledgeTopicIds":["RISK-03"]}
+      ]
+    },
+    "EXPRESSION": {
+      "maxScore": 20,
+      "points": [
+        {"pointId":"C002-EXP-01","description":"清楚说明事实、原因和处理措施","weight":10,"keywords":["事实原因","处理措施"],"knowledgeTopicIds":["EXPRESSION-01"]},
+        {"pointId":"C002-EXP-02","description":"明确复核结论和沟通节点","weight":10,"keywords":["复核结论","沟通节点"],"knowledgeTopicIds":["EXPRESSION-02"]}
+      ]
+    }
+  }
+}

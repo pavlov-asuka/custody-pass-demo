@@ -1,0 +1,50 @@
+{
+  "id": "C001",
+  "version": "0.1",
+  "rubricVersion": "0.1",
+  "placeholder": true,
+  "line": "CLEARING",
+  "title": "部分交收处理（占位案例）",
+  "summary": "围绕部分交收异常的处置顺序、风险识别和沟通表达进行练习。",
+  "background": "某托管业务出现仅部分资产完成交收的情况。本案例为占位数据，用于验证训练流程。",
+  "tasks": [
+    "说明你会如何确认部分交收的事实和范围。",
+    "说明后续处理步骤、风险控制和对外沟通安排。"
+  ],
+  "difficulty": "基础",
+  "estimatedMinutes": 10,
+  "referenceAnswer": "应先核对交收状态、资产和资金范围，再按差异分类处置，记录异常并跟进未完成部分，同时识别结算风险并向相关方清晰反馈。",
+  "dimensions": {
+    "CONCEPT": {
+      "maxScore": 25,
+      "points": [
+        {"pointId":"C001-CON-01","description":"识别部分交收与全部交收的差异","weight":10,"keywords":["部分交收","交收状态"],"knowledgeTopicIds":["CLEARING-01"]},
+        {"pointId":"C001-CON-02","description":"说明核对资产和资金范围","weight":8,"keywords":["资产范围","资金范围"],"knowledgeTopicIds":["CLEARING-02"]},
+        {"pointId":"C001-CON-03","description":"说明差异分类处理思路","weight":7,"keywords":["差异分类","未完成部分"],"knowledgeTopicIds":["CLEARING-03"]}
+      ]
+    },
+    "PROCESS": {
+      "maxScore": 30,
+      "points": [
+        {"pointId":"C001-PRO-01","description":"先核对系统和业务交收状态","weight":12,"keywords":["核对","交收状态"],"knowledgeTopicIds":["CLEARING-01"]},
+        {"pointId":"C001-PRO-02","description":"按差异分类并推进后续处理","weight":10,"keywords":["分类处理","推进处理"],"knowledgeTopicIds":["CLEARING-03"]},
+        {"pointId":"C001-PRO-03","description":"留痕并跟进处理结果","weight":8,"keywords":["记录异常","跟进"],"knowledgeTopicIds":["CLEARING-04"]}
+      ]
+    },
+    "RISK": {
+      "maxScore": 25,
+      "points": [
+        {"pointId":"C001-RIS-01","description":"识别结算或交收风险","weight":10,"keywords":["结算风险","交收风险"],"knowledgeTopicIds":["RISK-01"]},
+        {"pointId":"C001-RIS-02","description":"关注未完成部分的影响","weight":8,"keywords":["影响评估","未完成"],"knowledgeTopicIds":["RISK-02"]},
+        {"pointId":"C001-RIS-03","description":"设置异常升级或复核安排","weight":7,"keywords":["升级","复核"],"knowledgeTopicIds":["RISK-03"]}
+      ]
+    },
+    "EXPRESSION": {
+      "maxScore": 20,
+      "points": [
+        {"pointId":"C001-EXP-01","description":"按事实、措施和风险分层表达","weight":10,"keywords":["事实","措施"],"knowledgeTopicIds":["EXPRESSION-01"]},
+        {"pointId":"C001-EXP-02","description":"明确责任人和反馈节点","weight":10,"keywords":["责任人","反馈节点"],"knowledgeTopicIds":["EXPRESSION-02"]}
+      ]
+    }
+  }
+}

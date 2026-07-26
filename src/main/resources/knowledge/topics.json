@@ -1,0 +1,150 @@
+{
+  "version": "demo-0.1",
+  "notice": "以下内容全部为演示占位材料，正式业务使用前必须由业务部门审核替换。",
+  "topics": [
+    {
+      "topicId": "CLEARING-01",
+      "aliases": [],
+      "title": "部分交收与状态核对",
+      "route": "CLEARING",
+      "keywords": ["部分交收", "交收状态", "全部交收", "核对"],
+      "content": "【演示占位，待业务审核】处理部分交收时，先核对系统记录与业务实际交收状态，区分已完成和未完成部分。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "CLEARING-02",
+      "aliases": [],
+      "title": "交收资产与资金范围",
+      "route": "CLEARING",
+      "keywords": ["资产范围", "资金范围", "核对范围", "交收清单"],
+      "content": "【演示占位，待业务审核】范围核对应同时覆盖相关资产、资金、账户和批次信息，并记录核对口径与时间。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "CLEARING-03",
+      "aliases": ["CLEARING-04"],
+      "title": "交收差异分类与跟进",
+      "route": "CLEARING",
+      "keywords": ["差异分类", "未完成部分", "记录异常", "跟进", "处理结果"],
+      "content": "【演示占位，待业务审核】应按数据差异、流程状态和外部原因分类记录异常，明确后续处理人、节点和结果跟进方式。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "ACCOUNTING-01",
+      "aliases": [],
+      "title": "估值日期与数据核验",
+      "route": "ACCOUNTING",
+      "keywords": ["估值日期", "估值数据", "核对数据", "计算过程"],
+      "content": "【演示占位，待业务审核】估值处理前应核验估值日期、数据来源、数据完整性及计算过程，保存必要的核对记录。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "ACCOUNTING-02",
+      "aliases": [],
+      "title": "估值变动与数据差错区分",
+      "route": "ACCOUNTING",
+      "keywords": ["市场变动", "数据差错", "来源分析", "估值变动"],
+      "content": "【演示占位，待业务审核】发现估值变化时，应区分市场因素、参数变化、数据差错和计算差错，避免未经分析直接调整结果。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "ACCOUNTING-03",
+      "aliases": ["ACCOUNTING-04"],
+      "title": "估值差异复核与留痕",
+      "route": "ACCOUNTING",
+      "keywords": ["估值差异", "复核", "处理差异", "留痕", "跟踪结果"],
+      "content": "【演示占位，待业务审核】估值差异应经过复核、分类处置和结果确认，保留原因、措施、审批或复核意见及跟踪记录。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "SUPERVISION-01",
+      "aliases": [],
+      "title": "关键风险事实识别",
+      "route": "SUPERVISION",
+      "keywords": ["关键风险", "识别依据", "核实事实", "异常事实"],
+      "content": "【演示占位，待业务审核】识别关键风险时，应先核实异常事实、数据来源和影响对象，说明作出风险判断的事实依据。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "SUPERVISION-02",
+      "aliases": [],
+      "title": "风险影响范围与概率",
+      "route": "SUPERVISION",
+      "keywords": ["影响范围", "发生概率", "影响程度", "风险评估"],
+      "content": "【演示占位，待业务审核】风险评估可以从影响范围、发生概率和影响程度等方面描述，并明确评估依据与不确定事项。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "SUPERVISION-03",
+      "aliases": ["SUPERVISION-04"],
+      "title": "控制有效性与风险升级",
+      "route": "SUPERVISION",
+      "keywords": ["控制有效性", "控制措施", "风险升级", "报告", "权限"],
+      "content": "【演示占位，待业务审核】应检查现有控制措施是否覆盖异常，按权限和流程报告或升级重大风险，并记录升级依据。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "SUPERVISION-05",
+      "aliases": ["SUPERVISION-06"],
+      "title": "整改责任与持续监督",
+      "route": "SUPERVISION",
+      "keywords": ["责任人", "整改跟踪", "持续监督", "定期复核", "时限"],
+      "content": "【演示占位，待业务审核】风险处置应明确责任人、完成时限和反馈节点，持续跟踪整改结果并按安排进行复核。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "RISK-01",
+      "aliases": ["RISK-02"],
+      "title": "交收风险与影响评估",
+      "route": "CLEARING",
+      "keywords": ["结算风险", "交收风险", "影响评估", "未完成", "业务影响"],
+      "content": "【演示占位，待业务审核】对未完成交收应识别结算风险，评估对资产、资金、时点和相关方的影响，并明确需要关注的事项。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "RISK-03",
+      "aliases": ["RISK-04"],
+      "title": "重大异常升级与复核",
+      "route": "CLEARING",
+      "keywords": ["重大异常", "升级复核", "异常升级", "估值异常", "错估风险"],
+      "content": "【演示占位，待业务审核】重大异常应按照既定权限安排升级和复核，估值异常还应核查错估风险及处置记录。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "RISK-05",
+      "aliases": ["RISK-06"],
+      "title": "净值与业务连续性影响",
+      "route": "ACCOUNTING",
+      "keywords": ["净值影响", "关键影响", "业务连续性", "影响程度", "风险影响"],
+      "content": "【演示占位，待业务审核】风险分析应关注异常对净值、业务连续性和客户服务的影响，必要时提出监测、应急和复核安排。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "RISK-07",
+      "aliases": [],
+      "title": "风险概率与影响程度",
+      "route": "SUPERVISION",
+      "keywords": ["发生概率", "影响程度", "概率和影响", "风险等级"],
+      "content": "【演示占位，待业务审核】对风险发生概率和影响程度进行分级描述时，应写明判断依据，并根据变化情况动态复核。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "EXPRESSION-01",
+      "aliases": ["EXPRESSION-02"],
+      "title": "事实措施与反馈表达",
+      "route": "CLEARING",
+      "keywords": ["事实", "措施", "事实原因", "处理措施", "责任人", "反馈节点", "沟通节点"],
+      "content": "【演示占位，待业务审核】沟通材料宜按事实、原因、风险、措施和反馈节点分层表达，明确责任人及下一次反馈时间。",
+      "reviewStatus": "APPROVED"
+    },
+    {
+      "topicId": "DEMO-PENDING-01",
+      "aliases": [],
+      "title": "待审核演示主题",
+      "route": "CLEARING",
+      "keywords": ["未审核演示内容"],
+      "content": "【演示占位，尚未审核】该条目用于验证未审核知识不会进入问答检索。",
+      "reviewStatus": "PENDING"
+    }
+  ]
+}

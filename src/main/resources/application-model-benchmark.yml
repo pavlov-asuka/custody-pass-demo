@@ -1,0 +1,37 @@
+spring:
+  config:
+    activate:
+      on-profile: model-benchmark
+  main:
+    web-application-type: none
+    banner-mode: off
+  datasource:
+    url: jdbc:h2:mem:model_benchmark;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  flyway:
+    enabled: true
+  sql:
+    init:
+      mode: never
+
+logging:
+  level:
+    root: OFF
+
+app:
+  review:
+    mode: openai
+  model:
+    transport: openai
+    base-url: ${MODEL_BASE_URL:}
+    chat-path: ${MODEL_CHAT_PATH:/chat/completions}
+    api-key: ${MODEL_API_KEY:}
+    model-name: ${MODEL_NAME:}
+    send-user-id-header: ${MODEL_SEND_USER_ID_HEADER:false}
+    connect-timeout: ${MODEL_CONNECT_TIMEOUT:3s}
+    review-time-budget: ${MODEL_REVIEW_TIME_BUDGET:15s}
+    max-tokens: ${MODEL_MAX_TOKENS:3000}
+    temperature: ${MODEL_TEMPERATURE:0.1}
+    max-repair-attempts: ${MODEL_MAX_REPAIR_ATTEMPTS:1}
+    thinking-mode: ${MODEL_THINKING_MODE:omit}
