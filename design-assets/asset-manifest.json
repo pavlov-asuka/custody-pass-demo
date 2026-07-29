@@ -1,0 +1,17 @@
+{
+  "manifestVersion": "1.0.0",
+  "assets": [
+    {
+      "assetId": "XIAOTUO-CHARACTER-BASELINE-V1",
+      "version": "1.0.0",
+      "path": "xiaotuo/xiaotuo-character-baseline-v1.png",
+      "mediaType": "image/png",
+      "width": 1637,
+      "height": 961,
+      "sha256": "a16263c2e650dcba34341ec51830178962d5e03c8d8ec28264feff3d5c1571f0",
+      "role": "IDENTITY_AND_PROPORTION_REFERENCE",
+      "productionReady": false,
+      "productionConstraint": "按 xiaotuo/README.md 重绘为透明背景、纯色、粗轮廓、无渐变的切图或 SVG"
+    }
+  ]
+}

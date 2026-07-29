@@ -1,76 +1,60 @@
 # 托管智训营
 
-“托管智训营”当前是可本地运行的桌面端 Demo：Spring Boot 后端提供登录、案例训练、四维评分、训练记录和知识问答，Vite + React 前端通过 Cookie 会话与动态 CSRF Header 调用同源 API。默认 Mock 模式不需要真实数据库、模型或内网凭据。
+阶段2已完成一条可供前端直接接入的正式核算学习闭环。Spring Boot 后端提供 Cookie 会话、动态 CSRF、三世界入口、核算连续地图、四环节顺序学习、草稿、不可变正式作答、异步评分、定向补学、重试挑战和不可变训练历史。默认 Mock 使用 H2 与确定性正式评分，不需要模型或内网凭据。
 
-本仓库目前只完成目录隔离，尚未实施新学习地图、数据库模型或内容 Schema。
+当前前端仍是阶段1实现，尚未接入新契约；阶段2没有修改 `frontend/`。旧占位案例、独立知识问答和旧训练记录运行依赖已移除。
 
-## 仓库入口
+## 正式范围
+
+- ACCOUNTING：`OPEN`，首路线“站上核算岗”（`ACC-LIFE-ROLE-001`）。
+- CLEARING / SUPERVISION：`BUILDING`，无虚假路线和进度。
+- 下一核算节点“接管一只新产品”仅提供通过后的解锁展示，内容仍为 `BUILDING`。
+- 四维 Rubric：概念 25、处理步骤 30、风险意识 25、表达规范 20；75 分且两项硬性必达均满足才通过。
+
+## 目录
 
 ```text
-backend/       Spring Boot Maven 工程
-frontend/      Vite + React 桌面端
-contracts/     当前 OpenAPI 契约
-content/       与 Java resources 分离的内容源资产
-design-assets/ 视觉源资产入口
-docs/          架构交接与部署文档
-tests/e2e/     完整系统端到端验证
-scripts/       根目录统一构建与验证脚本
-.local/        本地数据库、日志和测试结果（Git 忽略）
+backend/       Spring Boot 后端、Flyway、自动化测试
+frontend/      阶段1前端（阶段2未修改）
+contracts/     OpenAPI、正式 JSON Schema、联调 examples
+content/       发布清单、地图、路线、Rubric、来源
+design-assets/ 小托身份基准与生产规范
+docs/          架构、部署与 Kimi K3 交接
+scripts/       构建、校验、启动和真实 HTTP smoke
+.local/        本地数据库、日志和构建验证残留（Git 忽略）
 ```
 
-当前 Demo 内容保存在 `content/demo/`。Maven 构建会把这些资产复制到 JAR classpath，运行行为与重构前一致；它们不是阶段 2 的正式学习地图内容或新 Schema。
-
-## 统一命令
+## 验证与启动
 
 在仓库根目录使用 PowerShell：
 
 ```powershell
-.\scripts\test-backend.ps1
-.\scripts\build-frontend.ps1
 .\scripts\validate-content.ps1
+.\scripts\test-backend.ps1
 .\scripts\build-app.ps1
 .\scripts\run-mock.ps1
+```
+
+`build-app.ps1` 会只读构建当前前端，再生成同源 JAR：
+`backend/target/custody-training-0.1.0-SNAPSHOT.jar`。
+
+阶段2统一验证会在隔离端口 `18080` 和随机 `.local/data/phase2-smoke-*` 数据库启动 JAR，不触碰当前 8080 服务或旧 `data/`：
+
+```powershell
 .\scripts\verify-all.ps1
 ```
 
-- `test-backend.ps1`：执行后端测试。
-- `build-frontend.ps1`：执行前端 typecheck 和正式构建。
-- `validate-content.ps1`：校验当前 Demo JSON 资产可解析且所需文件齐全。
-- `build-app.ps1`：校验内容、构建前端并生成同源 JAR。
-- `run-mock.ps1`：使用 `.local/data/` 下的 H2 数据库启动 Mock 应用。
-- `verify-all.ps1`：执行测试、组合构建，并在隔离端口运行系统 E2E。
+它执行内容校验、后端测试、组合构建和真实 HTTP 闭环 smoke。阶段1旧前端 E2E 不在阶段2验收范围。
 
-组合构建产物位于 `backend/target/custody-training-0.1.0-SNAPSHOT.jar`。启动后访问 `http://localhost:8080/api/health`；前端页面由同一个 8080 服务提供。
-
-## 子目录开发
-
-后端：
+对已启动环境单独 smoke：
 
 ```powershell
-cd backend
-mvn test
-mvn package
-mvn spring-boot:run -Dspring-boot.run.profiles=mock
+$password = Read-Host Password -AsSecureString
+.\scripts\run-api-smoke.ps1 `
+  -BaseUrl http://localhost:8080 `
+  -EmployeeNo 10000002 `
+  -Password $password
 ```
-
-前端（后端已启动在 8080）：
-
-```powershell
-cd frontend
-npm install
-npm run dev
-npm run typecheck
-npm run build
-```
-
-系统 E2E 位于仓库根目录，不属于前端内部测试：
-
-```powershell
-$env:VERIFY_BASE = 'http://localhost:8080'
-node tests/e2e/verify.mjs
-```
-
-截图输出到 `.local/test-results/e2e/`。
 
 ## Mock 登录
 
@@ -79,14 +63,30 @@ node tests/e2e/verify.mjs
 | `10000001` | 清算学员 | `Demo@1234` |
 | `10000002` | 核算学员 | `Demo@1234` |
 
-Mock 固定密码只用于本地演示。internal 环境的数据库、初始化账号和模型配置必须通过环境变量或平台密钥注入，不得写入源码、日志或 Git。
+固定密码只用于本地 Mock。internal 数据库、初始化账号和模型配置必须通过环境变量或平台密钥注入。
 
-## API 与文档
+## 数据库
 
-- API 契约：[contracts/openapi.yaml](contracts/openapi.yaml)
-- 前端接口交接：[docs/handoffs/frontend_handoff.md](docs/handoffs/frontend_handoff.md)
-- 当前前端交付记录：[docs/handoffs/frontend_delivery.md](docs/handoffs/frontend_delivery.md)
-- Linux 容器部署：[docs/deployment/deployment_checklist.md](docs/deployment/deployment_checklist.md)
-- Fin-X-Scope 内网验证：[docs/deployment/finxscope_internal_checklist.md](docs/deployment/finxscope_internal_checklist.md)
+Flyway V1 保留 `app_user`；V3 删除 V2 旧 `training_record` 并创建：
 
-默认构建不引入 Fin-X-Scope 私有依赖。只有在可访问内网 Maven 仓库时，才在 `backend/` 中显式执行 `mvn -Pfinxscope ...`；本地默认构建通过不代表官方框架验收完成。
+- `learning_step_progress`
+- `basic_question_progress`
+- `exception_case_draft`
+- `formal_attempt`
+- `scoring_result`
+- `remediation_plan`
+- `remediation_target`
+
+不迁移或兼容旧占位训练数据。路线通过、解锁和主进度由后端推导，不存在可直接修改的“已通过”真值字段。
+
+## 契约与交接
+
+- HTTP 契约：`contracts/openapi.yaml`
+- 内容 Schema 与 examples：`contracts/`
+- Kimi K3 接入：`docs/handoffs/kimi-k3-backend-phase2.md`
+- 后端架构：`docs/architecture/README.md`
+- 小托资产：`design-assets/xiaotuo/`
+- Linux 部署：`docs/deployment/deployment_checklist.md`
+- Fin-X-Scope 内网验证：`docs/deployment/finxscope_internal_checklist.md`
+
+默认构建不引入 Fin-X-Scope 私有依赖。只有内网 Maven 可用时才执行 `mvn -Pfinxscope ...`；本地默认构建通过不代表官方框架验收完成。

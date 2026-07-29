@@ -46,7 +46,7 @@ mvn -Pfinxscope spring-boot:run -Dspring-boot.run.profiles=internal,finxscope
 - `models-config.yml`、`agent-config.yml`、`skill-config.yml` 均被加载。
 - `X-User-ID` 由服务端当前登录学员设置，不能由前端传入覆盖。
 - 并发超过固定线程数和 `threads*2` 有界队列后，接口统一返回 `BUSY`，响应中不得包含请求内容；验证 `shutdownNow` 后不再接受新任务。
-- 关闭思考模式，单次案例评分成功一次，知识问答成功一次，结果仍通过原有 Java 结构校验。
+- 关闭思考模式，单次正式异常案例结构化证据判定成功一次；返回值仍通过 Java 的 item ID 白名单、完整性和证据校验，并由 Java 裁决分数、硬门槛和结论。
 - 两个不同登录学员分别提交后，训练记录不能互读。
 
 ## 4. 已核验配置与关闭项
@@ -57,8 +57,8 @@ mvn -Pfinxscope spring-boot:run -Dspring-boot.run.profiles=internal,finxscope
 
 ## 5. SYNC 行为验证
 
-手册说明 `SYNC` 更适合开发测试，生产建议异步；本项目案例评分和短问答需要同步结构化业务 API，当前暂不改为 SSE。内网必须实测并记录：超时是否可控、Future 取消后框架执行是否停止、线程池关闭是否生效、并发 4 个请求时是否串会话或串用户、返回 suspended/空响应/运行异常时是否被统一拦截。
+框架模型调用在单次后台评分任务内同步取得结构化证据，但面向前端的 attempt API 是异步轮询，不使用 SSE。内网必须实测并记录：超时是否可控、Future 取消后框架执行是否停止、线程池关闭是否生效、并发 4 个请求时是否串会话或串用户、返回 suspended/空响应/运行异常时是否统一落为 attempt `FAILED`，以及对原 attempt 重试时是否保持答案与内容快照不变。
 
 ## 6. 验收边界
 
-本机无法解析内网私有 starter，默认构建通过不代表官方框架验收完成。只有内网完成上述构建、启动、Agent 注册、网关用户头、单次评分、知识问答、隔离和 SYNC 行为检查后，才能宣称 Fin-X-Scope 接入验收通过。
+本机无法解析内网私有 starter，默认构建通过不代表官方框架验收完成。只有内网完成上述构建、启动、Agent 注册、网关用户头、单次评分、用户隔离、技术失败重试和框架调用行为检查后，才能宣称 Fin-X-Scope 接入验收通过。
