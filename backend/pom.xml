@@ -69,6 +69,19 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../content/demo/cases</directory>
+                <targetPath>cases</targetPath>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/../content/demo/knowledge</directory>
+                <targetPath>knowledge</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -81,8 +94,8 @@
     </build>
 
     <profiles>
-        <!-- 同源打包：先在 frontend/ 执行 npm run build，再使用 mvn -Pweb package，
-             将 frontend/dist 复制进 jar 的 static/，由 Spring Boot 同源提供页面与 API。
+        <!-- 同源打包：先在 ../frontend/ 执行 npm run build，再使用 mvn -Pweb package，
+             将 ../frontend/dist 复制进 jar 的 static/，由 Spring Boot 同源提供页面与 API。
              默认 mvn test / mvn package 不涉及前端，行为保持不变。 -->
         <profile>
             <id>web</id>
@@ -102,7 +115,7 @@
                                     <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>${project.basedir}/frontend/dist</directory>
+                                            <directory>${project.basedir}/../frontend/dist</directory>
                                         </resource>
                                     </resources>
                                 </configuration>

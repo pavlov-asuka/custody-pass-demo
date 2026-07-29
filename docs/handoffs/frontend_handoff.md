@@ -10,7 +10,7 @@
 
 ## 请求约定
 
-以 `openapi.yaml` 为唯一 TypeScript 类型和请求封装事实源。部署时页面与 API 为同源服务，使用相对路径；不要假定跨域部署或自行依赖 CORS。所有 `fetch` 使用 `credentials: 'include'`，不要把会话放入 `localStorage`，也不要用 `localStorage` 伪造身份。启动时先 `GET /api/auth/csrf`，保存本次页面会话内的 `token` 和 `headerName`；所有 `POST` 请求都带该 header。页面刷新后通过 `GET /api/auth/me` 恢复登录状态，`401` 回到登录页。
+以 `contracts/openapi.yaml` 为唯一 TypeScript 类型和请求封装事实源。部署时页面与 API 为同源服务，使用相对路径；不要假定跨域部署或自行依赖 CORS。所有 `fetch` 使用 `credentials: 'include'`，不要把会话放入 `localStorage`，也不要用 `localStorage` 伪造身份。启动时先 `GET /api/auth/csrf`，保存本次页面会话内的 `token` 和 `headerName`；所有 `POST` 请求都带该 header。页面刷新后通过 `GET /api/auth/me` 恢复登录状态，`401` 回到登录页。
 
 - `401`：清空页面用户状态并回到登录页。
 - `403`：重新获取 CSRF；若仍失败，提示安全校验失败，不要自动循环重试。
@@ -29,4 +29,4 @@
 
 ## 明确未实现
 
-当前契约没有注册、找回密码、课程闯关、文件上传、实时流式输出、多轮聊天或学员自定义账户接口。不要在前端预留会调用这些不存在接口的流程；后续新增能力必须先更新后端和 `openapi.yaml`。
+当前契约没有注册、找回密码、课程闯关、文件上传、实时流式输出、多轮聊天或学员自定义账户接口。不要在前端预留会调用这些不存在接口的流程；后续新增能力必须先更新后端和 `contracts/openapi.yaml`。

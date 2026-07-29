@@ -1,4 +1,5 @@
 **
 !Dockerfile
-!target/
-!target/custody-training-*.jar
+!backend/
+!backend/target/
+!backend/target/custody-training-*.jar

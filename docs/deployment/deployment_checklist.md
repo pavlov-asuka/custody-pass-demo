@@ -8,22 +8,22 @@ PowerShell：
 
 ```powershell
 Set-Location <Repository目录>
-mvn -Pfinxscope -DskipTests package
-$jars = @(Get-ChildItem .\target\custody-training-*.jar -File)
-if ($jars.Count -ne 1) { throw "target 中必须恰好有一个可执行 JAR" }
+mvn -f backend/pom.xml -Pfinxscope -DskipTests package
+$jars = @(Get-ChildItem .\backend\target\custody-training-*.jar -File)
+if ($jars.Count -ne 1) { throw "backend/target 中必须恰好有一个可执行 JAR" }
 ```
 
 Linux：
 
 ```bash
 cd <Repository目录>
-mvn -Pfinxscope -DskipTests package
-test "$(find target -maxdepth 1 -type f -name 'custody-training-*.jar' | wc -l)" = "1"
+mvn -f backend/pom.xml -Pfinxscope -DskipTests package
+test "$(find backend/target -maxdepth 1 -type f -name 'custody-training-*.jar' | wc -l)" = "1"
 ```
 
 ## 2. 确认 JAR
 
-确认 `target/custody-training-*.jar` 是本次内网构建的可执行 JAR，大小和修改时间符合预期；不要把 `sources`、`javadoc` 或旧版本 JAR 放在匹配目录中。
+确认 `backend/target/custody-training-*.jar` 是本次内网构建的可执行 JAR，大小和修改时间符合预期；不要把 `sources`、`javadoc` 或旧版本 JAR 放在匹配目录中。
 
 ## 3. 构建运行时镜像
 

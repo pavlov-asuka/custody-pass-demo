@@ -3,7 +3,7 @@ FROM ${RUNTIME_IMAGE}
 
 WORKDIR /app
 
-COPY target/custody-training-*.jar /app/app.jar
+COPY backend/target/custody-training-*.jar /app/app.jar
 
 ENV JAVA_OPTS=""
 

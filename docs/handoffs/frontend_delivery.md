@@ -52,15 +52,15 @@
 
 - `npm run typecheck`（tsc -b）：零错误
 - `npm run build`：通过（JS 234.6KB / gzip 74.5KB，CSS 39KB / gzip 8.3KB）
-- `node e2e/verify.mjs`（dev server 5173）：17 项断言全过，EXIT=0
-- `VERIFY_BASE=http://localhost:8080 node e2e/verify.mjs`（同源 fat jar，无启动参数）：17 项断言全过，EXIT=0
-- **Maven 同源打包实测**：`mvn clean -Pweb package` 通过，`frontend/dist` 进入 jar 的 `BOOT-INF/classes/static/`，该 jar 直接启动即同源提供页面与 API（本次在本机用 Maven 3.9.16 + JDK 17 实际执行验证）
+- `node tests/e2e/verify.mjs`（dev server 5173）：17 项断言全过，EXIT=0
+- `VERIFY_BASE=http://localhost:8080 node tests/e2e/verify.mjs`（同源 fat jar，无启动参数）：17 项断言全过，EXIT=0
+- **Maven 同源打包实测**：`mvn -f backend/pom.xml clean -Pweb package` 通过，`frontend/dist` 进入 jar 的 `BOOT-INF/classes/static/`，该 jar 直接启动即同源提供页面与 API（本次在本机用 Maven 3.9.16 + JDK 17 实际执行验证）
 - 幂等契约（脚本实测）：同 ID 同答案 → 200 原记录；同 ID 异答案 → 409 `IDEMPOTENCY_CONFLICT`
 - 数据隔离（脚本实测）：学员 10000002 记录为 0，访问 10000001 的记录返回 404
 - 会话：刷新 `/api/auth/me` 恢复；退出后 `/api/auth/me = 401`，业务页弹回登录
-- 逐页 1440×900 截图核验：`e2e/shots/desktop-01-login.png` ~ `desktop-10-after-logout.png`
+- 逐页 1440×900 截图核验：`.local/test-results/e2e/desktop-01-login.png` ~ `desktop-10-after-logout.png`
 
-启动与构建命令见 `Repository/README.md` 前端章节（`npm install && npm run dev`；后端 `mvn spring-boot:run -Dspring-boot.run.profiles=mock` 或运行已打包 jar）。
+启动与构建命令见 `Repository/README.md`（`npm install && npm run dev`；后端 `scripts/run-mock.ps1` 或运行已打包 JAR）。
 
 ## 六、已知限制
 

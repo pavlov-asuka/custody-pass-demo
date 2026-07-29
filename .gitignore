@@ -1,7 +1,9 @@
 target/
+backend/target/
 build/
 out/
 data/
+.local/
 *.log
 logs/
 
@@ -16,6 +18,7 @@ frontend/node_modules/
 frontend/dist/
 frontend/.vite/
 frontend/e2e/shots/
+tests/e2e/shots/
 node_modules/
 dist/
 

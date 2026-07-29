@@ -19,13 +19,14 @@ $originalBenchmarkRuns = $env:MODEL_BENCHMARK_RUNS
 $originalThinkingMode = $env:MODEL_THINKING_MODE
 $secureApiKey = $null
 $plainApiKey = $null
+$backendDirectory = Join-Path (Split-Path $PSScriptRoot -Parent) 'backend'
+$locationPushed = $false
+. (Join-Path $PSScriptRoot 'common.ps1')
+$originalJavaHome = $env:JAVA_HOME
+$env:JAVA_HOME = Get-JavaHome
 
 try {
-    $java = Get-Command java -ErrorAction SilentlyContinue
-    $maven = Get-Command mvn -ErrorAction SilentlyContinue
-    if ($null -eq $java -or $null -eq $maven) {
-        throw '未找到 java 或 mvn，请先配置 JDK 17 和 Maven。'
-    }
+    $maven = Get-MavenExecutable
 
     if ($BaseUrl) { $env:MODEL_BASE_URL = $BaseUrl }
     if ($ChatPath) { $env:MODEL_CHAT_PATH = $ChatPath }
@@ -54,13 +55,18 @@ try {
         $env:MODEL_BENCHMARK_RUNS = '3'
     }
 
-    & $maven.Source -q spring-boot:run `
+    Push-Location $backendDirectory
+    $locationPushed = $true
+    & $maven -q spring-boot:run `
         '-Dspring-boot.run.profiles=mock,model-benchmark'
     if ($LASTEXITCODE -ne 0) {
         exit $LASTEXITCODE
     }
 }
 finally {
+    if ($locationPushed) {
+        Pop-Location
+    }
     $plainApiKey = $null
     $secureApiKey = $null
     if ($hadApiKey) {
@@ -81,4 +87,6 @@ finally {
     else { $env:MODEL_BENCHMARK_RUNS = $originalBenchmarkRuns }
     if ($null -eq $originalThinkingMode) { Remove-Item Env:MODEL_THINKING_MODE -ErrorAction SilentlyContinue }
     else { $env:MODEL_THINKING_MODE = $originalThinkingMode }
+    if ($null -eq $originalJavaHome) { Remove-Item Env:JAVA_HOME -ErrorAction SilentlyContinue }
+    else { $env:JAVA_HOME = $originalJavaHome }
 }

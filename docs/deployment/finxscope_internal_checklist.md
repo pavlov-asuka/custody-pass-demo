@@ -2,7 +2,7 @@
 
 ## 1. 首次构建
 
-在可访问内网 Maven 仓库的环境中进入 `Repository`，先执行：
+在可访问内网 Maven 仓库的环境中进入 `Repository/backend`，先执行：
 
 ```powershell
 mvn -Pfinxscope -DskipTests package

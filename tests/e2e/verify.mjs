@@ -1,13 +1,15 @@
 /**
  * 托管智训营端到端验证（桌面视口 1440×900）
- * 运行：node e2e/verify.mjs（VERIFY_BASE 可指向同源部署，如 http://localhost:8080）
+ * 运行：node tests/e2e/verify.mjs（VERIFY_BASE 可指向同源部署，如 http://localhost:8080）
  * 任何断言失败都会以非零退出码结束。
  */
-import { chromium } from 'playwright';
+import { createRequire } from 'node:module';
 import { mkdirSync } from 'node:fs';
 
+const requireFromFrontend = createRequire(new URL('../../frontend/package.json', import.meta.url));
+const { chromium } = requireFromFrontend('playwright');
 const BASE = process.env.VERIFY_BASE ?? 'http://127.0.0.1:5173';
-const SHOTS = new URL('./shots/', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+const SHOTS = new URL('../../.local/test-results/e2e/', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 mkdirSync(SHOTS, { recursive: true });
 
 const consoleErrors = [];
