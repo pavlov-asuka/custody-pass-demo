@@ -17,6 +17,7 @@ logs/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/.font-src/
 frontend/e2e/shots/
 tests/e2e/shots/
 node_modules/
@@ -24,3 +25,5 @@ dist/
 
 *.class
 *.jar
+__pycache__/
+*.pyc

@@ -24,7 +24,6 @@ import {
 } from 'react-router-dom';
 import {
   ApiError,
-  answerPractice,
   completeStep,
   getDraft,
   getRoute,
@@ -33,19 +32,17 @@ import {
   submitAttempt,
 } from '../api/client';
 import type {
-  BasicPracticeContent,
   DemonstrationContent,
   DraftResponse,
   ExceptionCaseContent,
   KnowledgeContent,
-  PracticeFeedback,
   RouteOverview,
   StepResponse,
   StepType,
 } from '../api/types';
 import { AppShell } from '../components/AppShell';
 import { Mascot } from '../components/Mascot';
-import { PracticeQuestion } from '../components/PracticeQuestion';
+import { PracticeSession } from '../components/PracticeSession';
 import { RouteStepper } from '../components/RouteStepper';
 import { ErrorState, LoadingState } from '../components/States';
 import { pendingAttemptKey, requestId } from '../utils/ids';
@@ -189,72 +186,7 @@ function BasicPracticeStep({
   data: StepResponse<'BASIC_PRACTICE'>;
   onCompleted: () => Promise<void>;
 }) {
-  const content = data.content as BasicPracticeContent;
-  const [index, setIndex] = useState(0);
-  const [feedback, setFeedback] = useState<PracticeFeedback | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-  const question = content.questions[index];
-
-  useEffect(() => {
-    setIndex(0);
-    setFeedback(null);
-  }, [data.contentVersion]);
-
-  async function submit(answer: string[]) {
-    setError(null);
-    try {
-      const result = await answerPractice(
-        routeId,
-        question.questionId,
-        data.contentVersion,
-        answer,
-        requestId('practice'),
-      );
-      setFeedback(result);
-      if (result.correct) {
-        window.setTimeout(async () => {
-          if (result.practiceCompleted) {
-            await onCompleted();
-          } else {
-            setIndex((value) => Math.min(content.questions.length - 1, value + 1));
-            setFeedback(null);
-          }
-        }, 650);
-      }
-    } catch (reason) {
-      setError(reason as Error);
-    }
-  }
-
-  return (
-    <section className="lesson-card basic-practice">
-      <div className="lesson-card__topline">
-        <span className="eyebrow">基础练习 {index + 1} / {content.questions.length}</span>
-        <span className="lesson-type">答对后继续</span>
-      </div>
-      <div className="practice-progress">
-        {content.questions.map((item, itemIndex) => (
-          <span
-            key={item.questionId}
-            className={itemIndex < index ? 'is-done' : itemIndex === index ? 'is-current' : ''}
-          />
-        ))}
-      </div>
-      {error && <ErrorState error={error} compact />}
-      <PracticeQuestion
-        question={question}
-        feedback={feedback}
-        onSubmit={submit}
-      />
-      {feedback && !feedback.correct && (
-        <Mascot
-          pose="THINKING"
-          size="small"
-          message="别急，先分清系统状态和业务结果，再试一次。"
-        />
-      )}
-    </section>
-  );
+  return <PracticeSession routeId={routeId} data={data} onCompleted={onCompleted} />;
 }
 
 function ExceptionCaseStep({
@@ -646,6 +578,7 @@ export function LearningPage() {
   }
 
   const validStep = step?.stepType === active ? step : null;
+  const practiceMode = Boolean(route) && active === 'BASIC_PRACTICE';
 
   return (
     <AppShell
@@ -653,66 +586,80 @@ export function LearningPage() {
       onBack={() => navigate('/map/accounting')}
       context={route?.title || '路线学习'}
     >
-      <div className="learning-page page-enter">
-        {loadingRoute && <LoadingState label="正在准备路线…" />}
-        {error && !route && <ErrorState error={error} onRetry={() => void refreshRoute(true)} />}
-        {route && (
-          <>
-            <header className="learning-header">
-              <div>
-                <span className="eyebrow">核算路线 · 预计 {route.estimatedMinutes ?? 20} 分钟</span>
-                <h1>{route.title}</h1>
-                <p>{route.summary}</p>
-              </div>
+      {practiceMode && route ? (
+        <div className="practice-layout page-enter">
+          <div className="practice-layout__progress">
+            <div className="practice-layout__progress-inner">
               <RouteStepper route={route} active={active} onSelect={setActive} />
-            </header>
+            </div>
+          </div>
+          {error && (
+            <ErrorState error={error} compact onRetry={() => setStepReload((value) => value + 1)} />
+          )}
+          {loadingStep && <LoadingState label="正在加载当前学习环节…" />}
+          {!loadingStep && validStep?.stepType === 'BASIC_PRACTICE' && (
+            <BasicPracticeStep
+              routeId={route.routeId}
+              data={validStep as StepResponse<'BASIC_PRACTICE'>}
+              onCompleted={practiceCompleted}
+            />
+          )}
+        </div>
+      ) : (
+        <div className="learning-page page-enter">
+          {loadingRoute && <LoadingState label="正在准备路线…" />}
+          {error && !route && <ErrorState error={error} onRetry={() => void refreshRoute(true)} />}
+          {route && (
+            <>
+              <header className="learning-header">
+                <div>
+                  <span className="eyebrow">核算路线 · 预计 {route.estimatedMinutes ?? 20} 分钟</span>
+                  <h1>{route.title}</h1>
+                  <p>{route.summary}</p>
+                </div>
+                <RouteStepper route={route} active={active} onSelect={setActive} />
+              </header>
 
-            {error && <ErrorState error={error} compact onRetry={() => setStepReload((value) => value + 1)} />}
-            {loadingStep && <LoadingState label="正在加载当前学习环节…" />}
-            {!loadingStep && validStep?.stepType === 'KNOWLEDGE_CARD' && (
-              <KnowledgeCardStep
-                data={validStep as StepResponse<'KNOWLEDGE_CARD'>}
-                busy={busy}
-                onComplete={() => markComplete('KNOWLEDGE_CARD')}
-              />
-            )}
-            {!loadingStep && validStep?.stepType === 'DEMONSTRATION' && (
-              <DemonstrationStep
-                data={validStep as StepResponse<'DEMONSTRATION'>}
-                busy={busy}
-                onComplete={() => markComplete('DEMONSTRATION')}
-              />
-            )}
-            {!loadingStep && validStep?.stepType === 'BASIC_PRACTICE' && (
-              <BasicPracticeStep
-                routeId={route.routeId}
-                data={validStep as StepResponse<'BASIC_PRACTICE'>}
-                onCompleted={practiceCompleted}
-              />
-            )}
-            {!loadingStep && validStep?.stepType === 'EXCEPTION_CASE' && (
-              <ExceptionCaseStep
-                route={route}
-                data={validStep as StepResponse<'EXCEPTION_CASE'>}
-              />
-            )}
+              {error && <ErrorState error={error} compact onRetry={() => setStepReload((value) => value + 1)} />}
+              {loadingStep && <LoadingState label="正在加载当前学习环节…" />}
+              {!loadingStep && validStep?.stepType === 'KNOWLEDGE_CARD' && (
+                <KnowledgeCardStep
+                  data={validStep as StepResponse<'KNOWLEDGE_CARD'>}
+                  busy={busy}
+                  onComplete={() => markComplete('KNOWLEDGE_CARD')}
+                />
+              )}
+              {!loadingStep && validStep?.stepType === 'DEMONSTRATION' && (
+                <DemonstrationStep
+                  data={validStep as StepResponse<'DEMONSTRATION'>}
+                  busy={busy}
+                  onComplete={() => markComplete('DEMONSTRATION')}
+                />
+              )}
+              {!loadingStep && validStep?.stepType === 'EXCEPTION_CASE' && (
+                <ExceptionCaseStep
+                  route={route}
+                  data={validStep as StepResponse<'EXCEPTION_CASE'>}
+                />
+              )}
 
-            {active !== 'EXCEPTION_CASE' && (
-              <div className="lesson-bottom-bar">
-                <button
-                  className="button button--ghost"
-                  type="button"
-                  disabled={!previous}
-                  onClick={() => previous && setActive(previous)}
-                >
-                  <ArrowLeft size={18} /> 上一步
-                </button>
-                <span>{route.completedSteps} / {route.totalSteps} 个环节已完成</span>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+              {active !== 'EXCEPTION_CASE' && (
+                <div className="lesson-bottom-bar">
+                  <button
+                    className="button button--ghost"
+                    type="button"
+                    disabled={!previous}
+                    onClick={() => previous && setActive(previous)}
+                  >
+                    <ArrowLeft size={18} /> 上一步
+                  </button>
+                  <span>{route.completedSteps} / {route.totalSteps} 个环节已完成</span>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </AppShell>
   );
 }

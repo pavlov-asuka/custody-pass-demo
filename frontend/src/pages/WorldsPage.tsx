@@ -1,85 +1,57 @@
-import {
-  ArrowRight,
-  Calculator,
-  CheckCircle2,
-  Landmark,
-  ShieldCheck,
-  Wrench,
-} from 'lucide-react';
+import { ArrowRight, Wrench } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Line, World } from '../api/types';
 import { AppShell } from '../components/AppShell';
 import { Mascot } from '../components/Mascot';
 import { ErrorState, LoadingState } from '../components/States';
+import { WorldScene } from '../components/WorldScene';
 import { useAsync } from '../hooks/useAsync';
 import { getWorlds } from '../api/client';
 
-const worldVisuals: Record<Line, {
-  kicker: string;
-  icon: typeof Calculator;
-  objects: string[];
-}> = {
-  CLEARING: {
-    kicker: '资金与证券交收',
-    icon: Landmark,
-    objects: ['交收箭头', '资金桥梁'],
-  },
-  ACCOUNTING: {
-    kicker: '核算、估值与复核',
-    icon: Calculator,
-    objects: ['蓝色账簿', '核算勾稽'],
-  },
-  SUPERVISION: {
-    kicker: '边界识别与风险报告',
-    icon: ShieldCheck,
-    objects: ['监督盾牌', '检查望远镜'],
-  },
+const worldKickers: Record<Line, string> = {
+  CLEARING: '资金与证券交收',
+  ACCOUNTING: '核算、估值与复核',
+  SUPERVISION: '边界识别与风险报告',
 };
+
+function worldStatusText(world: World): string {
+  if (world.status === 'PASSED') return '已完成';
+  if (world.status === 'NOT_STARTED') return '准备出发';
+  return '继续学习';
+}
 
 function WorldCard({ world }: { world: World }) {
   const navigate = useNavigate();
-  const visual = worldVisuals[world.line];
-  const Icon = visual.icon;
   const building = world.availability === 'BUILDING';
 
   return (
-    <article className={`world-card world-card--${world.line.toLowerCase()} ${building ? 'is-building' : ''}`}>
-      <div className="world-card__scene" aria-hidden="true">
-        <span className="scene-cloud scene-cloud--one" />
-        <span className="scene-cloud scene-cloud--two" />
-        <div className="scene-object">
-          <Icon size={66} strokeWidth={2.5} />
-          <span>{visual.objects[0]}</span>
-        </div>
-        <div className="scene-ground">
-          <span />
-          <span />
-          <span />
-        </div>
-        {building && <div className="scene-toolbox"><Wrench size={22} /> 建设中</div>}
-        {!building && <div className="scene-check"><CheckCircle2 size={28} /></div>}
-      </div>
+    <article className={`world-card ${building ? 'is-building' : ''}`}>
+      <WorldScene line={world.line} building={building} />
       <div className="world-card__body">
-        <span className="eyebrow">{visual.kicker}</span>
+        <span className="world-card__kicker">{worldKickers[world.line]}</span>
         <h2>{world.name}</h2>
-        <p>{world.description}</p>
+        <p className="world-card__goal">{world.description}</p>
         {building ? (
-          <div className="building-label">
-            <Wrench size={18} />
-            <span><strong>内容建设中</strong>精彩路线正在准备</span>
+          <div className="world-card__status">
+            <span className="building-tag">
+              <Wrench size={16} />
+              <strong>内容建设中</strong>
+            </span>
           </div>
         ) : (
           <>
-            <div className="world-progress">
-              <div>
-                <span>{world.status === 'NOT_STARTED' ? '准备出发' : world.status === 'PASSED' ? '已完成' : '继续学习'}</span>
-                <strong>{world.passedRequiredRoutes} / {world.publishedRequiredRoutes} 条必修路线</strong>
+            <div className="world-card__status">
+              <div className="world-card__progress-line">
+                <strong>{worldStatusText(world)}</strong>
+                <span>{world.passedRequiredRoutes} / {world.publishedRequiredRoutes} 条必修路线</span>
               </div>
-              <div className="progress-track"><span style={{ width: `${world.progressPercent}%` }} /></div>
+              <div className="b3-progress" aria-hidden="true">
+                <span style={{ width: `${world.progressPercent}%` }} />
+              </div>
             </div>
             <button
-              className="button button--primary button--wide"
+              className="b3-btn b3-btn--primary b3-btn--wide world-card__action"
               type="button"
               onClick={() => navigate('/map/accounting')}
             >
@@ -91,6 +63,7 @@ function WorldCard({ world }: { world: World }) {
     </article>
   );
 }
+
 export function WorldsPage() {
   const { data, error, loading, reload } = useAsync(getWorlds, []);
 
@@ -101,18 +74,17 @@ export function WorldsPage() {
   return (
     <AppShell>
       <div className="worlds-page page-enter">
-        <section className="worlds-hero">
-          <div>
-            <span className="eyebrow">选择今天的业务旅程</span>
+        <header className="worlds-header">
+          <div className="worlds-header__copy">
             <h1>今天想进入哪个学习世界？</h1>
             <p>每个世界都有自己的岗位路线。选定一条业务线，专注完成今天的学习。</p>
           </div>
           <Mascot
             pose="WELCOME_WAVE"
-            size="medium"
+            size="small"
             message="选择一条业务线，我们就出发！"
           />
-        </section>
+        </header>
 
         {loading && <LoadingState label="正在打开学习世界…" />}
         {error && <ErrorState error={error} onRetry={reload} />}
