@@ -1,0 +1,57 @@
+{
+  "routeId": "ACC-LIFE-ROLE-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-CONCEPT-ROLE", "description": "理解核算岗不只是录入岗位", "weight": 10, "evidenceRequirement": "说明核算岗需要核查并对结果负责", "keywords": ["核算岗不是", "不只是录入", "结果负责"], "remediationTargetId": "R-ROLE"},
+        {"criterionId": "C-CONCEPT-SYSTEM", "description": "理解系统执行成功不代表业务结果正确", "weight": 10, "evidenceRequirement": "明确系统成功仍需人工核验", "keywords": ["执行成功不代表", "系统成功不等于", "人工核验"], "remediationTargetId": "R-SYSTEM"},
+        {"criterionId": "C-CONCEPT-OWNER", "description": "理解集中处理不免除组合责任", "weight": 5, "evidenceRequirement": "说明本人仍需跟进组合异常", "keywords": ["组合责任", "本人负责", "持续跟进"], "remediationTargetId": "R-ROLE"}
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {"criterionId": "C-PROCESS-FACT", "description": "明确组合、业务、日期和异常事实", "weight": 6, "evidenceRequirement": "复述托管费指令、余额未变和执行成功等事实", "keywords": ["托管费", "余额", "7月9日"], "remediationTargetId": "R-VERIFY"},
+        {"criterionId": "C-PROCESS-CHECK", "description": "核查数据接收、处理状态和估值结果", "weight": 10, "evidenceRequirement": "至少说明核查数据与账务或估值结果", "keywords": ["核查数据", "检查数据", "估值结果", "账务结果"], "remediationTargetId": "R-VERIFY"},
+        {"criterionId": "C-PROCESS-COORD", "description": "协调相关岗位并按权限复核或升级", "weight": 8, "evidenceRequirement": "说明协调、复核或报告动作", "keywords": ["协调", "复核", "报告", "升级"], "remediationTargetId": "R-BOUNDARY"},
+        {"criterionId": "C-PROCESS-CLOSE", "description": "反馈结果并跟踪闭环", "weight": 6, "evidenceRequirement": "说明反馈、跟踪及结论", "keywords": ["反馈", "跟踪", "闭环"], "remediationTargetId": "R-CLOSE"}
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-RISK-VERIFY", "description": "不在未经核验时直接给出结论", "weight": 8, "evidenceRequirement": "明确先核实再判断", "keywords": ["先核实再判断", "核实后判断", "不能直接结论"], "remediationTargetId": "R-VERIFY"},
+        {"criterionId": "C-RISK-BOUNDARY", "description": "不擅自修改或确认超出权限事项", "weight": 7, "evidenceRequirement": "体现权限边界或升级", "keywords": ["权限", "不擅自", "升级"], "remediationTargetId": "R-BOUNDARY"},
+        {"criterionId": "C-RISK-IMPACT", "description": "识别异常对账务、估值和下游结果的影响", "weight": 6, "evidenceRequirement": "说明至少一项结果影响", "keywords": ["影响账务", "影响估值", "影响净值", "下游"], "remediationTargetId": "R-SYSTEM"},
+        {"criterionId": "C-RISK-EVIDENCE", "description": "保留沟通和处理证据", "weight": 4, "evidenceRequirement": "说明留痕或保存证据", "keywords": ["留痕", "保存证据", "处理记录"], "remediationTargetId": "R-CLOSE"}
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {"criterionId": "C-EXPR-STRUCTURE", "description": "按事实、核查、措施、责任人、反馈表达", "weight": 10, "evidenceRequirement": "答案结构包含主要环节", "keywords": ["事实", "核查", "措施", "责任人", "反馈"], "remediationTargetId": "R-CLOSE"},
+        {"criterionId": "C-EXPR-CAREFUL", "description": "表述清楚谨慎，不推诿也不越权承诺", "weight": 10, "evidenceRequirement": "给出谨慎结论并说明协作边界", "keywords": ["待核实", "按权限", "不推诿", "谨慎"], "remediationTargetId": "R-BOUNDARY"}
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-VERIFY-FIRST", "description": "先核实再判断", "evidenceRequirement": "答案明确表达先核实事实、数据和结果再下结论", "keywords": ["先核实再判断", "核实后判断", "核查后再"], "remediationTargetId": "R-VERIFY"},
+    {"requirementId": "M-SYSTEM-NOT-BUSINESS", "description": "系统执行成功不能替代人工核验", "evidenceRequirement": "答案明确否定执行成功等于业务完成", "keywords": ["执行成功不代表", "系统成功不等于", "不能替代人工核验"], "remediationTargetId": "R-SYSTEM"}
+  ],
+  "remediationTargets": [
+    {"targetId": "R-ROLE", "title": "重新理解组合核算责任", "reason": "岗位责任理解不完整", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "ACC-ROLE-KC-02", "questionId": "ACC-ROLE-Q-02"},
+    {"targetId": "R-SYSTEM", "title": "区分系统状态和业务结果", "reason": "把系统执行状态当成业务结论", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "ACC-ROLE-KC-03", "questionId": "ACC-ROLE-Q-01"},
+    {"targetId": "R-VERIFY", "title": "先核实事实再判断", "reason": "缺少数据与结果核查", "materialStep": "DEMONSTRATION", "materialItemId": "ACC-ROLE-DEMO", "questionId": "ACC-ROLE-Q-03"},
+    {"targetId": "R-BOUNDARY", "title": "按权限协调与升级", "reason": "协作或权限边界不清", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "ACC-ROLE-KC-02", "questionId": "ACC-ROLE-Q-02"},
+    {"targetId": "R-CLOSE", "title": "形成反馈与留痕闭环", "reason": "缺少反馈、跟踪或留痕", "materialStep": "DEMONSTRATION", "materialItemId": "ACC-ROLE-DEMO", "questionId": "ACC-ROLE-Q-03"}
+  ],
+  "referenceAnswer": "我作为该组合核算人员仍对本组合的账务和估值结果负责，不能因系统显示执行成功或数据由其他岗位接收就等到次日。应先核实再判断：确认7月9日托管费支付指令、资金执行结果、数据接收和拆分状态，核查凭证、账簿、应付托管费余额和估值结果，判断差异影响。需要时协调资金数据接收岗位，按权限提交复核或向管理岗报告，不擅自修改或越权承诺。异常消除后重新处理并复核，向管理人反馈事实、进展和结论，保存沟通及处理记录，持续跟踪闭环。系统执行成功不代表业务结果正确，不能替代人工核验。"
+}

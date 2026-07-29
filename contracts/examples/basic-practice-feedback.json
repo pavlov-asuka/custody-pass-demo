@@ -1,0 +1,9 @@
+{
+  "questionId": "ACC-ROLE-Q-01",
+  "correct": false,
+  "correctOnce": false,
+  "explanation": "执行成功只说明系统完成了任务，仍需人工核验业务结果。",
+  "hint": "想一想系统状态与业务结果是否完全等价。",
+  "practiceCompleted": false,
+  "progress": {"routeId": "ACC-LIFE-ROLE-001", "state": "IN_PROGRESS", "completedSteps": 2, "totalSteps": 4, "nextStep": "BASIC_PRACTICE"}
+}

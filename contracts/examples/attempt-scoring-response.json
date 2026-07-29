@@ -1,0 +1,9 @@
+{
+  "attemptId": 42,
+  "routeId": "ACC-LIFE-ROLE-001",
+  "processingStatus": "SCORING",
+  "submittedAt": "2026-07-29T07:00:00Z",
+  "contentVersion": "1.0.0",
+  "rubricVersion": "1.0.0",
+  "allowedActions": ["POLL"]
+}

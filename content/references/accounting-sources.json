@@ -1,0 +1,11 @@
+{
+  "references": [
+    {
+      "referenceId": "ACC-REF-PUBLIC-FUND-FLOW-2026",
+      "title": "公募基金核算业务流程",
+      "locator": "第一章核算岗岗位职责、第二章运营模式介绍",
+      "contentUse": "路线 ACC-LIFE-ROLE-001",
+      "reviewNote": "正式发布仅使用稳定的岗位职责、人机边界和异常闭环内容；未包含内部邮箱、网址、菜单和联系方式。"
+    }
+  ]
+}

@@ -1,702 +1,580 @@
 openapi: 3.0.3
 info:
-  title: 托管智训营 API
-  version: 0.1.0
+  title: 托管智训营正式学习 API
+  version: 2.0.0
   description: |
-    托管智训营后端现有 JSON 接口契约。案例和知识资产中的占位内容仅用于演示，不能视为正式制度或操作依据。
+    阶段2正式契约。Cookie 会话、动态 CSRF、用户隔离、学习顺序、路线状态、
+    解锁、评分结论和主进度均由后端负责。公开接口永不返回正确答案、参考答案、
+    Rubric、硬性必达项、评分关键词、内部 topic ID、模型名称或运行参数。
 servers:
   - url: /
-    description: 当前同源服务
 security:
   - sessionCookie: []
 tags:
-  - name: health
-  - name: auth
-  - name: cases
-  - name: training-records
-  - name: knowledge
+  - {name: auth}
+  - {name: worlds}
+  - {name: learning}
+  - {name: attempts}
+  - {name: remediation}
+  - {name: records}
 paths:
   /api/health:
     get:
-      tags: [health]
-      summary: 健康检查
       security: []
       responses:
-        '200':
-          description: 服务正常
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthResponse'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
+        '200': {description: OK}
   /api/auth/csrf:
     get:
-      tags: [auth]
-      summary: 获取当前会话的 CSRF 令牌
-      description: 无需登录。请求会建立或复用服务端会话，并返回后续写请求使用的 header 名称和令牌。
       security: []
       responses:
         '200':
-          description: CSRF 信息
+          description: CSRF 令牌
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/CsrfResponse'
-              example:
-                token: example-csrf-token
-                headerName: X-CSRF-TOKEN
-        '500':
-          $ref: '#/components/responses/InternalError'
-
+              schema: {$ref: '#/components/schemas/CsrfResponse'}
   /api/auth/login:
     post:
-      tags: [auth]
-      summary: 登录
-      description: |
-        登录成功后由服务端设置 HttpOnly 会话 Cookie。请求体必须且只能包含 employeeNo 和 password。
-        这是写请求，必须先调用 /api/auth/csrf，并将返回的 token 放入返回的 headerName（当前为 X-CSRF-TOKEN）。
       security: []
-      parameters:
-        - $ref: '#/components/parameters/CsrfHeader'
+      parameters: [{$ref: '#/components/parameters/CsrfHeader'}]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
-            example:
-              employeeNo: '10000001'
-              password: example-password
+            schema: {$ref: '#/components/schemas/LoginRequest'}
       responses:
         '200':
           description: 登录成功
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/CurrentUser'
-              example:
-                employeeNo: '10000001'
-                displayName: 演示学员甲
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/UnauthorizedLogin'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
+              schema: {$ref: '#/components/schemas/CurrentUser'}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
   /api/auth/me:
     get:
-      tags: [auth]
-      summary: 获取当前登录学员
       responses:
         '200':
           description: 当前用户
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/CurrentUser'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
+              schema: {$ref: '#/components/schemas/CurrentUser'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
   /api/auth/logout:
     post:
-      tags: [auth]
-      summary: 退出登录
-      description: 使当前服务端会话失效。这是写请求，必须携带 CSRF header。
-      parameters:
-        - $ref: '#/components/parameters/CsrfHeader'
+      parameters: [{$ref: '#/components/parameters/CsrfHeader'}]
       responses:
-        '204':
-          description: 退出成功，无响应体
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /api/cases:
+        '204': {description: 会话已失效}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /api/worlds:
     get:
-      tags: [cases]
-      summary: 获取案例列表
-      parameters:
-        - name: line
-          in: query
-          required: false
-          description: 按业务条线过滤；省略时返回全部案例。
-          schema:
-            $ref: '#/components/schemas/CaseLine'
+      tags: [worlds]
+      summary: 三个学习世界入口聚合
       responses:
         '200':
-          description: 案例摘要数组
+          description: 清算和监督为 BUILDING；核算为 OPEN
           content:
             application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CaseSummary'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /api/cases/{caseId}:
+              schema: {$ref: '#/components/schemas/WorldsResponse'}
+              examples:
+                default: {$ref: './examples/worlds-response.json'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /api/lines/{line}/map:
     get:
-      tags: [cases]
-      summary: 获取案例详情
+      tags: [worlds]
+      summary: 条线连续地图整页聚合
       parameters:
-        - $ref: '#/components/parameters/CaseId'
+        - {$ref: '#/components/parameters/Line'}
       responses:
         '200':
-          description: 可公开给学员的案例作答材料
+          description: 地图骨架、状态、解锁和进度
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/CaseDetail'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /api/cases/{caseId}/submissions:
+              schema: {$ref: '#/components/schemas/MapResponse'}
+              examples:
+                accounting: {$ref: './examples/accounting-map-response.json'}
+        '409': {$ref: '#/components/responses/BusinessConflict'}
+  /api/routes/{routeId}:
+    get:
+      tags: [learning]
+      summary: 路线概览
+      parameters: [{$ref: '#/components/parameters/RouteId'}]
+      responses:
+        '200':
+          description: 四环节状态和下一步
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RouteOverview'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/routes/{routeId}/steps/{stepType}:
+    get:
+      tags: [learning]
+      summary: 按需加载单个学习环节
+      description: BASIC_PRACTICE 不返回答案、解析或提示；EXCEPTION_CASE 不返回任何评分私有资产。
+      parameters:
+        - {$ref: '#/components/parameters/RouteId'}
+        - {$ref: '#/components/parameters/StepType'}
+      responses:
+        '200':
+          description: 统一环节外壳
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/StepResponse'}
+        '409': {$ref: '#/components/responses/BusinessConflict'}
+  /api/routes/{routeId}/steps/{stepType}/complete:
     post:
-      tags: [cases]
-      summary: 提交案例答案并评分
-      description: |
-        服务端根据当前登录用户保存训练记录并返回完整评分结果。clientRequestId 是当前用户范围内的幂等键：
-        同一次提交的网络重试必须复用同一个 clientRequestId；同一用户使用同一键提交同一案例和同一答案会返回原记录。
-        只有换案例或换答案时才会返回 409，前端不得自动更换请求标识后原样重复提交。
-        前端不得提交 userId、score 或 reviewerMode。
+      tags: [learning]
+      summary: 知识卡或正常示范完成事件
       parameters:
-        - $ref: '#/components/parameters/CaseId'
-        - $ref: '#/components/parameters/CsrfHeader'
+        - {$ref: '#/components/parameters/RouteId'}
+        - {$ref: '#/components/parameters/StepType'}
+        - {$ref: '#/components/parameters/CsrfHeader'}
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/SubmissionRequest'
-            example:
-              clientRequestId: req-demo-001
-              answer: 请先核对交收状态，再分类记录差异并跟进异常。
+            schema: {$ref: '#/components/schemas/CompleteStepRequest'}
       responses:
         '200':
-          description: 评分完成并保存训练记录
+          description: 幂等完成后的最新进度
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TrainingRecordDetail'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/IdempotencyConflict'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
+              schema: {$ref: '#/components/schemas/RouteProgress'}
+        '409': {$ref: '#/components/responses/BusinessConflict'}
+  /api/routes/{routeId}/basic-practice/{questionId}/answers:
+    post:
+      tags: [learning]
+      summary: 基础练习逐题作答
+      description: 首次响应仅返回正确与否、解释和分层提示，不返回答案键。
+      parameters:
+        - {$ref: '#/components/parameters/RouteId'}
+        - {name: questionId, in: path, required: true, schema: {type: string}}
+        - {$ref: '#/components/parameters/CsrfHeader'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PracticeAnswerRequest'}
+      responses:
+        '200':
+          description: 即时反馈
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/PracticeFeedback'}
+              examples:
+                wrong: {$ref: './examples/basic-practice-feedback.json'}
+        '409': {$ref: '#/components/responses/BusinessConflict'}
+  /api/routes/{routeId}/draft:
+    get:
+      tags: [learning]
+      summary: 获取当前用户异常案例草稿
+      parameters: [{$ref: '#/components/parameters/RouteId'}]
+      responses:
+        '200':
+          description: 当前草稿
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DraftResponse'}
+    put:
+      tags: [learning]
+      summary: 自动保存异常案例草稿
+      parameters:
+        - {$ref: '#/components/parameters/RouteId'}
+        - {$ref: '#/components/parameters/CsrfHeader'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SaveDraftRequest'}
+      responses:
+        '200':
+          description: 已保存
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/DraftResponse'}
+        '409': {$ref: '#/components/responses/BusinessConflict'}
+  /api/routes/{routeId}/attempts:
+    post:
+      tags: [attempts]
+      summary: 正式提交异常案例
+      description: |
+        在当前用户范围使用 clientRequestId 幂等。立即创建不可变答案、内容和 Rubric 快照，
+        返回 attemptId；后台异步评分。重复请求必须复用同一标识。
+      parameters:
+        - {$ref: '#/components/parameters/RouteId'}
+        - {$ref: '#/components/parameters/CsrfHeader'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/SubmitAttemptRequest'}
+            examples:
+              default: {$ref: './examples/submit-attempt-request.json'}
+      responses:
+        '200':
+          description: 已创建或返回同一正式作答
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AttemptResponse'}
+        '409': {$ref: '#/components/responses/BusinessConflict'}
+  /api/attempts/{attemptId}:
+    get:
+      tags: [attempts]
+      summary: 查询异步评分状态与结果
+      description: 查询只读取同一快照，绝不重新调用模型。
+      parameters: [{$ref: '#/components/parameters/AttemptId'}]
+      responses:
+        '200':
+          description: SCORING、COMPLETED 或 FAILED
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AttemptResponse'}
+              examples:
+                scoring: {$ref: './examples/attempt-scoring-response.json'}
+                completed: {$ref: './examples/attempt-completed-response.json'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/attempts/{attemptId}/retry-scoring:
+    post:
+      tags: [attempts]
+      summary: 对原 FAILED attempt 重试技术评分
+      parameters:
+        - {$ref: '#/components/parameters/AttemptId'}
+        - {$ref: '#/components/parameters/CsrfHeader'}
+      responses:
+        '200':
+          description: 原 attempt 回到 SCORING
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/AttemptResponse'}
+        '409': {$ref: '#/components/responses/BusinessConflict'}
+  /api/attempts/{attemptId}/remediation:
+    get:
+      tags: [remediation]
+      summary: 获取与未通过 attempt 绑定的定向补学
+      parameters: [{$ref: '#/components/parameters/AttemptId'}]
+      responses:
+        '200':
+          description: 补学目标和针对练习
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RemediationPlan'}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /api/attempts/{attemptId}/remediation/{targetId}/answers:
+    post:
+      tags: [remediation]
+      summary: 提交定向练习答案
+      parameters:
+        - {$ref: '#/components/parameters/AttemptId'}
+        - {name: targetId, in: path, required: true, schema: {type: string}}
+        - {$ref: '#/components/parameters/CsrfHeader'}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/RemediationAnswerRequest'}
+      responses:
+        '200':
+          description: 后端判断目标是否完成
+          content:
+            application/json:
+              schema: {$ref: '#/components/schemas/RemediationFeedback'}
+  /api/attempts/{attemptId}/challenge:
+    post:
+      tags: [remediation]
+      summary: 全部补学完成后解锁完整异常案例重新挑战
+      parameters:
+        - {$ref: '#/components/parameters/AttemptId'}
+        - {$ref: '#/components/parameters/CsrfHeader'}
+      responses:
+        '200': {description: 完整异常案例已解锁}
+        '409': {$ref: '#/components/responses/BusinessConflict'}
   /api/training-records:
     get:
-      tags: [training-records]
-      summary: 获取当前学员的训练记录分页
+      tags: [records]
+      summary: 服务端分页训练记录
       parameters:
-        - name: page
-          in: query
-          required: false
-          description: 从 0 开始，默认 0。
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-        - name: size
-          in: query
-          required: false
-          description: 每页 1-50 条，默认 20。
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 50
-            default: 20
+        - {name: page, in: query, schema: {type: integer, minimum: 0, default: 0}}
+        - {name: size, in: query, schema: {type: integer, minimum: 1, maximum: 50, default: 20}}
+        - {name: line, in: query, schema: {$ref: '#/components/schemas/Line'}}
+        - {name: conclusion, in: query, schema: {$ref: '#/components/schemas/Conclusion'}}
       responses:
         '200':
-          description: 当前登录用户的分页结果
+          description: 正式作答记录分页
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TrainingRecordPage'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /api/training-records/{recordId}:
+              schema: {$ref: '#/components/schemas/TrainingRecordPage'}
+  /api/training-records/{attemptId}:
     get:
-      tags: [training-records]
-      summary: 获取当前学员的一条训练记录
-      parameters:
-        - name: recordId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-            minimum: 1
+      tags: [records]
+      summary: 不可变历史详情
+      description: 同时返回历史结论和路线当前状态。
+      parameters: [{$ref: '#/components/parameters/AttemptId'}]
       responses:
         '200':
-          description: 训练记录详情
+          description: 历史快照
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TrainingRecordDetail'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /api/knowledge/topics:
-    get:
-      tags: [knowledge]
-      summary: 获取已审核知识主题目录
-      description: 只返回主题元数据，不返回知识正文、关键词、别名或审核状态。
-      responses:
-        '200':
-          description: 主题元数据数组
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/KnowledgeTopic'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
-  /api/knowledge/questions:
-    post:
-      tags: [knowledge]
-      summary: 知识问答
-      description: 当前接口为一次性 JSON 请求/响应，不是 SSE，也不提供多轮会话。
-      parameters:
-        - $ref: '#/components/parameters/CsrfHeader'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/KnowledgeQuestionRequest'
-            example:
-              question: 部分交收时应先核对哪些信息？
-      responses:
-        '200':
-          description: 问答结果
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/KnowledgeAnswer'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '500':
-          $ref: '#/components/responses/InternalError'
-
+              schema: {$ref: '#/components/schemas/AttemptResponse'}
+        '404': {$ref: '#/components/responses/NotFound'}
 components:
   securitySchemes:
-    sessionCookie:
-      type: apiKey
-      in: cookie
-      name: JSESSIONID
-      description: "服务端 HttpOnly、SameSite=Lax 会话 Cookie；浏览器请求必须使用 credentials: include。"
+    sessionCookie: {type: apiKey, in: cookie, name: JSESSIONID}
   parameters:
     CsrfHeader:
       name: X-CSRF-TOKEN
       in: header
       required: true
-      description: 先调用 /api/auth/csrf，使用其 headerName 对应的 header；当前实现为 X-CSRF-TOKEN。
-      schema:
-        type: string
-    CaseId:
-      name: caseId
+      schema: {type: string}
+    Line:
+      name: line
       in: path
       required: true
-      schema:
-        type: string
-      example: C001
+      schema: {$ref: '#/components/schemas/Line'}
+    RouteId:
+      name: routeId
+      in: path
+      required: true
+      schema: {type: string, example: ACC-LIFE-ROLE-001}
+    StepType:
+      name: stepType
+      in: path
+      required: true
+      schema: {$ref: '#/components/schemas/StepType'}
+    AttemptId:
+      name: attemptId
+      in: path
+      required: true
+      schema: {type: integer, format: int64, minimum: 1}
   responses:
     BadRequest:
-      description: 请求体、路径或查询参数无效
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
-          example:
-            code: BAD_REQUEST
-            message: 请求参数无效
+      description: 请求格式无效
+      content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}
     Unauthorized:
-      description: 未登录或会话已过期
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
-          example:
-            code: UNAUTHORIZED
-            message: 请先登录后再访问
-    UnauthorizedLogin:
-      description: 员工号或密码错误
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
-          example:
-            code: UNAUTHORIZED
-            message: 员工号或密码错误
+      description: 未登录或会话过期
+      content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}
     Forbidden:
-      description: CSRF 校验失败或请求未通过安全校验
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
-          example:
-            code: FORBIDDEN
-            message: 请求未通过安全校验
+      description: CSRF 或安全校验失败
+      content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}
     NotFound:
-      description: 资源不存在，或不属于当前登录用户
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
-          example:
-            code: NOT_FOUND
-            message: 训练记录不存在
-    IdempotencyConflict:
-      description: 该请求标识已对应另一份提交；前端应保留答案，不要自动换 ID 原样重复提交
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
-          example:
-            code: IDEMPOTENCY_CONFLICT
-            message: 该请求标识已对应另一份提交
-    InternalError:
-      description: 服务端暂时不可用
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ApiError'
-          example:
-            code: INTERNAL_ERROR
-            message: 服务暂时不可用，请稍后重试
+      description: 资源不存在或不属于当前用户
+      content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}
+    BusinessConflict:
+      description: 幂等冲突、版本冲突、学习顺序、补学或评分状态不允许
+      content: {application/json: {schema: {$ref: '#/components/schemas/ApiError'}}}
   schemas:
-    HealthResponse:
-      type: object
-      required: [status, application, mode]
-      properties:
-        status:
-          type: string
-          example: UP
-        application:
-          type: string
-          example: custody-training
-        mode:
-          type: string
-          example: mock
-    CsrfResponse:
-      type: object
-      required: [token, headerName]
-      properties:
-        token:
-          type: string
-        headerName:
-          type: string
-          example: X-CSRF-TOKEN
-    LoginRequest:
-      type: object
-      additionalProperties: false
-      required: [employeeNo, password]
-      description: 请求体必须且只能包含 employeeNo、password 两个字段。
-      properties:
-        employeeNo:
-          type: string
-          example: '10000001'
-        password:
-          type: string
-          format: password
-          writeOnly: true
-    CurrentUser:
-      type: object
-      required: [employeeNo, displayName]
-      properties:
-        employeeNo:
-          type: string
-        displayName:
-          type: string
-    CaseLine:
-      type: string
-      enum: [CLEARING, ACCOUNTING, SUPERVISION]
-    CaseSummary:
-      type: object
-      required: [id, line, title, summary, difficulty, estimatedMinutes, placeholder, version]
-      properties:
-        id:
-          type: string
-        line:
-          $ref: '#/components/schemas/CaseLine'
-        title:
-          type: string
-        summary:
-          type: string
-        difficulty:
-          type: string
-        estimatedMinutes:
-          type: integer
-          format: int32
-        placeholder:
-          type: boolean
-        version:
-          type: string
-    CaseDetail:
-      allOf:
-        - $ref: '#/components/schemas/CaseSummary'
-        - type: object
-          required: [background, tasks]
-          properties:
-            background:
-              type: string
-            tasks:
-              type: array
-              items:
-                type: string
-      description: 不包含私有参考答案、评分维度定义、关键词等内部评分资产。
-    SubmissionRequest:
-      type: object
-      additionalProperties: false
-      required: [clientRequestId, answer]
-      properties:
-        clientRequestId:
-          type: string
-          minLength: 8
-          maxLength: 64
-          pattern: '^[A-Za-z0-9_-]{8,64}$'
-          description: 同一次提交的网络重试必须复用；仅在用户实质修改答案或主动开始新一轮作答时生成新的标识。
-        answer:
-          type: string
-          minLength: 1
-          maxLength: 12000
-          description: 服务端先 trim，再校验长度；trim 后必须为 1-12000 个字符。
-    CaseDimension:
-      type: string
-      enum: [CONCEPT, PROCESS, RISK, EXPRESSION]
-    ReviewerMode:
-      type: string
-      description: 服务端评分模式标识；当前常见值为 MOCK_RULES、OPENAI_COMPATIBLE、FIN_X_SCOPE，仅用于演示状态，不是前端提交字段。
-    PointResult:
-      type: object
-      required: [pointId, description, weight, matched, evidence]
-      properties:
-        pointId:
-          type: string
-        description:
-          type: string
-        weight:
-          type: integer
-          format: int32
-          readOnly: true
-          description: 当前后端历史响应字段。前端不得在学员界面展示为评分规则或权重说明。
-        matched:
-          type: boolean
-        evidence:
-          type: string
-    DimensionResult:
-      type: object
-      required: [dimension, score, maxScore, points]
-      properties:
-        dimension:
-          $ref: '#/components/schemas/CaseDimension'
-        score:
-          type: integer
-          format: int32
-        maxScore:
-          type: integer
-          format: int32
-          readOnly: true
-          description: 当前后端历史响应字段。前端可用于结果展示，但不得据此解释评分规则。
-        points:
-          type: array
-          items:
-            $ref: '#/components/schemas/PointResult'
-    LearningSuggestion:
-      type: object
-      required: [knowledgeTopicId, text]
-      properties:
-        knowledgeTopicId:
-          type: string
-        text:
-          type: string
-    TrainingRecordDetail:
-      type: object
-      required: [recordId, caseId, caseVersion, rubricVersion, caseTitle, caseLine, answer, submittedAt, reviewerMode, totalScore, totalMaxScore, dimensions, matchedPointIds, missedPointIds, learningSuggestions]
-      properties:
-        recordId:
-          type: integer
-          format: int64
-        caseId:
-          type: string
-        caseVersion:
-          type: string
-        rubricVersion:
-          type: string
-        caseTitle:
-          type: string
-        caseLine:
-          type: string
-        answer:
-          type: string
-        submittedAt:
-          type: string
-          format: date-time
-        reviewerMode:
-          $ref: '#/components/schemas/ReviewerMode'
-        totalScore:
-          type: integer
-          format: int32
-        totalMaxScore:
-          type: integer
-          format: int32
-        dimensions:
-          type: array
-          minItems: 4
-          maxItems: 4
-          items:
-            $ref: '#/components/schemas/DimensionResult'
-        matchedPointIds:
-          type: array
-          items:
-            type: string
-        missedPointIds:
-          type: array
-          items:
-            type: string
-        learningSuggestions:
-          type: array
-          items:
-            $ref: '#/components/schemas/LearningSuggestion'
-    TrainingRecordSummary:
-      type: object
-      required: [recordId, caseId, caseTitle, caseLine, totalScore, totalMaxScore, reviewerMode, submittedAt]
-      properties:
-        recordId:
-          type: integer
-          format: int64
-        caseId:
-          type: string
-        caseTitle:
-          type: string
-        caseLine:
-          type: string
-        totalScore:
-          type: integer
-          format: int32
-        totalMaxScore:
-          type: integer
-          format: int32
-        reviewerMode:
-          $ref: '#/components/schemas/ReviewerMode'
-        submittedAt:
-          type: string
-          format: date-time
-    TrainingRecordPage:
-      type: object
-      required: [items, page, size, totalElements, totalPages]
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/TrainingRecordSummary'
-        page:
-          type: integer
-          format: int32
-        size:
-          type: integer
-          format: int32
-        totalElements:
-          type: integer
-          format: int64
-        totalPages:
-          type: integer
-          format: int32
-    KnowledgeTopic:
-      type: object
-      required: [topicId, title, route]
-      properties:
-        topicId:
-          type: string
-        title:
-          type: string
-        route:
-          type: string
-      description: 只包含公开元数据，不包含 content、keywords、aliases、reviewStatus。
-    KnowledgeQuestionRequest:
-      type: object
-      additionalProperties: false
-      required: [question]
-      properties:
-        question:
-          type: string
-          minLength: 2
-          maxLength: 500
-          description: 服务端先 trim，再校验长度；trim 后必须为 2-500 个字符。
-    Citation:
-      type: object
-      required: [topicId, title]
-      properties:
-        topicId:
-          type: string
-        title:
-          type: string
-    KnowledgeAnswer:
-      type: object
-      required: [answer, citations, insufficientKnowledge, answerMode]
-      properties:
-        answer:
-          type: string
-        citations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Citation'
-        insufficientKnowledge:
-          type: boolean
-        answerMode:
-          type: string
-          description: 服务端回答模式标识；当前常见值为 MOCK、OPENAI_COMPATIBLE、FIN_X_SCOPE，仅用于演示状态，不是前端提交字段。
+    Line: {type: string, enum: [CLEARING, ACCOUNTING, SUPERVISION]}
+    Availability: {type: string, enum: [OPEN, BUILDING]}
+    RouteState: {type: string, enum: [LOCKED, NOT_STARTED, IN_PROGRESS, LEARNED_NOT_MASTERED, PASSED]}
+    StepType: {type: string, enum: [KNOWLEDGE_CARD, DEMONSTRATION, BASIC_PRACTICE, EXCEPTION_CASE]}
+    ProcessingStatus: {type: string, enum: [SCORING, COMPLETED, FAILED]}
+    Conclusion: {type: string, enum: [PASSED, LEARNED_NOT_MASTERED]}
+    Dimension: {type: string, enum: [CONCEPT, PROCESS, RISK, EXPRESSION]}
     ApiError:
       type: object
       required: [code, message]
       properties:
         code:
           type: string
-          enum: [BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, IDEMPOTENCY_CONFLICT, INTERNAL_ERROR]
-        message:
-          type: string
+          enum: [BAD_REQUEST, UNAUTHORIZED, FORBIDDEN, NOT_FOUND, INTERNAL_ERROR,
+                 IDEMPOTENCY_CONFLICT, CONTENT_BUILDING, CONTENT_VERSION_MISMATCH,
+                 LEARNING_SEQUENCE_VIOLATION, DRAFT_CONFLICT, ATTEMPT_SCORING,
+                 SCORING_RETRY_REQUIRED, SCORING_RETRY_NOT_ALLOWED, REMEDIATION_REQUIRED]
+        message: {type: string}
+    CsrfResponse:
+      type: object
+      required: [token, headerName]
+      properties: {token: {type: string}, headerName: {type: string}}
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [employeeNo, password]
+      properties:
+        employeeNo: {type: string, maxLength: 32}
+        password: {type: string, format: password, writeOnly: true, maxLength: 128}
+    CurrentUser:
+      type: object
+      required: [employeeNo, displayName]
+      properties: {employeeNo: {type: string}, displayName: {type: string}}
+    WorldsResponse:
+      type: object
+      required: [mapVersion, worlds]
+      properties:
+        mapVersion: {type: string}
+        worlds:
+          type: array
+          minItems: 3
+          maxItems: 3
+          items:
+            type: object
+            required: [line, name, availability, passedRequiredRoutes, publishedRequiredRoutes, progressPercent, status]
+            properties:
+              line: {$ref: '#/components/schemas/Line'}
+              name: {type: string}
+              description: {type: string}
+              availability: {$ref: '#/components/schemas/Availability'}
+              sceneAssetId: {type: string}
+              passedRequiredRoutes: {type: integer}
+              publishedRequiredRoutes: {type: integer}
+              progressPercent: {type: integer}
+              status: {type: string}
+    MapResponse:
+      type: object
+      description: regions/modules/nodes 保持地图层级；每个节点由后端返回 state、locked、enterable、completedSteps。
+      additionalProperties: true
+    RouteOverview:
+      type: object
+      required: [routeId, contentVersion, rubricVersion, title, state, steps, nextStep, completedSteps, totalSteps]
+      additionalProperties: true
+    StepResponse:
+      type: object
+      required: [routeId, contentVersion, stepType, content, completed]
+      properties:
+        routeId: {type: string}
+        contentVersion: {type: string}
+        stepType: {$ref: '#/components/schemas/StepType'}
+        content: {type: object}
+        completed: {type: boolean}
+    CompleteStepRequest:
+      type: object
+      additionalProperties: false
+      required: [eventId, contentVersion]
+      properties:
+        eventId: {$ref: '#/components/schemas/IdempotencyKey'}
+        contentVersion: {type: string}
+    IdempotencyKey:
+      type: string
+      minLength: 8
+      maxLength: 64
+      pattern: '^[A-Za-z0-9_-]{8,64}$'
+    PracticeAnswerRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, contentVersion, answer]
+      properties:
+        requestId: {$ref: '#/components/schemas/IdempotencyKey'}
+        contentVersion: {type: string}
+        answer: {type: array, minItems: 1, items: {type: string}}
+    PracticeFeedback:
+      type: object
+      required: [questionId, correct, correctOnce, explanation, practiceCompleted, progress]
+      properties:
+        questionId: {type: string}
+        correct: {type: boolean}
+        correctOnce: {type: boolean}
+        explanation: {type: string}
+        hint: {type: string}
+        practiceCompleted: {type: boolean}
+        progress: {$ref: '#/components/schemas/RouteProgress'}
+    RouteProgress:
+      type: object
+      required: [routeId, state, completedSteps, totalSteps]
+      properties:
+        routeId: {type: string}
+        state: {$ref: '#/components/schemas/RouteState'}
+        completedSteps: {type: integer}
+        totalSteps: {type: integer}
+        nextStep: {$ref: '#/components/schemas/StepType'}
+    SaveDraftRequest:
+      type: object
+      additionalProperties: false
+      required: [contentVersion, answer]
+      properties:
+        contentVersion: {type: string}
+        answer: {type: string, maxLength: 12000}
+        expectedRevision: {type: integer, minimum: 0}
+    DraftResponse:
+      type: object
+      required: [routeId, revision]
+      properties:
+        routeId: {type: string}
+        contentVersion: {type: string}
+        answer: {type: string}
+        revision: {type: integer}
+        updatedAt: {type: string, format: date-time, nullable: true}
+    SubmitAttemptRequest:
+      type: object
+      additionalProperties: false
+      required: [clientRequestId, contentVersion, rubricVersion, answer]
+      properties:
+        clientRequestId: {$ref: '#/components/schemas/IdempotencyKey'}
+        contentVersion: {type: string}
+        rubricVersion: {type: string}
+        answer: {type: string, minLength: 1, maxLength: 12000}
+    AttemptResponse:
+      type: object
+      required: [attemptId, routeId, processingStatus, submittedAt, contentVersion, rubricVersion]
+      properties:
+        attemptId: {type: integer, format: int64}
+        routeId: {type: string}
+        processingStatus: {$ref: '#/components/schemas/ProcessingStatus'}
+        submittedAt: {type: string, format: date-time}
+        contentVersion: {type: string}
+        rubricVersion: {type: string}
+        technicalErrorCode: {type: string}
+        result: {$ref: '#/components/schemas/ScoringResult'}
+        answerSnapshot: {type: string}
+        historicalConclusion: {$ref: '#/components/schemas/Conclusion'}
+        currentRouteState: {$ref: '#/components/schemas/RouteState'}
+        remediationSummary: {type: object}
+        allowedActions: {type: array, items: {type: string}}
+    ScoringResult:
+      type: object
+      description: 公开结果保留维度证据，但不返回 Rubric 项目、硬性必达项内容或内部项目 ID。
+      required: [totalScore, passScore, conclusion, scoreThresholdMet, allMandatoryRequirementsMet, dimensions]
+      properties:
+        totalScore: {type: integer, minimum: 0, maximum: 100}
+        passScore: {type: integer, example: 75}
+        conclusion: {$ref: '#/components/schemas/Conclusion'}
+        scoreThresholdMet: {type: boolean}
+        allMandatoryRequirementsMet: {type: boolean}
+        dimensions:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            type: object
+            additionalProperties: false
+            required: [dimension, score, maxScore, items]
+            properties:
+              dimension: {$ref: '#/components/schemas/Dimension'}
+              score: {type: integer}
+              maxScore: {type: integer}
+              items:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required: [matched, evidence]
+                  properties:
+                    matched: {type: boolean}
+                    evidence: {type: string}
+    RemediationPlan:
+      type: object
+      required: [planId, attemptId, completedTargets, totalTargets, completed, challengeUnlocked, targets]
+      additionalProperties: true
+    RemediationAnswerRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, answer]
+      properties:
+        requestId: {$ref: '#/components/schemas/IdempotencyKey'}
+        answer: {type: array, minItems: 1, items: {type: string}}
+    RemediationFeedback:
+      type: object
+      required: [targetId, correct, targetCompleted, planCompleted, explanation]
+      properties:
+        targetId: {type: string}
+        correct: {type: boolean}
+        targetCompleted: {type: boolean}
+        planCompleted: {type: boolean}
+        explanation: {type: string}
+        hint: {type: string}
+    TrainingRecordPage:
+      type: object
+      required: [items, page, size, totalElements, totalPages]
+      properties:
+        items: {type: array, items: {type: object}}
+        page: {type: integer}
+        size: {type: integer}
+        totalElements: {type: integer, format: int64}
+        totalPages: {type: integer}

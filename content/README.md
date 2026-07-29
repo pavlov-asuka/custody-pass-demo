@@ -1,10 +1,13 @@
-# 内容源资产
+# 正式内容源资产
 
-`content/` 与后端 Java resources 物理分离，由后端构建负责校验和打包。
+阶段2发布 `ACCOUNTING_2026.07.1`：
 
-当前阶段仅迁移既有 Demo：
+- `releases/`：正式发布清单；
+- `maps/`：三世界入口和核算连续地图骨架；
+- `routes/accounting/ACC-LIFE-ROLE-001.json`：首条正式路线“站上核算岗”；
+- `rubrics/accounting/ACC-LIFE-ROLE-001.json`：概念 25、处理步骤 30、风险意识 25、表达规范 20，75 分通过，含两项硬性必达；
+- `references/`：业务来源与使用边界。
 
-- `demo/cases/`：C001—C003 占位案例；
-- `demo/knowledge/`：占位知识主题。
+ACCOUNTING 正式开放；CLEARING、SUPERVISION 仅为 BUILDING，不含虚假路线或进度。下一节点“接管一只新产品”只用于通过后的解锁展示，内容仍为 BUILDING，不计入发布进度分母。
 
-这些文件保持原业务内容和运行时 classpath 位置，不代表新学习地图 Schema。`releases/`、`maps/`、`routes/`、`rubrics/` 和 `references/` 留给后续经主控确认的业务阶段。
+旧 `content/demo` 案例和独立知识问答资产已退出运行时。运行 `scripts/validate-content.ps1` 校验 Schema、稳定 ID、版本、引用和发布关系。

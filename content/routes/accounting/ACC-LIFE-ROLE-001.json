@@ -1,0 +1,128 @@
+{
+  "routeId": "ACC-LIFE-ROLE-001",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "站上核算岗",
+  "summary": "理解核算岗的责任、人机边界和异常闭环。",
+  "estimatedMinutes": 20,
+  "objectives": [
+    "理解核算岗不是单纯的数据录入岗位",
+    "理解系统执行成功不能替代人工核验",
+    "能够按照事实、核查、措施、责任人和反馈形成异常处理闭环"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ACC-ROLE-KC-01",
+          "type": "FLOW",
+          "title": "为什么需要核算岗",
+          "conclusion": "核算岗把业务事实转化为可核对的账务和估值结果。",
+          "items": ["合同、指令和业务数据", "核算处理", "凭证、账簿和估值结果", "对账、净值、报表和信息披露"]
+        },
+        {
+          "cardId": "ACC-ROLE-KC-02",
+          "type": "CATEGORIES",
+          "title": "核算岗要对什么负责",
+          "conclusion": "责任覆盖核算估值、账实核对、报表披露、协作服务和风险报告。",
+          "items": ["核算与估值", "账实核对", "报表与披露", "协作与服务", "风险与报告"]
+        },
+        {
+          "cardId": "ACC-ROLE-KC-03",
+          "type": "KEY_POINT",
+          "title": "系统完成不等于业务完成",
+          "conclusion": "系统状态只是证据之一，核算人员仍要检查数据、结果、差异、复核和留痕。",
+          "items": ["数据是否完整且日期正确", "账务和估值是否合理", "差异是否解释和处理", "是否需要复核、报告或继续跟踪"]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "组合核算人员",
+        "product": "案例产品 B",
+        "date": "7月9日",
+        "facts": ["系统任务显示执行成功", "估值与对账结果存在一项差异", "核查发现一项数据尚未到达"]
+      },
+      "steps": [
+        {"order": 1, "action": "检查估值和对账结果", "reason": "执行成功不代表业务结果正确"},
+        {"order": 2, "action": "核实数据接收和处理状态", "reason": "先把已确认事实与未知情况分开"},
+        {"order": 3, "action": "联系相关岗位并报告进展", "reason": "跨岗位问题需要主动协调，超出权限要升级"},
+        {"order": 4, "action": "数据补齐后重新处理并复核", "reason": "异常消除后才能确认结果可用"},
+        {"order": 5, "action": "反馈结论并保存处理证据", "reason": "形成可以追溯的闭环"}
+      ],
+      "summary": "检查结果 → 核实事实 → 协调或报告 → 重新处理与复核 → 反馈并留痕"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-ROLE-Q-01",
+          "type": "SINGLE_CHOICE",
+          "prompt": "系统任务显示“执行成功”后，核算人员下一步最合适的动作是什么？",
+          "options": [
+            {"optionId": "A", "text": "直接确认业务完成"},
+            {"optionId": "B", "text": "检查数据、账务、估值和对账结果"},
+            {"optionId": "C", "text": "等第二天再看"}
+          ],
+          "answer": ["B"],
+          "explanation": "执行成功只说明系统完成了任务，仍需人工核验业务结果。",
+          "hints": ["想一想系统状态与业务结果是否完全等价。"]
+        },
+        {
+          "questionId": "ACC-ROLE-Q-02",
+          "type": "MULTIPLE_CHOICE",
+          "prompt": "接到异常问题后，哪些做法符合核算岗的责任？",
+          "options": [
+            {"optionId": "A", "text": "记录产品、日期和异常现象"},
+            {"optionId": "B", "text": "核实自己能够取得的数据和处理状态"},
+            {"optionId": "C", "text": "简单回复不归自己负责"},
+            {"optionId": "D", "text": "超出权限时报告并持续反馈"}
+          ],
+          "answer": ["A", "B", "D"],
+          "explanation": "核算人员要接住问题、核实事实、协调或升级，并持续反馈。",
+          "hints": ["排除推诿责任的做法。"]
+        },
+        {
+          "questionId": "ACC-ROLE-Q-03",
+          "type": "ORDERING",
+          "prompt": "请排列异常处理的基本顺序。",
+          "items": [
+            {"itemId": "FACT", "text": "确认事实"},
+            {"itemId": "CHECK", "text": "核查数据与结果"},
+            {"itemId": "ACTION", "text": "协调、处理或升级"},
+            {"itemId": "FEEDBACK", "text": "反馈结论并留痕"}
+          ],
+          "answer": ["FACT", "CHECK", "ACTION", "FEEDBACK"],
+          "explanation": "先事实、再核查、后措施，最后反馈和留痕。",
+          "hints": ["从尚未作出结论时应该做什么开始。"]
+        }
+      ]
+    },
+    "EXCEPTION_CASE": {
+      "scenario": {
+        "role": "案例产品 B 的组合核算人员",
+        "date": "7月9日 16:30",
+        "facts": [
+          "管理人表示当日一笔托管费支付指令已经执行",
+          "估值表中的应付托管费余额没有变化",
+          "系统任务显示执行成功",
+          "同事认为资金数据由其他岗位接收，建议第二天再看"
+        ]
+      },
+      "tasks": [
+        "说明自己承担什么责任",
+        "说明首先核实哪些事实以及怎样检查数据、账务和估值结果",
+        "说明需要怎样协调、复核或报告",
+        "说明怎样反馈并形成可追溯闭环"
+      ],
+      "writingPrompts": ["事实", "核查", "措施", "责任人", "反馈"]
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-PUBLIC-FUND-FLOW-2026",
+      "title": "公募基金核算业务流程",
+      "source": "第一章核算岗岗位职责、第二章运营模式介绍",
+      "usage": "岗位责任、人机边界和异常闭环依据"
+    }
+  ]
+}

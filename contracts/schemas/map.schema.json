@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://custody-training.local/schemas/map.schema.json",
+  "title": "三条线学习地图",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["mapId", "version", "lines"],
+  "properties": {
+    "mapId": {"type": "string"},
+    "version": {"type": "string"},
+    "lines": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["line", "name", "description", "order", "availability", "sceneAssetId", "regions"],
+        "properties": {
+          "line": {"enum": ["CLEARING", "ACCOUNTING", "SUPERVISION"]},
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "order": {"type": "integer", "minimum": 1},
+          "availability": {"enum": ["OPEN", "BUILDING"]},
+          "sceneAssetId": {"type": "string"},
+          "regions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["regionId", "name", "order", "modules"],
+              "properties": {
+                "regionId": {"type": "string"},
+                "name": {"type": "string"},
+                "description": {"type": "string"},
+                "order": {"type": "integer"},
+                "modules": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["moduleId", "name", "order", "nodes"],
+                    "properties": {
+                      "moduleId": {"type": "string"},
+                      "name": {"type": "string"},
+                      "order": {"type": "integer"},
+                      "nodes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": ["nodeId", "nodeType", "routeId", "pathType", "order", "position", "prerequisiteNodeIds", "contentAvailability"],
+                          "properties": {
+                            "nodeId": {"type": "string"},
+                            "nodeType": {"enum": ["ROUTE", "STAGE_GATE"]},
+                            "routeId": {"type": "string"},
+                            "title": {"type": "string"},
+                            "pathType": {"enum": ["REQUIRED", "ADVANCED"]},
+                            "order": {"type": "integer"},
+                            "position": {"enum": ["LEFT", "CENTER", "RIGHT"]},
+                            "prerequisiteNodeIds": {"type": "array", "items": {"type": "string"}},
+                            "contentAvailability": {"enum": ["PUBLISHED", "BUILDING"]}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

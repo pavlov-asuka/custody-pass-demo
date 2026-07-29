@@ -1,0 +1,71 @@
+{
+  "mapId": "CUSTODY_LEARNING_MAP",
+  "version": "2026.07.1",
+  "lines": [
+    {
+      "line": "CLEARING",
+      "name": "清算学习世界",
+      "description": "学习交收、资金与证券清算的核心流程。",
+      "order": 1,
+      "availability": "BUILDING",
+      "sceneAssetId": "world-clearing-source-v1",
+      "regions": []
+    },
+    {
+      "line": "ACCOUNTING",
+      "name": "核算学习世界",
+      "description": "从岗位责任出发，建立核算、估值、复核与异常闭环能力。",
+      "order": 2,
+      "availability": "OPEN",
+      "sceneAssetId": "world-accounting-source-v1",
+      "regions": [
+        {
+          "regionId": "ACC-REGION-LIFECYCLE",
+          "name": "核算基础与产品生命周期",
+          "description": "从接管一只产品到完成退出。",
+          "order": 1,
+          "modules": [
+            {
+              "moduleId": "ACC-MODULE-FOUNDATION",
+              "name": "岗位基础",
+              "order": 1,
+              "nodes": [
+                {
+                  "nodeId": "ACC-NODE-ROLE-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-LIFE-ROLE-001",
+                  "title": "站上核算岗",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": [],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-ONBOARD-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-LIFE-ONBOARD-002",
+                  "title": "接管一只新产品",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "LEFT",
+                  "prerequisiteNodeIds": ["ACC-NODE-ROLE-001"],
+                  "contentAvailability": "BUILDING"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "line": "SUPERVISION",
+      "name": "监督学习世界",
+      "description": "学习投资监督、边界识别与风险报告。",
+      "order": 3,
+      "availability": "BUILDING",
+      "sceneAssetId": "world-supervision-source-v1",
+      "regions": []
+    }
+  ]
+}

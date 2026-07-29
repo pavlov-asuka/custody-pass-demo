@@ -1,0 +1,25 @@
+{
+  "attemptId": 42,
+  "routeId": "ACC-LIFE-ROLE-001",
+  "processingStatus": "COMPLETED",
+  "submittedAt": "2026-07-29T07:00:00Z",
+  "contentVersion": "1.0.0",
+  "rubricVersion": "1.0.0",
+  "result": {
+    "totalScore": 82,
+    "passScore": 75,
+    "conclusion": "PASSED",
+    "scoreThresholdMet": true,
+    "allMandatoryRequirementsMet": true,
+    "dimensions": [
+      {"dimension": "CONCEPT", "score": 20, "maxScore": 25, "items": []},
+      {"dimension": "PROCESS", "score": 26, "maxScore": 30, "items": []},
+      {"dimension": "RISK", "score": 20, "maxScore": 25, "items": []},
+      {"dimension": "EXPRESSION", "score": 16, "maxScore": 20, "items": []}
+    ]
+  },
+  "answerSnapshot": "正式作答快照",
+  "historicalConclusion": "PASSED",
+  "currentRouteState": "PASSED",
+  "allowedActions": ["RETURN_TO_MAP", "REVIEW_ROUTE"]
+}

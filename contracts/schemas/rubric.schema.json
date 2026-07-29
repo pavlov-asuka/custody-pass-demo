@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://custody-training.local/schemas/rubric.schema.json",
+  "title": "后端私有评分资产",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["routeId", "rubricVersion", "totalScore", "passScore", "dimensions", "mandatoryRequirements", "remediationTargets", "referenceAnswer"],
+  "properties": {
+    "routeId": {"type": "string"},
+    "rubricVersion": {"type": "string"},
+    "totalScore": {"const": 100},
+    "passScore": {"const": 75},
+    "dimensions": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dimension", "maxScore", "criteria"],
+        "properties": {
+          "dimension": {"enum": ["CONCEPT", "PROCESS", "RISK", "EXPRESSION"]},
+          "maxScore": {"type": "integer"},
+          "criteria": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["criterionId", "description", "weight", "evidenceRequirement", "keywords", "remediationTargetId"],
+              "properties": {
+                "criterionId": {"type": "string"},
+                "description": {"type": "string"},
+                "weight": {"type": "integer", "minimum": 1},
+                "evidenceRequirement": {"type": "string"},
+                "keywords": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+                "remediationTargetId": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "mandatoryRequirements": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["requirementId", "description", "evidenceRequirement", "keywords", "remediationTargetId"],
+        "properties": {
+          "requirementId": {"type": "string"},
+          "description": {"type": "string"},
+          "evidenceRequirement": {"type": "string"},
+          "keywords": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "remediationTargetId": {"type": "string"}
+        }
+      }
+    },
+    "remediationTargets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["targetId", "title", "reason", "materialStep", "materialItemId", "questionId"],
+        "properties": {
+          "targetId": {"type": "string"},
+          "title": {"type": "string"},
+          "reason": {"type": "string"},
+          "materialStep": {"enum": ["KNOWLEDGE_CARD", "DEMONSTRATION"]},
+          "materialItemId": {"type": "string"},
+          "questionId": {"type": "string"}
+        }
+      }
+    },
+    "referenceAnswer": {"type": "string"}
+  }
+}

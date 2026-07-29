@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://custody-training.local/schemas/release-manifest.schema.json",
+  "title": "托管智训营发布清单",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["releaseId", "releasedAt", "map", "routes"],
+  "properties": {
+    "releaseId": {"type": "string", "pattern": "^[A-Z0-9._-]+$"},
+    "releasedAt": {"type": "string", "format": "date-time"},
+    "map": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "path"],
+      "properties": {
+        "id": {"type": "string"},
+        "version": {"type": "string"},
+        "path": {"type": "string"}
+      }
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["routeId", "contentVersion", "rubricVersion", "contentPath", "rubricPath"],
+        "properties": {
+          "routeId": {"type": "string"},
+          "contentVersion": {"type": "string"},
+          "rubricVersion": {"type": "string"},
+          "contentPath": {"type": "string"},
+          "rubricPath": {"type": "string"}
+        }
+      }
+    }
+  }
+}
