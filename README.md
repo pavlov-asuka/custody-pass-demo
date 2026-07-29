@@ -118,4 +118,44 @@ $env:MODEL_BENCHMARK_RUNS = '5'
 
 两组结果用于比较结构化成功率、P95 和分数波动，不预设哪种模式一定更好。DeepSeek 官方时延敏感测试可尝试 `disabled`；内网网关在确认支持前应保持 `omit`。
 
-正式前端目录和页面由 Kimi K3 单独维护，本阶段不包含正式前端。
+## 正式前端（frontend/）
+
+正式前端位于 `frontend/`，使用 Vite + React 18 + TypeScript 实现，纯桌面端页面，全部请求通过服务端 Cookie 会话与动态 CSRF header 访问本仓库 API，不使用任何前端 Mock 或运行时 CDN。
+
+本地联调（后端已按上文以 mock 启动在 8080）：
+
+```powershell
+cd frontend
+npm install
+npm run dev        # 开发服务器 5173，/api 代理到 8080
+```
+
+构建与类型检查：
+
+```powershell
+npm run build      # tsc -b && vite build，产物在 frontend/dist
+npm run typecheck
+```
+
+同源打包（先构建前端，再把 dist 打进 jar，由 8080 同源提供页面与 API）：
+
+```powershell
+cd frontend; npm run build; cd ..
+mvn clean -Pweb package
+```
+
+（建议带 `clean`，避免历史 hash 资源残留打进 jar。）
+
+也可以不重新打包，直接用启动参数把已构建的 dist 挂给现有 jar：
+
+```powershell
+java -jar target/custody-training-0.1.0-SNAPSHOT.jar --spring.profiles.active=mock --spring.web.resources.static-locations=file:./frontend/dist/
+```
+
+前端页面使用 Hash 路由（`/#/...`），同源部署下刷新任意页面都不会产生 404，无需改动后端 Java。端到端验证脚本（需本机 Chrome，且对应服务已启动）：
+
+```powershell
+node e2e/verify.mjs        # 默认打 dev server 5173
+# 或验证同源部署：
+$env:VERIFY_BASE='http://localhost:8080'; node e2e/verify.mjs
+```

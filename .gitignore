@@ -15,6 +15,7 @@ logs/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/e2e/shots/
 node_modules/
 dist/
 

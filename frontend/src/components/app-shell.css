@@ -1,0 +1,203 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.topbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: linear-gradient(140deg, #3b82f6, #1d4ed8);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.38);
+}
+
+.brand-name {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  background: linear-gradient(120deg, #1d4ed8 20%, #0891b2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-sub {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ink-faint);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-left: 2px;
+}
+
+.topnav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.topnav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 15px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.topnav-link:hover { background: var(--blue-soft); color: var(--blue); }
+.topnav-link.active {
+  background: linear-gradient(135deg, #3b82f6, var(--blue-deep));
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32);
+}
+
+.topbar-right { position: relative; flex: none; }
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 14px 4px 4px;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.user-chip:hover { border-color: var(--blue); box-shadow: 0 3px 10px rgba(37, 99, 235, 0.16); }
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22d3ee, #2563eb);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.user-name { font-size: 14px; font-weight: 600; }
+
+.user-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 220px;
+  background: var(--card);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-pop);
+  overflow: hidden;
+  animation: menu-in 0.18s var(--ease-out) both;
+  z-index: 60;
+}
+
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.user-menu-head {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.06), transparent);
+}
+
+.user-menu-name { font-weight: 700; font-size: 15px; }
+.user-menu-no { color: var(--ink-faint); font-size: 12.5px; margin-top: 2px; }
+
+.user-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--danger);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+.user-menu-item:hover:not(:disabled) { background: var(--danger-soft); }
+.user-menu-item:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* 小托右下角停靠 */
+.mascot-dock {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  z-index: 40;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  filter: drop-shadow(0 10px 18px rgba(37, 99, 235, 0.3));
+  transition: transform 0.2s var(--ease-spring);
+}
+.mascot-dock:hover { transform: translateY(-4px) scale(1.05); }
+.mascot-dock:hover .mascot-dock-bubble { opacity: 1; transform: translateY(0); }
+
+.mascot-dock-bubble {
+  position: absolute;
+  top: -8px;
+  left: -40px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s, transform 0.2s var(--ease-spring);
+  pointer-events: none;
+}
+.mascot-dock-bubble::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  background: var(--ink);
+  transform: translateY(-50%) rotate(45deg);
+  border-radius: 1.5px;
+}
