@@ -1,126 +1,99 @@
-import { useEffect, useRef, useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { GraduationCap, LogOut, Map as MapIcon, MessagesSquare, ScrollText } from 'lucide-react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { ChevronDown, ClipboardList, LogOut, Sparkles } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { Mascot } from './Mascot';
-import './app-shell.css';
+import { maskEmployeeNo } from '../utils/format';
 
-const NAV_ITEMS = [
-  { to: '/', label: '学习地图', icon: MapIcon, end: true },
-  { to: '/records', label: '训练记录', icon: ScrollText, end: false },
-  { to: '/knowledge', label: '知识问答', icon: MessagesSquare, end: false },
-];
-
-export function AppShell() {
-  const { user, logout } = useAuth();
+interface AppShellProps {
+  children: ReactNode;
+  backLabel?: string;
+  onBack?: () => void;
+  context?: string;
+  bare?: boolean;
+}
+export function AppShell({
+  children,
+  backLabel,
+  onBack,
+  context,
+  bare = false,
+}: AppShellProps) {
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
-  }, []);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
 
-  async function handleLogout() {
-    if (loggingOut) return;
-    setLoggingOut(true);
-    try {
-      await logout();
-      navigate('/login', { replace: true });
-    } finally {
-      setLoggingOut(false);
+  useEffect(() => {
+    function close(event: MouseEvent) {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
     }
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, []);
+
+  async function handleLogout() {
+    if (!window.confirm('确定退出托管智训营吗？')) return;
+    await signOut();
+    navigate('/login', { replace: true });
   }
+
+  if (bare) return <>{children}</>;
 
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="topbar-inner">
-          <NavLink to="/" className="brand" aria-label="托管智训营首页">
-            <span className="brand-mark">
-              <GraduationCap size={19} strokeWidth={2.1} />
-            </span>
-            <span className="brand-name">托管智训营</span>
-            <span className="brand-sub">训练营</span>
-          </NavLink>
-
-          <nav className="topnav" aria-label="主导航">
-            {NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) => `topnav-link${isActive ? ' active' : ''}`}
-              >
-                <item.icon size={15.5} />
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-
-          <div className="topbar-right" ref={menuRef}>
+        <div className="topbar__inner">
+          <button
+            className="brand"
+            type="button"
+            onClick={() => navigate('/worlds')}
+            aria-label="返回学习世界"
+          >
+            <span className="brand__mark"><Sparkles size={20} strokeWidth={3} /></span>
+            <span>托管智训营</span>
+          </button>
+          <div className="topbar__context">
+            {backLabel && (
+              <button className="text-button" type="button" onClick={onBack}>
+                ← {backLabel}
+              </button>
+            )}
+            {context && <span className="topbar__divider" />}
+            {context && <span>{context}</span>}
+          </div>
+          <div className="user-menu" ref={menuRef}>
             <button
+              className="user-menu__trigger"
               type="button"
-              className="user-chip"
-              onClick={() => setMenuOpen((v) => !v)}
-              aria-haspopup="menu"
+              onClick={() => setMenuOpen((open) => !open)}
               aria-expanded={menuOpen}
             >
-              <span className="user-avatar" aria-hidden="true">
-                {user?.displayName?.slice(0, 1) ?? '·'}
-              </span>
-              <span className="user-name">{user?.displayName}</span>
+              <span className="avatar">{user?.displayName?.slice(0, 1) || '学'}</span>
+              <ChevronDown size={17} strokeWidth={3} />
             </button>
             {menuOpen && (
-              <div className="user-menu" role="menu">
-                <div className="user-menu-head">
-                  <p className="user-menu-name">{user?.displayName}</p>
-                  <p className="user-menu-no num">员工号 {user?.employeeNo}</p>
+              <div className="user-menu__panel">
+                <div className="user-menu__identity">
+                  <strong>{user?.displayName || '培训学员'}</strong>
+                  <span>员工号：{maskEmployeeNo(user?.employeeNo || '')}</span>
                 </div>
-                <button
-                  type="button"
-                  className="user-menu-item"
-                  onClick={handleLogout}
-                  disabled={loggingOut}
-                  role="menuitem"
-                >
-                  <LogOut size={15} />
-                  {loggingOut ? '正在退出…' : '退出登录'}
+                <button type="button" onClick={() => navigate('/records')}>
+                  <ClipboardList size={19} /> 我的训练记录
+                </button>
+                <button type="button" className="user-menu__logout" onClick={handleLogout}>
+                  <LogOut size={19} /> 退出登录
                 </button>
               </div>
             )}
           </div>
         </div>
       </header>
-
-      <main className="page">
-        <Outlet />
-      </main>
-
-      {/* 小托全局停靠：问答页与作答页之外提供轻量入口 */}
-      {location.pathname !== '/knowledge' && !location.pathname.startsWith('/cases/') && (
-        <button
-          type="button"
-          className="mascot-dock"
-          onClick={() => navigate('/knowledge')}
-          aria-label="向小托提问"
-        >
-          <span className="mascot-dock-bubble">有疑问问小托</span>
-          <Mascot size={62} mood="idle" />
-        </button>
-      )}
+      <main>{children}</main>
     </div>
   );
 }

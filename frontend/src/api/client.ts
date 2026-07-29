@@ -1,219 +1,254 @@
 import type {
-  CaseDetail,
-  CaseLine,
-  CaseSummary,
+  ApiErrorBody,
+  AttemptResponse,
   CsrfResponse,
   CurrentUser,
-  KnowledgeAnswer,
-  KnowledgeTopic,
-  TrainingRecordDetail,
+  DraftResponse,
+  Line,
+  MapResponse,
+  PracticeFeedback,
+  RemediationFeedback,
+  RemediationPlan,
+  RouteOverview,
+  RouteProgress,
+  StepResponse,
+  StepType,
   TrainingRecordPage,
-  TrainingRecordSummary,
+  WorldsResponse,
 } from './types';
 
-export type ApiErrorCode =
-  | 'BAD_REQUEST'
-  | 'UNAUTHORIZED'
-  | 'FORBIDDEN'
-  | 'NOT_FOUND'
-  | 'IDEMPOTENCY_CONFLICT'
-  | 'INTERNAL_ERROR'
-  | 'NETWORK_ERROR';
-
 export class ApiError extends Error {
-  readonly status: number;
-  readonly code: ApiErrorCode;
+  status: number;
+  code: string;
 
-  constructor(status: number, code: ApiErrorCode, message: string) {
-    super(message);
+  constructor(status: number, body: ApiErrorBody) {
+    super(body.message);
+    this.name = 'ApiError';
     this.status = status;
-    this.code = code;
-  }
-
-  get isUnauthorized(): boolean {
-    return this.status === 401;
-  }
-  get isConflict(): boolean {
-    return this.status === 409;
-  }
-  get isNotFound(): boolean {
-    return this.status === 404;
-  }
-  get isServer(): boolean {
-    return this.status >= 500 || this.status === 0;
+    this.code = body.code;
   }
 }
 
-/** CSRF 令牌只保存在本次页面会话的内存中，不落盘 */
 let csrf: CsrfResponse | null = null;
-let csrfInflight: Promise<CsrfResponse> | null = null;
 
-/** 401 时由 AuthProvider 注入的全局处理（清空用户态、回登录页） */
-let unauthorizedHandler: (() => void) | null = null;
-export function setUnauthorizedHandler(handler: (() => void) | null): void {
-  unauthorizedHandler = handler;
+async function parseError(response: Response): Promise<never> {
+  let body: ApiErrorBody;
+  try {
+    body = (await response.json()) as ApiErrorBody;
+  } catch {
+    body = { code: 'NETWORK_RESPONSE_ERROR', message: '服务响应无法读取，请稍后重试。' };
+  }
+  throw new ApiError(response.status, body);
 }
 
-async function fetchCsrf(): Promise<CsrfResponse> {
-  if (!csrfInflight) {
-    csrfInflight = (async () => {
-      const res = await fetch('/api/auth/csrf', {
-        credentials: 'include',
-        headers: { Accept: 'application/json' },
-      });
-      if (!res.ok) {
-        throw new ApiError(res.status, 'INTERNAL_ERROR', '安全初始化失败，请稍后重试');
-      }
-      const data = (await res.json()) as CsrfResponse;
-      csrf = data;
-      return data;
-    })().finally(() => {
-      csrfInflight = null;
+async function request<T>(
+  path: string,
+  init: RequestInit = {},
+  options: { csrf?: boolean; retryCsrf?: boolean } = {},
+): Promise<T> {
+  const headers = new Headers(init.headers);
+  if (init.body) headers.set('Content-Type', 'application/json');
+
+  if (options.csrf) {
+    const token = csrf ?? (await getCsrf());
+    headers.set(token.headerName, token.token);
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      ...init,
+      headers,
+      credentials: 'include',
+    });
+  } catch {
+    throw new ApiError(0, {
+      code: 'NETWORK_ERROR',
+      message: '暂时无法连接学习服务，请检查网络后重试。',
     });
   }
-  return csrfInflight;
+
+  if (
+    options.csrf &&
+    options.retryCsrf !== false &&
+    response.status === 403
+  ) {
+    csrf = null;
+    await getCsrf();
+    return request<T>(path, init, { csrf: true, retryCsrf: false });
+  }
+
+  if (response.status === 401 && typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('custody-training:unauthorized'));
+  }
+  if (!response.ok) return parseError(response);
+  if (response.status === 204) return undefined as T;
+  return response.json() as Promise<T>;
 }
 
-export async function ensureCsrf(): Promise<CsrfResponse> {
-  return csrf ?? fetchCsrf();
+export async function getCsrf(): Promise<CsrfResponse> {
+  if (csrf) return csrf;
+  csrf = await request<CsrfResponse>('/api/auth/csrf');
+  return csrf;
 }
 
-export function clearCsrf(): void {
+export async function login(employeeNo: string, password: string): Promise<CurrentUser> {
+  await getCsrf();
+  return request<CurrentUser>(
+    '/api/auth/login',
+    { method: 'POST', body: JSON.stringify({ employeeNo, password }) },
+    { csrf: true },
+  );
+}
+
+export function getCurrentUser(): Promise<CurrentUser> {
+  return request<CurrentUser>('/api/auth/me');
+}
+
+export async function logout(): Promise<void> {
+  await request<void>('/api/auth/logout', { method: 'POST' }, { csrf: true });
   csrf = null;
 }
 
-interface RequestOptions {
-  method?: 'GET' | 'POST';
-  body?: unknown;
-  /** 登录等接口的 401 属于业务结果，不触发全局登出 */
-  skipAuthHandler?: boolean;
-  /** 403 时已自动重取 CSRF 重试过一次，不再循环 */
-  _retriedAfter403?: boolean;
+export function getWorlds(): Promise<WorldsResponse> {
+  return request<WorldsResponse>('/api/worlds');
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = 'GET', body, skipAuthHandler = false, _retriedAfter403 = false } = options;
-
-  const headers: Record<string, string> = { Accept: 'application/json' };
-  if (method === 'POST') {
-    headers['Content-Type'] = 'application/json';
-    const token = await ensureCsrf();
-    headers[token.headerName] = token.token;
-  }
-
-  let res: Response;
-  try {
-    res = await fetch(path, {
-      method,
-      credentials: 'include',
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-  } catch {
-    throw new ApiError(0, 'NETWORK_ERROR', '网络连接异常，请检查网络后重试');
-  }
-
-  if (res.status === 204) {
-    return undefined as T;
-  }
-
-  if (res.ok) {
-    return (await res.json()) as T;
-  }
-
-  let code: ApiErrorCode = 'INTERNAL_ERROR';
-  let message = '服务暂时不可用，请稍后重试';
-  try {
-    const errBody = (await res.json()) as { code?: string; message?: string };
-    if (errBody.code) code = errBody.code as ApiErrorCode;
-    if (errBody.message) message = errBody.message;
-  } catch {
-    /* 非 JSON 错误体，使用默认文案 */
-  }
-
-  if (res.status === 401 && !skipAuthHandler) {
-    unauthorizedHandler?.();
-  }
-
-  if (res.status === 403 && method === 'POST' && !_retriedAfter403) {
-    // CSRF 可能已轮换：重新获取后原样重试一次；仍失败则交给界面提示
-    clearCsrf();
-    try {
-      await fetchCsrf();
-    } catch {
-      throw new ApiError(403, 'FORBIDDEN', '安全校验失败，请稍后重试');
-    }
-    return request<T>(path, { ...options, _retriedAfter403: true });
-  }
-
-  throw new ApiError(res.status, code, message);
+export function getMap(line: Line): Promise<MapResponse> {
+  return request<MapResponse>(`/api/lines/${line}/map`);
 }
 
-export const api = {
-  login(employeeNo: string, password: string): Promise<CurrentUser> {
-    return request<CurrentUser>('/api/auth/login', {
-      method: 'POST',
-      body: { employeeNo, password },
-      skipAuthHandler: true,
-    });
-  },
-  me(): Promise<CurrentUser> {
-    return request<CurrentUser>('/api/auth/me', { skipAuthHandler: true });
-  },
-  logout(): Promise<void> {
-    return request<void>('/api/auth/logout', { method: 'POST', skipAuthHandler: true });
-  },
-  listCases(line?: CaseLine): Promise<CaseSummary[]> {
-    const query = line ? `?line=${line}` : '';
-    return request<CaseSummary[]>(`/api/cases${query}`);
-  },
-  getCase(caseId: string): Promise<CaseDetail> {
-    return request<CaseDetail>(`/api/cases/${encodeURIComponent(caseId)}`);
-  },
-  submitAnswer(caseId: string, clientRequestId: string, answer: string): Promise<TrainingRecordDetail> {
-    return request<TrainingRecordDetail>(`/api/cases/${encodeURIComponent(caseId)}/submissions`, {
-      method: 'POST',
-      body: { clientRequestId, answer },
-    });
-  },
-  listRecords(page: number, size: number): Promise<TrainingRecordPage> {
-    return request<TrainingRecordPage>(`/api/training-records?page=${page}&size=${size}`);
-  },
-  /** 全量拉取当前学员训练记录（分页循环，防御上限 20 页） */
-  async listAllRecords(): Promise<TrainingRecordSummary[]> {
-    const size = 50;
-    const maxPages = 20;
-    const first = await api.listRecords(0, size);
-    const items = [...first.items];
-    for (let page = 1; page < first.totalPages && page < maxPages; page += 1) {
-      const next = await api.listRecords(page, size);
-      items.push(...next.items);
-    }
-    return items;
-  },
-  getRecord(recordId: number): Promise<TrainingRecordDetail> {
-    return request<TrainingRecordDetail>(`/api/training-records/${recordId}`);
-  },
-  listTopics(): Promise<KnowledgeTopic[]> {
-    return request<KnowledgeTopic[]>('/api/knowledge/topics');
-  },
-  askKnowledge(question: string): Promise<KnowledgeAnswer> {
-    return request<KnowledgeAnswer>('/api/knowledge/questions', {
-      method: 'POST',
-      body: { question },
-    });
-  },
-};
+export function getRoute(routeId: string): Promise<RouteOverview> {
+  return request<RouteOverview>(`/api/routes/${encodeURIComponent(routeId)}`);
+}
 
-export function newClientRequestId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID();
-  }
-  // 兜底：满足契约 pattern 的随机串
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
-  let id = 'req-';
-  for (let i = 0; i < 28; i += 1) {
-    id += alphabet[Math.floor(Math.random() * alphabet.length)];
-  }
-  return id;
+export function getStep<T extends StepType>(
+  routeId: string,
+  stepType: T,
+): Promise<StepResponse<T>> {
+  return request<StepResponse<T>>(
+    `/api/routes/${encodeURIComponent(routeId)}/steps/${stepType}`,
+  );
+}
+
+export function completeStep(
+  routeId: string,
+  stepType: StepType,
+  contentVersion: string,
+  eventId: string,
+): Promise<RouteProgress> {
+  return request<RouteProgress>(
+    `/api/routes/${encodeURIComponent(routeId)}/steps/${stepType}/complete`,
+    { method: 'POST', body: JSON.stringify({ eventId, contentVersion }) },
+    { csrf: true },
+  );
+}
+
+export function answerPractice(
+  routeId: string,
+  questionId: string,
+  contentVersion: string,
+  answer: string[],
+  requestId: string,
+): Promise<PracticeFeedback> {
+  return request<PracticeFeedback>(
+    `/api/routes/${encodeURIComponent(routeId)}/basic-practice/${encodeURIComponent(questionId)}/answers`,
+    { method: 'POST', body: JSON.stringify({ requestId, contentVersion, answer }) },
+    { csrf: true },
+  );
+}
+
+export function getDraft(routeId: string): Promise<DraftResponse> {
+  return request<DraftResponse>(`/api/routes/${encodeURIComponent(routeId)}/draft`);
+}
+
+export function saveDraft(
+  routeId: string,
+  contentVersion: string,
+  answer: string,
+  expectedRevision: number,
+): Promise<DraftResponse> {
+  return request<DraftResponse>(
+    `/api/routes/${encodeURIComponent(routeId)}/draft`,
+    {
+      method: 'PUT',
+      body: JSON.stringify({ contentVersion, answer, expectedRevision }),
+    },
+    { csrf: true },
+  );
+}
+
+export function submitAttempt(
+  routeId: string,
+  body: {
+    clientRequestId: string;
+    contentVersion: string;
+    rubricVersion: string;
+    answer: string;
+  },
+): Promise<AttemptResponse> {
+  return request<AttemptResponse>(
+    `/api/routes/${encodeURIComponent(routeId)}/attempts`,
+    { method: 'POST', body: JSON.stringify(body) },
+    { csrf: true },
+  );
+}
+
+export function getAttempt(attemptId: number): Promise<AttemptResponse> {
+  return request<AttemptResponse>(`/api/attempts/${attemptId}`);
+}
+
+export function retryScoring(attemptId: number): Promise<AttemptResponse> {
+  return request<AttemptResponse>(
+    `/api/attempts/${attemptId}/retry-scoring`,
+    { method: 'POST' },
+    { csrf: true },
+  );
+}
+
+export function getRemediation(attemptId: number): Promise<RemediationPlan> {
+  return request<RemediationPlan>(`/api/attempts/${attemptId}/remediation`);
+}
+
+export function answerRemediation(
+  attemptId: number,
+  targetId: string,
+  answer: string[],
+  requestId: string,
+): Promise<RemediationFeedback> {
+  return request<RemediationFeedback>(
+    `/api/attempts/${attemptId}/remediation/${encodeURIComponent(targetId)}/answers`,
+    { method: 'POST', body: JSON.stringify({ requestId, answer }) },
+    { csrf: true },
+  );
+}
+
+export function unlockChallenge(attemptId: number): Promise<{
+  routeId: string;
+  stepType: StepType;
+  challengeUnlocked: boolean;
+}> {
+  return request(
+    `/api/attempts/${attemptId}/challenge`,
+    { method: 'POST' },
+    { csrf: true },
+  );
+}
+
+export function getTrainingRecords(params: {
+  page?: number;
+  size?: number;
+  line?: Line;
+  conclusion?: string;
+}): Promise<TrainingRecordPage> {
+  const query = new URLSearchParams();
+  query.set('page', String(params.page ?? 0));
+  query.set('size', String(params.size ?? 20));
+  if (params.line) query.set('line', params.line);
+  if (params.conclusion) query.set('conclusion', params.conclusion);
+  return request<TrainingRecordPage>(`/api/training-records?${query}`);
+}
+
+export function getTrainingRecord(attemptId: number): Promise<AttemptResponse> {
+  return request<AttemptResponse>(`/api/training-records/${attemptId}`);
 }

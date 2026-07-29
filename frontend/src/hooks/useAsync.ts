@@ -1,45 +1,32 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
-interface AsyncState<T> {
-  data: T | null;
-  loading: boolean;
-  error: Error | null;
-  reload: () => void;
-}
-
-/** 简单的数据加载 hook：自动执行、支持手动重试，卸载后安全 */
-export function useAsync<T>(fn: () => Promise<T>, deps: readonly unknown[]): AsyncState<T> {
+export function useAsync<T>(load: () => Promise<T>, deps: unknown[] = []) {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const fnRef = useRef(fn);
-  fnRef.current = fn;
+  const [loading, setLoading] = useState(true);
+  const [reloadIndex, setReloadIndex] = useState(0);
 
-  const run = useCallback(() => {
-    let cancelled = false;
+  const reload = useCallback(() => setReloadIndex((value) => value + 1), []);
+
+  useEffect(() => {
+    let active = true;
     setLoading(true);
     setError(null);
-    fnRef
-      .current()
-      .then((result) => {
-        if (!cancelled) {
-          setData(result);
-          setLoading(false);
-        }
+    load()
+      .then((value) => {
+        if (active) setData(value);
       })
-      .catch((err: unknown) => {
-        if (!cancelled) {
-          setError(err instanceof Error ? err : new Error('加载失败'));
-          setLoading(false);
-        }
+      .catch((reason: Error) => {
+        if (active) setError(reason);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
     return () => {
-      cancelled = true;
+      active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [...deps, reloadIndex]);
 
-  useEffect(() => run(), [run]);
-
-  return { data, loading, error, reload: run };
+  return { data, error, loading, reload, setData };
 }

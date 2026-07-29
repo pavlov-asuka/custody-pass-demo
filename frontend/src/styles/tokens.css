@@ -1,56 +1,33 @@
 :root {
-  /* 基底：蓝白科技训练营 */
-  --bg: #f2f7fe;
-  --bg-deep: #e8f1fd;
-  --card: #ffffff;
-  --ink: #0f1e3d;
-  --ink-soft: #47597e;
-  --ink-faint: #8ba0c4;
-  --line: #dbe7f8;
-  --line-soft: #e8f0fc;
-
-  /* 主色 */
-  --blue: #2563eb;
-  --blue-deep: #1d4ed8;
-  --blue-soft: #e3edfe;
-  --cyan: #0891b2;
-  --cyan-bright: #06b6d4;
-  --cyan-soft: #dcf5fb;
-
-  /* 三条业务路线 */
-  --route-clearing: #0891b2;
-  --route-clearing-soft: #dcf5fb;
-  --route-accounting: #2563eb;
-  --route-accounting-soft: #e3edfe;
-  --route-supervision: #7c3aed;
-  --route-supervision-soft: #efe7fd;
-
-  /* 四维能力 */
-  --dim-concept: #2563eb;
-  --dim-process: #0891b2;
-  --dim-risk: #d97706;
-  --dim-expression: #7c3aed;
-
-  --ok: #059669;
-  --ok-soft: #d9f7ec;
-  --warn: #d97706;
-  --warn-soft: #fdf1de;
-  --danger: #dc2626;
-  --danger-soft: #fde5e5;
-
-  --gold: #f59e0b;
-
-  --radius-s: 10px;
-  --radius-m: 14px;
-  --radius-l: 20px;
-  --radius-xl: 26px;
-
-  --shadow-card: 0 1px 2px rgba(15, 30, 61, 0.04), 0 10px 30px rgba(37, 99, 235, 0.07);
-  --shadow-pop: 0 8px 24px rgba(15, 30, 61, 0.1), 0 24px 64px rgba(37, 99, 235, 0.14);
-  --shadow-blue: 0 8px 24px rgba(37, 99, 235, 0.35);
-
-  --font-num: "SF Pro Display", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-
-  --ease-spring: cubic-bezier(0.34, 1.4, 0.44, 1);
-  --ease-out: cubic-bezier(0.22, 0.9, 0.32, 1);
+  --green: #58cc02;
+  --green-dark: #46a302;
+  --green-soft: #d7ffb8;
+  --blue: #1cb0f6;
+  --blue-dark: #0b84c6;
+  --blue-soft: #ddf4ff;
+  --navy: #17324d;
+  --ink: #3c454d;
+  --muted: #727d86;
+  --line: #dfe5e8;
+  --paper: #ffffff;
+  --canvas: #f7fafb;
+  --yellow: #ffc800;
+  --yellow-soft: #fff4b8;
+  --orange: #ff9600;
+  --orange-soft: #fff0d6;
+  --red: #ff4b4b;
+  --red-soft: #ffe1e1;
+  --locked: #afafaf;
+  --outline: 3px;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --shadow-green: 0 5px 0 var(--green-dark);
+  --shadow-blue: 0 5px 0 var(--blue-dark);
+  --shadow-neutral: 0 4px 0 #d8dee1;
+  font-family: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  color: var(--ink);
+  background: var(--canvas);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
 }

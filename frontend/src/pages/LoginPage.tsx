@@ -1,182 +1,108 @@
-import { useEffect, useState } from 'react';
-import type { FormEvent } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { CircleAlert, GraduationCap, KeyRound, Route, ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { ArrowRight, BookOpenCheck, LockKeyhole, Sparkles } from 'lucide-react';
+import { FormEvent, useEffect, useState } from 'react';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
-import { LINE_META, LINE_ORDER } from '../domain/labels';
-import { RouteIcon } from '../components/RouteIcon';
 import { Mascot } from '../components/Mascot';
-import './login.css';
 
 export function LoginPage() {
-  const { status, login, sessionExpiredNotice, dismissExpiredNotice } = useAuth();
+  const { user, restoring, signIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
   const [employeeNo, setEmployeeNo] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const from = (location.state as { from?: string } | null)?.from ?? '/';
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (status === 'authed') {
-      navigate(from, { replace: true });
-    }
-  }, [status, navigate, from]);
+    document.title = '登录 · 托管智训营';
+  }, []);
 
-  useEffect(() => () => dismissExpiredNotice(), [dismissExpiredNotice]);
+  if (!restoring && user) return <Navigate to="/worlds" replace />;
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (submitting) return;
-    const no = employeeNo.trim();
-    if (!no || !password) {
-      setError('请输入员工号和密码');
-      return;
-    }
+  async function submit(event: FormEvent) {
+    event.preventDefault();
     setSubmitting(true);
-    setError(null);
+    setError('');
     try {
-      await login(no, password);
-      navigate(from, { replace: true });
-    } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.status === 401) setError('员工号或密码错误');
-        else if (err.status === 403) setError('安全校验失败，请稍后重试');
-        else setError('服务暂时不可用，请稍后重试');
-      } else {
-        setError('登录失败，请稍后重试');
-      }
+      await signIn(employeeNo.trim(), password);
+      const from = (location.state as { from?: string } | null)?.from;
+      navigate(from || '/worlds', { replace: true });
+    } catch (reason) {
+      setError(reason instanceof ApiError ? reason.message : '登录失败，请稍后重试。');
+    } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="login-stage">
-      <div className="login-panel card rise-in">
-        {/* 品牌侧 */}
-        <div className="login-brand">
-          <div className="login-brand-head">
-            <span className="login-brand-logo">
-              <GraduationCap size={20} />
-            </span>
-            <span className="login-brand-name">托管智训营</span>
-          </div>
-
-          <div className="login-brand-mascot" aria-hidden="true">
-            <Mascot size={118} mood="wave" shadow={false} />
-          </div>
-
-          <div className="login-brand-mid">
-            <span className="login-kicker">
-              <Sparkles size={12} />
-              托管业务新人 · 智能案例训练营
-            </span>
-            <h1 className="login-title">
-              把每一个业务案例
-              <br />
-              都练成你的<em>经验值</em>
-            </h1>
-            <p className="login-slogan">
-              实战案例开放作答，智能评卷给出四维能力反馈；
-              <br />
-              沿着三条业务路线闯关升级，成长清晰可见。
-            </p>
-          </div>
-
-          <div className="login-routes" aria-label="三条学习路线">
-            {LINE_ORDER.map((line) => {
-              const meta = LINE_META[line];
-              return (
-                <div key={line} className="login-route-chip">
-                  <span className="login-route-icon">
-                    <RouteIcon line={line} size={17} />
-                  </span>
-                  <div>
-                    <strong>{meta.name}路线</strong>
-                    <em>{meta.tagline}</em>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="login-footnote">
-            <ShieldCheck size={13} />
-            内部培训演示环境 · 案例与知识均为演示占位内容
-          </p>
+    <main className="login-page">
+      <section className="login-story">
+        <div className="login-story__brand">
+          <span className="brand__mark"><Sparkles size={22} strokeWidth={3} /></span>
+          托管智训营
         </div>
+        <div className="login-story__copy">
+          <span className="eyebrow">把业务经验，练成岗位能力</span>
+          <h1>今天，<br />从一条路线开始。</h1>
+          <p>跟着小托走进真实业务情境，先学、再练、及时看见每一步成长。</p>
+        </div>
+        <div className="login-story__path" aria-hidden="true">
+          <span className="path-dot path-dot--done"><BookOpenCheck /></span>
+          <i />
+          <span className="path-dot"><Sparkles /></span>
+          <i />
+          <span className="path-dot path-dot--locked"><LockKeyhole /></span>
+        </div>
+        <Mascot
+          pose="WELCOME_WAVE"
+          size="large"
+          message={<><strong>你好，我是小托！</strong><span>准备好一起出发了吗？</span></>}
+        />
+      </section>
 
-        {/* 表单侧 */}
-        <div className="login-form-side">
-          <span className="login-form-badge">
-            <Route size={13} />
-            学员登录
-          </span>
-          <h2 className="login-form-title">欢迎回来，继续闯关</h2>
-          <p className="login-form-sub">使用员工号登录，接着上次的训练进度</p>
-
-          {sessionExpiredNotice && (
-            <div className="form-error" role="alert" style={{ marginBottom: 14 }}>
-              <CircleAlert size={15} style={{ flex: 'none', marginTop: 2 }} />
-              登录状态已失效，请重新登录
-            </div>
-          )}
-
-          <form onSubmit={onSubmit} noValidate>
-            <div className="field" style={{ marginBottom: 16 }}>
-              <label htmlFor="employeeNo">员工号</label>
-              <div className="login-input-wrap">
-                <UserRound size={16} className="login-input-icon" />
-                <input
-                  id="employeeNo"
-                  className="input login-input"
-                  value={employeeNo}
-                  onChange={(e) => setEmployeeNo(e.target.value)}
-                  placeholder="请输入员工号"
-                  autoComplete="username"
-                  inputMode="numeric"
-                  disabled={submitting}
-                />
-              </div>
-            </div>
-
-            <div className="field" style={{ marginBottom: 18 }}>
-              <label htmlFor="password">密码</label>
-              <div className="login-input-wrap">
-                <KeyRound size={16} className="login-input-icon" />
-                <input
-                  id="password"
-                  type="password"
-                  className="input login-input"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="请输入密码"
-                  autoComplete="current-password"
-                  disabled={submitting}
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="form-error" role="alert" style={{ marginBottom: 16 }}>
-                <CircleAlert size={15} style={{ flex: 'none', marginTop: 2 }} />
-                {error}
-              </div>
-            )}
-
-            <button type="submit" className="btn btn-primary login-submit" disabled={submitting}>
-              {submitting && <span className="btn-spinner" aria-hidden="true" />}
-              {submitting ? '正在登录…' : '进入学习地图'}
+      <section className="login-panel">
+        <div className="login-card">
+          <div className="login-card__heading">
+            <span className="eyebrow">欢迎回来</span>
+            <h2>登录学习账号</h2>
+            <p>使用你的员工号继续上一次学习。</p>
+          </div>
+          <form onSubmit={submit}>
+            <label>
+              <span>员工号</span>
+              <input
+                name="employeeNo"
+                value={employeeNo}
+                onChange={(event) => setEmployeeNo(event.target.value)}
+                autoComplete="username"
+                placeholder="请输入员工号"
+                maxLength={32}
+                required
+                autoFocus
+              />
+            </label>
+            <label>
+              <span>密码</span>
+              <input
+                name="password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="current-password"
+                placeholder="请输入密码"
+                maxLength={128}
+                required
+              />
+            </label>
+            {error && <div className="form-error" role="alert">{error}</div>}
+            <button className="button button--primary button--wide" type="submit" disabled={submitting}>
+              {submitting ? '正在进入…' : <>进入学习世界 <ArrowRight size={20} /></>}
             </button>
           </form>
-
-          <p className="login-demo-hint">忘记密码或没有账号，请联系培训管理员开通</p>
+          <p className="login-card__note">学习进度与训练记录将安全保存在你的账号中。</p>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

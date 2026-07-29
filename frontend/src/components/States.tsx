@@ -1,49 +1,51 @@
-import type { ReactNode } from 'react';
+import { AlertTriangle, LoaderCircle, RefreshCw } from 'lucide-react';
+import { ApiError } from '../api/client';
 import { Mascot } from './Mascot';
 
-export function PageLoading({ text = '加载中…' }: { text?: string }) {
+export function LoadingState({ label = '正在准备学习内容…' }: { label?: string }) {
   return (
-    <div className="state-block" role="status" aria-live="polite">
-      <span className="spinner" aria-hidden="true" />
-      <p className="state-desc">{text}</p>
+    <div className="state-panel" data-testid="loading-state">
+      <LoaderCircle className="spin" size={34} />
+      <strong>{label}</strong>
     </div>
   );
 }
-
-interface ErrorStateProps {
-  title?: string;
-  message?: string;
+export function ErrorState({
+  error,
+  onRetry,
+  compact = false,
+}: {
+  error: Error;
   onRetry?: () => void;
-}
-
-export function ErrorState({ title = '加载失败', message, onRetry }: ErrorStateProps) {
+  compact?: boolean;
+}) {
+  const message = error instanceof ApiError ? error.message : '页面暂时开小差了，请稍后重试。';
   return (
-    <div className="state-block" role="alert">
-      <Mascot size={76} mood="thinking" />
-      <p className="state-title">{title}</p>
-      <p className="state-desc">{message ?? '服务暂时不可用，请稍后重试'}</p>
+    <div className={`state-panel state-panel--error ${compact ? 'state-panel--compact' : ''}`}>
+      {!compact && <Mascot pose="RESULT_SUPPORT" size="small" />}
+      <AlertTriangle size={28} />
+      <strong>{message}</strong>
       {onRetry && (
-        <button type="button" className="btn btn-primary btn-sm" onClick={onRetry}>
-          重新加载
+        <button className="button button--secondary" type="button" onClick={onRetry}>
+          <RefreshCw size={18} /> 再试一次
         </button>
       )}
     </div>
   );
 }
 
-interface EmptyStateProps {
+export function EmptyState({
+  title,
+  description,
+}: {
   title: string;
-  desc?: string;
-  action?: ReactNode;
-}
-
-export function EmptyState({ title, desc, action }: EmptyStateProps) {
+  description: string;
+}) {
   return (
-    <div className="state-block">
-      <Mascot size={84} mood="idle" />
-      <p className="state-title">{title}</p>
-      {desc && <p className="state-desc">{desc}</p>}
-      {action}
+    <div className="state-panel">
+      <Mascot pose="GUIDE_POINT" size="small" />
+      <strong>{title}</strong>
+      <p>{description}</p>
     </div>
   );
 }

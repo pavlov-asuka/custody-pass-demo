@@ -1,279 +1,217 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
-  CalendarCheck2,
+  BookOpenCheck,
+  Check,
+  Circle,
   Clock3,
-  Flame,
-  Play,
-  SignalHigh,
-  Sparkles,
-  Target,
-  Trophy,
+  LockKeyhole,
+  MapPinned,
+  Wrench,
 } from 'lucide-react';
-import { api } from '../api/client';
-import type { CaseLine, CaseSummary } from '../api/types';
-import { useAuth } from '../auth/AuthContext';
-import { useAsync } from '../hooks/useAsync';
-import { LINE_META, LINE_ORDER, difficultyLabel } from '../domain/labels';
-import { computeGrowth, recommendCase } from '../domain/growth';
-import { RouteIcon } from '../components/RouteIcon';
-import { DemoTag } from '../components/LineTag';
+import { useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getMap } from '../api/client';
+import type { MapNode } from '../api/types';
+import { AppShell } from '../components/AppShell';
 import { Mascot } from '../components/Mascot';
-import { RoutePath, buildNodes } from '../components/RoutePath';
-import { ErrorState } from '../components/States';
-import './map.css';
+import { ErrorState, LoadingState } from '../components/States';
+import { useAsync } from '../hooks/useAsync';
+import { routeStateLabels } from '../utils/format';
 
-function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 6) return '夜深了';
-  if (h < 12) return '早上好';
-  if (h < 14) return '中午好';
-  if (h < 18) return '下午好';
-  return '晚上好';
+function NodeIcon({ node }: { node: MapNode }) {
+  if (node.contentAvailability === 'BUILDING') return <Wrench />;
+  if (node.state === 'LOCKED') return <LockKeyhole />;
+  if (node.state === 'PASSED') return <Check />;
+  if (node.state === 'LEARNED_NOT_MASTERED') return <BookOpenCheck />;
+  if (node.state === 'IN_PROGRESS') return <Clock3 />;
+  return <Circle />;
+}
+
+function positionOffset(position: MapNode['position']): number {
+  if (position === 'LEFT') return -112;
+  if (position === 'RIGHT') return 112;
+  return 0;
+}
+
+function RouteNode({
+  node,
+  recommended,
+  index,
+}: {
+  node: MapNode;
+  recommended: boolean;
+  index: number;
+}) {
+  const navigate = useNavigate();
+  const offset = positionOffset(node.position);
+  const stateLabel = node.contentAvailability === 'BUILDING'
+    ? '内容建设中'
+    : routeStateLabels[node.state];
+
+  return (
+    <div
+      id={`node-${node.nodeId}`}
+      className={`map-node-wrap ${recommended ? 'is-recommended' : ''}`}
+      style={{ '--node-offset': `${offset}px` } as React.CSSProperties}
+      data-node-index={index}
+    >
+      {recommended && (
+        <div className="recommended-callout">
+          <Mascot pose="GUIDE_POINT" size="small" />
+          <span>{node.state === 'NOT_STARTED' ? '从这里开始' : '继续这条路线'}</span>
+        </div>
+      )}
+      <button
+        type="button"
+        className={`map-node map-node--${node.state.toLowerCase()}`}
+        onClick={() => node.enterable && navigate(`/learn/${node.routeId}`)}
+        disabled={!node.enterable}
+        aria-label={`${node.title}，${stateLabel}`}
+      >
+        <NodeIcon node={node} />
+      </button>
+      <div className="map-node__label">
+        <strong>{node.title}</strong>
+        <span>{stateLabel} · {node.completedSteps}/{node.totalSteps}</span>
+      </div>
+    </div>
+  );
 }
 
 export function MapPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeLine, setActiveLine] = useState<CaseLine>('CLEARING');
-  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
+  const { data, error, loading, reload } = useAsync(() => getMap('ACCOUNTING'), []);
+  const hasScrolled = useRef(false);
 
-  const { data, loading, error, reload } = useAsync(
-    async () => {
-      const [cases, records] = await Promise.all([api.listCases(), api.listAllRecords()]);
-      return { cases, records };
-    },
-    [],
+  const nodes = useMemo(
+    () => data?.regions.flatMap((region) => region.modules.flatMap((module) => module.nodes)) ?? [],
+    [data],
   );
 
-  const growth = useMemo(() => computeGrowth(data?.records ?? []), [data]);
-  const recommended = useMemo(
-    () => (data ? recommendCase(data.cases, growth.perCase) : null),
-    [data, growth],
-  );
-
-  // 默认选中当前路线的「当前/第一个可玩」案例
   useEffect(() => {
-    if (!data) return;
-    const lineCases = data.cases.filter((c) => c.line === activeLine);
-    if (lineCases.length === 0) {
-      setSelectedCaseId(null);
-      return;
-    }
-    const nodes = buildNodes(lineCases, growth.perCase);
-    const current = nodes.find((n) => n.state === 'current') ?? nodes.find((n) => n.state === 'done');
-    setSelectedCaseId(current?.caseItem?.id ?? lineCases[0].id);
-  }, [data, activeLine, growth]);
+    document.title = '核算学习地图 · 托管智训营';
+  }, []);
 
-  if (loading) {
-    return (
-      <div>
-        <div className="skeleton" style={{ height: 168, marginBottom: 22 }} />
-        <div style={{ display: 'flex', gap: 22 }}>
-          <div className="skeleton" style={{ width: 250, height: 420, flex: 'none' }} />
-          <div className="skeleton" style={{ flex: 1, height: 420 }} />
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    return <ErrorState title="学习地图加载失败" message={error?.message} onRetry={reload} />;
-  }
-
-  const lineCases = (line: CaseLine): CaseSummary[] => data.cases.filter((c) => c.line === line);
-  const activeMeta = LINE_META[activeLine];
-  const activeCases = lineCases(activeLine);
-  const activeDone = activeCases.filter((c) => growth.perCase.has(c.id)).length;
-  const selectedCase = activeCases.find((c) => c.id === selectedCaseId) ?? null;
-  const selectedProgress = selectedCase ? growth.perCase.get(selectedCase.id) : undefined;
-  const allDone = activeCases.length > 0 && activeDone === activeCases.length;
+  useEffect(() => {
+    if (!data?.recommendedNodeId || hasScrolled.current) return;
+    const timer = window.setTimeout(() => {
+      document.getElementById(`node-${data.recommendedNodeId}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      hasScrolled.current = true;
+    }, 350);
+    return () => window.clearTimeout(timer);
+  }, [data]);
 
   return (
-    <div className="map2">
-      {/* ===== 学员成长面板 ===== */}
-      <section className="gpanel card rise-in">
-        <div className="gpanel-level">
-          <div className="gpanel-badge" aria-label={`等级 ${growth.level}`}>
-            <span className="gpanel-badge-no num">{growth.level}</span>
-            <Sparkles size={15} className="gpanel-badge-star" />
+    <AppShell
+      backLabel="返回学习世界"
+      onBack={() => navigate('/worlds')}
+      context="核算学习地图"
+    >
+      <div className="map-page page-enter">
+        <section className="map-hero">
+          <div className="map-hero__icon"><MapPinned size={34} /></div>
+          <div>
+            <span className="eyebrow">核算学习世界</span>
+            <h1>沿着岗位路径，一站一站练扎实</h1>
+            <p>路线状态与学习进度由系统同步，完成当前路线后再继续向前。</p>
           </div>
-          <div className="gpanel-level-info">
-            <div className="gpanel-greet">
-              {greeting()}，{user?.displayName}
+          {data && (
+            <div className="map-hero__progress">
+              <strong>{data.progress.percent}%</strong>
+              <span>已通过 {data.progress.passedRequiredRoutes} / {data.progress.publishedRequiredRoutes} 条必修路线</span>
             </div>
-            <div className="gpanel-title-row">
-              <span className="gpanel-title">{growth.levelTitle}</span>
-              <span className="gpanel-lv num">Lv.{growth.level}</span>
-            </div>
-            <div className="gpanel-xpbar" role="img" aria-label={`经验值 ${growth.xpInLevel}/${growth.xpForNext}`}>
-              <i style={{ width: `${Math.max(4, growth.levelProgress * 100)}%` }} />
-            </div>
-            <div className="gpanel-xp-text num">
-              经验值 {growth.xpInLevel}/{growth.xpForNext} · 再得 {growth.xpForNext - growth.xpInLevel} XP 升级
-            </div>
-          </div>
-        </div>
-
-        <div className="gpanel-stats">
-          <div className="gpanel-stat">
-            <Flame size={17} className="gpanel-stat-icon" style={{ color: '#f97316' }} />
-            <div>
-              <div className="gpanel-stat-no num">{growth.streakDays}<small>天</small></div>
-              <div className="gpanel-stat-label">连续训练</div>
-            </div>
-          </div>
-          <div className="gpanel-stat">
-            <Target size={17} className="gpanel-stat-icon" style={{ color: 'var(--blue)' }} />
-            <div>
-              <div className="gpanel-stat-no num">{growth.totalTrainings}<small>次</small></div>
-              <div className="gpanel-stat-label">累计训练</div>
-            </div>
-          </div>
-          <div className="gpanel-stat">
-            <Trophy size={17} className="gpanel-stat-icon" style={{ color: 'var(--gold)' }} />
-            <div>
-              <div className="gpanel-stat-no num">{Math.round(growth.bestRate * 100)}<small>%</small></div>
-              <div className="gpanel-stat-label">最佳得分率</div>
-            </div>
-          </div>
-          <div className="gpanel-stat">
-            <CalendarCheck2 size={17} className="gpanel-stat-icon" style={{ color: 'var(--cyan)' }} />
-            <div>
-              <div className="gpanel-stat-no num">{growth.todayCount}<small>次</small></div>
-              <div className="gpanel-stat-label">今日已练</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="gpanel-cta">
-          <div className="gpanel-coach">
-            <Mascot size={56} mood="idle" shadow={false} />
-            <p>
-              {growth.totalTrainings === 0
-                ? '欢迎来到智训营！从任一关卡开始你的第一次实战吧。'
-                : recommended
-                  ? growth.perCase.has(recommended.id)
-                    ? `「${recommended.title}」还有提升空间，再冲一次高分？`
-                    : `下一步推荐：「${recommended.title}」，继续保持节奏！`
-                  : '选择一条路线，开始今天的训练吧。'}
-            </p>
-          </div>
-          {recommended && (
-            <button
-              type="button"
-              className="btn btn-primary gpanel-btn"
-              onClick={() => navigate(`/cases/${recommended.id}`)}
-            >
-              <Play size={16} />
-              继续训练
-            </button>
-          )}
-        </div>
-      </section>
-
-      {/* ===== 路线 + 关卡路径 ===== */}
-      <div className="map2-main">
-        {/* 路线选择 */}
-        <aside className="map2-routes rise-in rise-in-1">
-          <p className="map2-routes-title">选择业务路线</p>
-          {LINE_ORDER.map((line) => {
-            const meta = LINE_META[line];
-            const cases = lineCases(line);
-            const done = cases.filter((c) => growth.perCase.has(c.id)).length;
-            const active = line === activeLine;
-            return (
-              <button
-                key={line}
-                type="button"
-                className={`map2-route card${active ? ' active' : ''}`}
-                style={{ ['--route-color' as string]: meta.color }}
-                onClick={() => setActiveLine(line)}
-                aria-pressed={active}
-              >
-                <span className="map2-route-icon" style={{ background: meta.soft, color: meta.color }}>
-                  <RouteIcon line={line} size={19} />
-                </span>
-                <span className="map2-route-text">
-                  <strong>{meta.name}</strong>
-                  <em>{meta.tagline}</em>
-                </span>
-                <span className="map2-route-progress num">
-                  {done}/{cases.length}
-                </span>
-              </button>
-            );
-          })}
-          <p className="map2-routes-note">完成当前关卡后解锁下一关；案例为演示占位内容</p>
-        </aside>
-
-        {/* 关卡路径 */}
-        <section className="map2-path card rise-in rise-in-2">
-          <header className="map2-path-head">
-            <div>
-              <h2 className="map2-path-title" style={{ color: activeMeta.color }}>
-                <RouteIcon line={activeLine} size={19} />
-                {activeMeta.name}路线
-              </h2>
-              <p className="map2-path-desc">{activeMeta.description}</p>
-            </div>
-            <div className="map2-path-meta">
-              <span className={`num ${allDone ? 'map2-path-done-tag' : 'map2-path-count'}`}>
-                已掌握 {activeDone}/{activeCases.length} 关
-              </span>
-            </div>
-          </header>
-
-          {activeCases.length === 0 ? (
-            <div className="map2-path-empty">
-              <Mascot size={76} mood="thinking" shadow={false} />
-              <p>该路线的案例正在备课中，敬请期待</p>
-            </div>
-          ) : (
-            <>
-              <RoutePath
-                line={activeLine}
-                color={activeMeta.color}
-                cases={activeCases}
-                perCase={growth.perCase}
-                selectedCaseId={selectedCaseId}
-                onSelectCase={setSelectedCaseId}
-              />
-
-              {/* 选中案例详情条 */}
-              {selectedCase && (
-                <div className="map2-casebar" style={{ ['--route-color' as string]: activeMeta.color }}>
-                  <div className="map2-casebar-main">
-                    <div className="map2-casebar-tags">
-                      <span className="map2-casebar-meta-item">
-                        <SignalHigh size={13} />
-                        {difficultyLabel(selectedCase.difficulty)}
-                      </span>
-                      <span className="map2-casebar-meta-item">
-                        <Clock3 size={13} />
-                        约 {selectedCase.estimatedMinutes} 分钟
-                      </span>
-                      {selectedCase.placeholder && <DemoTag />}
-                      {selectedProgress && (
-                        <span className="map2-casebar-best num">
-                          已练 {selectedProgress.attempts} 次 · 最佳 {Math.round(selectedProgress.bestRate * 100)}%
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="map2-casebar-title">{selectedCase.title}</h3>
-                    <p className="map2-casebar-summary">{selectedCase.summary}</p>
-                  </div>
-                  <Link to={`/cases/${selectedCase.id}`} className="btn btn-primary map2-casebar-btn">
-                    {selectedProgress ? '再练一次' : '开始训练'}
-                    <ArrowRight size={16} />
-                  </Link>
-                </div>
-              )}
-            </>
           )}
         </section>
+
+        {loading && <LoadingState label="正在铺开核算学习地图…" />}
+        {error && <ErrorState error={error} onRetry={reload} />}
+        {data && (
+          <>
+            <div className="region-sticky">
+              <span>当前章节</span>
+              <strong>{data.regions[0]?.name}</strong>
+              <button
+                type="button"
+                onClick={() =>
+                  document.getElementById(`node-${data.recommendedNodeId}`)?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                  })
+                }
+              >
+                回到当前路线
+              </button>
+            </div>
+
+            <section className="learning-map" data-testid="learning-map">
+              {data.regions.map((region) => (
+                <div className="map-region" key={region.regionId}>
+                  <header className="region-banner">
+                    <span>第一章</span>
+                    <h2>{region.name}</h2>
+                    <p>{region.description}</p>
+                  </header>
+                  {region.modules.map((module) => (
+                    <div className="map-module" key={module.moduleId}>
+                      <div className="module-title">
+                        <span />
+                        <strong>{module.name}</strong>
+                        <span />
+                      </div>
+                      <div className="map-path">
+                        {module.nodes.map((node, index) => (
+                          <div key={node.nodeId} className="map-path__segment">
+                            {index > 0 && (() => {
+                              const previousOffset = positionOffset(module.nodes[index - 1].position);
+                              const currentOffset = positionOffset(node.position);
+                              const delta = currentOffset - previousOffset;
+                              const verticalGap = 92;
+                              const length = Math.sqrt(verticalGap ** 2 + delta ** 2);
+                              const angle = -Math.atan2(delta, verticalGap) * 180 / Math.PI;
+                              return (
+                                <span
+                                  className="map-path__connector"
+                                  style={{
+                                    left: `calc(50% + ${previousOffset}px)`,
+                                    height: `${length}px`,
+                                    transform: `translateX(-50%) rotate(${angle}deg)`,
+                                  }}
+                                />
+                              );
+                            })()}
+                            <RouteNode
+                              node={node}
+                              index={index}
+                              recommended={node.nodeId === data.recommendedNodeId}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              {!nodes.length && (
+                <div className="state-panel">
+                  <strong>路线正在整理中</strong>
+                  <p>请稍后回到核算学习世界查看。</p>
+                </div>
+              )}
+              <footer className="map-coming-soon">
+                <Wrench size={26} />
+                <div>
+                  <strong>更多核算路线正在建设</strong>
+                  <span>完成已发布路线后，我们会继续向下延伸。</span>
+                </div>
+                <ArrowRight />
+              </footer>
+            </section>
+          </>
+        )}
       </div>
-    </div>
+    </AppShell>
   );
 }
