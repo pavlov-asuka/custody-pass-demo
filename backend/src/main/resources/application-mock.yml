@@ -13,8 +13,6 @@ spring:
 
 app:
   mode: ${APP_MODE:mock}
-  knowledge:
-    answer-mode: ${KNOWLEDGE_ANSWER_MODE:mock}
   review:
     mode: mock
   auth:

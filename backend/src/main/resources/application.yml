@@ -8,8 +8,6 @@ app:
   mode: ${APP_MODE:mock}
   model:
     transport: ${MODEL_TRANSPORT:openai}
-  knowledge:
-    answer-mode: ${KNOWLEDGE_ANSWER_MODE:mock}
 
 server:
   port: ${SERVER_PORT:8080}

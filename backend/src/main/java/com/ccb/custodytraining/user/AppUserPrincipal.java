@@ -19,6 +19,9 @@ public class AppUserPrincipal implements UserDetails {
         return user;
     }
 
+    public record AppUserView(Long id, String employeeNo) {
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_LEARNER"));

@@ -10,8 +10,6 @@ app:
   mode: ${APP_MODE:internal}
   review:
     mode: ${CASE_REVIEW_MODE:openai}
-  knowledge:
-    answer-mode: ${KNOWLEDGE_ANSWER_MODE:openai}
   model:
     transport: ${MODEL_TRANSPORT:finxscope}
   finxscope:

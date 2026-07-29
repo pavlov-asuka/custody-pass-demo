@@ -7,6 +7,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -28,10 +29,22 @@ public class ApiExceptionHandler {
                 .body(new ApiError("IDEMPOTENCY_CONFLICT", exception.getMessage()));
     }
 
+    @ExceptionHandler(BusinessConflictException.class)
+    public ResponseEntity<ApiError> businessConflict(BusinessConflictException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ApiError(exception.code(), exception.getMessage()));
+    }
+
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
             ArithmeticException.class})
     public ResponseEntity<ApiError> malformedRequest(Exception exception) {
         return ResponseEntity.badRequest().body(new ApiError("BAD_REQUEST", "请求参数无效"));
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiError> noResource(NoResourceFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError("NOT_FOUND", "接口不存在"));
     }
 
     @ExceptionHandler(Exception.class)

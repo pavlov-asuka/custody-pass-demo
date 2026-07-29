@@ -74,12 +74,15 @@
                 <directory>src/main/resources</directory>
             </resource>
             <resource>
-                <directory>${project.basedir}/../content/demo/cases</directory>
-                <targetPath>cases</targetPath>
-            </resource>
-            <resource>
-                <directory>${project.basedir}/../content/demo/knowledge</directory>
-                <targetPath>knowledge</targetPath>
+                <directory>${project.basedir}/../content</directory>
+                <targetPath>formal</targetPath>
+                <includes>
+                    <include>releases/**/*.json</include>
+                    <include>maps/**/*.json</include>
+                    <include>routes/**/*.json</include>
+                    <include>rubrics/**/*.json</include>
+                    <include>references/**/*.json</include>
+                </includes>
             </resource>
         </resources>
         <plugins>

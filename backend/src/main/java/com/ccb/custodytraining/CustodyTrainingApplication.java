@@ -6,10 +6,9 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Profile;
 
 import com.ccb.custodytraining.model.ModelProperties;
-import com.ccb.custodytraining.knowledge.KnowledgeProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties({ModelProperties.class, KnowledgeProperties.class})
+@EnableConfigurationProperties(ModelProperties.class)
 @Profile("!finxscope")
 public class CustodyTrainingApplication {
 

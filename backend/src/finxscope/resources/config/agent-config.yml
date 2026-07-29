@@ -1,6 +1,6 @@
 agents:
   - name: custody_training_agent
-    description: 托管智训营的单次结构化案例评分与知识问答代理
+    description: 托管智训营正式异常案例的单次结构化证据判定代理
     model: openai/v4-flash
     sysPrompt: |
       你是托管智训营的结构化模型执行代理。

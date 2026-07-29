@@ -12,8 +12,6 @@ app:
   mode: ${APP_MODE:internal}
   review:
     mode: ${CASE_REVIEW_MODE:mock}
-  knowledge:
-    answer-mode: ${KNOWLEDGE_ANSWER_MODE:mock}
   model:
     transport: ${MODEL_TRANSPORT:openai}
     base-url: ${MODEL_BASE_URL:}
