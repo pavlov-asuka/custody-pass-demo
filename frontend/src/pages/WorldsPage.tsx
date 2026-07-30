@@ -1,4 +1,4 @@
-import { ArrowRight, Wrench } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Line, World } from '../api/types';
@@ -34,10 +34,7 @@ function WorldCard({ world }: { world: World }) {
         <p className="world-card__goal">{world.description}</p>
         {building ? (
           <div className="world-card__status">
-            <span className="building-tag">
-              <Wrench size={16} />
-              <strong>内容建设中</strong>
-            </span>
+            <span className="building-tag">内容建设中</span>
           </div>
         ) : (
           <>

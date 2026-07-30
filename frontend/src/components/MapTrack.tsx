@@ -158,7 +158,7 @@ export function MapTrack({
         >
           <Mascot
             pose="GUIDE_POINT"
-            size="small"
+            size="medium"
             message={recommended.node.state === 'NOT_STARTED' ? '从这里开始！' : '继续这条路线！'}
           />
         </div>

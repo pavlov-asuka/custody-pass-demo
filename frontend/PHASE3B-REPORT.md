@@ -124,3 +124,84 @@
 **已停在阶段 3B-4 用户视觉闸门,未启动 3B-5,未启动阶段 4。**
 
 停止工作,等待用户和项目主控确认三张门槛页面。用户未明确确认前,不得扩展登录、知识卡、示范、异常案例、评分、结果、补学、记录或详情页。
+
+## 十、3B-4 视觉闸门修订（本轮）
+
+本节是第一次主控复核后的修订记录，覆盖本轮实际施工和验证；前文保留第一轮施工历史。
+
+### 10.1 第一次驳回与修订边界
+
+第一次 3B-4 主控复核确认功能、接口、字体体积和地图业务结构通过，但驳回三项视觉阻断：
+
+1. 三世界仍是三个完整白色大卡片，1920×1080 下场景集中在中部，未达到共享白色画布上的开放式大型学习世界。
+2. `Mascot.tsx` 和 `WorldScene.tsx` 通过内联手写 SVG 绘制，角色与世界场景未达到正式资产和小托身份基准要求。
+3. 基础练习正确反馈后仍渲染低对比度禁用“检查答案”按钮，650ms 自动推进虽存在，但截图语义不完整。
+
+本轮严格停留在 3B-4：只替换正式插画渲染、开放式世界布局、地图小托尺寸、正确反馈行动区、门槛截图和验收文档；未修改后端、契约、API、路由、数据模型、字体包、字体流水线或地图路径/节点/标签/业务结构，未启动 3B-5 或阶段 4。
+
+### 10.2 插画资产形式、来源与身份基准
+
+- 资产形式：10 张成品透明 WebP；7 张小托姿态为 `512px` 宽，3 张世界场景为 `1100px` 宽；原始 ImageGen PNG 与 `frontend/scripts/process_illustrations.py` 一并保留。
+- 小托姿态映射：`WELCOME_WAVE → xiaotuo-wave.webp`、`GUIDE_POINT → xiaotuo-point.webp`、`THINKING → xiaotuo-think.webp`、`READ_WITH_BOOK → xiaotuo-book.webp`、`SCORING_WAIT → xiaotuo-wait.webp`、`RESULT_SUPPORT → xiaotuo-support.webp`、`CELEBRATE → xiaotuo-celebrate.webp`。
+- 世界场景映射：`CLEARING → world-clearing.webp`、`ACCOUNTING → world-accounting.webp`、`SUPERVISION → world-supervision.webp`。
+- 来源：小托以 `design-assets/xiaotuo/xiaotuo-character-baseline-v1.png` 为高保真图生图输入；世界场景采用统一扁平矢量、纯色平涂、深蓝轮廓、无渐变的文生图流程。后处理脚本记录了边缘洪水填充去白底、平台水印裁剪、内容 bbox、缩放和 WebP q92 导出。
+- 复核：逐张查看 `xiaotuo-wave/point/think.webp` 和三张 world WebP，并检查全部 WebP/原始 PNG。指定成品均为 RGBA，透明背景，无水印、损坏或明显身份漂移；小托保留蓝色珊瑚鹿角、额前蓝毛、白色蓬松头部、大圆黑眼带高光、粉耳内、蓝色翻领工作服、深蓝短裤和蓝鞋等基准特征。`xiaotuo-think.webp` 为半身源图，按原始比例使用，没有强行补脚。
+
+### 10.3 本轮代码修复
+
+| 文件 | 修复 |
+|---|---|
+| `frontend/src/components/Mascot.tsx` | 删除全部内联手写 SVG，保留 `pose`、`size`、`message`、`className` API，用 Vite 静态导入正式 WebP，继续提供 `role="img"`、`aria-label="小托"` 和气泡。 |
+| `frontend/src/components/WorldScene.tsx` | 删除场景 SVG 组件，改为三张正式 world WebP 映射；建设中只由统一 CSS `filter: saturate(0.16)` 去饱和。 |
+| `frontend/src/pages/WorldsPage.tsx`、`frontend/src/styles/phase3b.css` | 移除世界外围边框、圆角、背景和卡片阴影；保留三个 `.world-card`、`data-testid="world-grid"` 和“进入学习地图”文本，在共享白画布中形成三列等权开放场景。核算保留绿色主按钮，清算/监督仅灰色“内容建设中”。 |
+| `frontend/src/components/MapTrack.tsx` | 只将地图正式指路小托从 `small` 调为 `medium`，保持路径、节点、标签和状态结构不变；截图复核净距不少于 24px。 |
+| `frontend/src/components/PracticeSession.tsx` | 正确反馈后隐藏提交按钮，在原行动位置显示“即将进入下一题…”或末题“即将完成基础练习…”和轻量等待点；保留 650ms 自动推进、`onCompleted` 和错误状态“重新提交”。 |
+| `frontend/tests/gate-shots.mjs` | 增加 Node `assert` 导入和正确反馈断言：无“检查答案”按钮、等待文字可见、第二题自动出现、错误状态有“重新提交”；新增 `15-practice-advancing.png`。 |
+| `frontend/tests/page-test.mjs` | 增加可选 `PHASE3_PAGE_TEST_SCREENSHOT_DIR`，默认仍指向原 phase3 路径；本轮使用隔离临时目录运行，避免覆盖 phase3 历史截图。 |
+| `frontend/src/vite-env.d.ts` | 增加 WebP 静态导入声明，仅服务于正式资产的 TypeScript 类型检查。 |
+
+### 10.4 正确反馈修复证据
+
+`13-practice-correct.png` 与 `15-practice-advancing.png` 显示正确选项的绿色状态、浅绿色反馈带、可读解析和“即将进入下一题…”；原行动位置不再存在禁用“检查答案”按钮。门槛脚本在正确反馈后检查按钮数量为 0，等待约 650ms 后等待第二题题干出现。`14-practice-wrong.png` 显示错误局部反馈、思考小托和可操作的“重新提交”按钮，错误重答路径未被改变。
+
+### 10.5 新截图与验收材料
+
+本轮只更新 `frontend/screenshots/phase3b-gate/`，没有覆盖 `frontend/screenshots/phase3/`。截图清单：
+
+- 三世界：`01-worlds-1440.png`、`01-worlds-1920.png`、`02-worlds-accounting-detail.png`、`03-worlds-building-detail.png`；
+- 地图：`04-map-1440.png`、`04-map-1920.png`、`05-map-node-states.png`、`06-map-remediation-1440.png`；
+- 练习：`07-practice-empty-1440.png`、`07-practice-empty-1920.png`、`08-practice-submit-disabled.png`、`09-practice-focus.png`、`10-practice-selected.png`、`11-practice-submit-enabled.png`、`12-practice-submit-pressed.png`、`13-practice-correct.png`、`14-practice-wrong.png`、`15-practice-advancing.png`。
+
+`frontend/screenshots/phase3b-gate/ACCEPTANCE.md` 已按“修改前问题 → 修改后证据 → 规范符合性 → 剩余限制”逐项重写，明确记录第一次驳回、本轮正式资产来源和停止边界。
+
+### 10.6 测试、构建与字体复测
+
+| 命令/检查 | 结果 |
+|---|---|
+| `npm run typecheck` | 通过 |
+| `npm run test:pages` | 通过；使用 `PHASE3_PAGE_TEST_SCREENSHOT_DIR` 指向临时目录，临时输出已删除，`phase3/` 未被写入 |
+| `node tests/gate-shots.mjs` | 通过；新增正确隐藏按钮、自动推进和错误重提断言通过，记录 2 次练习提交请求 |
+| `npm run build` | 通过；1616 modules transformed，正式 WebP 进入 dist |
+| `git diff --check` | 通过 |
+| `dist/fonts/` | 6 个 WOFF2，原始发布字节 `3,161,012`；gzip 合计 `3,162,089`；严格小于 `10,000,000` |
+
+本轮没有修改字体包或字体流水线。
+
+### 10.7 提交链与工作树
+
+本轮提交链为：
+
+1. `fe968de` — `docs: lock phase 3b visual specification`（第一轮历史基线）；
+2. `23c31fd` — `feat: build phase 3b visual gate`（第一轮门槛实现）；
+3. `62fb1c9` — `docs: add phase 3b construction report`（第一轮报告）；
+4. `dbf21a7` — `chore: add phase 3b illustration assets`（本轮交接资产、原始 PNG、处理脚本）；
+5. `a7ee1b2` — `docs: handoff phase 3b gate revision`（本轮施工交接文档）；
+6. `fix: revise phase 3b visual gate` — 本轮代码、门槛截图、验收表和本报告修订的独立提交，完成前写入。
+
+最终提交后应确认产品仓库工作树干净，且变更仅位于本轮允许的前端组件、阶段 3B 样式、截图、测试与报告范围。
+
+### 10.8 当前停止点
+
+本轮已完成 3B-4 视觉闸门修订，等待主控和用户重新验收三张门槛页；不得据此自动扩展登录、知识卡、示范、异常案例、评分、结果、补学、记录、详情页或阶段 4。
+
+**已完成 3B-4 视觉闸门修订，仍停在 3B-4，未启动 3B-5，未启动阶段 4。**

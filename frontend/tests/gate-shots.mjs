@@ -1,6 +1,7 @@
 // 阶段 3B-4 视觉门槛截图脚本
 // 输出：frontend/screenshots/phase3b-gate/
 // 画布：1440×900 与 1920×1080（仅桌面端）
+import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { access, mkdir, readdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -310,16 +311,22 @@ async function run() {
       await page.mouse.up();
     }
 
-    // 正确反馈（650ms 自动推进前截取）
+    // 正确反馈：自动推进保留，但原提交按钮必须立即消失。
     await page.waitForTimeout(260);
+    assert.equal(await page.getByRole('button', { name: '检查答案' }).count(), 0);
+    assert.equal(await page.getByText('即将进入下一题…', { exact: true }).count(), 1);
     await shot(page, '13-practice-correct.png');
+    await page.locator('.practice-actionbar').screenshot({
+      path: path.join(screenshotDir, '15-practice-advancing.png'),
+    });
 
-    // 第二题：错误反馈
+    // 第二题应在原有 650ms 延迟后自动出现。
     await page.getByRole('heading', { name: '对账出现差异时，首先应该做什么？' }).waitFor();
     await settle(page);
     await page.locator('.practice-option', { hasText: '直接调整估值结果' }).click();
     await page.getByRole('button', { name: '检查答案' }).click();
     await page.waitForTimeout(320);
+    assert.equal(await page.getByRole('button', { name: '重新提交' }).count(), 1);
     await shot(page, '14-practice-wrong.png');
 
     await page.close();

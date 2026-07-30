@@ -96,6 +96,7 @@ export function PracticeSession({
           key={question.questionId}
           question={question}
           feedback={feedback}
+          isLastQuestion={index === content.questions.length - 1}
           onSubmit={submit}
         />
       </div>
@@ -106,10 +107,12 @@ export function PracticeSession({
 function PracticeBody({
   question,
   feedback,
+  isLastQuestion,
   onSubmit,
 }: {
   question: Question;
   feedback: PracticeFeedback | null;
+  isLastQuestion: boolean;
   onSubmit: (answer: string[]) => Promise<void> | void;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
@@ -269,14 +272,23 @@ function PracticeBody({
               {selected.length ? '已做出选择，可以提交' : '选择一个选项后提交'}
             </span>
           )}
-          <button
-            className="b3-btn b3-btn--primary practice-actionbar__submit"
-            type="button"
-            onClick={submit}
-            disabled={!canSubmit}
-          >
-            {submitting ? '正在提交…' : wrongOnce ? '重新提交' : '检查答案'}
-          </button>
+          {feedback?.correct ? (
+            <div className="practice-actionbar__status" role="status" aria-live="polite">
+              <span>{isLastQuestion ? '即将完成基础练习…' : '即将进入下一题…'}</span>
+              <i aria-hidden="true" />
+              <i aria-hidden="true" />
+              <i aria-hidden="true" />
+            </div>
+          ) : (
+            <button
+              className="b3-btn b3-btn--primary practice-actionbar__submit"
+              type="button"
+              onClick={submit}
+              disabled={!canSubmit}
+            >
+              {submitting ? '正在提交…' : wrongOnce ? '重新提交' : '检查答案'}
+            </button>
+          )}
         </div>
       </footer>
     </div>
