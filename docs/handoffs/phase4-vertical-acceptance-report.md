@@ -7,7 +7,7 @@
 | 仓库路径 | `D:\coding\Project\CCBAGENT-CODEX\Repository` |
 | 分支 | `codex/learning-map-rebuild` |
 | 起始 HEAD | `3a08efd6c061200872de56ea4543232ff4306a64` |
-| 结束 HEAD | （本报告随提交写入；以提交后 `git rev-parse HEAD` 为准） |
+| 结束 HEAD | `fd3f60a1e87a51097a7468e22e254d4ac39941fe` |
 | 跟踪远端 | `origin/learning-map-rebuild`（`https://github.com/pavlov-asuka/custody-pass-demo.git`） |
 
 ## 2. 实际阅读的事实源
