@@ -9,6 +9,12 @@ const root = process.cwd();
 const screenshotDir = process.env.PHASE3_PAGE_TEST_SCREENSHOT_DIR
   ? path.resolve(process.env.PHASE3_PAGE_TEST_SCREENSHOT_DIR)
   : path.join(root, 'screenshots', 'phase3');
+const viewportWidth = Number(process.env.PHASE3_PAGE_TEST_VIEWPORT_WIDTH || 1440);
+const viewportHeight = Number(process.env.PHASE3_PAGE_TEST_VIEWPORT_HEIGHT || 1000);
+const screenshotTag = process.env.PHASE3_PAGE_TEST_SCREENSHOT_TAG || '';
+const screenshotName = (name) => screenshotTag
+  ? name.replace(/\.png$/, `-${screenshotTag}.png`)
+  : name;
 const viteBin = path.join(root, 'node_modules', 'vite', 'bin', 'vite.js');
 const previewPort = 43173;
 const baseUrl = `http://127.0.0.1:${previewPort}`;
@@ -194,7 +200,10 @@ async function run() {
 
   const executablePath = await findInstalledChromium();
   const browser = await chromium.launch({ headless: true, executablePath });
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
+  const page = await browser.newPage({
+    viewport: { width: viewportWidth, height: viewportHeight },
+    deviceScaleFactor: 1,
+  });
   let loggedIn = false;
   let draftSaveCount = 0;
   let mapPassed = false;
@@ -258,7 +267,10 @@ async function run() {
     }
     if (pathname === '/api/attempts/41') return json({ attemptId: 41, routeId: routeOverview.routeId, processingStatus: 'SCORING', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '1.0.0', rubricVersion: '1.0.0', allowedActions: ['POLL'] });
     if (pathname === '/api/attempts/42' || pathname === '/api/training-records/42') return json(attempt(42, 'PASSED'));
-    if (pathname === '/api/attempts/43' || pathname === '/api/training-records/43') return json(attempt(43, 'LEARNED_NOT_MASTERED'));
+    if (pathname === '/api/attempts/43') return json(attempt(43, 'LEARNED_NOT_MASTERED'));
+    if (pathname === '/api/training-records/43') {
+      return json({ ...attempt(43, 'LEARNED_NOT_MASTERED'), currentRouteState: 'PASSED' });
+    }
     if (pathname === '/api/attempts/44') return json({ attemptId: 44, routeId: routeOverview.routeId, processingStatus: 'FAILED', technicalErrorCode: 'SCORING_TECHNICAL_FAILURE', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '1.0.0', rubricVersion: '1.0.0', allowedActions: ['RETRY_SCORING'] });
     if (pathname === '/api/attempts/43/remediation' || pathname === '/api/attempts/45/remediation') {
       const completed = pathname.includes('/45/');
@@ -291,7 +303,7 @@ async function run() {
   await page.goto(baseUrl);
   await page.getByRole('heading', { name: '登录学习账号' }).waitFor();
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '01-login.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('01-login.png')), fullPage: true });
   await page.getByLabel('员工号').fill('10000002');
   await page.getByLabel('密码').fill('Demo@1234');
   await page.getByRole('button', { name: /进入学习世界/ }).click();
@@ -300,29 +312,29 @@ async function run() {
   assert.equal(await page.locator('.world-card').count(), 3);
   assert.equal(await page.getByText('内容建设中', { exact: true }).count(), 2);
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '02-worlds.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('02-worlds.png')), fullPage: true });
 
   await page.getByRole('button', { name: /进入学习地图/ }).click();
   await page.getByTestId('learning-map').waitFor();
   assert.equal(await page.locator('.map-node').count(), 2);
   assert.equal(await page.locator('.map-node:enabled').count(), 1);
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '03-accounting-map.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('03-accounting-map.png')), fullPage: true });
 
   await page.getByRole('button', { name: /站上核算岗/ }).click();
   await page.getByRole('heading', { name: '为什么需要核算岗' }).waitFor();
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '04-knowledge-card.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('04-knowledge-card.png')), fullPage: true });
 
   await page.getByRole('button', { name: /正常示范/ }).click();
   await page.getByRole('heading', { name: '7月9日 · 案例产品 B' }).waitFor();
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '04b-demonstration.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('05-demonstration.png')), fullPage: true });
 
   await page.getByRole('button', { name: /基础练习/ }).click();
   await page.getByRole('heading', { name: '系统任务执行后，下一步最合适的动作是什么？' }).waitFor();
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '04c-basic-practice.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('06-basic-practice.png')), fullPage: true });
 
   await page.getByRole('button', { name: /异常案例/ }).click();
   await page.getByLabel('你的处理方案').waitFor();
@@ -330,23 +342,23 @@ async function run() {
   await page.waitForTimeout(1200);
   assert.ok(draftSaveCount >= 1, 'Draft auto-save should issue a revisioned PUT request.');
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '05-exception-case.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('07-exception-case.png')), fullPage: true });
 
   await navigateTo('/attempts/41');
   await page.getByTestId('scoring-wait').waitFor();
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '06-scoring-wait.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('08-scoring-wait.png')), fullPage: true });
 
   await navigateTo('/attempts/44');
   await page.getByRole('heading', { name: '答案还在，重新启动评分即可' }).waitFor();
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '06b-scoring-failed.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('09-scoring-failed.png')), fullPage: true });
 
   await navigateTo('/attempts/42');
   await page.getByTestId('result-view').waitFor();
   assert.equal(await page.getByText('路线已通过', { exact: true }).count(), 1);
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '07-result-passed.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('10-result-passed.png')), fullPage: true });
 
   mapPassed = true;
   await navigateTo('/map/accounting');
@@ -354,25 +366,25 @@ async function run() {
   assert.equal(await page.getByText('已通过 · 4/4', { exact: true }).count(), 1);
   assert.equal(await page.getByText('内容建设中 · 0/4', { exact: true }).count(), 1);
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '07b-map-after-pass.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('11-map-after-pass.png')), fullPage: true });
   mapPassed = false;
 
   await navigateTo('/attempts/43');
   await page.getByTestId('result-view').waitFor();
   assert.equal(await page.getByText('已学习，还需要补强', { exact: true }).count(), 1);
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '08-result-remediation.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('12-result-remediation.png')), fullPage: true });
 
   await page.getByRole('button', { name: /开始定向补学/ }).click();
   await page.getByRole('heading', { name: '把遗漏补上，再完整挑战一次' }).waitFor();
   assert.equal(await page.locator('.remediation-nav > button').count(), 2);
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '09-remediation.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('13-remediation.png')), fullPage: true });
 
   await navigateTo('/attempts/45/remediation');
   await page.getByRole('button', { name: /重新挑战完整异常案例/ }).waitFor();
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '09b-remediation-complete.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('14-remediation-complete.png')), fullPage: true });
   await page.getByRole('button', { name: /重新挑战完整异常案例/ }).click();
   await page.getByLabel('你的处理方案').waitFor();
   assert.ok(page.url().includes('step=EXCEPTION_CASE'), 'Completed remediation should return directly to the full exception case.');
@@ -381,13 +393,22 @@ async function run() {
   await page.getByTestId('records-list').waitFor();
   assert.equal(await page.locator('.record-row').count(), 2);
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '10-records.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('15-records.png')), fullPage: true });
 
-  await navigateTo('/records/42');
+  await page.locator('.user-menu__trigger').click();
+  await page.locator('.user-menu__panel').waitFor();
+  assert.equal(await page.getByRole('button', { name: '我的训练记录' }).count(), 1);
+  await settle();
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('16-user-menu-open.png')), fullPage: true });
+  await page.keyboard.press('Escape');
+
+  await navigateTo('/records/43');
   await page.getByTestId('result-view').waitFor();
   assert.equal(await page.getByText('不可修改的历史记录', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('历史结论：本次未掌握', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('路线当前：已通过', { exact: true }).count(), 1);
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, '11-record-detail.png'), fullPage: true });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('17-record-detail-history-not-mastered-current-passed.png')), fullPage: true });
 
   await browser.close();
   console.log(`Page tests passed. Screenshots: ${screenshotDir}`);

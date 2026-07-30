@@ -6,7 +6,7 @@ import { AppShell } from '../components/AppShell';
 import { ResultView } from '../components/ResultView';
 import { ErrorState, LoadingState } from '../components/States';
 import { useAsync } from '../hooks/useAsync';
-import { formatDate } from '../utils/format';
+import { formatDate, routeStateLabels } from '../utils/format';
 
 export function RecordDetailPage() {
   const { attemptId = '' } = useParams();
@@ -30,10 +30,18 @@ export function RecordDetailPage() {
         {data?.processingStatus === 'COMPLETED' && (
           <>
             <header className="record-detail-header">
-              <span className="eyebrow">不可修改的历史记录</span>
+              <div className="record-detail-header__status">
+                <span className="tag">不可修改的历史记录</span>
+                <span className={`tag ${data.result?.conclusion === 'PASSED' ? 'tag--passed' : 'tag--review'}`}>
+                  历史结论：{data.result?.conclusion === 'PASSED' ? '本次已通过' : '本次未掌握'}
+                </span>
+                {data.currentRouteState && (
+                  <span className="tag tag--current">路线当前：{routeStateLabels[data.currentRouteState]}</span>
+                )}
+              </div>
               <h1>站上核算岗</h1>
               <p>核算条线 / 核算基础与产品生命周期 / 岗位基础 / 站上核算岗</p>
-              <span>{formatDate(data.submittedAt)}</span>
+              <span>提交时间：{formatDate(data.submittedAt)}</span>
             </header>
             <ResultView
               attempt={data}

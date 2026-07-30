@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpenCheck, LockKeyhole, Sparkles } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ApiError } from '../api/client';
@@ -47,17 +47,10 @@ export function LoginPage() {
           <h1>今天，<br />从一条路线开始。</h1>
           <p>跟着小托走进真实业务情境，先学、再练、及时看见每一步成长。</p>
         </div>
-        <div className="login-story__path" aria-hidden="true">
-          <span className="path-dot path-dot--done"><BookOpenCheck /></span>
-          <i />
-          <span className="path-dot"><Sparkles /></span>
-          <i />
-          <span className="path-dot path-dot--locked"><LockKeyhole /></span>
-        </div>
         <Mascot
           pose="WELCOME_WAVE"
           size="large"
-          message={<><strong>你好，我是小托！</strong><span>准备好一起出发了吗？</span></>}
+          message={<><strong>你好，我是小托。</strong><span>登录后，我们从当前路线继续。</span></>}
         />
       </section>
 
@@ -100,7 +93,7 @@ export function LoginPage() {
               {submitting ? '正在进入…' : <>进入学习世界 <ArrowRight size={20} /></>}
             </button>
           </form>
-          <p className="login-card__note">学习进度与训练记录将安全保存在你的账号中。</p>
+          <p className="login-card__note"><ShieldCheck size={17} /> 账户仅用于岗位学习；进度与训练记录会安全保存。</p>
         </div>
       </section>
     </main>

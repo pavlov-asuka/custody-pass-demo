@@ -41,41 +41,38 @@ export function ResultView({
   const passed = result.conclusion === 'PASSED';
 
   return (
-    <div className="result-view" data-testid="result-view">
+    <div className={`result-view ${historical ? 'result-view--historical' : ''}`} data-testid="result-view">
       <section className={`result-hero ${passed ? 'result-hero--passed' : 'result-hero--review'}`}>
-        <Mascot pose="RESULT_SUPPORT" size="medium" />
-        <div>
+        <div className="result-hero__mascot">
+          <Mascot pose={passed ? 'CELEBRATE' : 'RESULT_SUPPORT'} size="large" />
+          {passed && <span className="result-confetti" aria-hidden="true"><i /><i /><i /><i /><i /></span>}
+        </div>
+        <div className="result-hero__copy">
           <span className="eyebrow">{historical ? '本次历史结果' : '本次学习结果'}</span>
           <h1>{copy.title}</h1>
           <p>{copy.description}</p>
-        </div>
-        <div className="score-stamp">
-          <strong>{result.totalScore}</strong>
-          <span>/ 100</span>
+          <div className="result-summary">
+            <span className={result.scoreThresholdMet ? 'is-met' : 'is-missed'}>
+              {result.scoreThresholdMet ? <Check size={17} /> : <CircleAlert size={17} />}
+              总分 {result.totalScore} / 门槛 {result.passScore}
+            </span>
+            <span className={result.allMandatoryRequirementsMet ? 'is-met' : 'is-missed'}>
+              {result.allMandatoryRequirementsMet ? <Check size={17} /> : <CircleAlert size={17} />}
+              {result.allMandatoryRequirementsMet ? '关键要求已满足' : '关键要求仍有遗漏'}
+            </span>
+          </div>
         </div>
       </section>
 
-      <section className="result-card">
-        <div className="result-card__heading">
+      {!passed && (
+        <section className="mandatory-summary">
+          <CircleAlert size={22} />
           <div>
-            <span className="eyebrow">通过判断</span>
-            <h2>{passed ? '两项条件均已满足' : '看看还差在哪里'}</h2>
+            <strong>先补上关键遗漏</strong>
+            <p>本次作答仍有关键要求未充分体现。下面的四维证据会说明需要优先补强的位置。</p>
           </div>
-          {passed ? <Check className="result-icon result-icon--ok" /> : <CircleAlert className="result-icon" />}
-        </div>
-        <div className="criteria-grid">
-          <div className={result.scoreThresholdMet ? 'is-met' : 'is-missed'}>
-            {result.scoreThresholdMet ? <Check /> : <CircleAlert />}
-            <span>分数门槛</span>
-            <strong>{result.totalScore} / {result.passScore}</strong>
-          </div>
-          <div className={result.allMandatoryRequirementsMet ? 'is-met' : 'is-missed'}>
-            {result.allMandatoryRequirementsMet ? <Check /> : <CircleAlert />}
-            <span>关键要求</span>
-            <strong>{result.allMandatoryRequirementsMet ? '已全部满足' : '仍有遗漏'}</strong>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="result-card">
         <div className="result-card__heading">
@@ -128,7 +125,7 @@ export function ResultView({
       )}
 
       {historical && attempt.currentRouteState && (
-        <section className="result-card current-state">
+        <section className="current-state">
           <div>
             <span className="eyebrow">路线当前状态</span>
             <h2>{routeStateLabels[attempt.currentRouteState]}</h2>

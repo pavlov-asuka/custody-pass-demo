@@ -81,6 +81,7 @@ function KnowledgeCardStep({
         <span className="eyebrow">知识卡 {index + 1} / {content.cards.length}</span>
         <span className="lesson-type"><BookOpen size={18} /> 一个核心判断</span>
       </div>
+      <Mascot pose="READ_WITH_BOOK" size="small" />
       <h2>{card.title}</h2>
       <div className="knowledge-card__conclusion">{card.conclusion}</div>
       <div className={`knowledge-visual knowledge-visual--${card.type.toLowerCase()}`}>
@@ -146,15 +147,22 @@ function DemonstrationStep({
         {content.scenario.facts.map((fact) => <span key={fact}><Check size={16} />{fact}</span>)}
       </div>
       <ol className="demo-timeline">
-        {content.steps.slice(0, visible).map((step) => (
-          <li key={step.order}>
+        {content.steps.map((step, stepIndex) => {
+          const state = stepIndex < visible - 1
+            ? 'is-done'
+            : stepIndex === visible - 1
+              ? 'is-current'
+              : 'is-future';
+          return (
+          <li key={step.order} className={state}>
             <span className="demo-timeline__number">{step.order}</span>
             <div>
               <strong>{step.action}</strong>
               <p><span>为什么：</span>{step.reason}</p>
             </div>
           </li>
-        ))}
+          );
+        })}
       </ol>
       {complete && (
         <div className="lesson-insight">

@@ -49,11 +49,7 @@ export function RecordsPage() {
           <div>
             <span className="eyebrow">每一次正式作答都在这里</span>
             <h1>我的训练记录</h1>
-            <p>查看当时的作答与评分快照，也能分清历史结论和路线当前状态。</p>
-          </div>
-          <div className="records-count">
-            <strong>{records?.totalElements ?? '—'}</strong>
-            <span>次正式训练</span>
+            <p>共 {records?.totalElements ?? '—'} 次正式训练 · 查看当时的作答与评分快照，也能分清历史结论和路线当前状态。</p>
           </div>
         </header>
 
