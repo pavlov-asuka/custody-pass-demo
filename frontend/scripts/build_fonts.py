@@ -1,4 +1,4 @@
-# 阶段 3B 字体子集构建脚本（可复现）
+# 正式字体子集构建脚本（可复现）
 #
 # 输入（不进 Git，见 .gitignore 的 frontend/.font-src/）：
 #   Nunito-var.ttf      https://github.com/google/fonts/raw/main/ofl/nunito/Nunito%5Bwght%5D.ttf

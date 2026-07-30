@@ -169,7 +169,7 @@ $supervision = @($lines | Where-Object line -eq 'SUPERVISION')
 if ($accounting.availability -ne 'OPEN' -or
     $clearing.availability -ne 'BUILDING' -or
     $supervision.availability -ne 'BUILDING') {
-    throw '三条线开放状态不符合阶段2决策。'
+    throw '三条线开放状态不符合当前产品决策。'
 }
 if (@($clearing[0].regions).Count -ne 0 -or @($supervision[0].regions).Count -ne 0) {
     throw '清算或监督不得包含虚假地图内容。'

@@ -1,5 +1,5 @@
-// 阶段 3B-4 视觉门槛截图脚本
-// 输出：frontend/screenshots/phase3b-gate/
+// 关键页面视觉回归截图脚本
+// 默认输出：Repository/.local/test-results/frontend-visual-gate/
 // 画布：1440×900 与 1920×1080（仅桌面端）
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -11,7 +11,7 @@ import { chromium } from 'playwright';
 const root = process.cwd();
 const screenshotDir = process.env.PHASE3_GATE_SCREENSHOT_DIR
   ? path.resolve(process.env.PHASE3_GATE_SCREENSHOT_DIR)
-  : path.join(root, 'screenshots', 'phase3b-gate');
+  : path.resolve(root, '..', '.local', 'test-results', 'frontend-visual-gate');
 const viteBin = path.join(root, 'node_modules', 'vite', 'bin', 'vite.js');
 const previewPort = 43174;
 const baseUrl = `http://127.0.0.1:${previewPort}`;

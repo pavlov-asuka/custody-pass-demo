@@ -16,11 +16,11 @@ import { requestId } from '../utils/ids';
 import { Mascot } from './Mascot';
 
 /**
- * 基础练习视觉母版（阶段 3B 门槛页 3）
+ * 基础练习正式视觉母版
  * DESIGN 12 / 13.3：一屏一个问题；主列 720px；底部唯一主行动；
  * 选项未选 1—2px 浅灰边、已选 2px 蓝边淡蓝底、正确 2px 绿边淡绿底、
  * 错误 2px 红边淡红底；局部反馈贴近行动区，不做整页失败卡。
- * 业务逻辑（提交、自动推进、错题重答）与阶段 3 功能基线一致。
+ * 保持提交、自动推进和错题重答的既定业务逻辑。
  */
 export function PracticeSession({
   routeId,

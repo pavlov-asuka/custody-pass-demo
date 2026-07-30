@@ -8,7 +8,7 @@ import { chromium } from 'playwright';
 const root = process.cwd();
 const screenshotDir = process.env.PHASE3_PAGE_TEST_SCREENSHOT_DIR
   ? path.resolve(process.env.PHASE3_PAGE_TEST_SCREENSHOT_DIR)
-  : path.join(root, 'screenshots', 'phase3');
+  : path.resolve(root, '..', '.local', 'test-results', 'frontend-pages');
 const viewportWidth = Number(process.env.PHASE3_PAGE_TEST_VIEWPORT_WIDTH || 1440);
 const viewportHeight = Number(process.env.PHASE3_PAGE_TEST_VIEWPORT_HEIGHT || 1000);
 const screenshotTag = process.env.PHASE3_PAGE_TEST_SCREENSHOT_TAG || '';

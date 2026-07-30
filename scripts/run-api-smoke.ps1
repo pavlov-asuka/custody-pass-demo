@@ -196,7 +196,7 @@ try {
     if ($history.historicalConclusion -ne 'PASSED') { throw 'history snapshot mismatch' }
 
     $null = Invoke-JsonApi -Method POST -Path '/api/auth/logout' -Headers $csrfHeaders
-    $summary = ("phase2-http-smoke=ok; user={0}; worlds=3; route={1}; attempt={2}; " +
+    $summary = ("baseline-http-smoke=ok; user={0}; worlds=3; route={1}; attempt={2}; " +
         "status=COMPLETED; conclusion=PASSED; nextNodeUnlocked=true; records={3}") -f `
         $EmployeeNo, $routeId, $attempt.attemptId, $records.totalElements
     Write-Output $summary

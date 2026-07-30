@@ -1,11 +1,11 @@
-# 阶段 3B-4 插画资产后处理（可复现）
+# 阶段 3B 插画资产后处理（可复现）
 #
-# 输入：frontend/src/assets/illustrations/ 下的 ImageGen 生成原图（白底 PNG）
+# 输入：本目录下的 ImageGen 生成原图（白底 PNG）
 # 处理：思考姿态裁剪 → 白底去底（边缘洪水填充）→ 裁水印 → 内容 bbox 裁边 →
 #       缩放 → 导出 WebP（带 alpha）
 # 输出：frontend/src/assets/illustrations/<name>.webp（提交进 Git）
 #
-# 运行：python frontend/scripts/process_illustrations.py
+# 运行：python design-assets/source/phase3b/process_illustrations.py
 
 from __future__ import annotations
 
@@ -14,7 +14,9 @@ from pathlib import Path
 
 from PIL import Image
 
-HERE = Path(__file__).resolve().parents[1] / "src" / "assets" / "illustrations"
+SOURCE_DIR = Path(__file__).resolve().parent
+REPOSITORY_ROOT = Path(__file__).resolve().parents[3]
+OUTPUT_DIR = REPOSITORY_ROOT / "frontend" / "src" / "assets" / "illustrations"
 
 # 源文件 →（输出名, 目标宽度, 可选预裁剪框 left/top/right/bottom）
 JOBS = [
@@ -94,14 +96,15 @@ def process(src: Path, out_name: str, target_w: int, crop: tuple[int, int, int, 
     ratio = target_w / img.size[0]
     target_h = round(img.size[1] * ratio)
     img = img.resize((target_w, target_h), Image.LANCZOS)
-    out = HERE / f"{out_name}.webp"
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    out = OUTPUT_DIR / f"{out_name}.webp"
     img.save(out, "WEBP", quality=92, method=6)
     print(f"{out.name}: {img.size[0]}x{img.size[1]} {out.stat().st_size:,} B")
 
 
 def main() -> None:
     for src_name, out_name, target_w, crop in JOBS:
-        src = HERE / src_name
+        src = SOURCE_DIR / src_name
         if not src.exists():
             print(f"缺少源文件：{src_name}")
             continue

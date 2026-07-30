@@ -20,17 +20,17 @@ New-Item -ItemType Directory -Force -Path $logDirectory, $dataDirectory | Out-Nu
 $jars = @(Get-ChildItem -LiteralPath (Join-Path $repositoryRoot 'backend/target') `
     -File -Filter 'custody-training-*.jar')
 if ($jars.Count -ne 1) {
-    throw "阶段2验证要求 backend/target 中恰好有一个 JAR，实际为 $($jars.Count) 个。"
+    throw "基础验证要求 backend/target 中恰好有一个 JAR，实际为 $($jars.Count) 个。"
 }
 
 try {
     $env:SERVER_PORT = [string]$verifyPort
-    $databaseName = 'phase2-smoke-' + [Guid]::NewGuid().ToString('N')
+    $databaseName = 'baseline-smoke-' + [Guid]::NewGuid().ToString('N')
     $databasePath = (Join-Path $dataDirectory $databaseName).Replace('\', '/')
     $env:MOCK_DB_URL = "jdbc:h2:file:$databasePath;MODE=MySQL;AUTO_SERVER=TRUE"
     $baseUrl = "http://127.0.0.1:$verifyPort"
-    $stdout = Join-Path $logDirectory 'phase2-smoke-app.log'
-    $stderr = Join-Path $logDirectory 'phase2-smoke-app.err.log'
+    $stdout = Join-Path $logDirectory 'baseline-smoke-app.log'
+    $stderr = Join-Path $logDirectory 'baseline-smoke-app.err.log'
 
     $serverProcess = Start-Process -FilePath $java `
         -ArgumentList @('-jar', $jars[0].FullName, '--spring.profiles.active=mock') `
@@ -42,7 +42,7 @@ try {
     $ready = $false
     for ($attempt = 0; $attempt -lt 60; $attempt += 1) {
         if ($serverProcess.HasExited) {
-            throw "阶段2 HTTP smoke 应用提前退出，退出码：$($serverProcess.ExitCode)"
+            throw "基础 HTTP smoke 应用提前退出，退出码：$($serverProcess.ExitCode)"
         }
         try {
             $health = Invoke-RestMethod -Uri "$baseUrl/api/health" -TimeoutSec 1
@@ -55,7 +55,7 @@ try {
             Start-Sleep -Milliseconds 500
         }
     }
-    if (-not $ready) { throw '阶段2 HTTP smoke 应用在 30 秒内未就绪。' }
+    if (-not $ready) { throw '基础 HTTP smoke 应用在 30 秒内未就绪。' }
 
     $password = ConvertTo-SecureString 'Demo@1234' -AsPlainText -Force
     & (Join-Path $PSScriptRoot 'run-api-smoke.ps1') `
@@ -72,4 +72,4 @@ finally {
     else { $env:MOCK_DB_URL = $originalMockDbUrl }
 }
 
-Write-Output '阶段2统一验证通过；未运行阶段1旧前端 E2E。'
+Write-Output '基础统一验证通过。完整补学闭环请运行 scripts/verify-phase4.ps1。'

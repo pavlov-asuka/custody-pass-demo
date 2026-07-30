@@ -13,7 +13,7 @@ import { routeStateLabels } from '../utils/format';
 import { Mascot } from './Mascot';
 
 /**
- * 核算连续长地图轨道（阶段 3B）
+ * 核算连续长地图轨道
  * 几何基线（DESIGN 9）：主轴 720px；普通节点 80px，当前 92px，
  * 里程碑 102px；纵向节距 116px；路径线 10px；标签 150—190px 常显。
  */
