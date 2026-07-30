@@ -320,3 +320,169 @@ a7ee1b2 docs: handoff phase 3b gate revision
 3B-5 代码、截图、检查表和主体报告均包含于 `198dcb3`。本段精确哈希回填由后续独立文档提交完成；产品仓库工作树状态在提交后复核。
 
 **已完成阶段 3B-5，未启动 3B-6，未启动阶段 4。**
+
+---
+
+## 十二、阶段 3B-6｜最终全量回归、视觉验收与收口
+
+> 执行基线：`bd885c0 docs: finalize phase 3b-5 report`
+>
+> 本节是阶段 3B 的最终检查点，不新增产品功能，不启动阶段 4。
+
+### 12.1 最终改动范围
+
+1. 清理 `global.css` 中仍可达的阶段 3 视觉本体：全部旧颜色/边界/阴影令牌迁移到 `tokens.css` 的正式阶段 3B 令牌；删除 30 个阶段 3 过渡令牌。
+2. 将可达结构规则改为普通 0/1px 浅边、明确状态 2px 边、700 字重和无静态硬下沿；保留按钮按压深度、地图节点按压深度以及键盘 `:focus-visible` 的 3px 外轮廓。
+3. 新增 `frontend/tests/style-audit.mjs` 与 `npm run test:styles`，自动约束旧令牌、3px 以上实体容器边框、800/900 字重、渐变、玻璃拟态、炫光和桌面响应式断点，并验证 5 组结构选择器仍可追溯到真实组件。
+4. 将 `gate-shots.mjs` 的输出目录改为可配置；本轮明确写入 `phase3b-final/`，默认 `phase3b-gate/` 行为不变。
+5. 强化 `page-test.mjs`：增加自托管字体实际加载、未授权/登录会话、动态 CSRF、草稿自动保存、revision 冲突、未保存离页保护、正式提交、评分等待、技术失败后同一 attempt 重试、补学完成、记录与历史/当前状态并存等浏览器断言。
+6. 回归发现四环节按钮只改本地状态、没有经过路由 blocker，导致异常案例内切换环节可能绕过未保存草稿保护。`LearningPage` 现统一使用既有 `?step=` 路由切换环节，使同一 `useBlocker` 覆盖返回地图和环节切换；没有新增路由、API、契约或状态机。
+7. 建立独立最终截图目录 `frontend/screenshots/phase3b-final/`，生成 52 张最终代码截图和详细验收表。
+
+未修改 `backend/`、`content/`、`contracts/`、`frontend/src/api/`、`frontend/src/App.tsx`、类型定义、数据库、字体文件、正式 WebP、原始生成 PNG、`build_fonts.py` 或 `process_illustrations.py`。
+
+### 12.2 CSS 可达性清单与处理结论
+
+| 选择器组 | 实际组件/状态 | 结论与处理 |
+|---|---|---|
+| `.route-stepper`、`.lesson-card`、`.knowledge-card__conclusion`、`.demo-timeline` | `LearningPage` 四环节 | 可达；保留结构，迁移正式令牌、1px/状态 2px、700 字重、无静态硬下沿。 |
+| `.practice-question`、`.choice-list`、`.ordering-list`、`.feedback` | `PracticeQuestion`，由 `RemediationPage` 复用 | 可达；不得作为旧死代码删除，已迁移补学练习结构与状态边界。 |
+| `.exception-case`、`.answer-editor`、`.modal`、`.conflict-preview` | 异常案例、提交确认、revision 冲突、离页保护 | 可达；输入、弹窗和冲突预览已改为轻边界，聚焦蓝保留。 |
+| `.scoring-wait`、`.scoring-failed`、`.result-view`、`.dimension` | 评分双态和结果双态 | 可达；移除深框、静态硬阴影和超粗字重。 |
+| `.record-filters`、`.record-row`、`.record-detail-header` | 记录、筛选、历史详情 | 可达；改为白底行、1px 分隔/轻边和多通道状态。 |
+
+最终自动扫描：
+
+- 旧语义令牌定义/引用：`0`；
+- `global.css` 3px 以上实体容器边框：`0`；
+- `font-weight: 800/900`：`0`；
+- 渐变、玻璃拟态、`drop-shadow` 炫光：`0`；
+- 移动端/宽度响应式媒体查询：`0`；
+- 键盘 3px 焦点外轮廓：保留并由测试断言。
+
+因此本轮不是通过 `phase3b.css` 的加载顺序遮盖旧规则；`global.css` 本体已经迁移到阶段 3B 约束。
+
+### 12.3 全量功能回归
+
+后端 41 项测试、增强页面测试和隔离 HTTP smoke 共同覆盖：
+
+- 登录、Cookie 会话、动态 CSRF、登录后 session id 轮换、会话恢复、未授权重定向、退出与绝对超时；
+- 三世界数量、核算开放、清算/监督建设中、地图发布进度、节点锁定和通过后解锁；
+- 路线总览与知识卡→正常示范→基础练习→异常案例顺序，以及已完成环节复习；
+- 基础练习未选、焦点、已选、按压、正确、错误、自动推进、重新提交和全部题至少答对一次；
+- 草稿自动保存、expected revision、冲突取舍、用户隔离、浏览器关闭提示和环节/路由离页保护；
+- 幂等正式提交、不可变 attempt、异步轮询、技术失败不作为学习结论、原 attempt 评分重试；
+- 通过/未掌握、分数门槛、硬性项覆盖、四维结果、定向补学、补学不直接通关和完整案例重试；
+- 已通过后低分复习不撤销路线通过状态；
+- 记录分页、筛选、不可变历史快照、用户隔离、历史结论与路线当前状态并存；
+- 公共内容不泄露答案、Rubric、硬性项内部明细或私有评分资产。
+
+`LearningFlowApplicationTests` 的关键用例包括：
+
+```text
+worldsExposeOnlyAccountingAndNoFakeProgress
+mapDerivesLockedStateAndPublishedProgress
+firstLearningSequenceIsEnforcedButCompletedStepsCanBeReviewed
+basicPracticeRequiresEveryQuestionCorrectOnceAndNeverReturnsAnswerKey
+draftsAreVersionedAndIsolatedByLearner
+formalSubmissionIsIdempotentAndCreatesImmutableAttemptBeforeScoring
+scoringFailureIsTechnicalAndRetryUsesOriginalAttempt
+mandatoryRequirementOverridesPassingScore
+remediationMustBeCompletedBeforeFullChallengeAndDoesNotDirectlyPass
+passingRetryUnlocksNextNode
+lowReviewAfterPassKeepsRoutePassedButRecordsCurrentConclusion
+recordHistoryIsPaginatedFilteredImmutableAndUserIsolated
+publicContentNeverLeaksPrivateScoringAssets
+```
+
+### 12.4 最终视觉回归
+
+最终截图目录：
+
+```text
+frontend/screenshots/phase3b-final/
+```
+
+最终逐屏验收表：
+
+```text
+frontend/screenshots/phase3b-final/ACCEPTANCE.md
+```
+
+- 共 52 张 PNG。
+- 所有带 `-1440` / `-1920` 的 41 张主截图分别严格为 `1440 × 900` / `1920 × 1080`；其余为练习行动区、地图节点和世界场景的组件级细节。
+- 覆盖登录、三世界、核算地图与节点、知识卡、示范、基础练习全部关键态、异常案例、评分等待、评分技术失败、通过、未掌握、补学进行中/完成、记录、菜单和历史未掌握但当前通过详情。
+- 联系表逐组复核未见横向溢出、文字截断、空白按钮、状态只靠颜色、同视口多个主小托或正式插画身份漂移。
+- 最终目录由环境变量显式指定；没有覆盖 `phase3/`、`phase3b-gate/` 或 `phase3b-expanded/`。
+
+### 12.5 统一脚本与构建结果
+
+| 命令/检查 | 最终结果 |
+|---|---|
+| `scripts/validate-content.ps1` | 通过：15 个 JSON、1 条正式路线、4 份 Schema |
+| `scripts/test-backend.ps1` | 通过：41 tests，0 failures / 0 errors / 0 skipped |
+| `scripts/build-frontend.ps1` | 通过：typecheck + 生产构建，1616 modules |
+| `scripts/build-app.ps1` | 通过：同源 JAR，复制 20 个前端生产资源 |
+| `scripts/verify-all.ps1` | 最终代码复跑通过；隔离端口 18080、`.local` 随机 H2；HTTP smoke 为 `COMPLETED/PASSED`、下一节点解锁、记录存在 |
+| `npm run test:styles` | 通过：5 组可达结构、0 旧令牌、0 禁用视觉机制 |
+| `npm run test:pages` | 两档最终代码通过；增强功能断言和精确画布截图通过 |
+| `node tests/gate-shots.mjs` | 最终代码通过：2 次练习请求，全部交互关键态通过 |
+| `git diff --check` | 通过 |
+
+统一脚本仅使用既有内存测试数据库或 `verify-all.ps1` 的 `.local` 随机 H2 文件和端口 `18080`；没有修改用户现有 8080 服务或历史数据。
+
+### 12.6 字体最终核验
+
+| 文件 | 发布字节 |
+|---|---:|
+| `noto-sans-sc-400.woff2` | 1,028,488 |
+| `noto-sans-sc-500.woff2` | 1,029,112 |
+| `noto-sans-sc-700.woff2` | 1,028,864 |
+| `nunito-400.woff2` | 24,828 |
+| `nunito-500.woff2` | 24,840 |
+| `nunito-700.woff2` | 24,880 |
+| **合计** | **3,161,012** |
+
+- 生产构建恰好发布 6 个 WOFF2，总字节严格小于 `10,000,000`。
+- Noto Sans SC 三字重对当前 3,944 个允许字符均为 0 缺字；覆盖中文业务文案、数字、日期、金额和标点。
+- Nunito 提供拉丁、数字与基础符号；字体栈按 Noto Sans SC、Segoe UI、微软雅黑、system-ui 回退。
+- 6 个 `@font-face` 均使用 `font-display: swap`；页面测试等待 `document.fonts.ready` 并断言两个字体家族在浏览器中可用。
+- Nunito 与 Noto Sans SC 的 SIL OFL 1.1 授权和子集 name 表信息保持不变。
+
+### 12.7 插画生产包核验
+
+- `dist` 恰好包含 10 张正式 WebP：3 张世界场景与 7 张小托姿态。
+- 全部为 RGBA 透明图，世界场景宽 1100px，小托宽 512px；10 个 SHA-256 均不同，没有重复成品。
+- 像素 bbox 四周保留 1—5px 透明安全边；逐屏复核未见白底、水印、损坏或裁切。
+- 生产 JS 只引用 10 张正式 WebP；原始 PNG 和 `process_illustrations.py` 没有进入生产包。
+- 小托继续使用欢迎、指路、拿书、思考、等待、支持、庆祝 7 个既有姿态；没有新增或修改生成资产。
+
+### 12.8 禁止项、已知限制与契约请求
+
+- 禁止项扫描为 0：XP、等级、连续学习、红心、排行榜、商城、Lingots、独立问答、三条线快速切换、移动端业务分支。
+- 前端只消费服务返回的 `conclusion`、`progressPercent`、`currentRouteState` 和 `challengeUnlocked`，没有根据分数推导通过、进度或解锁。
+- 生产页面没有显示答案、Rubric、硬性项内部明细、评分关键词、内部项目 ID、模型名称或参数。
+- 已知限制 1：知识卡契约没有公开原材料 URL，因此没有虚构入口。
+- 已知限制 2：技术失败继续复用正式 `RESULT_SUPPORT` 姿态，不新增第八张小托资产。
+- 契约变更请求：无。
+
+### 12.9 提交链与停止状态
+
+阶段 3B 完整提交链：
+
+```text
+fe968de docs: lock phase 3b visual specification
+23c31fd feat: build phase 3b visual gate
+62fb1c9 docs: add phase 3b construction report
+dbf21a7 chore: add phase 3b illustration assets
+a7ee1b2 docs: handoff phase 3b gate revision
+5c34249 fix: revise phase 3b visual gate
+198dcb3 feat: extend phase 3b visual system
+bd885c0 docs: finalize phase 3b-5 report
+3a0088b refactor: close phase 3b visual system
+docs: finalize phase 3b delivery（本报告与最终验收表提交）
+```
+
+代码、CSS、测试和 52 张最终截图位于 `3a0088b`。本报告与最终验收表由下一条独立文档提交完成；最终精确哈希以 Git 历史和主控回报为准。提交后复核当前分支、HEAD 与工作树。
+
+**阶段 3B-6 已完成，阶段 3B 施工已停止，未启动阶段 4。**
