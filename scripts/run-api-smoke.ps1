@@ -39,7 +39,17 @@ function Invoke-JsonApi {
     }
     if ($null -ne $Body) {
         $parameters.ContentType = 'application/json; charset=utf-8'
-        $parameters.Body = ($Body | ConvertTo-Json -Depth 20 -Compress)
+        $payload = [ordered]@{}
+        foreach ($key in @($Body.Keys)) {
+            $value = $Body[$key]
+            if ($value -is [System.Array]) {
+                $list = [System.Collections.Generic.List[object]]::new()
+                foreach ($item in @($value)) { $list.Add($item) }
+                $payload[$key] = $list
+            }
+            else { $payload[$key] = $value }
+        }
+        $parameters.Body = ($payload | ConvertTo-Json -Depth 20 -Compress)
     }
     $response = Invoke-WebRequest @parameters
     if ([string]::IsNullOrWhiteSpace($response.Content)) { return $null }
@@ -175,7 +185,7 @@ try {
     $mapAfter = Invoke-JsonApi -Method GET -Path '/api/lines/ACCOUNTING/map'
     $allNodes = @($mapAfter.regions | ForEach-Object modules |
         ForEach-Object nodes | ForEach-Object { $_ })
-    $nextNode = @($allNodes | Where-Object routeId -eq 'ACC-LIFE-TAKEOVER-001')[0]
+    $nextNode = @($allNodes | Where-Object routeId -eq 'ACC-LIFE-ONBOARD-002')[0]
     if ($nextNode.locked -or $nextNode.enterable) {
         throw 'next BUILDING node should be unlocked for display but not enterable'
     }

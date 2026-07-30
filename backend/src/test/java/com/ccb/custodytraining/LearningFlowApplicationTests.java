@@ -256,6 +256,49 @@ class LearningFlowApplicationTests {
     }
 
     @Test
+    void fullRemediationJourneyKeepsTwoHistorySnapshotsAndUnlocksNextRoute() throws Exception {
+        Session learner = prepared("10000001");
+        long failedAttempt = submitAndAwaitNotMastered(learner);
+        mockMvc.perform(get("/api/lines/ACCOUNTING/map").session(learner.session()))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].locked").value(true));
+        mockMvc.perform(post("/api/routes/" + ROUTE + "/attempts")
+                        .session(learner.session()).with(learner.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(submissionJson(requestId(), PASSING_ANSWER)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("REMEDIATION_REQUIRED"));
+        completeAllRemediation(learner, failedAttempt);
+        mockMvc.perform(get("/api/lines/ACCOUNTING/map").session(learner.session()))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].state")
+                        .value("LEARNED_NOT_MASTERED"));
+        long passedAttempt = submit(learner, requestId(), PASSING_ANSWER)
+                .path("attemptId").asLong();
+        assertNotEquals(failedAttempt, passedAttempt);
+        JsonNode passed = awaitTerminal(learner, passedAttempt);
+        assertEquals("PASSED", passed.path("historicalConclusion").asText());
+        assertTrue(passed.path("result").path("scoreThresholdMet").asBoolean());
+        assertTrue(passed.path("result").path("allMandatoryRequirementsMet").asBoolean());
+        assertTrue(passed.path("result").path("totalScore").asInt()
+                >= passed.path("result").path("passScore").asInt());
+        mockMvc.perform(get("/api/lines/ACCOUNTING/map").session(learner.session()))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].state").value("PASSED"))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].locked").value(false))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].enterable").value(false));
+        JsonNode failedHistory = getJson(learner, "/api/training-records/" + failedAttempt);
+        JsonNode passedHistory = getJson(learner, "/api/training-records/" + passedAttempt);
+        assertEquals("LEARNED_NOT_MASTERED", failedHistory.path("historicalConclusion").asText());
+        assertEquals("PASSED", failedHistory.path("currentRouteState").asText());
+        assertEquals("事实", failedHistory.path("answerSnapshot").asText());
+        assertEquals("PASSED", passedHistory.path("historicalConclusion").asText());
+        mockMvc.perform(get("/api/training-records?conclusion=LEARNED_NOT_MASTERED")
+                        .session(learner.session()))
+                .andExpect(jsonPath("$.totalElements").value(1));
+        mockMvc.perform(get("/api/training-records?conclusion=PASSED")
+                        .session(learner.session()))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
     void lowReviewAfterPassKeepsRoutePassedButRecordsCurrentConclusion() throws Exception {
         Session learner = prepared("10000001");
         long passedId = submit(learner, requestId(), PASSING_ANSWER).path("attemptId").asLong();
