@@ -7,8 +7,22 @@
 | 仓库路径 | `D:\coding\Project\CCBAGENT-CODEX\Repository` |
 | 分支 | `codex/learning-map-rebuild` |
 | 起始 HEAD | `3a08efd6c061200872de56ea4543232ff4306a64` |
-| 结束 HEAD | 推送后与 `origin/learning-map-rebuild` tip 一致；阶段 4 提交见下方列表 |
+| 本轮主控收口前 tip | `62c42f020e2966ca7ea985e8fceda1576208fd81` |
+| 本收口提交 | 包含本报告修订的当前提交；以 `git rev-parse HEAD` 与最终回报为准（不在文件内自引用 SHA） |
 | 跟踪远端 | `origin/learning-map-rebuild`（`https://github.com/pavlov-asuka/custody-pass-demo.git`） |
+
+### 阶段 4 提交列表（截至收口前 tip）
+
+1. `c44acd4` — `test: verify full remediation learning journey`
+2. `d08c0de` — `docs: finalize phase four acceptance`
+3. `c92a90a` — `docs: record phase four ending commit hash`
+4. `64e82f9` — `docs: clarify phase four tip commit reference`
+5. `77a4973` — `docs: list phase four commits in acceptance report`
+6. `62c42f0` — `docs: add phase four master construction report`
+
+其后为本收口提交（E2E 截图等待、报告自洽、`git diff --check`），最终 SHA 见最终回报 / `git rev-parse HEAD`。
+
+与主控施工报告 `phase4-master-construction-report.md` 表述一致。
 
 ## 2. 实际阅读的事实源
 
@@ -70,18 +84,20 @@ secondAttempt=2; nextUnlocked=true; notMasteredRecords=2; passedRecords=2
 | 登录前受保护资源 | `/api/worlds`=401 |
 | 三世界入口 | 3 个；清算/监督建设中；进入核算地图 |
 | 四环节 | 知识卡 → 示范 → 基础练习 → 异常案例 |
-| 第一次提交 | attempt=5；结果“已学习，还需要补强”；提供“开始定向补学” |
+| 第一次提交 | 结果“已学习，还需要补强”；提供“开始定向补学” |
 | 锁定 | API 下一节点 `locked=true`；地图截图保留 |
 | 定向补学 | 5 个目标；完成后“重新挑战完整异常案例” |
 | 补学后状态 | 路线仍 `LEARNED_NOT_MASTERED` |
-| 第二次提交 | attempt=6（新记录）；“路线已通过” |
+| 第二次提交 | 新记录；“路线已通过” |
 | 解锁 | 地图“已通过 · 4/4”；下一节点解锁展示且不可进入 |
 | 历史 | 两条记录；未掌握详情同时显示历史未掌握与路线当前已通过；通过详情保留已通过 |
+
+截图前统一等待 `.page-enter` 显现完成（见第 12 节收口说明）。
 
 ## 4. 第一次未掌握证据
 
 - HTTP：`firstAttemptId=1`，`historicalConclusion=LEARNED_NOT_MASTERED`，`firstTotalScore=10`，下一节点仍锁定。
-- 浏览器：`firstAttemptId=5`，结果标题含“还需要补强”，截图 `08-result-not-mastered.png`、`09-map-after-fail.png`。
+- 浏览器：结果标题含“还需要补强”，截图 `08-result-not-mastered.png`、`09-map-after-fail.png`。
 - 公开响应未出现私有评分资产字段（keywords / referenceAnswer / itemId / 硬性项内部 ID）。
 
 ## 5. 定向补学证据
@@ -93,7 +109,7 @@ secondAttempt=2; nextUnlocked=true; notMasteredRecords=2; passedRecords=2
 ## 6. 第二次通过与解锁证据
 
 - HTTP：`secondAttemptId=2`，结论 PASSED，总分 95，门槛与硬性必达满足；下一节点解锁且不可进入。
-- 浏览器：`secondAttemptId=6`，标题“路线已通过”；API `nodes[0].state=PASSED`，`nodes[1].locked=false && enterable=false`；截图 `12-result-passed.png`、`13-map-after-pass.png`。
+- 浏览器：标题“路线已通过”；API 首节点 PASSED，下一节点 `locked=false && enterable=false`；截图 `12-result-passed.png`、`13-map-after-pass.png`。
 
 ## 7. 两条历史记录与快照不变证据
 
@@ -116,19 +132,19 @@ secondAttempt=2; nextUnlocked=true; notMasteredRecords=2; passedRecords=2
 
 | 层 | 标识 |
 |---|---|
-| 浏览器 | Playwright Chromium/Chrome，`1440×900`，用户 `10000001`，attempt 5/6 |
-| HTTP | 端口 `18081`，用户 `10000002`，attempt 1/2（技术 3，低分复习 4） |
+| 浏览器 | Playwright Chromium/Chrome，`1440×900`，用户 `10000001` |
+| HTTP | 端口 `18081`，用户 `10000002` |
 | 数据库 | `.local/data/phase4-vertical-<uuid>` 独立 H2；不触碰 8080 与旧 `data/` |
 | 证据文件 | `.local/test-results/phase4-e2e-evidence.json`、`.local/test-results/phase4-e2e/*.png`、`.local/logs/phase4-vertical-app*.log` |
 
 ## 10. 新增或修改的测试/脚本文件
 
-- 新增 `tests/e2e/phase4-vertical.mjs`
+- 新增并收口修订 `tests/e2e/phase4-vertical.mjs`（统一 `shot()` 等待 `.page-enter` 显现）
 - 新增 `scripts/run-phase4-vertical-smoke.ps1`
 - 新增 `scripts/verify-phase4.ps1`
 - 修改 `scripts/run-api-smoke.ps1`（下一节点 routeId 对齐正式地图 `ACC-LIFE-ONBOARD-002`；修复单元素 answer 数组 JSON 序列化）
 - 修改 `backend/src/test/java/com/ccb/custodytraining/LearningFlowApplicationTests.java`（新增完整纵向回归用例）
-- 新增本报告 `docs/handoffs/phase4-vertical-acceptance-report.md`
+- 本报告与 `docs/handoffs/phase4-master-construction-report.md`
 
 未修改：`frontend/`、`contracts/`、`content/`、`design-assets/`。
 
@@ -138,13 +154,20 @@ secondAttempt=2; nextUnlocked=true; notMasteredRecords=2; passedRecords=2
 
 验收期仅修正验收脚本中的下一节点 ID 漂移，以及 PowerShell `ConvertTo-Json` 将单元素 `answer` 数组压成字符串导致的 `BAD_REQUEST`（测试脚本问题，非后端缺陷）。
 
-## 12. 前端问题清单
+## 12. 前端问题清单与截图收口
 
 无阻断纵向闭环的前端功能缺陷。
 
 已知工程限制（未改 frontend，登记供主控决策）：
 
 - 同源 JAR 对非根路径（如直接整页打开 `/map/accounting`、`/attempts/{id}`）缺少 SPA fallback 时可能 404。阶段 4 E2E 改为客户端路由导航完成闭环，功能路径本身可用。
+
+截图证据收口：
+
+- 第一轮证据图中 `08-result-not-mastered.png`、`12-result-passed.png`、`15-record-detail-not-mastered.png` 等因 `.page-enter`（约 320ms 淡入）截取过早而白化。
+- **确认不是持续 UI 遮罩或功能故障**；当时业务断言已通过。
+- 已修复：`shot()` 等待当前页所有 `.page-enter` 的 computed opacity 为 1，仅等待这些元素自身的有限动画，再等两帧 `requestAnimationFrame`，并断言显现完成。
+- 收口复跑后重新检查：`08-result-not-mastered.png`、`10-remediation-start.png`、`12-result-passed.png`、`13-map-after-pass.png`、`15-record-detail-not-mastered.png`、`16-record-detail-passed.png`。
 
 ## 13. 契约变更请求
 
@@ -154,23 +177,23 @@ secondAttempt=2; nextUnlocked=true; notMasteredRecords=2; passedRecords=2
 
 | 命令 | 结果 |
 |---|---|
-| `.\scripts\validate-content.ps1` | 通过 |
+| `.\scripts\validate-content.ps1` | 通过（含于 verify-phase4） |
 | `.\scripts\test-backend.ps1` | 通过（42 tests） |
 | `.\scripts\build-frontend.ps1` | 通过（由 build-app 调用） |
 | `.\scripts\build-app.ps1` | 通过 |
 | `.\scripts\verify-all.ps1` | 通过（基线；不等于阶段 4 纵向闭环） |
 | `frontend: npm run typecheck` | 通过 |
 | `frontend: npm run test:styles` | 通过 |
-| `frontend: npm run test:pages` | 通过（截图产物已还原，未提交） |
+| `frontend: npm run test:pages` | 通过（截图定向系统临时目录，不覆盖阶段截图） |
 | `frontend: npm run build` | 通过 |
-| `git diff --check` | 通过 |
+| `git diff --check 3a08efd..HEAD` | 收口后通过（主控复检曾因 master 报告行尾空格失败，已清除） |
 | `.\scripts\run-phase4-vertical-smoke.ps1`（隔离 18081） | 通过 |
 | `node tests/e2e/phase4-vertical.mjs`（隔离 18081） | 通过 |
-| `.\scripts\verify-phase4.ps1` | 编排脚本已提供；最终以隔离 smoke+E2E 实测通过为准 |
+| `.\scripts\verify-phase4.ps1` | 收口复跑通过 |
 
 ## 15. 临时服务和数据清理结果
 
-- 阶段 4 启动的 `18081` 进程在脚本 `finally` 中停止。
+- 阶段 4 启动的 `18081` 进程在脚本 `finally` 中停止；收口后确认无残留监听。
 - 临时 H2、日志、截图均位于 `.local/`，已由 `.gitignore` 忽略，未纳入提交。
 - 未触碰本机既有 `8080` 服务与旧数据目录。
 
@@ -180,6 +203,7 @@ secondAttempt=2; nextUnlocked=true; notMasteredRecords=2; passedRecords=2
 2. `verify-all.ps1` 仍是“一次直接通过”基线 smoke；完整未掌握→补学→通过由 `verify-phase4.ps1` / phase4 smoke+E2E 覆盖。
 3. 同源 JAR 深链 SPA fallback 缺失（见第 12 节），不影响客户端路由下的完整学习闭环。
 4. 确定性评分依赖 mock profile 关键词匹配；未改生产门槛、正式 Rubric 或正式内容。
+5. 多余远端分支 `origin/codex/learning-map-rebuild` 仍存在，等待用户或主控决定是否删除。
 
 ## 17. 是否满足阶段 4 出口
 
@@ -194,12 +218,6 @@ secondAttempt=2; nextUnlocked=true; notMasteredRecords=2; passedRecords=2
 - 用户隔离、顺序、草稿、幂等和技术重试通过
 - 既有验证通过
 - 未修改 frontend、contracts、content、设计资产
-- 本报告完整
+- 本报告与主控施工报告表述一致
+- 主控复核收口项（报告自洽、`git diff --check`、截图等待）已处理
 - 提交与推送完成
-
-### 阶段 4 提交列表
-
-1. `c44acd4` — `test: verify full remediation learning journey`
-2. `d08c0de` — `docs: finalize phase four acceptance`
-3. `c92a90a` — `docs: record phase four ending commit hash`
-4. （本提交）— `docs: clarify phase four tip commit reference`

@@ -48,7 +48,55 @@ function check(name, ok, extra = '') {
   }
 }
 
+async function waitForPageEnterSettled(page) {
+  await page.waitForFunction(() => {
+    const nodes = [...document.querySelectorAll('.page-enter')];
+    if (nodes.length === 0) return true;
+    return nodes.every((el) => getComputedStyle(el).opacity === '1');
+  }, null, { timeout: 5000 });
+
+  await page.evaluate(async () => {
+    const nodes = [...document.querySelectorAll('.page-enter')];
+    await Promise.all(nodes.map(async (el) => {
+      const animations = typeof el.getAnimations === 'function'
+        ? el.getAnimations({ subtree: false })
+        : [];
+      await Promise.all(
+        animations
+          .filter((animation) => {
+            const iterations = animation.effect?.getComputedTiming?.()?.iterations;
+            return iterations !== Infinity && Number.isFinite(iterations ?? 1);
+          })
+          .map((animation) => animation.finished.catch(() => undefined)),
+      );
+    }));
+  });
+
+  await page.evaluate(() => new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => resolve());
+    });
+  }));
+}
+
 async function shot(page, name) {
+  await waitForPageEnterSettled(page);
+  const settle = await page.evaluate(() => {
+    const nodes = [...document.querySelectorAll('.page-enter')];
+    return {
+      count: nodes.length,
+      opacities: nodes.map((el) => getComputedStyle(el).opacity),
+      allOpaque: nodes.every((el) => getComputedStyle(el).opacity === '1'),
+    };
+  });
+  check(
+    `截图前 page-enter 已显现(${name})`,
+    settle.count === 0 || settle.allOpaque,
+    `count=${settle.count} opacities=${JSON.stringify(settle.opacities)}`,
+  );
+  evidence.shots = evidence.shots || [];
+  evidence.shots.push({ name, ...settle });
+
   const file = path.join(SHOTS, `${name}.png`);
   await page.screenshot({ path: file, fullPage: false });
   console.log(`  📸 ${name}.png`);
