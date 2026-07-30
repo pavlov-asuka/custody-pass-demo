@@ -7,7 +7,7 @@
 | 仓库路径 | `D:\coding\Project\CCBAGENT-CODEX\Repository` |
 | 分支 | `codex/learning-map-rebuild` |
 | 起始 HEAD | `3a08efd6c061200872de56ea4543232ff4306a64` |
-| 结束 HEAD | 本文件所在提交即为阶段 4 结束 tip；提交时以 `git rev-parse HEAD` / `origin/learning-map-rebuild` 为准 |
+| 结束 HEAD | 推送后与 `origin/learning-map-rebuild` tip 一致；阶段 4 提交见下方列表 |
 | 跟踪远端 | `origin/learning-map-rebuild`（`https://github.com/pavlov-asuka/custody-pass-demo.git`） |
 
 ## 2. 实际阅读的事实源
@@ -195,4 +195,11 @@ secondAttempt=2; nextUnlocked=true; notMasteredRecords=2; passedRecords=2
 - 既有验证通过
 - 未修改 frontend、contracts、content、设计资产
 - 本报告完整
-- 提交与推送在本报告对应提交完成后执行
+- 提交与推送完成
+
+### 阶段 4 提交列表
+
+1. `c44acd4` — `test: verify full remediation learning journey`
+2. `d08c0de` — `docs: finalize phase four acceptance`
+3. `c92a90a` — `docs: record phase four ending commit hash`
+4. （本提交）— `docs: clarify phase four tip commit reference`
