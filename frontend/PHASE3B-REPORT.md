@@ -314,9 +314,9 @@ fe968de docs: lock phase 3b visual specification
 dbf21a7 chore: add phase 3b illustration assets
 a7ee1b2 docs: handoff phase 3b gate revision
 5c34249 fix: revise phase 3b visual gate
-<本轮提交> feat: extend phase 3b visual system
+198dcb3 feat: extend phase 3b visual system
 ```
 
-本轮提交完成后，由最终 `git log -1` 和主控回报记录精确哈希。产品仓库工作树状态在提交后复核。
+3B-5 代码、截图、检查表和主体报告均包含于 `198dcb3`。本段精确哈希回填由后续独立文档提交完成；产品仓库工作树状态在提交后复核。
 
 **已完成阶段 3B-5，未启动 3B-6，未启动阶段 4。**
