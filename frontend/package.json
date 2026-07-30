@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
-    "test:pages": "node tests/page-test.mjs"
+    "test:pages": "node tests/page-test.mjs",
+    "test:styles": "node tests/style-audit.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.469.0",

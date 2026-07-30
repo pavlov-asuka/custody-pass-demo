@@ -81,36 +81,6 @@
   --font-stack: 'Nunito', 'Noto Sans SC', 'Segoe UI', 'Microsoft YaHei UI',
     'Microsoft YaHei', system-ui, sans-serif;
 
-  /* ============================================================
-   * 旧变量（阶段 3 页面过渡保留，3B-5 统一清理；新代码不得使用）
-   * ============================================================ */
-  --green: #58cc02;
-  --green-dark: #46a302;
-  --green-soft: #d7ffb8;
-  --blue: #1cb0f6;
-  --blue-dark: #0b84c6;
-  --blue-soft: #ddf4ff;
-  --navy: #17324d;
-  --ink: #3c454d;
-  --muted: #727d86;
-  --line: #dfe5e8;
-  --paper: #ffffff;
-  --canvas: #f7fafb;
-  --yellow: #ffc800;
-  --yellow-soft: #fff4b8;
-  --orange: #ff9600;
-  --orange-soft: #fff0d6;
-  --red: #ff4b4b;
-  --red-soft: #ffe1e1;
-  --locked: #afafaf;
-  --outline: 3px;
-  --radius-sm: 12px;
-  --radius-md: 18px;
-  --radius-lg: 28px;
-  --shadow-green: 0 5px 0 var(--green-dark);
-  --shadow-blue: 0 5px 0 var(--blue-dark);
-  --shadow-neutral: 0 4px 0 #d8dee1;
-
   font-family: var(--font-stack);
   color: #4b4b4b;
   background: #ffffff;

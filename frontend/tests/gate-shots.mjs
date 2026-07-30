@@ -9,7 +9,9 @@ import process from 'node:process';
 import { chromium } from 'playwright';
 
 const root = process.cwd();
-const screenshotDir = path.join(root, 'screenshots', 'phase3b-gate');
+const screenshotDir = process.env.PHASE3_GATE_SCREENSHOT_DIR
+  ? path.resolve(process.env.PHASE3_GATE_SCREENSHOT_DIR)
+  : path.join(root, 'screenshots', 'phase3b-gate');
 const viteBin = path.join(root, 'node_modules', 'vite', 'bin', 'vite.js');
 const previewPort = 43174;
 const baseUrl = `http://127.0.0.1:${previewPort}`;

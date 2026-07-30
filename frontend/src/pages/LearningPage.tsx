@@ -554,6 +554,10 @@ export function LearningPage() {
       route?.steps.find((item) => item.stepType === type)?.accessible)
     : undefined;
 
+  function selectStep(type: StepType) {
+    navigate(`/learn/${encodeURIComponent(routeId)}?step=${type}`);
+  }
+
   async function markComplete(type: StepType) {
     if (!route || !step) return;
     setBusy(true);
@@ -598,7 +602,7 @@ export function LearningPage() {
         <div className="practice-layout page-enter">
           <div className="practice-layout__progress">
             <div className="practice-layout__progress-inner">
-              <RouteStepper route={route} active={active} onSelect={setActive} />
+              <RouteStepper route={route} active={active} onSelect={selectStep} />
             </div>
           </div>
           {error && (
@@ -625,7 +629,7 @@ export function LearningPage() {
                   <h1>{route.title}</h1>
                   <p>{route.summary}</p>
                 </div>
-                <RouteStepper route={route} active={active} onSelect={setActive} />
+                <RouteStepper route={route} active={active} onSelect={selectStep} />
               </header>
 
               {error && <ErrorState error={error} compact onRetry={() => setStepReload((value) => value + 1)} />}
@@ -657,7 +661,7 @@ export function LearningPage() {
                     className="button button--ghost"
                     type="button"
                     disabled={!previous}
-                    onClick={() => previous && setActive(previous)}
+                    onClick={() => previous && selectStep(previous)}
                   >
                     <ArrowLeft size={18} /> 上一步
                   </button>
