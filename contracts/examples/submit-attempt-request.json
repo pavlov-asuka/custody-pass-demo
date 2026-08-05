@@ -1,6 +1,15 @@
 {
   "clientRequestId": "req-9d96adfe0bcf4f5981be9fae13a50126",
-  "contentVersion": "1.0.0",
-  "rubricVersion": "1.0.0",
-  "answer": "我会先核实再判断，检查数据、账务和估值结果，按权限协调复核并反馈留痕。系统执行成功不代表业务结果正确。"
+  "contentVersion": "2.0.0",
+  "rubricVersion": "2.0.0",
+  "answer": {
+    "responses": {
+      "payment-source": "BANK-STATEMENT",
+      "ending-payable": 800,
+      "debit-account": "应付托管费",
+      "credit-account": "银行存款",
+      "reconciliation-result": "BALANCED",
+      "result-note": "当日支付托管费1400元，期末应付托管费800元，资金、台账和估值结果勾稽一致。"
+    }
+  }
 }

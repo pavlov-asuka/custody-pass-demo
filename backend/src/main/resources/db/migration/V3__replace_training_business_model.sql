@@ -24,7 +24,7 @@ CREATE TABLE basic_question_progress (
     CONSTRAINT uq_basic_question UNIQUE (user_id, route_id, content_version, question_id)
 );
 
-CREATE TABLE exception_case_draft (
+CREATE TABLE comprehensive_practice_draft (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     route_id VARCHAR(64) NOT NULL,
@@ -33,8 +33,8 @@ CREATE TABLE exception_case_draft (
     revision BIGINT NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     submitted_attempt_id BIGINT NULL,
-    CONSTRAINT fk_exception_draft_user FOREIGN KEY (user_id) REFERENCES app_user(id),
-    CONSTRAINT uq_exception_draft UNIQUE (user_id, route_id)
+    CONSTRAINT fk_comprehensive_draft_user FOREIGN KEY (user_id) REFERENCES app_user(id),
+    CONSTRAINT uq_comprehensive_draft UNIQUE (user_id, route_id)
 );
 
 CREATE TABLE formal_attempt (
@@ -60,8 +60,8 @@ CREATE TABLE formal_attempt (
 CREATE INDEX ix_attempt_user_submitted ON formal_attempt(user_id, submitted_at);
 CREATE INDEX ix_attempt_user_route ON formal_attempt(user_id, route_id);
 
-ALTER TABLE exception_case_draft
-    ADD CONSTRAINT fk_exception_draft_attempt
+ALTER TABLE comprehensive_practice_draft
+    ADD CONSTRAINT fk_comprehensive_draft_attempt
     FOREIGN KEY (submitted_attempt_id) REFERENCES formal_attempt(id);
 
 CREATE TABLE scoring_result (

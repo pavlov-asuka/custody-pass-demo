@@ -34,7 +34,8 @@ import {
 import type {
   DemonstrationContent,
   DraftResponse,
-  ExceptionCaseContent,
+  ComprehensivePracticeAnswer,
+  ComprehensivePracticeContent,
   KnowledgeContent,
   RouteOverview,
   StepResponse,
@@ -51,12 +52,12 @@ const stepOrder: StepType[] = [
   'KNOWLEDGE_CARD',
   'DEMONSTRATION',
   'BASIC_PRACTICE',
-  'EXCEPTION_CASE',
+  'COMPREHENSIVE_PRACTICE',
 ];
 
 interface DraftConflict {
   server: DraftResponse;
-  localAnswer: string;
+  localAnswer: ComprehensivePracticeAnswer;
 }
 
 function KnowledgeCardStep({
@@ -197,18 +198,19 @@ function BasicPracticeStep({
   return <PracticeSession routeId={routeId} data={data} onCompleted={onCompleted} />;
 }
 
-function ExceptionCaseStep({
+function ComprehensivePracticeStep({
   route,
   data,
 }: {
   route: RouteOverview;
-  data: StepResponse<'EXCEPTION_CASE'>;
+  data: StepResponse<'COMPREHENSIVE_PRACTICE'>;
 }) {
   const navigate = useNavigate();
-  const content = data.content as ExceptionCaseContent;
-  const [answer, setAnswer] = useState('');
+  const content = data.content as ComprehensivePracticeContent;
+  const emptyAnswer: ComprehensivePracticeAnswer = { responses: {} };
+  const [answer, setAnswer] = useState<ComprehensivePracticeAnswer>(emptyAnswer);
   const [revision, setRevision] = useState(0);
-  const [lastSavedAnswer, setLastSavedAnswer] = useState('');
+  const [lastSavedAnswer, setLastSavedAnswer] = useState<ComprehensivePracticeAnswer>(emptyAnswer);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [loadingDraft, setLoadingDraft] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -219,7 +221,12 @@ function ExceptionCaseStep({
   const saveTimer = useRef<number | null>(null);
   const allowNavigation = useRef(false);
   const recoveryKey = `custody-training:draft-recovery:${route.routeId}`;
-  const dirty = answer !== lastSavedAnswer;
+  const serializedAnswer = JSON.stringify(answer);
+  const dirty = serializedAnswer !== JSON.stringify(lastSavedAnswer);
+  const complete = content.workItems.every((item) => {
+    const value = answer.responses[item.workItemId];
+    return typeof value === 'number' ? Number.isFinite(value) : Boolean(value?.trim());
+  });
   const navigationBlocker = useBlocker(() => dirty && !allowNavigation.current);
 
   const loadDraft = useCallback(async () => {
@@ -228,8 +235,9 @@ function ExceptionCaseStep({
     try {
       const draft = await getDraft(route.routeId);
       const recovery = sessionStorage.getItem(recoveryKey);
-      setAnswer(recovery ?? draft.answer ?? '');
-      setLastSavedAnswer(draft.answer ?? '');
+      const recovered = recovery ? JSON.parse(recovery) as ComprehensivePracticeAnswer : null;
+      setAnswer(recovered ?? draft.answer ?? emptyAnswer);
+      setLastSavedAnswer(draft.answer ?? emptyAnswer);
       setRevision(draft.revision);
       setUpdatedAt(draft.updatedAt);
       if (recovery) sessionStorage.removeItem(recoveryKey);
@@ -255,7 +263,7 @@ function ExceptionCaseStep({
   }, [dirty, submitting]);
 
   const persist = useCallback(async (value = answer, expected = revision): Promise<boolean> => {
-    if (value === lastSavedAnswer) return true;
+    if (JSON.stringify(value) === JSON.stringify(lastSavedAnswer)) return true;
     setSaving(true);
     setError(null);
     try {
@@ -270,7 +278,7 @@ function ExceptionCaseStep({
         setConflict({ server, localAnswer: value });
       } else {
         if (reason instanceof ApiError && reason.code === 'CONTENT_VERSION_MISMATCH') {
-          sessionStorage.setItem(recoveryKey, value);
+          sessionStorage.setItem(recoveryKey, JSON.stringify(value));
         }
         setError(reason as Error);
       }
@@ -292,8 +300,8 @@ function ExceptionCaseStep({
   async function resolveConflict(choice: 'server' | 'local') {
     if (!conflict) return;
     if (choice === 'server') {
-      setAnswer(conflict.server.answer ?? '');
-      setLastSavedAnswer(conflict.server.answer ?? '');
+      setAnswer(conflict.server.answer ?? emptyAnswer);
+      setLastSavedAnswer(conflict.server.answer ?? emptyAnswer);
       setRevision(conflict.server.revision);
       setUpdatedAt(conflict.server.updatedAt);
       setConflict(null);
@@ -307,13 +315,12 @@ function ExceptionCaseStep({
   }
 
   async function submit() {
-    const normalized = answer.trim();
-    if (!normalized) return;
+    if (!complete) return;
     setSubmitting(true);
     setError(null);
     try {
       if (dirty) {
-        const saved = await persist(normalized, revision);
+        const saved = await persist(answer, revision);
         if (!saved) {
           setConfirming(false);
           return;
@@ -322,19 +329,20 @@ function ExceptionCaseStep({
       const storageKey = pendingAttemptKey(route.routeId);
       const pendingRaw = sessionStorage.getItem(storageKey);
       const pending = pendingRaw
-        ? JSON.parse(pendingRaw) as { answer: string; clientRequestId: string }
+        ? JSON.parse(pendingRaw) as { answer: ComprehensivePracticeAnswer; clientRequestId: string }
         : null;
-      const clientRequestId =
-        pending?.answer === normalized ? pending.clientRequestId : requestId('attempt');
-      sessionStorage.setItem(storageKey, JSON.stringify({ answer: normalized, clientRequestId }));
+      const clientRequestId = pending && JSON.stringify(pending.answer) === serializedAnswer
+        ? pending.clientRequestId
+        : requestId('attempt');
+      sessionStorage.setItem(storageKey, JSON.stringify({ answer, clientRequestId }));
       const attempt = await submitAttempt(route.routeId, {
         clientRequestId,
         contentVersion: route.contentVersion,
         rubricVersion: route.rubricVersion,
-        answer: normalized,
+        answer,
       });
       sessionStorage.removeItem(storageKey);
-      setLastSavedAnswer(normalized);
+      setLastSavedAnswer(answer);
       allowNavigation.current = true;
       navigate(`/attempts/${attempt.attemptId}`, { replace: true });
     } catch (reason) {
@@ -345,17 +353,17 @@ function ExceptionCaseStep({
     }
   }
 
-  if (loadingDraft) return <LoadingState label="正在取回你的异常案例草稿…" />;
+  if (loadingDraft) return <LoadingState label="正在取回你的综合实务草稿…" />;
 
   return (
-    <section className="exception-case">
-      <div className="exception-case__heading">
+    <section className="comprehensive-practice">
+      <div className="comprehensive-practice__heading">
         <div>
-          <span className="eyebrow">异常案例</span>
-          <h2>请给出完整处理方案</h2>
-          <p>先厘清事实，再说明核查、措施、协作和反馈。提交后将生成正式训练记录。</p>
+          <span className="eyebrow">综合实务</span>
+          <h2>完成一份真实的核算工作底稿</h2>
+          <p>独立读资料、完成计算与账务判断，再用第二来源验证结果。</p>
         </div>
-        <Mascot pose="THINKING" size="small" message="我陪你一起把思路理清。" />
+        <Mascot pose="THINKING" size="small" message="先读资料，再落笔计算。" />
       </div>
 
       {error && (
@@ -370,42 +378,77 @@ function ExceptionCaseStep({
         />
       )}
 
-      <div className="exception-workspace">
-        <aside className="case-brief">
-          <div className="case-brief__meta">
+      <div className="practice-workspace">
+        <aside className="practice-brief">
+          <div className="practice-brief__meta">
             <span><strong>你的角色</strong>{content.scenario.role}</span>
             <span><strong>业务时点</strong>{content.scenario.date}</span>
           </div>
           <div>
-            <span className="eyebrow">已知事实</span>
-            <ul>{content.scenario.facts.map((fact) => <li key={fact}>{fact}</li>)}</ul>
+            <span className="eyebrow">本次任务</span>
+            <h3>{content.scenario.product}</h3>
+            <p>{content.scenario.purpose}</p>
           </div>
-          <div>
-            <span className="eyebrow">作答任务</span>
-            <ol>{content.tasks.map((task) => <li key={task}>{task}</li>)}</ol>
+          <div className="source-materials">
+            <span className="eyebrow">业务资料包</span>
+            {content.sourceMaterials.map((material) => (
+              <article className="source-material" key={material.materialId}>
+                <header><strong>{material.title}</strong><em>{material.kind}</em></header>
+                <p>{material.description}</p>
+                <dl>
+                  {material.fields.map((field) => (
+                    <div key={field.fieldId}>
+                      <dt>{field.label}</dt>
+                      <dd>{field.value}{field.unit ? ` ${field.unit}` : ''}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </article>
+            ))}
           </div>
         </aside>
 
-        <div className="answer-editor">
-          <div className="answer-editor__top">
-            <label htmlFor="formal-answer">你的处理方案</label>
+        <div className="practice-sheet">
+          <div className="practice-sheet__top">
+            <div><span className="eyebrow">工作纸</span><strong>{Object.keys(answer.responses).length} / {content.workItems.length} 项已填写</strong></div>
             <span className={saving ? 'is-saving' : ''}>
               {saving ? <><Clock3 size={15} /> 正在保存</> : <><Save size={15} /> {updatedAt ? '草稿已保存' : '自动保存已开启'}</>}
             </span>
           </div>
-          <textarea
-            id="formal-answer"
-            value={answer}
-            onChange={(event) => setAnswer(event.target.value.slice(0, 12000))}
-            placeholder="请写下你的完整处理方案……"
-            disabled={submitting}
-          />
-          <div className="writing-prompts">
-            <span>可参考的表达顺序</span>
-            {content.writingPrompts?.map((prompt) => <em key={prompt}>{prompt}</em>)}
+          <div className="work-items">
+            {content.workItems.map((item, index) => {
+              const value = answer.responses[item.workItemId] ?? '';
+              const update = (next: string | number) => setAnswer((current) => ({
+                responses: { ...current.responses, [item.workItemId]: next },
+              }));
+              return (
+                <section className="work-item" key={item.workItemId}>
+                  <span className="work-item__index">{String(index + 1).padStart(2, '0')}</span>
+                  <div className="work-item__body">
+                    <div className="work-item__title"><strong>{item.title}</strong><em>{item.type}</em></div>
+                    <p>{item.instruction}</p>
+                    {item.response.kind === 'SELECT' ? (
+                      <select id={`work-${item.workItemId}`} aria-label={item.title} value={String(value)} onChange={(event) => update(event.target.value)} disabled={submitting}>
+                        <option value="">{item.response.placeholder}</option>
+                        {item.response.options?.map((option) => <option value={option.optionId} key={option.optionId}>{option.text}</option>)}
+                      </select>
+                    ) : item.response.kind === 'NUMBER' ? (
+                      <label className="work-input work-input--number">
+                        <input id={`work-${item.workItemId}`} aria-label={item.title} type="number" step={item.response.precision ? 1 / (10 ** item.response.precision) : 1} value={value} placeholder={item.response.placeholder} onChange={(event) => update(event.target.value === '' ? '' : Number(event.target.value))} disabled={submitting} />
+                        {item.response.unit && <span>{item.response.unit}</span>}
+                      </label>
+                    ) : item.type === 'SHORT_TEXT' ? (
+                      <textarea id={`work-${item.workItemId}`} aria-label={item.title} value={String(value)} maxLength={500} placeholder={item.response.placeholder} onChange={(event) => update(event.target.value)} disabled={submitting} />
+                    ) : (
+                      <input id={`work-${item.workItemId}`} aria-label={item.title} type="text" value={String(value)} maxLength={100} placeholder={item.response.placeholder} onChange={(event) => update(event.target.value)} disabled={submitting} />
+                    )}
+                  </div>
+                </section>
+              );
+            })}
           </div>
-          <div className="answer-editor__footer">
-            <span>{answer.length.toLocaleString()} / 12,000</span>
+          <div className="practice-sheet__footer">
+            <p>{content.submissionNote}</p>
             <div>
               <button
                 className="button button--secondary"
@@ -418,10 +461,10 @@ function ExceptionCaseStep({
               <button
                 className="button button--primary"
                 type="button"
-                disabled={!answer.trim() || saving || submitting}
+                disabled={!complete || saving || submitting}
                 onClick={() => setConfirming(true)}
               >
-                <Send size={18} /> 提交答案
+                <Send size={18} /> 提交综合实务
               </button>
             </div>
           </div>
@@ -433,7 +476,7 @@ function ExceptionCaseStep({
           <div className="modal" role="dialog" aria-modal="true" aria-labelledby="submit-title">
             <span className="modal__icon"><FileCheck2 /></span>
             <h2 id="submit-title">生成本次正式评分记录？</h2>
-            <p>提交成功后，本次答案将不可修改。评分会在后台异步完成。</p>
+            <p>提交成功后，字段、计算、勾稽和结论将作为不可修改的正式快照异步评分。</p>
             <div className="modal__actions">
               <button className="button button--ghost" type="button" onClick={() => setConfirming(false)}>
                 再检查一下
@@ -453,8 +496,8 @@ function ExceptionCaseStep({
             <h2 id="conflict-title">发现另一份更新过的草稿</h2>
             <p>我们没有覆盖它。请选择继续使用云端草稿，或明确保留当前编辑内容。</p>
             <div className="conflict-preview">
-              <div><strong>云端草稿</strong><p>{conflict.server.answer || '（空草稿）'}</p></div>
-              <div><strong>当前编辑</strong><p>{conflict.localAnswer || '（空草稿）'}</p></div>
+              <div><strong>云端草稿</strong><pre>{JSON.stringify(conflict.server.answer ?? emptyAnswer, null, 2)}</pre></div>
+              <div><strong>当前编辑</strong><pre>{JSON.stringify(conflict.localAnswer, null, 2)}</pre></div>
             </div>
             <div className="modal__actions">
               <button className="button button--secondary" type="button" onClick={() => void resolveConflict('server')}>
@@ -586,7 +629,7 @@ export function LearningPage() {
 
   async function practiceCompleted() {
     await refreshRoute(false);
-    setActive('EXCEPTION_CASE');
+    setActive('COMPREHENSIVE_PRACTICE');
   }
 
   const validStep = step?.stepType === active ? step : null;
@@ -648,14 +691,14 @@ export function LearningPage() {
                   onComplete={() => markComplete('DEMONSTRATION')}
                 />
               )}
-              {!loadingStep && validStep?.stepType === 'EXCEPTION_CASE' && (
-                <ExceptionCaseStep
+              {!loadingStep && validStep?.stepType === 'COMPREHENSIVE_PRACTICE' && (
+                <ComprehensivePracticeStep
                   route={route}
-                  data={validStep as StepResponse<'EXCEPTION_CASE'>}
+                  data={validStep as StepResponse<'COMPREHENSIVE_PRACTICE'>}
                 />
               )}
 
-              {active !== 'EXCEPTION_CASE' && (
+              {active !== 'COMPREHENSIVE_PRACTICE' && (
                 <div className="lesson-bottom-bar">
                   <button
                     className="button button--ghost"

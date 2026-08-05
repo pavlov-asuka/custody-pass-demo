@@ -4,12 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnProperty(name = "app.review.mode", havingValue = "mock", matchIfMissing = true)
 public class MockFormalAnswerReviewer implements FormalAnswerReviewer {
+
+    private final ObjectMapper objectMapper;
+
+    public MockFormalAnswerReviewer(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public Review review(JsonNode content, JsonNode rubric, String answer, String callerExternalId) {
@@ -27,17 +34,37 @@ public class MockFormalAnswerReviewer implements FormalAnswerReviewer {
     }
 
     private Decision decide(JsonNode item, String idField, String answer) {
-        String matchedKeyword = null;
-        for (JsonNode keyword : item.path("keywords")) {
-            if (answer.contains(keyword.asText())) {
-                matchedKeyword = keyword.asText();
-                break;
+        try {
+            JsonNode responses = objectMapper.readTree(answer).path("responses");
+            for (JsonNode rule : item.path("evidenceRules")) {
+                if (!matches(responses.path(rule.path("fieldId").asText()), rule)) {
+                    return new Decision(item.path(idField).asText(), false,
+                            "结构化作答未满足：" + item.path("evidenceRequirement").asText());
+                }
             }
+            return new Decision(item.path(idField).asText(), true,
+                    "结构化工作纸已满足：" + item.path("evidenceRequirement").asText());
+        } catch (Exception exception) {
+            return new Decision(item.path(idField).asText(), false, "结构化作答无法读取");
         }
-        boolean matched = matchedKeyword != null;
-        String evidence = matched
-                ? "学员答案包含可追溯证据：“" + matchedKeyword + "”"
-                : "学员答案未提供满足该要求的明确证据";
-        return new Decision(item.path(idField).asText(), matched, evidence);
+    }
+
+    private boolean matches(JsonNode actual, JsonNode rule) {
+        return switch (rule.path("operator").asText()) {
+            case "EQUALS" -> actual.isValueNode()
+                    && actual.asText().trim().equalsIgnoreCase(rule.path("expected").asText().trim());
+            case "NUMBER_EQUALS" -> actual.isNumber()
+                    && Math.abs(actual.asDouble() - rule.path("expected").asDouble())
+                    <= rule.path("tolerance").asDouble(0);
+            case "CONTAINS_ALL" -> {
+                String value = actual.asText("").replace(",", "").replace("，", "");
+                boolean matched = !value.isBlank();
+                for (JsonNode expected : rule.path("expected")) {
+                    matched &= value.contains(expected.asText());
+                }
+                yield matched;
+            }
+            default -> false;
+        };
     }
 }

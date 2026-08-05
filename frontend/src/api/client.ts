@@ -1,6 +1,7 @@
 import type {
   ApiErrorBody,
   AttemptResponse,
+  ComprehensivePracticeAnswer,
   CsrfResponse,
   CurrentUser,
   DraftResponse,
@@ -165,7 +166,7 @@ export function getDraft(routeId: string): Promise<DraftResponse> {
 export function saveDraft(
   routeId: string,
   contentVersion: string,
-  answer: string,
+  answer: ComprehensivePracticeAnswer,
   expectedRevision: number,
 ): Promise<DraftResponse> {
   return request<DraftResponse>(
@@ -184,7 +185,7 @@ export function submitAttempt(
     clientRequestId: string;
     contentVersion: string;
     rubricVersion: string;
-    answer: string;
+    answer: ComprehensivePracticeAnswer;
   },
 ): Promise<AttemptResponse> {
   return request<AttemptResponse>(
@@ -223,13 +224,13 @@ export function answerRemediation(
   );
 }
 
-export function unlockChallenge(attemptId: number): Promise<{
+export function unlockComprehensivePracticeRetry(attemptId: number): Promise<{
   routeId: string;
   stepType: StepType;
-  challengeUnlocked: boolean;
+  practiceRetryUnlocked: boolean;
 }> {
   return request(
-    `/api/attempts/${attemptId}/challenge`,
+    `/api/attempts/${attemptId}/comprehensive-practice-retry`,
     { method: 'POST' },
     { csrf: true },
   );

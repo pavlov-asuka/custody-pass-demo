@@ -709,7 +709,7 @@ p {
 .route-stepper .is-active button { color: var(--color-blue-press); }
 
 .lesson-card,
-.exception-case {
+.comprehensive-practice {
   margin-top: 36px;
   padding: 32px;
   border: 1px solid var(--color-ink);
@@ -735,7 +735,7 @@ p {
 }
 
 .lesson-card h2,
-.exception-case h2,
+.comprehensive-practice h2,
 .remediation-card h2 {
   margin: 0 0 15px;
   color: var(--color-ink);
@@ -1036,42 +1036,42 @@ p {
 
 /* Exception */
 
-.exception-case {
+.comprehensive-practice {
   padding: 28px;
 }
 
-.exception-case__heading {
+.comprehensive-practice__heading {
   margin-bottom: 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.exception-case__heading > div:first-child {
+.comprehensive-practice__heading > div:first-child {
   max-width: 660px;
 }
 
-.exception-case__heading p {
+.comprehensive-practice__heading p {
   margin: 0;
   color: var(--color-muted);
   font-size: 14px;
 }
 
-.exception-workspace {
+.practice-workspace {
   display: grid;
   grid-template-columns: minmax(320px, .85fr) minmax(480px, 1.35fr);
   gap: 18px;
 }
 
-.case-brief,
-.answer-editor {
+.practice-brief,
+.practice-sheet {
   min-height: 555px;
   border: 2px solid var(--color-line);
   border-radius: 18px;
   background: #fff;
 }
 
-.case-brief {
+.practice-brief {
   padding: 22px;
   display: flex;
   flex-direction: column;
@@ -1079,13 +1079,13 @@ p {
   background: #f8fbfc;
 }
 
-.case-brief__meta {
+.practice-brief__meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 9px;
 }
 
-.case-brief__meta span {
+.practice-brief__meta span {
   padding: 11px;
   border: 2px solid var(--color-line);
   border-radius: 11px;
@@ -1096,8 +1096,8 @@ p {
   font-size: 12px;
 }
 
-.case-brief ul,
-.case-brief ol {
+.practice-brief ul,
+.practice-brief ol {
   margin: 10px 0 0;
   padding-left: 21px;
   color: var(--color-ink);
@@ -1105,22 +1105,22 @@ p {
   line-height: 1.75;
 }
 
-.case-brief li + li { margin-top: 7px; }
+.practice-brief li + li { margin-top: 7px; }
 
-.answer-editor {
+.practice-sheet {
   padding: 20px;
   display: flex;
   flex-direction: column;
 }
 
-.answer-editor__top {
+.practice-sheet__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.answer-editor__top label { color: var(--color-ink); font-size: 16px; font-weight: 700; }
-.answer-editor__top span {
+.practice-sheet__top label { color: var(--color-ink); font-size: 16px; font-weight: 700; }
+.practice-sheet__top span {
   display: flex;
   align-items: center;
   gap: 5px;
@@ -1128,9 +1128,9 @@ p {
   font-size: 11px;
   font-weight: 700;
 }
-.answer-editor__top span.is-saving { color: var(--color-blue-press); }
+.practice-sheet__top span.is-saving { color: var(--color-blue-press); }
 
-.answer-editor textarea {
+.practice-sheet textarea {
   width: 100%;
   min-height: 365px;
   margin: 14px 0;
@@ -1144,7 +1144,7 @@ p {
   line-height: 1.75;
 }
 
-.answer-editor textarea:focus {
+.practice-sheet textarea:focus {
   border-color: var(--color-blue);
   outline: none;
   box-shadow: 0 0 0 2px var(--color-blue-soft);
@@ -1168,7 +1168,7 @@ p {
   font-weight: 700;
 }
 
-.answer-editor__footer {
+.practice-sheet__footer {
   margin-top: auto;
   padding-top: 16px;
   display: flex;
@@ -1176,8 +1176,8 @@ p {
   justify-content: space-between;
 }
 
-.answer-editor__footer > span { color: var(--color-muted); font-size: 11px; }
-.answer-editor__footer > div { display: flex; gap: 10px; }
+.practice-sheet__footer > span { color: var(--color-muted); font-size: 11px; }
+.practice-sheet__footer > div { display: flex; gap: 10px; }
 
 .modal-backdrop {
   position: fixed;

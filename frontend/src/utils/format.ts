@@ -4,7 +4,7 @@ export const stepLabels: Record<StepType, string> = {
   KNOWLEDGE_CARD: '知识卡',
   DEMONSTRATION: '正常示范',
   BASIC_PRACTICE: '基础练习',
-  EXCEPTION_CASE: '异常案例',
+  COMPREHENSIVE_PRACTICE: '综合实务',
 };
 
 export const dimensionLabels: Record<Dimension, string> = {

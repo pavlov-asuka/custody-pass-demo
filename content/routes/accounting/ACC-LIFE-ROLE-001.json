@@ -1,14 +1,14 @@
 {
   "routeId": "ACC-LIFE-ROLE-001",
-  "contentVersion": "1.0.0",
+  "contentVersion": "2.0.0",
   "line": "ACCOUNTING",
   "title": "站上核算岗",
-  "summary": "理解核算岗的责任、人机边界和异常闭环。",
-  "estimatedMinutes": 20,
+  "summary": "从业务资料出发，完成费用核算、账务处理和结果勾稽。",
+  "estimatedMinutes": 30,
   "objectives": [
-    "理解核算岗不是单纯的数据录入岗位",
-    "理解系统执行成功不能替代人工核验",
-    "能够按照事实、核查、措施、责任人和反馈形成异常处理闭环"
+    "识别核算岗使用的业务依据、账务资料和结果资料",
+    "根据正常业务资料完成取数、计算和凭证科目判断",
+    "使用资金、账簿和估值结果完成交叉验证"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -16,105 +16,195 @@
         {
           "cardId": "ACC-ROLE-KC-01",
           "type": "FLOW",
-          "title": "为什么需要核算岗",
-          "conclusion": "核算岗把业务事实转化为可核对的账务和估值结果。",
-          "items": ["合同、指令和业务数据", "核算处理", "凭证、账簿和估值结果", "对账、净值、报表和信息披露"]
+          "title": "核算结果从哪里来",
+          "conclusion": "核算岗把业务依据和原始资料转化为凭证、账簿与估值结果。",
+          "items": ["业务依据与指令", "原始数据与资金资料", "计算和凭证", "账簿、估值与对账结果"]
         },
         {
           "cardId": "ACC-ROLE-KC-02",
           "type": "CATEGORIES",
-          "title": "核算岗要对什么负责",
-          "conclusion": "责任覆盖核算估值、账实核对、报表披露、协作服务和风险报告。",
-          "items": ["核算与估值", "账实核对", "报表与披露", "协作与服务", "风险与报告"]
+          "title": "四类资料各自证明什么",
+          "conclusion": "指令说明要做什么，流水说明实际发生什么，账簿记录会计结果，估值表呈现期末结果。",
+          "items": ["支付指令：业务事项和金额", "资金流水：实际支付金额", "费用台账：期初、计提、支付和期末余额", "估值表：期末应付费用"]
         },
         {
           "cardId": "ACC-ROLE-KC-03",
           "type": "KEY_POINT",
-          "title": "系统完成不等于业务完成",
-          "conclusion": "系统状态只是证据之一，核算人员仍要检查数据、结果、差异、复核和留痕。",
-          "items": ["数据是否完整且日期正确", "账务和估值是否合理", "差异是否解释和处理", "是否需要复核、报告或继续跟踪"]
+          "title": "正常核算也必须验证",
+          "conclusion": "资料齐全后仍需核对日期、金额、科目、余额和第二来源，系统状态不能替代结果验证。",
+          "items": ["确认资料属于同一产品和日期", "按批准口径计算", "防止重复计提或重复支付", "用独立来源验证期末结果"]
         }
       ]
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "组合核算人员",
+        "role": "案例产品 B 的组合核算人员",
         "product": "案例产品 B",
         "date": "7月9日",
-        "facts": ["系统任务显示执行成功", "估值与对账结果存在一项差异", "核查发现一项数据尚未到达"]
+        "facts": ["期初应付托管费为 1,200 元", "当日计提托管费 300 元", "当日支付托管费 1,000 元"]
       },
       "steps": [
-        {"order": 1, "action": "检查估值和对账结果", "reason": "执行成功不代表业务结果正确"},
-        {"order": 2, "action": "核实数据接收和处理状态", "reason": "先把已确认事实与未知情况分开"},
-        {"order": 3, "action": "联系相关岗位并报告进展", "reason": "跨岗位问题需要主动协调，超出权限要升级"},
-        {"order": 4, "action": "数据补齐后重新处理并复核", "reason": "异常消除后才能确认结果可用"},
-        {"order": 5, "action": "反馈结论并保存处理证据", "reason": "形成可以追溯的闭环"}
+        {"order": 1, "action": "核对支付指令和资金流水", "reason": "确认同一产品、日期和实际支付金额"},
+        {"order": 2, "action": "计算期末应付托管费 500 元", "reason": "期初 1,200 + 当日计提 300 - 当日支付 1,000"},
+        {"order": 3, "action": "完成支付凭证科目判断", "reason": "支付减少应付负债和银行存款"},
+        {"order": 4, "action": "更新费用台账和估值表", "reason": "让账簿余额与估值结果反映同一业务事实"},
+        {"order": 5, "action": "用资金、台账和估值表交叉验证", "reason": "确认支付金额一致且期末余额勾稽相符"}
       ],
-      "summary": "检查结果 → 核实事实 → 协调或报告 → 重新处理与复核 → 反馈并留痕"
+      "summary": "核对依据 → 取数计算 → 凭证处理 → 台账与估值更新 → 跨来源验证"
     },
     "BASIC_PRACTICE": {
       "questions": [
         {
           "questionId": "ACC-ROLE-Q-01",
           "type": "SINGLE_CHOICE",
-          "prompt": "系统任务显示“执行成功”后，核算人员下一步最合适的动作是什么？",
+          "prompt": "哪份资料最直接证明托管费已经实际支付？",
           "options": [
-            {"optionId": "A", "text": "直接确认业务完成"},
-            {"optionId": "B", "text": "检查数据、账务、估值和对账结果"},
-            {"optionId": "C", "text": "等第二天再看"}
+            {"optionId": "A", "text": "支付指令"},
+            {"optionId": "B", "text": "资金流水"},
+            {"optionId": "C", "text": "费用计提参数"}
           ],
           "answer": ["B"],
-          "explanation": "执行成功只说明系统完成了任务，仍需人工核验业务结果。",
-          "hints": ["想一想系统状态与业务结果是否完全等价。"]
+          "explanation": "支付指令说明业务意图，资金流水直接证明款项已经发生。",
+          "hints": ["区分‘要求支付’与‘实际支付’。"]
         },
         {
           "questionId": "ACC-ROLE-Q-02",
-          "type": "MULTIPLE_CHOICE",
-          "prompt": "接到异常问题后，哪些做法符合核算岗的责任？",
+          "type": "SINGLE_CHOICE",
+          "prompt": "期初应付 1,200 元、当日计提 300 元、当日支付 1,000 元，期末应付余额是多少？",
           "options": [
-            {"optionId": "A", "text": "记录产品、日期和异常现象"},
-            {"optionId": "B", "text": "核实自己能够取得的数据和处理状态"},
-            {"optionId": "C", "text": "简单回复不归自己负责"},
-            {"optionId": "D", "text": "超出权限时报告并持续反馈"}
+            {"optionId": "A", "text": "200 元"},
+            {"optionId": "B", "text": "500 元"},
+            {"optionId": "C", "text": "1,500 元"}
           ],
-          "answer": ["A", "B", "D"],
-          "explanation": "核算人员要接住问题、核实事实、协调或升级，并持续反馈。",
-          "hints": ["排除推诿责任的做法。"]
+          "answer": ["B"],
+          "explanation": "期末应付余额 = 1,200 + 300 - 1,000 = 500 元。",
+          "hints": ["从期初余额开始，先加计提，再减支付。"]
         },
         {
           "questionId": "ACC-ROLE-Q-03",
           "type": "ORDERING",
-          "prompt": "请排列异常处理的基本顺序。",
+          "prompt": "请排列正常费用核算的验证顺序。",
           "items": [
-            {"itemId": "FACT", "text": "确认事实"},
-            {"itemId": "CHECK", "text": "核查数据与结果"},
-            {"itemId": "ACTION", "text": "协调、处理或升级"},
-            {"itemId": "FEEDBACK", "text": "反馈结论并留痕"}
+            {"itemId": "SOURCE", "text": "核对指令与资金来源"},
+            {"itemId": "CALC", "text": "计算期末应付余额"},
+            {"itemId": "POST", "text": "完成凭证和台账处理"},
+            {"itemId": "RECON", "text": "用估值表和资金流水勾稽"}
           ],
-          "answer": ["FACT", "CHECK", "ACTION", "FEEDBACK"],
-          "explanation": "先事实、再核查、后措施，最后反馈和留痕。",
-          "hints": ["从尚未作出结论时应该做什么开始。"]
+          "answer": ["SOURCE", "CALC", "POST", "RECON"],
+          "explanation": "先确认来源，再计算和入账，最后用独立结果验证。",
+          "hints": ["结果验证应建立在取数和账务处理完成之后。"]
         }
       ]
     },
-    "EXCEPTION_CASE": {
+    "COMPREHENSIVE_PRACTICE": {
       "scenario": {
-        "role": "案例产品 B 的组合核算人员",
-        "date": "7月9日 16:30",
-        "facts": [
-          "管理人表示当日一笔托管费支付指令已经执行",
-          "估值表中的应付托管费余额没有变化",
-          "系统任务显示执行成功",
-          "同事认为资金数据由其他岗位接收，建议第二天再看"
-        ]
+        "role": "案例产品 C 的组合核算人员",
+        "product": "案例产品 C",
+        "date": "8月12日",
+        "purpose": "完成当日托管费计提、支付、凭证和期末余额勾稽"
       },
-      "tasks": [
-        "说明自己承担什么责任",
-        "说明首先核实哪些事实以及怎样检查数据、账务和估值结果",
-        "说明需要怎样协调、复核或报告",
-        "说明怎样反馈并形成可追溯闭环"
+      "sourceMaterials": [
+        {
+          "materialId": "PAYMENT-INSTRUCTION",
+          "title": "托管费支付指令",
+          "kind": "INSTRUCTION",
+          "description": "管理人确认的当日托管费支付事项。",
+          "fields": [
+            {"fieldId": "instruction-date", "label": "指令日期", "value": "8月12日"},
+            {"fieldId": "instruction-amount", "label": "支付金额", "value": "1400", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "BANK-STATEMENT",
+          "title": "资金流水",
+          "kind": "STATEMENT",
+          "description": "托管账户当日资金变动。",
+          "fields": [
+            {"fieldId": "bank-date", "label": "记账日期", "value": "8月12日"},
+            {"fieldId": "bank-outflow", "label": "托管费支出", "value": "1400", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "FEE-LEDGER",
+          "title": "托管费台账",
+          "kind": "LEDGER",
+          "description": "当日处理前的应付托管费余额及计提资料。",
+          "fields": [
+            {"fieldId": "opening-payable", "label": "期初应付余额", "value": "1800", "unit": "元"},
+            {"fieldId": "daily-accrual", "label": "当日计提", "value": "400", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "VALUATION-SHEET",
+          "title": "估值表待核对项",
+          "kind": "VALUATION",
+          "description": "待填入当日处理后的应付托管费余额。",
+          "fields": [
+            {"fieldId": "valuation-account", "label": "项目", "value": "应付托管费"},
+            {"fieldId": "valuation-date", "label": "估值日期", "value": "8月12日"}
+          ]
+        }
       ],
-      "writingPrompts": ["事实", "核查", "措施", "责任人", "反馈"]
+      "workItems": [
+        {
+          "workItemId": "payment-source",
+          "type": "FIELD_MAP",
+          "title": "确认实际支付来源",
+          "instruction": "选择最直接证明 1,400 元已经实际支付的资料。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择资料",
+            "options": [
+              {"optionId": "PAYMENT-INSTRUCTION", "text": "托管费支付指令"},
+              {"optionId": "BANK-STATEMENT", "text": "资金流水"},
+              {"optionId": "FEE-LEDGER", "text": "托管费台账"}
+            ]
+          }
+        },
+        {
+          "workItemId": "ending-payable",
+          "type": "CALCULATION",
+          "title": "计算期末应付余额",
+          "instruction": "根据期初余额、当日计提和实际支付，计算期末应付托管费。",
+          "response": {"kind": "NUMBER", "placeholder": "输入计算结果", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "debit-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写借方科目",
+          "instruction": "填写支付托管费凭证的借方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "credit-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写贷方科目",
+          "instruction": "填写支付托管费凭证的贷方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "reconciliation-result",
+          "type": "RECONCILIATION",
+          "title": "完成结果勾稽",
+          "instruction": "资金流水与支付指令金额一致，估值表填入计算后的期末余额。判断本次勾稽结果。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择勾稽结论",
+            "options": [
+              {"optionId": "BALANCED", "text": "金额、日期和期末余额勾稽一致"},
+              {"optionId": "UNBALANCED", "text": "仍存在未解释差异"}
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录核算结论",
+          "instruction": "用一句话写明支付金额、期末余额和勾稽结果。",
+          "response": {"kind": "TEXT", "placeholder": "例如：支付……，期末……，勾稽……"}
+        }
+      ],
+      "submissionNote": "提交前请复核资料日期、计算结果、凭证科目和勾稽结论。提交后将生成不可修改的正式训练记录。"
     }
   },
   "references": [
@@ -122,7 +212,7 @@
       "referenceId": "ACC-REF-PUBLIC-FUND-FLOW-2026",
       "title": "公募基金核算业务流程",
       "source": "第一章核算岗岗位职责、第二章运营模式介绍",
-      "usage": "岗位责任、人机边界和异常闭环依据"
+      "usage": "核算资料、正常处理链和结果验证依据"
     }
   ]
 }

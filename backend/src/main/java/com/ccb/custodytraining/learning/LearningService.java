@@ -1,6 +1,7 @@
 package com.ccb.custodytraining.learning;
 
 import java.time.Instant;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -164,9 +165,9 @@ public class LearningService {
             throw new BusinessConflictException("LEARNING_SEQUENCE_VIOLATION",
                     "请先完成前置学习环节");
         }
-        if (type == StepType.EXCEPTION_CASE && remediationBlocksRetry(userId, routeId)) {
+        if (type == StepType.COMPREHENSIVE_PRACTICE && remediationBlocksRetry(userId, routeId)) {
             throw new BusinessConflictException("REMEDIATION_REQUIRED",
-                    "请先完成本次定向补学，再重新挑战异常案例");
+                    "请先完成本次定向补学，再重新完成综合实务");
         }
         ObjectNode response = objectMapper.createObjectNode();
         response.put("routeId", routeId);
@@ -214,9 +215,9 @@ public class LearningService {
         response.put("correct", correct);
         response.put("correctOnce", repository.isQuestionCorrect(
                 userId, routeId, route.contentVersion(), questionId));
-        response.put("explanation", question.path("explanation").asText());
+        response.put("explanation", feedbackExplanation(question, correct));
         if (!correct && question.path("hints").isArray() && !question.path("hints").isEmpty()) {
-            response.put("hint", question.path("hints").path(0).asText());
+            response.put("hint", feedbackHint(question));
         }
         response.put("practiceCompleted", correctCount == totalQuestions);
         response.set("progress", progressResponse(userId, routeId));
@@ -229,11 +230,11 @@ public class LearningService {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("routeId", routeId);
         if (draft == null) {
-            response.put("answer", "");
+            response.set("answer", objectMapper.createObjectNode().set("responses", objectMapper.createObjectNode()));
             response.put("revision", 0);
             response.putNull("updatedAt");
         } else {
-            response.put("answer", draft.answer());
+            response.set("answer", read(draft.answer()));
             response.put("revision", draft.revision());
             response.put("updatedAt", draft.updatedAt().toString());
         }
@@ -243,12 +244,12 @@ public class LearningService {
     public ObjectNode saveDraft(long userId, String routeId, String contentVersion,
                                 String answer, Long expectedRevision) {
         RouteBundle route = requireVersion(routeId, contentVersion);
-        if (!canAccessStep(userId, route, StepType.EXCEPTION_CASE)) {
+        if (!canAccessStep(userId, route, StepType.COMPREHENSIVE_PRACTICE)) {
             throw new BusinessConflictException("LEARNING_SEQUENCE_VIOLATION",
                     "请先完成基础练习");
         }
-        if (answer.length() > 12000) {
-            throw new BadRequestException("草稿不得超过 12000 个字符");
+        if (answer.length() > 50000) {
+            throw new BadRequestException("综合实务草稿不得超过 50000 个字符");
         }
         LearningRepository.Draft existing = repository.findDraft(userId, routeId).orElse(null);
         long actualRevision = existing == null ? 0 : existing.revision();
@@ -274,8 +275,9 @@ public class LearningService {
                     "评分规则版本已变化，请刷新后重试");
         }
         String normalized = answer == null ? "" : answer.trim();
-        if (normalized.isEmpty() || normalized.length() > 12000) {
-            throw new BadRequestException("正式答案长度必须为 1-12000 个字符");
+        if (normalized.isEmpty() || normalized.length() > 50000
+                || !read(normalized).path("responses").isObject()) {
+            throw new BadRequestException("综合实务正式答案格式无效");
         }
         LearningRepository.Attempt existing = repository
                 .findAttemptByRequest(userId, clientRequestId).orElse(null);
@@ -329,7 +331,7 @@ public class LearningService {
         LearningRepository.ResultSnapshot snapshot = repository.result(attemptId)
                 .orElseThrow(() -> new IllegalStateException("评分结果快照缺失"));
         response.set("result", publicScoringResult(read(snapshot.json())));
-        response.put("answerSnapshot", attempt.answer());
+        response.set("answerSnapshot", read(attempt.answer()));
         response.put("historicalConclusion", attempt.conclusion());
         response.put("currentRouteState", state(userId, attempt.routeId()).name());
         ArrayNode actions = response.putArray("allowedActions");
@@ -339,7 +341,7 @@ public class LearningService {
             LearningRepository.Plan plan = repository.planByAttempt(userId, attemptId)
                     .orElseThrow(() -> new IllegalStateException("补学计划快照缺失"));
             response.set("remediationSummary", planSummary(plan));
-            actions.add(repository.planComplete(plan.id()) ? "RETRY_CHALLENGE" : "START_REMEDIATION");
+            actions.add(repository.planComplete(plan.id()) ? "RETRY_COMPREHENSIVE_PRACTICE" : "START_REMEDIATION");
         }
         return response;
     }
@@ -399,27 +401,27 @@ public class LearningService {
         response.put("correct", correct);
         response.put("targetCompleted", correct || target.completed());
         response.put("planCompleted", repository.planComplete(plan.id()));
-        response.put("explanation", question.path("explanation").asText());
+        response.put("explanation", feedbackExplanation(question, correct));
         if (!correct) {
-            response.put("hint", question.path("hints").path(0).asText(""));
+            response.put("hint", feedbackHint(question));
         }
         return response;
     }
 
-    public ObjectNode challenge(long userId, long attemptId) {
+    public ObjectNode comprehensivePracticeRetry(long userId, long attemptId) {
         LearningRepository.Attempt attempt = repository.findAttempt(userId, attemptId)
                 .orElseThrow(() -> new NotFoundException("正式作答不存在"));
         LearningRepository.Plan plan = repository.planByAttempt(userId, attemptId)
                 .orElseThrow(() -> new NotFoundException("该正式作答没有补学计划"));
         if (!repository.planComplete(plan.id())) {
             throw new BusinessConflictException("REMEDIATION_REQUIRED",
-                    "全部补学目标完成后才能重新挑战");
+                    "全部补学目标完成后才能重新完成综合实务");
         }
         ObjectNode response = objectMapper.createObjectNode();
         response.put("routeId", attempt.routeId());
-        response.put("stepType", StepType.EXCEPTION_CASE.name());
-        response.put("challengeUnlocked", true);
-        response.set("content", catalog.publicStep(attempt.routeId(), StepType.EXCEPTION_CASE));
+        response.put("stepType", StepType.COMPREHENSIVE_PRACTICE.name());
+        response.put("practiceRetryUnlocked", true);
+        response.set("content", catalog.publicStep(attempt.routeId(), StepType.COMPREHENSIVE_PRACTICE));
         return response;
     }
 
@@ -503,7 +505,7 @@ public class LearningService {
     }
 
     private boolean isStepComplete(long userId, RouteBundle route, StepType type) {
-        if (type == StepType.EXCEPTION_CASE) {
+        if (type == StepType.COMPREHENSIVE_PRACTICE) {
             return repository.latestAttempt(userId, route.routeId()).isPresent();
         }
         return repository.isStepComplete(userId, route.routeId(),
@@ -527,7 +529,7 @@ public class LearningService {
             case KNOWLEDGE_CARD -> true;
             case DEMONSTRATION -> isStepComplete(userId, route, StepType.KNOWLEDGE_CARD);
             case BASIC_PRACTICE -> isStepComplete(userId, route, StepType.DEMONSTRATION);
-            case EXCEPTION_CASE -> isStepComplete(userId, route, StepType.BASIC_PRACTICE);
+            case COMPREHENSIVE_PRACTICE -> isStepComplete(userId, route, StepType.BASIC_PRACTICE);
         };
     }
 
@@ -586,8 +588,129 @@ public class LearningService {
         if ("ORDERING".equals(type)) {
             return expected.equals(answer);
         }
+        if ("CALCULATION".equals(type)) {
+            return numericAnswersMatch(expected, answer,
+                    question.path("calculation").path("fields"));
+        }
+        if ("RECONCILIATION".equals(type)) {
+            return reconciliationAnswersMatch(question, expected, answer);
+        }
+        if ("SHORT_TEXT".equals(type)) {
+            return shortTextAnswersMatch(expected, answer);
+        }
+        if ("FIELD_MAP".equals(type) || "LEDGER_ENTRY".equals(type)) {
+            return expected.equals(answer);
+        }
         return new HashSet<>(expected).equals(new HashSet<>(answer))
                 && expected.size() == answer.size();
+    }
+
+    private String feedbackExplanation(JsonNode question, boolean correct) {
+        if (correct || !isStructuredPracticeQuestion(question)) {
+            return question.path("explanation").asText();
+        }
+        return "请回到题面资料，逐项核对输入、关系和业务结果后重试。";
+    }
+
+    private String feedbackHint(JsonNode question) {
+        return switch (question.path("type").asText()) {
+            case "FIELD_MAP" -> "先分开核对字段来源、方向、状态和确认时点。";
+            case "CALCULATION" -> "先取出题面提供的各项输入，再按批准关系复算。";
+            case "LEDGER_ENTRY" -> "先按借贷方向区分成本、费用、应付项和清算项。";
+            case "RECONCILIATION" -> "先分别完成数量、成本、资金和市值关系，再核对是否闭合。";
+            case "SHORT_TEXT" -> "逐项检查结论是否覆盖持仓、成本、资金、市值和勾稽。";
+            default -> question.path("hints").path(0).asText("");
+        };
+    }
+
+    private boolean isStructuredPracticeQuestion(JsonNode question) {
+        return switch (question.path("type").asText()) {
+            case "FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT" -> true;
+            default -> false;
+        };
+    }
+
+    private boolean numericAnswersMatch(List<String> expected, List<String> answer, JsonNode fields) {
+        if (!fields.isArray() || fields.size() != expected.size()
+                || expected.size() != answer.size()) {
+            return false;
+        }
+        for (int index = 0; index < expected.size(); index += 1) {
+            if (!numericValueMatches(expected.get(index), answer.get(index), fields.path(index))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean reconciliationAnswersMatch(JsonNode question, List<String> expected,
+                                               List<String> answer) {
+        JsonNode fields = question.path("reconciliation").path("fields");
+        if (!fields.isArray() || fields.size() != expected.size()
+                || expected.size() != answer.size()) {
+            return false;
+        }
+        for (int index = 0; index < expected.size(); index += 1) {
+            JsonNode field = fields.path(index);
+            if ("NUMBER".equals(field.path("kind").asText())) {
+                if (!numericValueMatches(expected.get(index), answer.get(index), field)) {
+                    return false;
+                }
+            } else if (!expected.get(index).equals(answer.get(index))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean numericValueMatches(String expectedValue, String actualValue, JsonNode field) {
+        BigDecimal expectedNumber = parseNumber(expectedValue);
+        BigDecimal actualNumber = parseNumber(actualValue);
+        if (expectedNumber == null || actualNumber == null) {
+            return false;
+        }
+        JsonNode tolerance = field.path("tolerance");
+        if (tolerance.isNumber()) {
+            BigDecimal allowedDifference = tolerance.decimalValue();
+            return expectedNumber.subtract(actualNumber).abs().compareTo(allowedDifference) <= 0;
+        }
+        return expectedNumber.compareTo(actualNumber) == 0;
+    }
+
+    private boolean shortTextAnswersMatch(List<String> expected, List<String> answer) {
+        if (answer.size() != 1) {
+            return false;
+        }
+        String actual = normalizeText(answer.get(0));
+        if (actual.isEmpty()) {
+            return false;
+        }
+        return expected.stream().allMatch(term -> actual.contains(normalizeText(term)));
+    }
+
+    private BigDecimal parseNumber(String value) {
+        if (value == null) {
+            return null;
+        }
+        String normalized = value.replace(",", "")
+                .replace("，", "")
+                .replace(" ", "")
+                .replace("　", "")
+                .replace("\u00a0", "")
+                .trim();
+        if (normalized.isEmpty()) {
+            return null;
+        }
+        try {
+            return new BigDecimal(normalized);
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
+    private String normalizeText(String value) {
+        return value == null ? "" : value.replaceAll("\\s+", "")
+                .replace("　", "");
     }
 
     private JsonNode findQuestion(JsonNode content, String questionId) {
@@ -616,7 +739,7 @@ public class LearningService {
         summary.put("completedTargets", completed);
         summary.put("totalTargets", total);
         summary.put("completed", completed == total);
-        summary.put("challengeUnlocked", completed == total);
+        summary.put("practiceRetryUnlocked", completed == total);
         return summary;
     }
 

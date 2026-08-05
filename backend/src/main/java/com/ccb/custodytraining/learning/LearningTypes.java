@@ -10,7 +10,7 @@ public final class LearningTypes {
     }
 
     public enum StepType {
-        KNOWLEDGE_CARD, DEMONSTRATION, BASIC_PRACTICE, EXCEPTION_CASE
+        KNOWLEDGE_CARD, DEMONSTRATION, BASIC_PRACTICE, COMPREHENSIVE_PRACTICE
     }
 
     public enum RouteState {

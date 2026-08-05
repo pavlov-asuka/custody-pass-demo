@@ -118,15 +118,24 @@ function PracticeBody({
   const [selected, setSelected] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const isOrdering = question.type === 'ORDERING';
+  const isStructured = ['FIELD_MAP', 'CALCULATION', 'LEDGER_ENTRY', 'RECONCILIATION', 'SHORT_TEXT']
+    .includes(question.type);
 
   const initialOrder = useMemo(
     () => question.items?.map((item) => item.itemId) ?? [],
     [question.items],
   );
+  const structuredSize = useMemo(() => {
+    if (question.type === 'FIELD_MAP') return question.fieldMappings?.length ?? 0;
+    if (question.type === 'CALCULATION') return question.calculation?.fields.length ?? 0;
+    if (question.type === 'LEDGER_ENTRY') return question.ledgerEntries?.length ?? 0;
+    if (question.type === 'RECONCILIATION') return question.reconciliation?.fields.length ?? 0;
+    return question.type === 'SHORT_TEXT' ? 1 : 0;
+  }, [question]);
 
   useEffect(() => {
-    setSelected(isOrdering ? initialOrder : []);
-  }, [initialOrder, isOrdering, question.questionId]);
+    setSelected(isOrdering ? initialOrder : isStructured ? Array(structuredSize).fill('') : []);
+  }, [initialOrder, isOrdering, isStructured, question.questionId, structuredSize]);
 
   function toggle(value: string) {
     if (feedback?.correct) return;
@@ -139,6 +148,15 @@ function PracticeBody({
         ? current.filter((item) => item !== value)
         : [...current, value],
     );
+  }
+
+  function updateValue(index: number, value: string) {
+    if (feedback?.correct) return;
+    setSelected((current) => {
+      const next = [...current];
+      next[index] = value;
+      return next;
+    });
   }
 
   function move(orderIndex: number, direction: -1 | 1) {
@@ -161,8 +179,146 @@ function PracticeBody({
     }
   }
 
-  const canSubmit = selected.length > 0 && !submitting && !feedback?.correct;
+  const canSubmit = selected.length > 0
+    && selected.every((value) => value.trim().length > 0)
+    && !submitting
+    && !feedback?.correct;
   const wrongOnce = feedback && !feedback.correct;
+
+  function renderStructuredInput() {
+    if (question.type === 'FIELD_MAP') {
+      return (
+        <div className="practice-structured practice-structured--mapping">
+          {question.fieldMappings?.map((field, fieldIndex) => (
+            <div className="practice-structured__row" key={field.fieldId}>
+              <div className="practice-structured__label">
+                <strong>{field.label}</strong>
+                <span>来源：{field.source}</span>
+              </div>
+              <select
+                aria-label={field.label}
+                value={selected[fieldIndex] ?? ''}
+                onChange={(event) => updateValue(fieldIndex, event.target.value)}
+                disabled={Boolean(feedback?.correct)}
+              >
+                <option value="">选择对应含义</option>
+                {field.options.map((option) => <option value={option.optionId} key={option.optionId}>{option.text}</option>)}
+              </select>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (question.type === 'CALCULATION') {
+      return (
+        <div className="practice-structured practice-structured--calculation">
+          {question.calculation?.fields.map((field, fieldIndex) => (
+            <label className="practice-structured__row" key={field.fieldId}>
+              <span className="practice-structured__label">
+                <strong>{field.label}</strong>
+                <span>
+                  {field.formula}
+                  {field.precision !== undefined && `；建议保留 ${field.precision} 位小数`}
+                  {field.tolerance !== undefined && `；判定允许误差 ±${field.tolerance}`}
+                </span>
+              </span>
+              <span className="practice-structured__control">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  aria-label={field.label}
+                  value={selected[fieldIndex] ?? ''}
+                  placeholder={field.placeholder}
+                  onChange={(event) => updateValue(fieldIndex, event.target.value)}
+                  disabled={Boolean(feedback?.correct)}
+                />
+                <em>{field.unit}</em>
+              </span>
+            </label>
+          ))}
+        </div>
+      );
+    }
+
+    if (question.type === 'LEDGER_ENTRY') {
+      return (
+        <div className="practice-structured practice-structured--ledger">
+          <div className="practice-ledger__head"><span>方向</span><span>资料行</span><span>补全科目</span></div>
+          {question.ledgerEntries?.map((entry, entryIndex) => (
+            <label className="practice-ledger__row" key={entry.entryId}>
+              <b>{entry.direction}</b>
+              <span><strong>{entry.label}</strong><em>{entry.amount}</em></span>
+              <input
+                type="text"
+                aria-label={entry.label}
+                value={selected[entryIndex] ?? ''}
+                placeholder={entry.placeholder}
+                onChange={(event) => updateValue(entryIndex, event.target.value)}
+                disabled={Boolean(feedback?.correct)}
+              />
+            </label>
+          ))}
+        </div>
+      );
+    }
+
+    if (question.type === 'RECONCILIATION') {
+      return (
+        <div className="practice-structured practice-structured--reconciliation">
+          {question.reconciliation?.fields.map((field, fieldIndex) => (
+            <label className="practice-structured__row" key={field.fieldId}>
+              <span className="practice-structured__label">
+                <strong>{field.label}</strong>
+                <span>
+                  {field.formula}
+                  {field.precision !== undefined && `；建议保留 ${field.precision} 位小数`}
+                  {field.tolerance !== undefined && `；判定允许误差 ±${field.tolerance}`}
+                </span>
+              </span>
+              {field.kind === 'SELECT' ? (
+                <select
+                  aria-label={field.label}
+                  value={selected[fieldIndex] ?? ''}
+                  onChange={(event) => updateValue(fieldIndex, event.target.value)}
+                  disabled={Boolean(feedback?.correct)}
+                >
+                  <option value="">{field.placeholder}</option>
+                  {field.options?.map((option) => <option value={option.optionId} key={option.optionId}>{option.text}</option>)}
+                </select>
+              ) : (
+                <span className="practice-structured__control">
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    aria-label={field.label}
+                    value={selected[fieldIndex] ?? ''}
+                    placeholder={field.placeholder}
+                    onChange={(event) => updateValue(fieldIndex, event.target.value)}
+                    disabled={Boolean(feedback?.correct)}
+                  />
+                </span>
+              )}
+            </label>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <label className="practice-structured practice-structured--text">
+        <span className="practice-structured__text-label">{question.textInput?.label ?? '业务结论'}</span>
+        <textarea
+          aria-label={question.textInput?.label ?? '业务结论'}
+          value={selected[0] ?? ''}
+          placeholder={question.textInput?.placeholder}
+          maxLength={500}
+          onChange={(event) => updateValue(0, event.target.value)}
+          disabled={Boolean(feedback?.correct)}
+        />
+      </label>
+    );
+  }
 
   return (
     <div className="practice-body">
@@ -198,7 +354,7 @@ function PracticeBody({
             );
           })}
         </ol>
-      ) : (
+      ) : isStructured ? renderStructuredInput() : (
         <div
           className="practice-options"
           role={question.type === 'SINGLE_CHOICE' ? 'radiogroup' : 'group'}
@@ -269,7 +425,13 @@ function PracticeBody({
             </div>
           ) : (
             <span className="practice-actionbar__meta">
-              {selected.length ? '已做出选择，可以提交' : '选择一个选项后提交'}
+              {selected.length > 0 && selected.every((value) => value.trim().length > 0)
+                ? '已完成全部字段，可以提交'
+                : isStructured
+                  ? '填写全部字段后提交'
+                  : selected.length
+                    ? '已做出选择，可以提交'
+                    : '选择一个选项后提交'}
             </span>
           )}
           {feedback?.correct ? (

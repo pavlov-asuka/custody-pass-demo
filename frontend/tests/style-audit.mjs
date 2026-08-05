@@ -49,7 +49,7 @@ for (const token of retiredTokens) {
 const reachableGroups = {
   '四环节结构': ['route-stepper', 'lesson-card', 'knowledge-card__conclusion', 'demo-timeline'],
   '补学练习复用': ['practice-question', 'choice-list', 'ordering-list', 'feedback'],
-  '异常案例与冲突': ['exception-case', 'answer-editor', 'modal', 'conflict-preview'],
+  '综合实务与冲突': ['comprehensive-practice', 'practice-sheet', 'modal', 'conflict-preview'],
   '评分与结果': ['scoring-wait', 'scoring-failed', 'result-view', 'dimension'],
   '记录与历史': ['record-filters', 'record-row', 'record-detail-header'],
 };

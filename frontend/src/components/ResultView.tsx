@@ -20,7 +20,7 @@ function conclusionCopy(
   }
   return conclusion === 'PASSED'
     ? { title: '路线已通过', description: '你已经完成本路线的关键能力检验。' }
-    : { title: '已学习，还需要补强', description: '先完成定向补学，再重新挑战完整异常案例。' };
+    : { title: '已学习，还需要补强', description: '先完成定向补学，再重新完成综合实务。' };
 }
 export function ResultView({
   attempt,
@@ -120,7 +120,14 @@ export function ResultView({
             <span><RotateCcw size={19} /> 查看本次原始作答</span>
             <ChevronDown />
           </summary>
-          <p>{attempt.answerSnapshot}</p>
+          <dl className="answer-snapshot__responses">
+            {Object.entries(attempt.answerSnapshot.responses).map(([fieldId, value]) => (
+              <div key={fieldId}>
+                <dt>{fieldId}</dt>
+                <dd>{String(value)}</dd>
+              </div>
+            ))}
+          </dl>
         </details>
       )}
 

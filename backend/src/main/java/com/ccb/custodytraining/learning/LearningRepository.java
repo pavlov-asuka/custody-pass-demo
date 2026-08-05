@@ -102,7 +102,7 @@ public class LearningRepository {
         if (existing.isEmpty()) {
             try {
                 jdbc.update("""
-                        INSERT INTO exception_case_draft
+                        INSERT INTO comprehensive_practice_draft
                         (user_id, route_id, content_version, answer, revision, updated_at, submitted_attempt_id)
                         VALUES (?, ?, ?, ?, 1, ?, NULL)
                         """, userId, routeId, version, answer, Timestamp.from(now));
@@ -111,7 +111,7 @@ public class LearningRepository {
             }
         } else {
             jdbc.update("""
-                    UPDATE exception_case_draft
+                    UPDATE comprehensive_practice_draft
                     SET content_version=?, answer=?, revision=revision+1, updated_at=?, submitted_attempt_id=NULL
                     WHERE user_id=? AND route_id=?
                     """, version, answer, Timestamp.from(now), userId, routeId);
@@ -122,7 +122,7 @@ public class LearningRepository {
     public Optional<Draft> findDraft(long userId, String routeId) {
         return jdbc.query("""
                 SELECT route_id, content_version, answer, revision, updated_at, submitted_attempt_id
-                FROM exception_case_draft WHERE user_id=? AND route_id=?
+                FROM comprehensive_practice_draft WHERE user_id=? AND route_id=?
                 """, (rs, row) -> new Draft(
                 rs.getString("route_id"), rs.getString("content_version"), rs.getString("answer"),
                 rs.getLong("revision"), rs.getTimestamp("updated_at").toInstant(),
@@ -131,7 +131,7 @@ public class LearningRepository {
 
     public void markDraftSubmitted(long userId, String routeId, long attemptId) {
         jdbc.update("""
-                UPDATE exception_case_draft SET submitted_attempt_id=?
+                UPDATE comprehensive_practice_draft SET submitted_attempt_id=?
                 WHERE user_id=? AND route_id=?
                 """, attemptId, userId, routeId);
     }
@@ -205,7 +205,7 @@ public class LearningRepository {
                 SELECT (
                   (SELECT COUNT(*) FROM learning_step_progress WHERE user_id=? AND route_id=?) +
                   (SELECT COUNT(*) FROM basic_question_progress WHERE user_id=? AND route_id=?) +
-                  (SELECT COUNT(*) FROM exception_case_draft WHERE user_id=? AND route_id=?) +
+                  (SELECT COUNT(*) FROM comprehensive_practice_draft WHERE user_id=? AND route_id=?) +
                   (SELECT COUNT(*) FROM formal_attempt WHERE user_id=? AND route_id=?)
                 )
                 """, Integer.class, userId, routeId, userId, routeId,

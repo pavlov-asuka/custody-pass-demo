@@ -6,7 +6,7 @@ const order: StepType[] = [
   'KNOWLEDGE_CARD',
   'DEMONSTRATION',
   'BASIC_PRACTICE',
-  'EXCEPTION_CASE',
+  'COMPREHENSIVE_PRACTICE',
 ];
 
 export function RouteStepper({

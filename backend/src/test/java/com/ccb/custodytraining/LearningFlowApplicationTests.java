@@ -39,13 +39,29 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 class LearningFlowApplicationTests {
 
     private static final String ROUTE = "ACC-LIFE-ROLE-001";
-    private static final String CONTENT_VERSION = "1.0.0";
-    private static final String RUBRIC_VERSION = "1.0.0";
+    private static final String CONTENT_VERSION = "2.0.0";
+    private static final String RUBRIC_VERSION = "2.0.0";
+    private static final String STOCK_ROUTE = "ACC-STOCK-TRADE-001";
+    private static final String STOCK_CONTENT_VERSION = "1.0.0";
     private static final String PASSING_ANSWER = """
-            我作为组合核算人员仍对结果负责。系统执行成功不代表业务结果正确，不能替代人工核验。
-            我会先核实再判断：确认7月9日托管费指令和余额事实，核查数据、账务结果和估值结果。
-            随后协调相关岗位，按权限复核或报告升级，判断是否影响账务和估值。
-            异常消除后反馈结论并持续跟踪闭环，保存处理记录并留痕，不擅自越权承诺。
+            {"responses":{
+              "payment-source":"BANK-STATEMENT",
+              "ending-payable":800,
+              "debit-account":"应付托管费",
+              "credit-account":"银行存款",
+              "reconciliation-result":"BALANCED",
+              "result-note":"当日支付托管费1400元，期末应付托管费800元，资金、台账和估值结果勾稽一致。"
+            }}
+            """;
+    private static final String NOT_MASTERED_ANSWER = """
+            {"responses":{
+              "payment-source":"PAYMENT-INSTRUCTION",
+              "ending-payable":0,
+              "debit-account":"银行存款",
+              "credit-account":"应付托管费",
+              "reconciliation-result":"UNBALANCED",
+              "result-note":"已处理。"
+            }}
             """;
 
     @Autowired
@@ -62,7 +78,7 @@ class LearningFlowApplicationTests {
         jdbc.update("DELETE FROM remediation_target");
         jdbc.update("DELETE FROM remediation_plan");
         jdbc.update("DELETE FROM scoring_result");
-        jdbc.update("DELETE FROM exception_case_draft");
+        jdbc.update("DELETE FROM comprehensive_practice_draft");
         jdbc.update("DELETE FROM formal_attempt");
         jdbc.update("DELETE FROM basic_question_progress");
         jdbc.update("DELETE FROM learning_step_progress");
@@ -92,7 +108,7 @@ class LearningFlowApplicationTests {
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].state").value("NOT_STARTED"))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].state").value("LOCKED"))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].contentAvailability").value("BUILDING"))
-                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(1));
+                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(2));
     }
 
     @Test
@@ -127,9 +143,9 @@ class LearningFlowApplicationTests {
         assertTrue(!wrong.has("answer"));
         assertTrue(!wrong.has("correctAnswer"));
         answerQuestion(learner, "ACC-ROLE-Q-01", List.of("B"));
-        answerQuestion(learner, "ACC-ROLE-Q-02", List.of("A", "B", "D"));
+        answerQuestion(learner, "ACC-ROLE-Q-02", List.of("B"));
         JsonNode finalAnswer = answerQuestion(learner, "ACC-ROLE-Q-03",
-                List.of("FACT", "CHECK", "ACTION", "FEEDBACK"));
+                List.of("SOURCE", "CALC", "POST", "RECON"));
         assertTrue(finalAnswer.path("practiceCompleted").asBoolean());
         assertEquals(1, jdbc.queryForObject("""
                 SELECT COUNT(*) FROM learning_step_progress WHERE step_type='BASIC_PRACTICE'
@@ -137,19 +153,68 @@ class LearningFlowApplicationTests {
     }
 
     @Test
+    void stockBasicPracticeUsesStructuredInputsAndKeepsAnswersPrivate() throws Exception {
+        Session learner = prepared("10000001");
+        long roleAttempt = submit(learner, requestId(), PASSING_ANSWER).path("attemptId").asLong();
+        assertEquals("PASSED", awaitTerminal(learner, roleAttempt).path("historicalConclusion").asText());
+        stockComplete(learner, "KNOWLEDGE_CARD");
+        stockComplete(learner, "DEMONSTRATION");
+
+        JsonNode content = getJson(learner, "/api/routes/" + STOCK_ROUTE
+                + "/steps/BASIC_PRACTICE").path("content");
+        assertEquals(5, content.path("questions").size());
+        assertEquals("FIELD_MAP", content.path("questions").path(0).path("type").asText());
+        assertEquals("CALCULATION", content.path("questions").path(1).path("type").asText());
+        assertEquals("LEDGER_ENTRY", content.path("questions").path(2).path("type").asText());
+        assertEquals("RECONCILIATION", content.path("questions").path(3).path("type").asText());
+        assertEquals("SHORT_TEXT", content.path("questions").path(4).path("type").asText());
+        for (JsonNode question : content.path("questions")) {
+            assertTrue(question.path("answer").isMissingNode());
+            assertTrue(question.path("explanation").isMissingNode());
+            assertTrue(question.path("hints").isMissingNode());
+        }
+
+        JsonNode wrong = stockAnswerQuestion(learner, "ACC-STOCK-TRADE-Q-02",
+                List.of("72000", "90", "60", "-72000"));
+        assertTrue(!wrong.path("correct").asBoolean());
+        assertTrue(!wrong.has("answer"));
+        assertTrue(!wrong.path("explanation").asText().contains("72,030"));
+        assertTrue(!wrong.path("hint").asText().contains("72,030"));
+        stockAnswerQuestion(learner, "ACC-STOCK-TRADE-Q-01",
+                List.of("BUY_DIRECTION", "CASH_OUTFLOW", "NORMAL_CONTINUE", "TRADE_DAY_PAYABLE"));
+        stockAnswerQuestion(learner, "ACC-STOCK-TRADE-Q-02",
+                List.of("72,000", "90", "60", "-72,030"));
+        stockAnswerQuestion(learner, "ACC-STOCK-TRADE-Q-03",
+                List.of("金融资产-交易性-股票-成本", "交易费用-股票", "应付佣金", "证券清算款"));
+        JsonNode outOfTolerance = stockAnswerQuestion(learner, "ACC-STOCK-TRADE-Q-04",
+                List.of("9.31", "112,000", "18,000", "168,000", "1,031,860", "198,000", "30,000", "BALANCED"));
+        assertTrue(!outOfTolerance.path("correct").asBoolean());
+        assertTrue(!outOfTolerance.has("answer"));
+        assertTrue(!outOfTolerance.path("explanation").asText().contains("9.3333333333"));
+        JsonNode rounded = stockAnswerQuestion(learner, "ACC-STOCK-TRADE-Q-04",
+                List.of("9.33", "112,000", "18,000", "168,000", "1,031,860", "198,000", "30,000", "BALANCED"));
+        assertTrue(rounded.path("correct").asBoolean());
+        JsonNode extraPrecision = stockAnswerQuestion(learner, "ACC-STOCK-TRADE-Q-04",
+                List.of("9.3333", "112,000", "18,000", "168,000", "1,031,860", "198,000", "30,000", "BALANCED"));
+        assertTrue(extraPrecision.path("correct").asBoolean());
+        JsonNode completed = stockAnswerQuestion(learner, "ACC-STOCK-TRADE-Q-05", List.of(
+                "剩余持仓 18,000 股，剩余成本 168,000 元，期末资金 1,031,860 元，期末市值 198,000 元，资金、持仓、成本和估值勾稽一致。"));
+        assertTrue(completed.path("practiceCompleted").asBoolean());
+    }
+
+    @Test
     void draftsAreVersionedAndIsolatedByLearner() throws Exception {
         Session first = prepared("10000001");
         Session second = prepared("10000002");
-        saveDraft(first, "第一位学员草稿", 0);
+        saveDraft(first, NOT_MASTERED_ANSWER, 0);
         mockMvc.perform(get("/api/routes/" + ROUTE + "/draft").session(second.session()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.answer").value(""))
+                .andExpect(jsonPath("$.answer.responses").isMap())
                 .andExpect(jsonPath("$.revision").value(0));
         mockMvc.perform(put("/api/routes/" + ROUTE + "/draft")
                         .session(first.session()).with(first.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"contentVersion\":\"1.0.0\",\"answer\":\"冲突\","
-                                + "\"expectedRevision\":0}"))
+                        .content(draftJson(NOT_MASTERED_ANSWER, 0)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("DRAFT_CONFLICT"));
     }
@@ -166,7 +231,7 @@ class LearningFlowApplicationTests {
         mockMvc.perform(post("/api/routes/" + ROUTE + "/attempts")
                         .session(learner.session()).with(learner.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(submissionJson(requestId, "不同答案")))
+                        .content(submissionJson(requestId, NOT_MASTERED_ANSWER)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("IDEMPOTENCY_CONFLICT"));
         JsonNode completed = awaitTerminal(learner, attemptId);
@@ -178,7 +243,7 @@ class LearningFlowApplicationTests {
     void scoringFailureIsTechnicalAndRetryUsesOriginalAttempt() throws Exception {
         Session learner = prepared("10000001");
         JsonNode submitted = submit(learner, requestId(),
-                PASSING_ANSWER + " [SCORING_FAIL_ONCE]");
+                PASSING_ANSWER.replace("勾稽一致。", "勾稽一致。[SCORING_FAIL_ONCE]"));
         long attemptId = submitted.path("attemptId").asLong();
         JsonNode failed = awaitTerminal(learner, attemptId);
         assertEquals("FAILED", failed.path("processingStatus").asText());
@@ -196,10 +261,7 @@ class LearningFlowApplicationTests {
     @Test
     void mandatoryRequirementOverridesPassingScore() throws Exception {
         Session learner = prepared("10000001");
-        String scoreWithoutGates = """
-                事实 托管费 7月9日 核查数据 估值结果 协调 复核 报告 反馈 跟踪 闭环
-                权限 影响账务 影响估值 留痕 处理记录 措施 责任人 按权限 谨慎 核算岗不是
-                """;
+        String scoreWithoutGates = PASSING_ANSWER.replace("BALANCED", "UNBALANCED");
         JsonNode completed = awaitTerminal(learner,
                 submit(learner, requestId(), scoreWithoutGates).path("attemptId").asLong());
         assertTrue(completed.path("result").path("totalScore").asInt() >= 75);
@@ -208,7 +270,7 @@ class LearningFlowApplicationTests {
         assertTrue(completed.path("result").path("mandatoryRequirements").isMissingNode());
         assertTrue(completed.toString().contains("\"matched\""));
         assertTrue(!completed.toString().contains("\"itemId\""));
-        assertTrue(!completed.toString().contains("M-VERIFY-FIRST"));
+        assertTrue(!completed.toString().contains("M-RECONCILIATION"));
         String storedResult = jdbc.queryForObject(
                 "SELECT result_snapshot_json FROM scoring_result WHERE attempt_id=?",
                 String.class, completed.path("attemptId").asLong());
@@ -217,10 +279,10 @@ class LearningFlowApplicationTests {
     }
 
     @Test
-    void remediationMustBeCompletedBeforeFullChallengeAndDoesNotDirectlyPass() throws Exception {
+    void remediationMustBeCompletedBeforePracticeRetryAndDoesNotDirectlyPass() throws Exception {
         Session learner = prepared("10000001");
         long attemptId = submitAndAwaitNotMastered(learner);
-        mockMvc.perform(post("/api/attempts/" + attemptId + "/challenge")
+        mockMvc.perform(post("/api/attempts/" + attemptId + "/comprehensive-practice-retry")
                         .session(learner.session()).with(learner.csrf()))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("REMEDIATION_REQUIRED"));
@@ -230,10 +292,10 @@ class LearningFlowApplicationTests {
             String questionId = target.path("practice").path("questionId").asText();
             answerRemediation(learner, attemptId, targetId, correctAnswer(questionId));
         }
-        mockMvc.perform(post("/api/attempts/" + attemptId + "/challenge")
+        mockMvc.perform(post("/api/attempts/" + attemptId + "/comprehensive-practice-retry")
                         .session(learner.session()).with(learner.csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.challengeUnlocked").value(true));
+                .andExpect(jsonPath("$.practiceRetryUnlocked").value(true));
         mockMvc.perform(get("/api/lines/ACCOUNTING/map").session(learner.session()))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].state")
                         .value("LEARNED_NOT_MASTERED"));
@@ -288,7 +350,8 @@ class LearningFlowApplicationTests {
         JsonNode passedHistory = getJson(learner, "/api/training-records/" + passedAttempt);
         assertEquals("LEARNED_NOT_MASTERED", failedHistory.path("historicalConclusion").asText());
         assertEquals("PASSED", failedHistory.path("currentRouteState").asText());
-        assertEquals("事实", failedHistory.path("answerSnapshot").asText());
+        assertEquals("PAYMENT-INSTRUCTION", failedHistory.path("answerSnapshot")
+                .path("responses").path("payment-source").asText());
         assertEquals("PASSED", passedHistory.path("historicalConclusion").asText());
         mockMvc.perform(get("/api/training-records?conclusion=LEARNED_NOT_MASTERED")
                         .session(learner.session()))
@@ -303,7 +366,7 @@ class LearningFlowApplicationTests {
         Session learner = prepared("10000001");
         long passedId = submit(learner, requestId(), PASSING_ANSWER).path("attemptId").asLong();
         awaitTerminal(learner, passedId);
-        long reviewId = submit(learner, requestId(), "只写一句简短答复")
+        long reviewId = submit(learner, requestId(), NOT_MASTERED_ANSWER)
                 .path("attemptId").asLong();
         JsonNode review = awaitTerminal(learner, reviewId);
         assertEquals("LEARNED_NOT_MASTERED", review.path("historicalConclusion").asText());
@@ -318,7 +381,7 @@ class LearningFlowApplicationTests {
         jdbc.update("UPDATE formal_attempt SET content_version='9.9.9' WHERE id=?", attemptId);
         JsonNode history = getJson(first, "/api/training-records/" + attemptId);
         assertEquals("9.9.9", history.path("contentVersion").asText());
-        assertEquals(original.path("answerSnapshot").asText(), history.path("answerSnapshot").asText());
+        assertEquals(original.path("answerSnapshot"), history.path("answerSnapshot"));
         mockMvc.perform(get("/api/training-records?line=ACCOUNTING&conclusion=PASSED")
                         .session(first.session()))
                 .andExpect(status().isOk())
@@ -338,11 +401,11 @@ class LearningFlowApplicationTests {
         String knowledge = mockMvc.perform(get("/api/routes/" + ROUTE + "/steps/KNOWLEDGE_CARD")
                         .session(learner.session()))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-        assertTrue(route.contains("\"rubricVersion\":\"1.0.0\""));
+        assertTrue(route.contains("\"rubricVersion\":\"2.0.0\""));
         for (String body : List.of(route, knowledge)) {
             assertTrue(!body.contains("referenceAnswer"));
             assertTrue(!body.contains("mandatoryRequirements"));
-            assertTrue(!body.contains("\"keywords\""));
+            assertTrue(!body.contains("\"evidenceRules\""));
         }
         mockMvc.perform(get("/api/cases").session(learner.session()))
                 .andExpect(status().isNotFound());
@@ -355,13 +418,13 @@ class LearningFlowApplicationTests {
         complete(session, "KNOWLEDGE_CARD", requestId());
         complete(session, "DEMONSTRATION", requestId());
         answerQuestion(session, "ACC-ROLE-Q-01", List.of("B"));
-        answerQuestion(session, "ACC-ROLE-Q-02", List.of("A", "B", "D"));
-        answerQuestion(session, "ACC-ROLE-Q-03", List.of("FACT", "CHECK", "ACTION", "FEEDBACK"));
+        answerQuestion(session, "ACC-ROLE-Q-02", List.of("B"));
+        answerQuestion(session, "ACC-ROLE-Q-03", List.of("SOURCE", "CALC", "POST", "RECON"));
         return session;
     }
 
     private long submitAndAwaitNotMastered(Session session) throws Exception {
-        long id = submit(session, requestId(), "事实").path("attemptId").asLong();
+        long id = submit(session, requestId(), NOT_MASTERED_ANSWER).path("attemptId").asLong();
         JsonNode result = awaitTerminal(session, id);
         assertEquals("LEARNED_NOT_MASTERED", result.path("historicalConclusion").asText());
         return id;
@@ -379,8 +442,8 @@ class LearningFlowApplicationTests {
     private List<String> correctAnswer(String questionId) {
         return switch (questionId) {
             case "ACC-ROLE-Q-01" -> List.of("B");
-            case "ACC-ROLE-Q-02" -> List.of("A", "B", "D");
-            case "ACC-ROLE-Q-03" -> List.of("FACT", "CHECK", "ACTION", "FEEDBACK");
+            case "ACC-ROLE-Q-02" -> List.of("B");
+            case "ACC-ROLE-Q-03" -> List.of("SOURCE", "CALC", "POST", "RECON");
             default -> throw new IllegalArgumentException(questionId);
         };
     }
@@ -429,7 +492,11 @@ class LearningFlowApplicationTests {
         body.put("clientRequestId", requestId);
         body.put("contentVersion", CONTENT_VERSION);
         body.put("rubricVersion", RUBRIC_VERSION);
-        body.put("answer", answer);
+        try {
+            body.set("answer", objectMapper.readTree(answer));
+        } catch (Exception exception) {
+            throw new IllegalArgumentException("测试综合实务答案必须是 JSON", exception);
+        }
         return body.toString();
     }
 
@@ -447,12 +514,35 @@ class LearningFlowApplicationTests {
         return objectMapper.readTree(result.getResponse().getContentAsString());
     }
 
+    private JsonNode stockAnswerQuestion(Session session, String questionId,
+                                         List<String> answer) throws Exception {
+        ObjectNode body = objectMapper.createObjectNode();
+        body.put("requestId", requestId());
+        body.put("contentVersion", STOCK_CONTENT_VERSION);
+        body.putArray("answer").addAll(answer.stream().map(objectMapper.getNodeFactory()::textNode).toList());
+        MvcResult result = mockMvc.perform(post("/api/routes/" + STOCK_ROUTE
+                        + "/basic-practice/" + questionId + "/answers")
+                        .session(session.session()).with(session.csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content(body.toString()))
+                .andExpect(status().isOk()).andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString());
+    }
+
     private void complete(Session session, String step, String eventId) throws Exception {
         mockMvc.perform(post("/api/routes/" + ROUTE + "/steps/" + step + "/complete")
                         .session(session.session()).with(session.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"eventId\":\"" + eventId + "\","
-                                + "\"contentVersion\":\"1.0.0\"}"))
+                                + "\"contentVersion\":\"" + CONTENT_VERSION + "\"}"))
+                .andExpect(status().isOk());
+    }
+
+    private void stockComplete(Session session, String step) throws Exception {
+        mockMvc.perform(post("/api/routes/" + STOCK_ROUTE + "/steps/" + step + "/complete")
+                        .session(session.session()).with(session.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"eventId\":\"" + requestId() + "\","
+                                + "\"contentVersion\":\"" + STOCK_CONTENT_VERSION + "\"}"))
                 .andExpect(status().isOk());
     }
 
@@ -460,9 +550,16 @@ class LearningFlowApplicationTests {
         mockMvc.perform(put("/api/routes/" + ROUTE + "/draft")
                         .session(session.session()).with(session.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"contentVersion\":\"1.0.0\",\"answer\":\"" + answer
-                                + "\",\"expectedRevision\":" + revision + "}"))
+                        .content(draftJson(answer, revision)))
                 .andExpect(status().isOk());
+    }
+
+    private String draftJson(String answer, long revision) throws Exception {
+        ObjectNode body = objectMapper.createObjectNode();
+        body.put("contentVersion", CONTENT_VERSION);
+        body.set("answer", objectMapper.readTree(answer));
+        body.put("expectedRevision", revision);
+        return body.toString();
     }
 
     private Session login(String employeeNo) throws Exception {

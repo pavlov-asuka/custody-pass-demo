@@ -3,8 +3,8 @@
   "routeId": "ACC-LIFE-ROLE-001",
   "processingStatus": "COMPLETED",
   "submittedAt": "2026-07-29T07:00:00Z",
-  "contentVersion": "1.0.0",
-  "rubricVersion": "1.0.0",
+  "contentVersion": "2.0.0",
+  "rubricVersion": "2.0.0",
   "result": {
     "totalScore": 82,
     "passScore": 75,
@@ -18,7 +18,7 @@
       {"dimension": "EXPRESSION", "score": 16, "maxScore": 20, "items": []}
     ]
   },
-  "answerSnapshot": "正式作答快照",
+  "answerSnapshot": {"responses": {"ending-payable": 800, "reconciliation-result": "BALANCED"}},
   "historicalConclusion": "PASSED",
   "currentRouteState": "PASSED",
   "allowedActions": ["RETURN_TO_MAP", "REVIEW_ROUTE"]

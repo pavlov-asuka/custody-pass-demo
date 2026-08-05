@@ -10,7 +10,7 @@ export type StepType =
   | 'KNOWLEDGE_CARD'
   | 'DEMONSTRATION'
   | 'BASIC_PRACTICE'
-  | 'EXCEPTION_CASE';
+  | 'COMPREHENSIVE_PRACTICE';
 export type ProcessingStatus = 'SCORING' | 'COMPLETED' | 'FAILED';
 export type Conclusion = 'PASSED' | 'LEARNED_NOT_MASTERED';
 export type Dimension = 'CONCEPT' | 'PROCESS' | 'RISK' | 'EXPRESSION';
@@ -149,34 +149,109 @@ export interface OrderingItem {
   text: string;
 }
 
+export interface FieldMappingPrompt {
+  fieldId: string;
+  label: string;
+  source: string;
+  options: ChoiceOption[];
+}
+
+export interface CalculationFieldPrompt {
+  fieldId: string;
+  label: string;
+  formula: string;
+  placeholder: string;
+  unit: string;
+  precision?: number;
+  tolerance?: number;
+}
+
+export interface LedgerEntryPrompt {
+  entryId: string;
+  direction: string;
+  label: string;
+  amount: string;
+  placeholder: string;
+}
+
+export interface ReconciliationFieldPrompt {
+  fieldId: string;
+  label: string;
+  kind: 'NUMBER' | 'SELECT';
+  formula: string;
+  placeholder: string;
+  precision?: number;
+  tolerance?: number;
+  options?: ChoiceOption[];
+}
+
 export interface PracticeQuestion {
   questionId: string;
-  type: 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE' | 'ORDERING' | string;
+  type:
+    | 'SINGLE_CHOICE'
+    | 'MULTIPLE_CHOICE'
+    | 'ORDERING'
+    | 'FIELD_MAP'
+    | 'CALCULATION'
+    | 'LEDGER_ENTRY'
+    | 'RECONCILIATION'
+    | 'SHORT_TEXT'
+    | string;
   prompt: string;
   options?: ChoiceOption[];
   items?: OrderingItem[];
+  fieldMappings?: FieldMappingPrompt[];
+  calculation?: { fields: CalculationFieldPrompt[] };
+  ledgerEntries?: LedgerEntryPrompt[];
+  reconciliation?: { fields: ReconciliationFieldPrompt[] };
+  textInput?: { label: string; placeholder: string };
 }
 
 export interface BasicPracticeContent {
   questions: PracticeQuestion[];
 }
 
-export interface ExceptionCaseContent {
+export interface ComprehensivePracticeContent {
   scenario: {
     role: string;
     date: string;
-    facts: string[];
-    product?: string;
+    product: string;
+    purpose: string;
   };
-  tasks: string[];
-  writingPrompts?: string[];
+  sourceMaterials: Array<{
+    materialId: string;
+    title: string;
+    kind: string;
+    description: string;
+    fields: Array<{ fieldId: string; label: string; value: string | number; unit?: string }>;
+  }>;
+  workItems: Array<{
+    workItemId: string;
+    type: 'FIELD_MAP' | 'CALCULATION' | 'LEDGER_ENTRY' | 'RECONCILIATION' | 'SHORT_TEXT';
+    title: string;
+    instruction: string;
+    response: {
+      kind: 'TEXT' | 'NUMBER' | 'SELECT';
+      placeholder: string;
+      unit?: string;
+      precision?: number;
+      options?: ChoiceOption[];
+    };
+  }>;
+  submissionNote: string;
+}
+
+export type ComprehensiveResponseValue = string | number;
+
+export interface ComprehensivePracticeAnswer {
+  responses: Record<string, ComprehensiveResponseValue>;
 }
 
 export interface StepContentByType {
   KNOWLEDGE_CARD: KnowledgeContent;
   DEMONSTRATION: DemonstrationContent;
   BASIC_PRACTICE: BasicPracticeContent;
-  EXCEPTION_CASE: ExceptionCaseContent;
+  COMPREHENSIVE_PRACTICE: ComprehensivePracticeContent;
 }
 
 export interface StepResponse<T extends StepType = StepType> {
@@ -208,7 +283,7 @@ export interface PracticeFeedback {
 export interface DraftResponse {
   routeId: string;
   contentVersion?: string;
-  answer?: string;
+  answer?: ComprehensivePracticeAnswer;
   revision: number;
   updatedAt: string | null;
 }
@@ -241,7 +316,7 @@ export interface RemediationSummary {
   completedTargets: number;
   totalTargets: number;
   completed: boolean;
-  challengeUnlocked: boolean;
+  practiceRetryUnlocked: boolean;
 }
 
 export interface AttemptResponse {
@@ -253,7 +328,7 @@ export interface AttemptResponse {
   rubricVersion: string;
   technicalErrorCode?: string;
   result?: ScoringResult;
-  answerSnapshot?: string;
+  answerSnapshot?: ComprehensivePracticeAnswer;
   historicalConclusion?: Conclusion;
   currentRouteState?: RouteState;
   remediationSummary?: RemediationSummary;

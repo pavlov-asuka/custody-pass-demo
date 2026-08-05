@@ -20,7 +20,7 @@ class ModelFormalAnswerReviewerTests {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JsonNode content = read("""
-            {"steps":{"EXCEPTION_CASE":{"scenario":{"facts":["系统执行成功"]}}}}
+            {"steps":{"COMPREHENSIVE_PRACTICE":{"scenario":{"facts":["系统执行成功"]}}}}
             """);
     private final JsonNode rubric = read("""
             {
@@ -47,7 +47,7 @@ class ModelFormalAnswerReviewerTests {
                 """);
 
         FormalAnswerReviewer.Review review = reviewer(client, 0)
-                .review(content, rubric, "学员答案", "EMP-1");
+                .review(content, rubric, "{\"responses\":{\"result-note\":\"学员答案\"}}", "EMP-1");
 
         assertEquals(2, review.criteria().size());
         assertEquals(1, review.mandatoryRequirements().size());
@@ -68,7 +68,7 @@ class ModelFormalAnswerReviewerTests {
                 """);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> reviewer(client, 0).review(content, rubric, "答案", "EMP-1"));
+                () -> reviewer(client, 0).review(content, rubric, "{\"responses\":{\"result-note\":\"答案\"}}", "EMP-1"));
 
         assertEquals("MODEL_INVALID_DECISION", exception.getMessage());
         assertEquals(1, client.calls);
@@ -86,7 +86,7 @@ class ModelFormalAnswerReviewerTests {
                 """);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> reviewer(client, 0).review(content, rubric, "答案", "EMP-1"));
+                () -> reviewer(client, 0).review(content, rubric, "{\"responses\":{\"result-note\":\"答案\"}}", "EMP-1"));
 
         assertEquals("MODEL_INVALID_SHAPE", exception.getMessage());
     }
@@ -105,7 +105,7 @@ class ModelFormalAnswerReviewerTests {
                 """);
 
         FormalAnswerReviewer.Review review = reviewer(client, 1)
-                .review(content, rubric, "答案", "EMP-1");
+                .review(content, rubric, "{\"responses\":{\"result-note\":\"答案\"}}", "EMP-1");
 
         assertEquals(2, client.calls);
         assertEquals(2, review.criteria().size());

@@ -5,7 +5,28 @@
       "title": "公募基金核算业务流程",
       "locator": "第一章核算岗岗位职责、第二章运营模式介绍",
       "contentUse": "路线 ACC-LIFE-ROLE-001",
-      "reviewNote": "正式发布仅使用稳定的岗位职责、人机边界和异常闭环内容；未包含内部邮箱、网址、菜单和联系方式。"
+      "reviewNote": "正式发布仅使用稳定的岗位职责、资料关系、正常核算和结果验证内容；未包含内部邮箱、网址、菜单和联系方式。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-TRADE-PDF-2024",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（PDF主证据）",
+      "locator": "第 8、9、19—25 页",
+      "contentUse": "路线 ACC-STOCK-TRADE-001",
+      "reviewNote": "用于成交字段方向、交易费用与席位佣金、普通股票买入凭证、卖出移动加权成本和估值增值结转。历史费率、税率和精度配置未固化为永久规则。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-TRADE-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（同源 OFD）",
+      "locator": "与 PDF 同名同源 OFD",
+      "contentUse": "路线 ACC-STOCK-TRADE-001",
+      "reviewNote": "仅作同源格式核对，不与 PDF 重复计权。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-ROUTE-DECISIONS",
+      "title": "股票路线高保真连续链决定记录",
+      "locator": "discussion_log.md §16、§19—§21、§44.6—§44.8",
+      "contentUse": "路线 ACC-STOCK-TRADE-001",
+      "reviewNote": "限定首条路线为普通股票正常买卖—费用—移动加权成本—剩余持仓/成本—资金与估值勾稽，不引入异常案例或第二条路线。"
     }
   ]
 }

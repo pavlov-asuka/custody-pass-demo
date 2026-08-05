@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.07.1",
+  "version": "2026.08.1",
   "lines": [
     {
       "line": "CLEARING",
@@ -14,7 +14,7 @@
     {
       "line": "ACCOUNTING",
       "name": "核算学习世界",
-      "description": "从岗位责任出发，建立核算、估值、复核与异常闭环能力。",
+      "description": "从原始资料出发，建立核算、估值、复核与结果验证能力。",
       "order": 2,
       "availability": "OPEN",
       "sceneAssetId": "world-accounting-source-v1",
@@ -51,6 +51,24 @@
                   "position": "LEFT",
                   "prerequisiteNodeIds": ["ACC-NODE-ROLE-001"],
                   "contentAvailability": "BUILDING"
+                }
+              ]
+            },
+            {
+              "moduleId": "ACC-MODULE-STOCK",
+              "name": "股票买卖与成本",
+              "order": 2,
+              "nodes": [
+                {
+                  "nodeId": "ACC-NODE-STOCK-TRADE-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-STOCK-TRADE-001",
+                  "title": "股票买卖与成本闭环",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-ROLE-001"],
+                  "contentAvailability": "PUBLISHED"
                 }
               ]
             }

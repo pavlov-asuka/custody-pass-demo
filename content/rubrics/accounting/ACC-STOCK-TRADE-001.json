@@ -1,0 +1,228 @@
+{
+  "routeId": "ACC-STOCK-TRADE-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-STK-CONCEPT-FIELDS",
+          "description": "识别成交数量、实际清算金额和记录状态共同证明的交易方向",
+          "weight": 8,
+          "evidenceRequirement": "买入方向和正常状态判断正确",
+          "evidenceRules": [
+            {"fieldId": "buy-direction", "operator": "EQUALS", "expected": "BUY"},
+            {"fieldId": "buy-status", "operator": "EQUALS", "expected": "NORMAL"}
+          ],
+          "remediationTargetId": "R-STK-FIELDS"
+        },
+        {
+          "criterionId": "C-STK-CONCEPT-SEPARATION",
+          "description": "理解成交金额、交易费用和席位佣金的字段关系",
+          "weight": 9,
+          "evidenceRequirement": "买入成本、交易费用和佣金分别读取正确",
+          "evidenceRules": [
+            {"fieldId": "buy-stock-cost", "operator": "NUMBER_EQUALS", "expected": 72000, "tolerance": 0.01},
+            {"fieldId": "buy-trading-fee", "operator": "NUMBER_EQUALS", "expected": 90, "tolerance": 0.01},
+            {"fieldId": "buy-commission", "operator": "NUMBER_EQUALS", "expected": 60, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-STK-BUY"
+        },
+        {
+          "criterionId": "C-STK-CONCEPT-WEIGHTED",
+          "description": "理解卖出成本从卖出前持仓余额按移动加权关系结转",
+          "weight": 8,
+          "evidenceRequirement": "卖出前单位成本和结转成本按余额与数量计算",
+          "evidenceRules": [
+            {"fieldId": "pre-sale-unit-cost", "operator": "NUMBER_EQUALS", "expected": 8.7, "tolerance": 0.01},
+            {"fieldId": "sell-cost-transfer", "operator": "NUMBER_EQUALS", "expected": 43500, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-STK-COST"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-STK-PROCESS-BUY",
+          "description": "完成买入金额、费用、佣金、清算款和凭证科目的连续处理",
+          "weight": 10,
+          "evidenceRequirement": "买入资金关系和凭证方向闭合",
+          "evidenceRules": [
+            {"fieldId": "buy-stock-cost", "operator": "NUMBER_EQUALS", "expected": 72000, "tolerance": 0.01},
+            {"fieldId": "buy-trading-fee", "operator": "NUMBER_EQUALS", "expected": 90, "tolerance": 0.01},
+            {"fieldId": "buy-commission", "operator": "NUMBER_EQUALS", "expected": 60, "tolerance": 0.01},
+            {"fieldId": "buy-actual-settlement", "operator": "NUMBER_EQUALS", "expected": -72030, "tolerance": 0.01},
+            {"fieldId": "buy-cost-account", "operator": "CONTAINS_ALL", "expected": ["股票", "成本"]},
+            {"fieldId": "buy-fee-account", "operator": "CONTAINS_ALL", "expected": ["交易费用"]},
+            {"fieldId": "buy-commission-account", "operator": "CONTAINS_ALL", "expected": ["应付", "佣金"]},
+            {"fieldId": "buy-clearing-account", "operator": "CONTAINS_ALL", "expected": ["证券", "清算"]}
+          ],
+          "remediationTargetId": "R-STK-LEDGER"
+        },
+        {
+          "criterionId": "C-STK-PROCESS-WEIGHTED",
+          "description": "完成卖出移动加权成本、估值增值结转和剩余持仓计算",
+          "weight": 12,
+          "evidenceRequirement": "卖出结转和剩余台账结果正确",
+          "evidenceRules": [
+            {"fieldId": "pre-sale-unit-cost", "operator": "NUMBER_EQUALS", "expected": 8.7, "tolerance": 0.01},
+            {"fieldId": "sell-cost-transfer", "operator": "NUMBER_EQUALS", "expected": 43500, "tolerance": 0.01},
+            {"fieldId": "sell-valuation-transfer", "operator": "NUMBER_EQUALS", "expected": 4500, "tolerance": 0.01},
+            {"fieldId": "remaining-quantity", "operator": "NUMBER_EQUALS", "expected": 15000, "tolerance": 0.01},
+            {"fieldId": "remaining-cost", "operator": "NUMBER_EQUALS", "expected": 130500, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-STK-COST"
+        },
+        {
+          "criterionId": "C-STK-PROCESS-RECON",
+          "description": "用凭证差额、资金台账和期末估值结果完成复算",
+          "weight": 8,
+          "evidenceRequirement": "卖出收益、期末资金、市值和估值增值勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "sale-investment-income", "operator": "NUMBER_EQUALS", "expected": 2960, "tolerance": 0.01},
+            {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 498900, "tolerance": 0.01},
+            {"fieldId": "ending-fair-value", "operator": "NUMBER_EQUALS", "expected": 153000, "tolerance": 0.01},
+            {"fieldId": "ending-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 22500, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-STK-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-STK-RISK-STATUS",
+          "description": "在进入核算前控制记录状态和方向",
+          "weight": 8,
+          "evidenceRequirement": "正常状态和买入方向同时成立",
+          "evidenceRules": [
+            {"fieldId": "buy-status", "operator": "EQUALS", "expected": "NORMAL"},
+            {"fieldId": "buy-direction", "operator": "EQUALS", "expected": "BUY"}
+          ],
+          "remediationTargetId": "R-STK-FIELDS"
+        },
+        {
+          "criterionId": "C-STK-RISK-TIMING",
+          "description": "控制佣金交易日确认与后续支付时点的混淆",
+          "weight": 8,
+          "evidenceRequirement": "交易日确认佣金且买卖两笔佣金均读取正确",
+          "evidenceRules": [
+            {"fieldId": "commission-timing", "operator": "EQUALS", "expected": "TRADE_DAY"},
+            {"fieldId": "buy-commission", "operator": "NUMBER_EQUALS", "expected": 60, "tolerance": 0.01},
+            {"fieldId": "sell-commission", "operator": "NUMBER_EQUALS", "expected": 40, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-STK-COMMISSION"
+        },
+        {
+          "criterionId": "C-STK-RISK-COST-RESULT",
+          "description": "控制费用独立列示、卖出成本结转和资金方向的结果风险",
+          "weight": 9,
+          "evidenceRequirement": "费用、成本、估值增值和卖出资金流入均与资料一致",
+          "evidenceRules": [
+            {"fieldId": "buy-fee-account", "operator": "CONTAINS_ALL", "expected": ["交易费用"]},
+            {"fieldId": "sell-cost-transfer", "operator": "NUMBER_EQUALS", "expected": 43500, "tolerance": 0.01},
+            {"fieldId": "sell-valuation-transfer", "operator": "NUMBER_EQUALS", "expected": 4500, "tolerance": 0.01},
+            {"fieldId": "sell-actual-settlement", "operator": "NUMBER_EQUALS", "expected": 50930, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-STK-LEDGER"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-STK-EXPR-RESULT",
+          "description": "以简短结论同时表达剩余持仓、成本、资金、市值和勾稽结果",
+          "weight": 20,
+          "evidenceRequirement": "结论包含关键结果并明确勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["剩余", "成本", "资金", "市值", "勾稽一致"]},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-STK-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-STK-BUY-SEPARATION",
+      "description": "买入成本、交易费用、佣金和清算款分开且凭证方向正确",
+      "evidenceRequirement": "完成买入金额关系和四个关键凭证科目",
+      "evidenceRules": [
+        {"fieldId": "buy-stock-cost", "operator": "NUMBER_EQUALS", "expected": 72000, "tolerance": 0.01},
+        {"fieldId": "buy-trading-fee", "operator": "NUMBER_EQUALS", "expected": 90, "tolerance": 0.01},
+        {"fieldId": "buy-commission", "operator": "NUMBER_EQUALS", "expected": 60, "tolerance": 0.01},
+        {"fieldId": "buy-actual-settlement", "operator": "NUMBER_EQUALS", "expected": -72030, "tolerance": 0.01},
+        {"fieldId": "buy-cost-account", "operator": "CONTAINS_ALL", "expected": ["股票", "成本"]},
+        {"fieldId": "buy-fee-account", "operator": "CONTAINS_ALL", "expected": ["交易费用"]},
+        {"fieldId": "buy-commission-account", "operator": "CONTAINS_ALL", "expected": ["应付", "佣金"]}
+      ],
+      "remediationTargetId": "R-STK-LEDGER"
+    },
+    {
+      "requirementId": "M-STK-WEIGHTED-REMAINING",
+      "description": "卖出移动加权成本和剩余持仓结果必须闭合",
+      "evidenceRequirement": "结转成本、剩余成本、剩余持仓和估值结果可复算且勾稽一致",
+      "evidenceRules": [
+        {"fieldId": "pre-sale-unit-cost", "operator": "NUMBER_EQUALS", "expected": 8.7, "tolerance": 0.01},
+        {"fieldId": "sell-cost-transfer", "operator": "NUMBER_EQUALS", "expected": 43500, "tolerance": 0.01},
+        {"fieldId": "remaining-quantity", "operator": "NUMBER_EQUALS", "expected": 15000, "tolerance": 0.01},
+        {"fieldId": "remaining-cost", "operator": "NUMBER_EQUALS", "expected": 130500, "tolerance": 0.01},
+        {"fieldId": "ending-fair-value", "operator": "NUMBER_EQUALS", "expected": 153000, "tolerance": 0.01},
+        {"fieldId": "ending-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 22500, "tolerance": 0.01},
+        {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-STK-COST"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-STK-FIELDS", "title": "识别成交字段与状态", "reason": "交易方向或记录状态未从原始字段正确判断", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "STK-TRADE-KC-02", "questionId": "ACC-STOCK-TRADE-Q-01"},
+    {"targetId": "R-STK-BUY", "title": "复算买入金额关系", "reason": "买入成交金额、交易费用、佣金或实际清算关系不完整", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-02", "questionId": "ACC-STOCK-TRADE-Q-02"},
+    {"targetId": "R-STK-COMMISSION", "title": "识别佣金确认时点", "reason": "把交易日确认与后续支付时点混淆", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "STK-TRADE-KC-02", "questionId": "ACC-STOCK-TRADE-Q-01"},
+    {"targetId": "R-STK-COST", "title": "复算移动加权成本", "reason": "卖出结转或剩余持仓成本未按卖出前余额复算", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-STOCK-TRADE-Q-04"},
+    {"targetId": "R-STK-LEDGER", "title": "补全买入凭证科目", "reason": "费用、成本、应付佣金或证券清算款未形成分列凭证证据", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-02", "questionId": "ACC-STOCK-TRADE-Q-03"},
+    {"targetId": "R-STK-RECON", "title": "完成资金与估值勾稽", "reason": "期末资金、剩余成本和市值未完成跨来源复算", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-STOCK-TRADE-Q-04"},
+    {"targetId": "R-STK-EXPRESSION", "title": "形成可追溯业务结论", "reason": "简短结论未清楚覆盖剩余持仓、成本、资金、市值和勾稽判断", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-STOCK-TRADE-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "buy-direction": "BUY",
+      "buy-status": "NORMAL",
+      "buy-stock-cost": 72000,
+      "buy-trading-fee": 90,
+      "buy-commission": 60,
+      "buy-actual-settlement": -72030,
+      "buy-cost-account": "金融资产-交易性-股票-成本",
+      "buy-fee-account": "交易费用-股票",
+      "buy-commission-account": "应付佣金",
+      "buy-clearing-account": "证券清算款",
+      "commission-timing": "TRADE_DAY",
+      "pre-sale-unit-cost": 8.7,
+      "sell-trading-fee": 70,
+      "sell-commission": 40,
+      "sell-actual-settlement": 50930,
+      "sell-cost-transfer": 43500,
+      "sell-valuation-transfer": 4500,
+      "sale-investment-income": 2960,
+      "remaining-quantity": 15000,
+      "remaining-cost": 130500,
+      "ending-cash": 498900,
+      "ending-fair-value": 153000,
+      "ending-valuation-appreciation": 22500,
+      "reconciliation-result": "BALANCED",
+      "result-note": "卖出后剩余 15,000 股，剩余成本 130,500 元，期末资金 498,900 元，期末市值 153,000 元，资金、持仓、成本和估值勾稽一致。"
+    }
+  }
+}

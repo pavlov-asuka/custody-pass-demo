@@ -16,7 +16,7 @@
     "steps": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["KNOWLEDGE_CARD", "DEMONSTRATION", "BASIC_PRACTICE", "EXCEPTION_CASE"],
+      "required": ["KNOWLEDGE_CARD", "DEMONSTRATION", "BASIC_PRACTICE", "COMPREHENSIVE_PRACTICE"],
       "properties": {
         "KNOWLEDGE_CARD": {
           "type": "object",
@@ -74,14 +74,14 @@
             "questions": {
               "type": "array",
               "minItems": 1,
-              "maxItems": 3,
+              "maxItems": 5,
               "items": {
                 "type": "object",
                 "additionalProperties": false,
                 "required": ["questionId", "type", "prompt", "answer", "explanation", "hints"],
                 "properties": {
                   "questionId": {"type": "string"},
-                  "type": {"enum": ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "ORDERING"]},
+                  "type": {"enum": ["SINGLE_CHOICE", "MULTIPLE_CHOICE", "ORDERING", "FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"]},
                   "prompt": {"type": "string"},
                   "options": {
                     "type": "array",
@@ -107,6 +107,120 @@
                       }
                     }
                   },
+                  "fieldMappings": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["fieldId", "label", "source", "options"],
+                      "properties": {
+                        "fieldId": {"type": "string"},
+                        "label": {"type": "string"},
+                        "source": {"type": "string"},
+                        "options": {
+                          "type": "array",
+                          "minItems": 2,
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["optionId", "text"],
+                            "properties": {
+                              "optionId": {"type": "string"},
+                              "text": {"type": "string"}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "calculation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["fields"],
+                    "properties": {
+                      "fields": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": ["fieldId", "label", "formula", "placeholder", "unit"],
+                            "properties": {
+                              "fieldId": {"type": "string"},
+                              "label": {"type": "string"},
+                              "formula": {"type": "string"},
+                              "placeholder": {"type": "string"},
+                              "unit": {"type": "string"},
+                              "precision": {"type": "integer", "minimum": 0, "maximum": 8},
+                              "tolerance": {"type": "number", "minimum": 0}
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "ledgerEntries": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["entryId", "direction", "label", "amount", "placeholder"],
+                      "properties": {
+                        "entryId": {"type": "string"},
+                        "direction": {"type": "string"},
+                        "label": {"type": "string"},
+                        "amount": {"type": "string"},
+                        "placeholder": {"type": "string"}
+                      }
+                    }
+                  },
+                  "reconciliation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["fields"],
+                    "properties": {
+                      "fields": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": ["fieldId", "label", "kind", "formula", "placeholder"],
+                          "properties": {
+                            "fieldId": {"type": "string"},
+                            "label": {"type": "string"},
+                            "kind": {"enum": ["NUMBER", "SELECT"]},
+                            "formula": {"type": "string"},
+                            "placeholder": {"type": "string"},
+                            "precision": {"type": "integer", "minimum": 0, "maximum": 8},
+                            "tolerance": {"type": "number", "minimum": 0},
+                            "options": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": ["optionId", "text"],
+                                "properties": {
+                                  "optionId": {"type": "string"},
+                                  "text": {"type": "string"}
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "textInput": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["label", "placeholder"],
+                    "properties": {
+                      "label": {"type": "string"},
+                      "placeholder": {"type": "string"}
+                    }
+                  },
                   "answer": {"type": "array", "minItems": 1, "items": {"type": "string"}},
                   "explanation": {"type": "string"},
                   "hints": {"type": "array", "minItems": 1, "items": {"type": "string"}}
@@ -115,14 +229,91 @@
             }
           }
         },
-        "EXCEPTION_CASE": {
+        "COMPREHENSIVE_PRACTICE": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["scenario", "tasks", "writingPrompts"],
+          "required": ["scenario", "sourceMaterials", "workItems", "submissionNote"],
           "properties": {
-            "scenario": {"type": "object"},
-            "tasks": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-            "writingPrompts": {"type": "array", "minItems": 1, "items": {"type": "string"}}
+            "scenario": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["role", "product", "date", "purpose"],
+              "properties": {
+                "role": {"type": "string"},
+                "product": {"type": "string"},
+                "date": {"type": "string"},
+                "purpose": {"type": "string"}
+              }
+            },
+            "sourceMaterials": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["materialId", "title", "kind", "description", "fields"],
+                "properties": {
+                  "materialId": {"type": "string"},
+                  "title": {"type": "string"},
+                  "kind": {"enum": ["INSTRUCTION", "CONFIRMATION", "STATEMENT", "PARAMETER", "VOUCHER", "LEDGER", "VALUATION", "REPORT", "RECONCILIATION"]},
+                  "description": {"type": "string"},
+                  "fields": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": ["fieldId", "label", "value"],
+                      "properties": {
+                        "fieldId": {"type": "string"},
+                        "label": {"type": "string"},
+                        "value": {"type": "string"},
+                        "unit": {"type": "string"}
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "workItems": {
+              "type": "array",
+              "minItems": 3,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["workItemId", "type", "title", "instruction", "response"],
+                "properties": {
+                  "workItemId": {"type": "string"},
+                  "type": {"enum": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"]},
+                  "title": {"type": "string"},
+                  "instruction": {"type": "string"},
+                  "response": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["kind", "placeholder"],
+                    "properties": {
+                      "kind": {"enum": ["TEXT", "NUMBER", "SELECT"]},
+                      "placeholder": {"type": "string"},
+                      "unit": {"type": "string"},
+                      "precision": {"type": "integer", "minimum": 0, "maximum": 8},
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": ["optionId", "text"],
+                          "properties": {
+                            "optionId": {"type": "string"},
+                            "text": {"type": "string"}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "submissionNote": {"type": "string"}
           }
         }
       }

@@ -788,6 +788,133 @@
   cursor: not-allowed;
 }
 
+/* 结构化基础练习：字段映射、数值复算、局部凭证、勾稽和短结论共用同一工作纸语言 */
+.practice-structured {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.practice-structured__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.72fr);
+  align-items: center;
+  gap: var(--space-4);
+  padding: 14px 16px;
+  border: 2px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: #fff;
+}
+.practice-structured__label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.practice-structured__label strong {
+  color: var(--color-ink);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.practice-structured__label span {
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.practice-structured select,
+.practice-structured input,
+.practice-structured textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 2px solid var(--color-line);
+  border-radius: var(--radius-control);
+  outline: none;
+  color: var(--color-ink);
+  background: #fff;
+  font: inherit;
+  transition: border-color var(--dur-state) ease, box-shadow var(--dur-state) ease;
+}
+.practice-structured select:focus,
+.practice-structured input:focus,
+.practice-structured textarea:focus {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 3px var(--color-blue-soft);
+}
+.practice-structured__control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.practice-structured__control em {
+  flex: none;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 700;
+}
+.practice-structured--text {
+  gap: 10px;
+  padding: 16px;
+  border: 2px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: #fff;
+}
+.practice-structured__text-label {
+  color: var(--color-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+.practice-structured--text textarea {
+  min-height: 112px;
+  resize: vertical;
+  line-height: 1.6;
+}
+.practice-ledger__head,
+.practice-ledger__row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) minmax(220px, 0.82fr);
+  align-items: center;
+  gap: var(--space-3);
+}
+.practice-ledger__head {
+  padding: 0 16px 4px;
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.practice-ledger__row {
+  padding: 12px 16px;
+  border: 2px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background: #fff;
+}
+.practice-ledger__row > b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: var(--color-blue-press);
+  background: var(--color-blue-soft);
+  font-size: 14px;
+}
+.practice-ledger__row > span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.practice-ledger__row strong {
+  color: var(--color-ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.practice-ledger__row em {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-style: normal;
+}
+
 /* 错题时的局部小托提示（不驻留） */
 .practice-body__hint {
   display: flex;
@@ -1298,8 +1425,8 @@
   color: var(--color-locked);
 }
 
-/* 异常案例：36/64 专业双栏，静态区域不使用深框 */
-.exception-case {
+/* 综合实务：36/64 专业双栏，静态区域不使用深框 */
+.comprehensive-practice {
   width: min(1120px, 100%);
   margin: 0 auto;
   padding: 0;
@@ -1307,62 +1434,62 @@
   background: transparent;
   box-shadow: none;
 }
-.exception-case__heading {
+.comprehensive-practice__heading {
   margin-bottom: 32px;
   padding: 0 0 24px;
   border-bottom: 1px solid var(--color-line);
 }
-.exception-case__heading h2 {
+.comprehensive-practice__heading h2 {
   margin: 8px 0 8px;
   color: var(--color-ink);
   font-size: 30px;
   font-weight: 700;
 }
-.exception-case__heading p {
+.comprehensive-practice__heading p {
   color: var(--color-muted);
   font-size: 16px;
   font-weight: 400;
   line-height: 1.65;
 }
-.exception-case__heading > .mascot {
+.comprehensive-practice__heading > .mascot {
   flex: none;
   margin-right: 12px;
 }
-.exception-workspace {
+.practice-workspace {
   grid-template-columns: minmax(0, 36fr) minmax(0, 64fr);
   gap: 0;
   border: 0;
   background: transparent;
   box-shadow: none;
 }
-.case-brief {
+.practice-brief {
   padding: 24px 32px 24px 24px;
   border: 0;
   border-radius: var(--radius-card) 0 0 var(--radius-card);
   background: var(--color-canvas);
   box-shadow: none;
 }
-.case-brief > div + div {
+.practice-brief > div + div {
   margin-top: 28px;
   padding-top: 24px;
   border-top: 1px solid var(--color-line);
 }
-.case-brief__meta {
+.practice-brief__meta {
   gap: 12px;
 }
-.case-brief__meta span {
+.practice-brief__meta span {
   padding: 0;
   border: 0;
   background: transparent;
   font-size: 14px;
 }
-.case-brief li {
+.practice-brief li {
   color: var(--color-ink);
   font-size: 15px;
   font-weight: 400;
   line-height: 1.65;
 }
-.answer-editor {
+.practice-sheet {
   padding: 0 0 0 32px;
   border: 0;
   border-left: 1px solid var(--color-line);
@@ -1370,20 +1497,20 @@
   background: transparent;
   box-shadow: none;
 }
-.answer-editor__top {
+.practice-sheet__top {
   min-height: 42px;
 }
-.answer-editor__top label {
+.practice-sheet__top label {
   color: var(--color-ink);
   font-size: 16px;
   font-weight: 700;
 }
-.answer-editor__top span {
+.practice-sheet__top span {
   color: var(--color-muted);
   font-size: 13px;
   font-weight: 500;
 }
-.answer-editor textarea {
+.practice-sheet textarea {
   min-height: 420px;
   padding: 20px;
   border: 1px solid var(--color-line);
@@ -1395,7 +1522,7 @@
   line-height: 1.7;
   box-shadow: none;
 }
-.answer-editor textarea:focus {
+.practice-sheet textarea:focus {
   border: 2px solid var(--color-blue);
   outline: none;
   box-shadow: none;
@@ -1410,14 +1537,189 @@
   background: var(--color-canvas);
   font-weight: 500;
 }
-.answer-editor__footer {
+.practice-sheet__footer {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--color-line);
 }
-.answer-editor__footer .button--secondary {
+.practice-sheet__footer .button--secondary {
   color: var(--color-muted);
   border-color: var(--color-line);
+}
+
+/* 综合实务：左侧是可追溯资料包，右侧是逐项工作底稿。 */
+.practice-workspace {
+  align-items: start;
+  grid-template-columns: minmax(340px, 0.82fr) minmax(520px, 1.18fr);
+}
+
+.practice-brief {
+  max-height: 690px;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+
+.practice-brief h3 {
+  margin: 8px 0 6px;
+  color: var(--color-ink);
+  font-size: 18px;
+}
+
+.source-materials {
+  display: grid;
+  gap: 12px;
+}
+
+.source-material {
+  padding: 14px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-surface-muted);
+}
+
+.source-material header,
+.source-material dl > div,
+.practice-sheet__top,
+.practice-sheet__footer,
+.work-item__title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.source-material header em,
+.work-item__title em {
+  color: var(--color-muted);
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: .05em;
+}
+
+.source-material p {
+  margin: 7px 0 10px;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.source-material dl {
+  margin: 0;
+}
+
+.source-material dl > div {
+  padding: 7px 0;
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.source-material dt {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.source-material dd {
+  margin: 0;
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.practice-sheet {
+  min-height: 680px;
+  padding: 22px;
+}
+
+.practice-sheet__top {
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.practice-sheet__top > div {
+  display: grid;
+  gap: 4px;
+}
+
+.work-items {
+  display: grid;
+  gap: 0;
+}
+
+.work-item {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 12px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.work-item__index {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-blue-soft);
+  color: var(--color-blue-press);
+  font: 700 12px/1 var(--font-display);
+}
+
+.work-item__body > p {
+  margin: 6px 0 11px;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.work-item input,
+.work-item select,
+.work-item textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 9px;
+  background: white;
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.work-item textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.work-item input:focus,
+.work-item select:focus,
+.work-item textarea:focus {
+  border-color: var(--color-blue);
+  outline: 2px solid color-mix(in srgb, var(--color-blue) 18%, transparent);
+}
+
+.work-input--number {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.work-input--number span {
+  color: var(--color-muted);
+  font-weight: 700;
+}
+
+.practice-sheet__footer {
+  align-items: flex-end;
+  padding-top: 18px;
+}
+
+.practice-sheet__footer > p {
+  max-width: 420px;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.practice-sheet__footer > div {
+  display: flex;
+  gap: 10px;
 }
 
 /* 评分等待 / 技术失败：开放式状态舞台 */
@@ -2070,7 +2372,7 @@
   box-shadow: none;
 }
 
-/* 异常案例弹窗与全局状态容器也遵守 0/1/2px 规则 */
+/* 综合实务弹窗与全局状态容器也遵守 0/1/2px 规则 */
 .modal {
   border: 1px solid var(--color-line);
   border-radius: var(--radius-card);

@@ -63,7 +63,7 @@ export function AttemptPage() {
     <AppShell
       backLabel="返回核算地图"
       onBack={() => navigate('/map/accounting')}
-      context="异常案例评分"
+      context="综合实务评分"
     >
       <div className="attempt-page page-enter">
         {loading && <LoadingState label="正在读取本次正式作答…" />}
@@ -124,13 +124,13 @@ export function AttemptPage() {
                   type="button"
                   onClick={() =>
                     navigate(
-                      attempt.allowedActions.includes('RETRY_CHALLENGE')
-                        ? `/learn/${attempt.routeId}?step=EXCEPTION_CASE`
+                      attempt.allowedActions.includes('RETRY_COMPREHENSIVE_PRACTICE')
+                        ? `/learn/${attempt.routeId}?step=COMPREHENSIVE_PRACTICE`
                         : `/attempts/${attempt.attemptId}/remediation`,
                     )
                   }
                 >
-                  {attempt.allowedActions.includes('RETRY_CHALLENGE') ? '重新挑战异常案例' : '开始定向补学'}
+                  {attempt.allowedActions.includes('RETRY_COMPREHENSIVE_PRACTICE') ? '重新完成综合实务' : '开始定向补学'}
                   <ArrowRight size={19} />
                 </button>
               )

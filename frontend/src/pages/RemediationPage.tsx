@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   answerRemediation,
   getRemediation,
-  unlockChallenge,
+  unlockComprehensivePracticeRetry,
 } from '../api/client';
 import type {
   RemediationFeedback,
@@ -76,13 +76,13 @@ export function RemediationPage() {
     }
   }
 
-  async function challenge() {
+  async function completePracticeRetry() {
     if (!plan) return;
     setUnlocking(true);
     setError(null);
     try {
-      const result = await unlockChallenge(id);
-      navigate(`/learn/${result.routeId}?step=EXCEPTION_CASE`, { replace: true });
+      const result = await unlockComprehensivePracticeRetry(id);
+      navigate(`/learn/${result.routeId}?step=COMPREHENSIVE_PRACTICE`, { replace: true });
     } catch (reason) {
       setError(reason as Error);
     } finally {
@@ -104,8 +104,8 @@ export function RemediationPage() {
             <header className="remediation-header">
               <div>
                 <span className="eyebrow">针对本次作答 · 精简补学</span>
-                <h1>把遗漏补上，再完整挑战一次</h1>
-                <p>补学只聚焦这次遗漏。全部完成后会解锁异常案例重试，不会直接判定路线通过。</p>
+                <h1>把遗漏补上，再独立完成一次</h1>
+                <p>补学只聚焦这次遗漏。全部完成后会解锁综合实务重试，不会直接判定路线通过。</p>
               </div>
               <Mascot pose="RESULT_SUPPORT" size="medium" message="我们只补需要补的，一步一步来。" />
             </header>
@@ -183,10 +183,10 @@ export function RemediationPage() {
                 <button
                   className="button button--primary"
                   type="button"
-                  onClick={() => void challenge()}
+                  onClick={() => void completePracticeRetry()}
                   disabled={unlocking}
                 >
-                  {unlocking ? '正在解锁…' : '重新挑战完整异常案例'} <ArrowRight size={18} />
+                  {unlocking ? '正在解锁…' : '重新完成综合实务'} <ArrowRight size={18} />
                 </button>
               )}
             </div>

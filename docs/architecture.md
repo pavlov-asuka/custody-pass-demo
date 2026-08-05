@@ -52,7 +52,7 @@ Flyway 保留 `app_user`，学习闭环使用：
 
 - `learning_step_progress`
 - `basic_question_progress`
-- `exception_case_draft`
+- `comprehensive_practice_draft`
 - `formal_attempt`
 - `scoring_result`
 - `remediation_plan`

@@ -24,12 +24,7 @@ function ConvertTo-ApiJson {
     $map = [ordered]@{}
     foreach ($key in @($Body.Keys)) {
         $value = $Body[$key]
-        if ($key -eq 'answer' -and -not ($value -is [string])) {
-            $list = [System.Collections.Generic.List[object]]::new()
-            foreach ($item in @($value)) { $list.Add([string]$item) }
-            $map[$key] = $list
-        }
-        elseif ($value -is [System.Array]) {
+        if ($value -is [System.Array]) {
             $list = [System.Collections.Generic.List[object]]::new()
             foreach ($item in @($value)) { $list.Add($item) }
             $map[$key] = $list
@@ -133,8 +128,8 @@ function Get-CorrectAnswer {
     param([string] $QuestionId)
     switch ($QuestionId) {
         'ACC-ROLE-Q-01' { return [string[]]@('B') }
-        'ACC-ROLE-Q-02' { return [string[]]@('A', 'B', 'D') }
-        'ACC-ROLE-Q-03' { return [string[]]@('FACT', 'CHECK', 'ACTION', 'FEEDBACK') }
+        'ACC-ROLE-Q-02' { return [string[]]@('B') }
+        'ACC-ROLE-Q-03' { return [string[]]@('SOURCE', 'CALC', 'POST', 'RECON') }
         default { throw "unknown questionId $QuestionId" }
     }
 }
@@ -159,7 +154,7 @@ function Complete-Remediation {
     }
     $completed = (Invoke-JsonApi -Method GET -Path "/api/attempts/$AttemptId/remediation").Body
     Assert-True ([bool]$completed.completed) 'remediation plan not completed'
-    Assert-True ([bool]$completed.challengeUnlocked) 'challenge not unlocked after remediation'
+    Assert-True ([bool]$completed.practiceRetryUnlocked) 'comprehensive practice retry not unlocked after remediation'
     return [pscustomobject]@{
         TotalTargets = [int]$plan.totalTargets
         CompletedTargets = [int]$completed.completedTargets
@@ -171,13 +166,17 @@ function Get-AllNodes {
     return @($MapBody.regions | ForEach-Object { $_.modules } | ForEach-Object { $_.nodes } | ForEach-Object { $_ })
 }
 
-$failingAnswer = '事实'
-$passingAnswer = @'
-我作为组合核算人员仍对结果负责。系统执行成功不代表业务结果正确，不能替代人工核验。
-我会先核实再判断：确认7月9日托管费指令和余额事实，核查数据、账务结果和估值结果。
-随后协调相关岗位，按权限复核或报告升级，判断是否影响账务和估值。
-异常消除后反馈结论并持续跟踪闭环，保存处理记录并留痕，不擅自越权承诺。
-'@
+$failingAnswer = @{ responses = @{
+    'payment-source' = 'PAYMENT-INSTRUCTION'; 'ending-payable' = 0
+    'debit-account' = '银行存款'; 'credit-account' = '应付托管费'
+    'reconciliation-result' = 'UNBALANCED'; 'result-note' = '已处理。'
+} }
+$passingAnswer = @{ responses = @{
+    'payment-source' = 'BANK-STATEMENT'; 'ending-payable' = 800
+    'debit-account' = '应付托管费'; 'credit-account' = '银行存款'
+    'reconciliation-result' = 'BALANCED'
+    'result-note' = '当日支付托管费1400元，期末应付托管费800元，资金、台账和估值结果勾稽一致。'
+} }
 
 try {
     $health = (Invoke-JsonApi -Method GET -Path '/api/health').Body
@@ -243,9 +242,9 @@ try {
     $wrong = Answer-Basic -QuestionId 'ACC-ROLE-Q-01' -Answer @('A') -ContentVersion $contentVersion
     Assert-True (-not [bool]$wrong.correct) 'wrong basic answer unexpectedly correct'
     $q1 = Answer-Basic -QuestionId 'ACC-ROLE-Q-01' -Answer @('B') -ContentVersion $contentVersion
-    $q2 = Answer-Basic -QuestionId 'ACC-ROLE-Q-02' -Answer @('A', 'B', 'D') -ContentVersion $contentVersion
+    $q2 = Answer-Basic -QuestionId 'ACC-ROLE-Q-02' -Answer @('B') -ContentVersion $contentVersion
     $q3 = Answer-Basic -QuestionId 'ACC-ROLE-Q-03' `
-        -Answer @('FACT', 'CHECK', 'ACTION', 'FEEDBACK') -ContentVersion $contentVersion
+        -Answer @('SOURCE', 'CALC', 'POST', 'RECON') -ContentVersion $contentVersion
     Assert-True ([bool]$q1.correct -and [bool]$q2.correct -and [bool]$q3.practiceCompleted) `
         'basic practice did not complete'
 
@@ -253,7 +252,7 @@ try {
         -Headers $csrfHeaders `
         -Body @{
             contentVersion = $contentVersion
-            answer = 'phase4 draft revision 0'
+            answer = $failingAnswer
             expectedRevision = 0
         }).Body
     Assert-True ([long]$draft1.revision -ge 1) 'draft revision did not advance'
@@ -262,12 +261,12 @@ try {
         -ExpectedStatus 409 `
         -Body @{
             contentVersion = $contentVersion
-            answer = 'stale draft'
+            answer = $passingAnswer
             expectedRevision = 0
         }
     Assert-True ($conflict.Body.code -eq 'DRAFT_CONFLICT') 'draft conflict not returned'
     $draftLatest = (Invoke-JsonApi -Method GET -Path "/api/routes/$routeId/draft").Body
-    Assert-True ([string]$draftLatest.answer -eq 'phase4 draft revision 0') 'draft recovery mismatch'
+    Assert-True ($draftLatest.answer.responses.'payment-source' -eq 'PAYMENT-INSTRUCTION') 'draft recovery mismatch'
     $evidence['draftRevision'] = [long]$draftLatest.revision
     $evidence['draftConflict'] = 'DRAFT_CONFLICT'
 
@@ -296,7 +295,7 @@ try {
             clientRequestId = $failRequestId
             contentVersion = $contentVersion
             rubricVersion = $rubricVersion
-            answer = '不同答案'
+            answer = $passingAnswer
         }
     Assert-True ($idempotencyConflict.Body.code -eq 'IDEMPOTENCY_CONFLICT') `
         'idempotency conflict not returned'
@@ -319,12 +318,12 @@ try {
     Assert-True ($nextAfterFail.locked -eq $true) 'next node unlocked after not mastered'
     $evidence['nextLockedAfterFail'] = $true
 
-    $blockedChallenge = Invoke-JsonApi -Method POST `
-        -Path "/api/attempts/$firstAttemptId/challenge" `
+    $blockedPracticeRetry = Invoke-JsonApi -Method POST `
+        -Path "/api/attempts/$firstAttemptId/comprehensive-practice-retry" `
         -Headers $csrfHeaders `
         -ExpectedStatus 409
-    Assert-True ($blockedChallenge.Body.code -eq 'REMEDIATION_REQUIRED') `
-        'challenge must require remediation'
+    Assert-True ($blockedPracticeRetry.Body.code -eq 'REMEDIATION_REQUIRED') `
+        'comprehensive practice retry must require remediation'
     $blockedRetry = Invoke-JsonApi -Method POST -Path "/api/routes/$routeId/attempts" `
         -Headers $csrfHeaders `
         -ExpectedStatus 409 `
@@ -340,10 +339,10 @@ try {
     $remediation = Complete-Remediation -AttemptId $firstAttemptId
     $evidence['remediationTargetCount'] = [int]$remediation.TotalTargets
     $evidence['remediationCompletedTargets'] = [int]$remediation.CompletedTargets
-    $challenge = (Invoke-JsonApi -Method POST `
-        -Path "/api/attempts/$firstAttemptId/challenge" `
+    $practiceRetry = (Invoke-JsonApi -Method POST `
+        -Path "/api/attempts/$firstAttemptId/comprehensive-practice-retry" `
         -Headers $csrfHeaders).Body
-    Assert-True ([bool]$challenge.challengeUnlocked) 'challenge unlock failed'
+    Assert-True ([bool]$practiceRetry.practiceRetryUnlocked) 'comprehensive practice retry unlock failed'
     $firstAfterRemediation = @(Get-AllNodes (Invoke-JsonApi -Method GET -Path '/api/lines/ACCOUNTING/map').Body |
         Where-Object routeId -eq $routeId)[0]
     Assert-True ($firstAfterRemediation.state -eq 'LEARNED_NOT_MASTERED') `
@@ -399,7 +398,12 @@ try {
             clientRequestId = New-RequestId
             contentVersion = $contentVersion
             rubricVersion = $rubricVersion
-            answer = ($passingAnswer + ' [SCORING_FAIL_ONCE]')
+            answer = @{ responses = @{
+                'payment-source' = 'BANK-STATEMENT'; 'ending-payable' = 800
+                'debit-account' = '应付托管费'; 'credit-account' = '银行存款'
+                'reconciliation-result' = 'BALANCED'
+                'result-note' = '当日支付托管费1400元，期末应付托管费800元，资金、台账和估值结果勾稽一致。[SCORING_FAIL_ONCE]'
+            } }
         }).Body
     $techAttemptId = [long]$techSubmit.attemptId
     $techFailed = Await-Terminal -AttemptId $techAttemptId
@@ -422,7 +426,7 @@ try {
             clientRequestId = New-RequestId
             contentVersion = $contentVersion
             rubricVersion = $rubricVersion
-            answer = '只写一句简短答复'
+            answer = $failingAnswer
         }).Body
     $lowResult = Await-Terminal -AttemptId ([long]$lowReview.attemptId)
     Assert-True ($lowResult.historicalConclusion -eq 'LEARNED_NOT_MASTERED') `
@@ -442,7 +446,7 @@ try {
         'first history conclusion overwritten'
     Assert-True ($firstHistory.currentRouteState -eq 'PASSED') `
         'first history must show current route PASSED'
-    Assert-True ([string]$firstHistory.answerSnapshot -eq $failingAnswer) `
+    Assert-True ($firstHistory.answerSnapshot.responses.'payment-source' -eq 'PAYMENT-INSTRUCTION') `
         'first answer snapshot mutated'
     $passHistory = (Invoke-JsonApi -Method GET -Path "/api/training-records/$secondAttemptId").Body
     Assert-True ($passHistory.historicalConclusion -eq 'PASSED') 'pass history conclusion mismatch'

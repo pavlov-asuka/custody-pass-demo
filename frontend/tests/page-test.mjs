@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { access, mkdir, readdir } from 'node:fs/promises';
+import { access, mkdir, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { chromium } from 'playwright';
@@ -18,6 +18,7 @@ const screenshotName = (name) => screenshotTag
 const viteBin = path.join(root, 'node_modules', 'vite', 'bin', 'vite.js');
 const previewPort = 43173;
 const baseUrl = `http://127.0.0.1:${previewPort}`;
+const formalRoute = JSON.parse(await readFile(path.resolve(root, '..', 'content', 'routes', 'accounting', 'ACC-LIFE-ROLE-001.json'), 'utf8'));
 
 const server = spawn(process.execPath, [viteBin, 'preview', '--host', '127.0.0.1', '--port', String(previewPort), '--strictPort'], {
   cwd: root,
@@ -67,11 +68,11 @@ async function findInstalledChromium() {
 const user = { employeeNo: '10000002', displayName: '培训学员' };
 const routeOverview = {
   routeId: 'ACC-LIFE-ROLE-001',
-  contentVersion: '1.0.0',
-  rubricVersion: '1.0.0',
+  contentVersion: '2.0.0',
+  rubricVersion: '2.0.0',
   line: 'ACCOUNTING',
   title: '站上核算岗',
-  summary: '理解核算岗的责任、人机边界和异常闭环。',
+  summary: '从业务资料出发，完成费用核算、账务处理和结果勾稽。',
   estimatedMinutes: 20,
   state: 'IN_PROGRESS',
   enterable: true,
@@ -79,7 +80,7 @@ const routeOverview = {
     { stepType: 'KNOWLEDGE_CARD', completed: false, accessible: true },
     { stepType: 'DEMONSTRATION', completed: true, accessible: true },
     { stepType: 'BASIC_PRACTICE', completed: true, accessible: true },
-    { stepType: 'EXCEPTION_CASE', completed: false, accessible: true },
+    { stepType: 'COMPREHENSIVE_PRACTICE', completed: false, accessible: true },
   ],
   nextStep: 'KNOWLEDGE_CARD',
   completedSteps: 2,
@@ -100,8 +101,8 @@ function attempt(id, conclusion = 'PASSED') {
     routeId: 'ACC-LIFE-ROLE-001',
     processingStatus: 'COMPLETED',
     submittedAt: '2026-07-29T07:00:00Z',
-    contentVersion: '1.0.0',
-    rubricVersion: '1.0.0',
+    contentVersion: '2.0.0',
+    rubricVersion: '2.0.0',
     result: {
       totalScore: passed ? 87 : 68,
       passScore: 75,
@@ -116,7 +117,7 @@ function attempt(id, conclusion = 'PASSED') {
           items: [{ matched: index === 0, evidence: index === 0 ? item.items[0].evidence : '本次作答在这一维度仍可补充。' }],
         })),
     },
-    answerSnapshot: '我会先确认事实和数据状态，再检查账务与估值结果，按权限协调复核并持续反馈留痕。',
+    answerSnapshot: { responses: { 'payment-source': 'BANK-STATEMENT', 'ending-payable': 800, 'debit-account': '应付托管费', 'credit-account': '银行存款', 'reconciliation-result': 'BALANCED', 'result-note': '当日支付托管费1400元，期末应付托管费800元，资金、台账和估值结果勾稽一致。' } },
     historicalConclusion: conclusion,
     currentRouteState: passed ? 'PASSED' : 'LEARNED_NOT_MASTERED',
     remediationSummary: passed ? undefined : {
@@ -126,49 +127,19 @@ function attempt(id, conclusion = 'PASSED') {
       completedTargets: 0,
       totalTargets: 2,
       completed: false,
-      challengeUnlocked: false,
+      practiceRetryUnlocked: false,
     },
     allowedActions: passed ? ['RETURN_TO_MAP', 'REVIEW_ROUTE'] : ['START_REMEDIATION'],
   };
 }
 
-const stepContent = {
-  KNOWLEDGE_CARD: {
-    cards: [
-      { cardId: 'K1', type: 'FLOW', title: '为什么需要核算岗', conclusion: '核算岗把业务事实转化为可核对的账务和估值结果。', items: ['业务事实', '核算处理', '账务结果', '复核反馈'] },
-      { cardId: 'K2', type: 'KEY_POINT', title: '系统完成不等于业务完成', conclusion: '系统状态只是证据之一，仍要核验结果。', items: ['核验数据', '检查结果', '解释差异'] },
-    ],
-  },
-  DEMONSTRATION: {
-    scenario: { role: '组合核算人员', product: '案例产品 B', date: '7月9日', facts: ['系统任务已执行', '对账结果存在差异'] },
-    steps: [
-      { order: 1, action: '检查估值和对账结果', reason: '执行成功不代表业务结果正确' },
-      { order: 2, action: '核实数据接收状态', reason: '先把事实与未知情况分开' },
-      { order: 3, action: '协调处理并持续反馈', reason: '异常需要形成闭环' },
-    ],
-    summary: '检查结果 → 核实事实 → 协调处理 → 反馈留痕',
-  },
-  BASIC_PRACTICE: {
-    questions: [
-      { questionId: 'Q1', type: 'SINGLE_CHOICE', prompt: '系统任务执行后，下一步最合适的动作是什么？', options: [{ optionId: 'A', text: '直接确认完成' }, { optionId: 'B', text: '检查数据和业务结果' }] },
-    ],
-  },
-  EXCEPTION_CASE: {
-    scenario: {
-      role: '案例产品 B 的组合核算人员',
-      date: '7月9日 16:30',
-      facts: ['支付指令已经执行', '估值表余额没有变化', '系统任务显示执行成功'],
-    },
-    tasks: ['说明自己承担什么责任', '说明首先核实哪些事实', '说明怎样协调、复核和反馈'],
-    writingPrompts: ['事实', '核查', '措施', '责任人', '反馈'],
-  },
-};
+const stepContent = formalRoute.steps;
 
 const worlds = {
-  mapVersion: '2026.07.1',
+  mapVersion: '2026.08.1',
   worlds: [
     { line: 'CLEARING', name: '清算学习世界', description: '学习交收、资金与证券清算的核心流程。', availability: 'BUILDING', passedRequiredRoutes: 0, publishedRequiredRoutes: 0, progressPercent: 0, status: 'BUILDING' },
-    { line: 'ACCOUNTING', name: '核算学习世界', description: '从岗位责任出发，建立核算、估值、复核与异常闭环能力。', availability: 'OPEN', passedRequiredRoutes: 0, publishedRequiredRoutes: 1, progressPercent: 0, status: 'IN_PROGRESS' },
+    { line: 'ACCOUNTING', name: '核算学习世界', description: '从原始业务资料出发，建立计算、账务处理与结果验证能力。', availability: 'OPEN', passedRequiredRoutes: 0, publishedRequiredRoutes: 1, progressPercent: 0, status: 'IN_PROGRESS' },
     { line: 'SUPERVISION', name: '监督学习世界', description: '学习投资监督、边界识别与风险报告。', availability: 'BUILDING', passedRequiredRoutes: 0, publishedRequiredRoutes: 0, progressPercent: 0, status: 'BUILDING' },
   ],
 };
@@ -176,7 +147,7 @@ const worlds = {
 const mapResponse = {
   line: 'ACCOUNTING',
   name: '核算学习世界',
-  mapVersion: '2026.07.1',
+  mapVersion: '2026.08.1',
   regions: [{
     regionId: 'R1',
     name: '核算基础与产品生命周期',
@@ -209,8 +180,8 @@ async function run() {
   let forceDraftConflict = false;
   let draft = {
     routeId: routeOverview.routeId,
-    contentVersion: '1.0.0',
-    answer: '',
+    contentVersion: '2.0.0',
+    answer: { responses: {} },
     revision: 0,
     updatedAt: null,
   };
@@ -259,9 +230,9 @@ async function run() {
     if (pathname.startsWith('/api/routes/ACC-LIFE-ROLE-001/steps/')) {
       const stepType = pathname.split('/').at(-1);
       if (stepType === 'complete') {
-        return json({ routeId: routeOverview.routeId, state: 'IN_PROGRESS', completedSteps: 3, totalSteps: 4, nextStep: 'EXCEPTION_CASE' });
+        return json({ routeId: routeOverview.routeId, state: 'IN_PROGRESS', completedSteps: 3, totalSteps: 4, nextStep: 'COMPREHENSIVE_PRACTICE' });
       }
-      return json({ routeId: routeOverview.routeId, contentVersion: '1.0.0', stepType, content: stepContent[stepType], completed: false });
+      return json({ routeId: routeOverview.routeId, contentVersion: '2.0.0', stepType, content: stepContent[stepType], completed: false });
     }
     if (pathname === '/api/routes/ACC-LIFE-ROLE-001/draft' && request.method() === 'GET') {
       return json(draft);
@@ -274,7 +245,7 @@ async function run() {
         forceDraftConflict = false;
         draft = {
           ...draft,
-          answer: '另一端已保存：先核对到账数据，再复核差异并反馈留痕。',
+          answer: { responses: { 'payment-source': 'BANK-STATEMENT' } },
           revision: draft.revision + 1,
           updatedAt: '2026-07-29T07:00:00Z',
         };
@@ -293,21 +264,21 @@ async function run() {
     if (pathname === '/api/routes/ACC-LIFE-ROLE-001/attempts' && request.method() === 'POST') {
       assert.equal(request.headers()['x-test-csrf'], 'test-token');
       const body = request.postDataJSON();
-      assert.equal(body.contentVersion, '1.0.0');
-      assert.equal(body.rubricVersion, '1.0.0');
+      assert.equal(body.contentVersion, '2.0.0');
+      assert.equal(body.rubricVersion, '2.0.0');
       assert.ok(body.clientRequestId);
-      return json({ attemptId: 41, routeId: routeOverview.routeId, processingStatus: 'SCORING', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '1.0.0', rubricVersion: '1.0.0', allowedActions: ['POLL'] });
+      return json({ attemptId: 41, routeId: routeOverview.routeId, processingStatus: 'SCORING', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '2.0.0', rubricVersion: '2.0.0', allowedActions: ['POLL'] });
     }
-    if (pathname === '/api/attempts/41') return json({ attemptId: 41, routeId: routeOverview.routeId, processingStatus: 'SCORING', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '1.0.0', rubricVersion: '1.0.0', allowedActions: ['POLL'] });
+    if (pathname === '/api/attempts/41') return json({ attemptId: 41, routeId: routeOverview.routeId, processingStatus: 'SCORING', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '2.0.0', rubricVersion: '2.0.0', allowedActions: ['POLL'] });
     if (pathname === '/api/attempts/42' || pathname === '/api/training-records/42') return json(attempt(42, 'PASSED'));
     if (pathname === '/api/attempts/43') return json(attempt(43, 'LEARNED_NOT_MASTERED'));
     if (pathname === '/api/training-records/43') {
       return json({ ...attempt(43, 'LEARNED_NOT_MASTERED'), currentRouteState: 'PASSED' });
     }
-    if (pathname === '/api/attempts/44') return json({ attemptId: 44, routeId: routeOverview.routeId, processingStatus: 'FAILED', technicalErrorCode: 'SCORING_TECHNICAL_FAILURE', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '1.0.0', rubricVersion: '1.0.0', allowedActions: ['RETRY_SCORING'] });
+    if (pathname === '/api/attempts/44') return json({ attemptId: 44, routeId: routeOverview.routeId, processingStatus: 'FAILED', technicalErrorCode: 'SCORING_TECHNICAL_FAILURE', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '2.0.0', rubricVersion: '2.0.0', allowedActions: ['RETRY_SCORING'] });
     if (pathname === '/api/attempts/44/retry-scoring' && request.method() === 'POST') {
       assert.equal(request.headers()['x-test-csrf'], 'test-token');
-      return json({ attemptId: 44, routeId: routeOverview.routeId, processingStatus: 'SCORING', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '1.0.0', rubricVersion: '1.0.0', allowedActions: ['POLL'] });
+      return json({ attemptId: 44, routeId: routeOverview.routeId, processingStatus: 'SCORING', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '2.0.0', rubricVersion: '2.0.0', allowedActions: ['POLL'] });
     }
     if (pathname === '/api/attempts/43/remediation' || pathname === '/api/attempts/45/remediation') {
       const completed = pathname.includes('/45/');
@@ -316,16 +287,16 @@ async function run() {
         completedTargets: completed ? 2 : 0,
         totalTargets: 2,
         completed,
-        challengeUnlocked: completed,
+        practiceRetryUnlocked: completed,
         targets: [
           { targetId: 'T1', title: '先核实业务事实', reason: '本次作答对数据状态的核实还不够清楚。', materialStep: 'KNOWLEDGE_CARD', materialItemId: 'K1', questionId: 'Q1', completed, practice: stepContent.BASIC_PRACTICE.questions[0] },
           { targetId: 'T2', title: '形成反馈闭环', reason: '需要补充复核后的反馈和留痕。', materialStep: 'DEMONSTRATION', materialItemId: 'D1', questionId: 'Q1', completed, practice: stepContent.BASIC_PRACTICE.questions[0] },
         ],
       });
     }
-    if (pathname === '/api/attempts/45/challenge' && request.method() === 'POST') {
+    if (pathname === '/api/attempts/45/comprehensive-practice-retry' && request.method() === 'POST') {
       assert.equal(request.headers()['x-test-csrf'], 'test-token');
-      return json({ routeId: routeOverview.routeId, stepType: 'EXCEPTION_CASE', challengeUnlocked: true });
+      return json({ routeId: routeOverview.routeId, stepType: 'COMPREHENSIVE_PRACTICE', practiceRetryUnlocked: true });
     }
     if (pathname === '/api/training-records') {
       const items = [
@@ -362,7 +333,7 @@ async function run() {
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('03-accounting-map.png')) });
 
   await page.getByRole('button', { name: /站上核算岗/ }).click();
-  await page.getByRole('heading', { name: '为什么需要核算岗' }).waitFor();
+  await page.getByRole('heading', { name: '核算结果从哪里来' }).waitFor();
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('04-knowledge-card.png')) });
 
@@ -372,32 +343,36 @@ async function run() {
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('05-demonstration.png')) });
 
   await page.getByRole('button', { name: /基础练习/ }).click();
-  await page.getByRole('heading', { name: '系统任务执行后，下一步最合适的动作是什么？' }).waitFor();
+  await page.getByRole('heading', { name: '哪份资料最直接证明托管费已经实际支付？' }).waitFor();
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('06-basic-practice.png')) });
 
-  await page.getByRole('button', { name: /异常案例/ }).click();
-  await page.getByLabel('你的处理方案').waitFor();
-  await page.getByLabel('你的处理方案').fill('这是一段尚未保存的离页保护测试。');
+  await page.getByRole('button', { name: /综合实务/ }).click();
+  await page.getByRole('heading', { name: '完成一份真实的核算工作底稿' }).waitFor();
+  await page.getByLabel('确认实际支付来源').selectOption('BANK-STATEMENT');
   await page.getByRole('button', { name: /正常示范/ }).click();
   await page.getByRole('heading', { name: '草稿还没有保存完成' }).waitFor();
   await page.getByRole('button', { name: '留在这里' }).click();
-  assert.ok(page.url().includes('step=EXCEPTION_CASE'), 'Unsaved answer should trigger and respect the leave guard.');
+  assert.ok(page.url().includes('step=COMPREHENSIVE_PRACTICE'), 'Unsaved answer should trigger and respect the leave guard.');
   await page.waitForTimeout(1200);
 
   forceDraftConflict = true;
-  await page.getByLabel('你的处理方案').fill('触发 revision 冲突的本地编辑。');
+  await page.getByLabel('计算期末应付余额').fill('800');
   await page.getByRole('heading', { name: '发现另一份更新过的草稿' }).waitFor();
   await page.getByRole('button', { name: '使用云端草稿' }).click();
-  assert.match(await page.getByLabel('你的处理方案').inputValue(), /另一端已保存/);
+  assert.equal(await page.getByLabel('确认实际支付来源').inputValue(), 'BANK-STATEMENT');
 
-  await page.getByLabel('你的处理方案').fill('先核实事实，再检查账务与估值结果，按权限协调复核并反馈留痕。');
+  await page.getByLabel('计算期末应付余额').fill('800');
+  await page.getByLabel('填写借方科目').fill('应付托管费');
+  await page.getByLabel('填写贷方科目').fill('银行存款');
+  await page.getByLabel('完成结果勾稽').selectOption('BALANCED');
+  await page.getByLabel('记录核算结论').fill('当日支付托管费1400元，期末应付托管费800元，资金、台账和估值结果勾稽一致。');
   await page.waitForTimeout(1200);
   assert.ok(draftSaveCount >= 1, 'Draft auto-save should issue a revisioned PUT request.');
   await settle();
-  await page.screenshot({ path: path.join(screenshotDir, screenshotName('07-exception-case.png')) });
+  await page.screenshot({ path: path.join(screenshotDir, screenshotName('07-comprehensive-practice.png')) });
 
-  await page.getByRole('button', { name: /提交答案/ }).click();
+  await page.getByRole('button', { name: /提交综合实务/ }).click();
   await page.getByRole('heading', { name: '生成本次正式评分记录？' }).waitFor();
   await page.getByRole('button', { name: '确认提交' }).click();
   await page.getByTestId('scoring-wait').waitFor();
@@ -433,18 +408,18 @@ async function run() {
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('12-result-remediation.png')) });
 
   await page.getByRole('button', { name: /开始定向补学/ }).click();
-  await page.getByRole('heading', { name: '把遗漏补上，再完整挑战一次' }).waitFor();
+  await page.getByRole('heading', { name: '把遗漏补上，再独立完成一次' }).waitFor();
   assert.equal(await page.locator('.remediation-nav > button').count(), 2);
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('13-remediation.png')) });
 
   await navigateTo('/attempts/45/remediation');
-  await page.getByRole('button', { name: /重新挑战完整异常案例/ }).waitFor();
+  await page.getByRole('button', { name: /重新完成综合实务/ }).waitFor();
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('14-remediation-complete.png')) });
-  await page.getByRole('button', { name: /重新挑战完整异常案例/ }).click();
-  await page.getByLabel('你的处理方案').waitFor();
-  assert.ok(page.url().includes('step=EXCEPTION_CASE'), 'Completed remediation should return directly to the full exception case.');
+  await page.getByRole('button', { name: /重新完成综合实务/ }).click();
+  await page.getByRole('heading', { name: '完成一份真实的核算工作底稿' }).waitFor();
+  assert.ok(page.url().includes('step=COMPREHENSIVE_PRACTICE'), 'Completed remediation should return directly to comprehensive practice.');
 
   await navigateTo('/records');
   await page.getByTestId('records-list').waitFor();

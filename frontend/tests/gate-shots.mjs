@@ -57,10 +57,10 @@ async function findInstalledChromium() {
 const user = { employeeNo: '10000002', displayName: '培训学员' };
 
 const worlds = {
-  mapVersion: '2026.07.1',
+  mapVersion: '2026.08.1',
   worlds: [
     { line: 'CLEARING', name: '清算学习世界', description: '学习交收、资金与证券清算的核心流程。', availability: 'BUILDING', passedRequiredRoutes: 0, publishedRequiredRoutes: 0, progressPercent: 0, status: 'BUILDING' },
-    { line: 'ACCOUNTING', name: '核算学习世界', description: '从岗位责任出发，建立核算、估值、复核与异常闭环能力。', availability: 'OPEN', passedRequiredRoutes: 2, publishedRequiredRoutes: 6, progressPercent: 33, status: 'IN_PROGRESS' },
+    { line: 'ACCOUNTING', name: '核算学习世界', description: '从原始业务资料出发，建立计算、账务处理与结果验证能力。', availability: 'OPEN', passedRequiredRoutes: 2, publishedRequiredRoutes: 6, progressPercent: 33, status: 'IN_PROGRESS' },
     { line: 'SUPERVISION', name: '监督学习世界', description: '学习投资监督、边界识别与风险报告。', availability: 'BUILDING', passedRequiredRoutes: 0, publishedRequiredRoutes: 0, progressPercent: 0, status: 'BUILDING' },
   ],
 };
@@ -79,7 +79,7 @@ function mapResponse(currentState) {
   return {
     line: 'ACCOUNTING',
     name: '核算学习世界',
-    mapVersion: '2026.07.1',
+    mapVersion: '2026.08.1',
     regions: [{
       regionId: 'R1',
       name: '核算基础与产品生命周期',
@@ -93,11 +93,11 @@ function mapResponse(currentState) {
 
 const routeOverview = {
   routeId: 'ACC-LIFE-ROLE-001',
-  contentVersion: '1.0.0',
-  rubricVersion: '1.0.0',
+  contentVersion: '2.0.0',
+  rubricVersion: '2.0.0',
   line: 'ACCOUNTING',
   title: '站上核算岗',
-  summary: '理解核算岗的责任、人机边界和异常闭环。',
+  summary: '从业务资料出发，完成费用核算、账务处理和结果勾稽。',
   estimatedMinutes: 20,
   state: 'IN_PROGRESS',
   enterable: true,
@@ -105,7 +105,7 @@ const routeOverview = {
     { stepType: 'KNOWLEDGE_CARD', completed: true, accessible: true },
     { stepType: 'DEMONSTRATION', completed: true, accessible: true },
     { stepType: 'BASIC_PRACTICE', completed: false, accessible: true },
-    { stepType: 'EXCEPTION_CASE', completed: false, accessible: true },
+    { stepType: 'COMPREHENSIVE_PRACTICE', completed: false, accessible: true },
   ],
   nextStep: 'BASIC_PRACTICE',
   completedSteps: 2,
@@ -122,7 +122,7 @@ const practiceContent = {
         { optionId: 'A', text: '直接确认任务完成' },
         { optionId: 'B', text: '检查数据和业务结果' },
         { optionId: 'C', text: '等待下一批文件到达' },
-        { optionId: 'D', text: '先提交异常案例答案' },
+        { optionId: 'D', text: '先提交综合实务答案' },
       ],
     },
     {
@@ -171,7 +171,7 @@ async function run() {
       if (pathname === '/api/lines/ACCOUNTING/map') return json(mapResponse(mapScenario));
       if (pathname === '/api/routes/ACC-LIFE-ROLE-001') return json(routeOverview);
       if (pathname === '/api/routes/ACC-LIFE-ROLE-001/steps/BASIC_PRACTICE') {
-        return json({ routeId: routeOverview.routeId, contentVersion: '1.0.0', stepType: 'BASIC_PRACTICE', content: practiceContent, completed: false });
+        return json({ routeId: routeOverview.routeId, contentVersion: '2.0.0', stepType: 'BASIC_PRACTICE', content: practiceContent, completed: false });
       }
       if (pathname.startsWith('/api/routes/ACC-LIFE-ROLE-001/basic-practice/')) {
         const questionId = pathname.split('/').at(-2);
@@ -192,7 +192,7 @@ async function run() {
         });
       }
       if (pathname === '/api/routes/ACC-LIFE-ROLE-001/steps/complete') {
-        return json({ routeId: routeOverview.routeId, state: 'IN_PROGRESS', completedSteps: 3, totalSteps: 4, nextStep: 'EXCEPTION_CASE' });
+        return json({ routeId: routeOverview.routeId, state: 'IN_PROGRESS', completedSteps: 3, totalSteps: 4, nextStep: 'COMPREHENSIVE_PRACTICE' });
       }
       return json({ code: 'NOT_FOUND', message: `No mock for ${request.method()} ${pathname}` }, 404);
     });

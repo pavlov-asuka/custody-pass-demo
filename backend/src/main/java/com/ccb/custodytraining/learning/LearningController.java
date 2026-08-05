@@ -7,6 +7,7 @@ import com.ccb.custodytraining.learning.LearningTypes.StepType;
 import com.ccb.custodytraining.user.AppUserPrincipal;
 import com.ccb.custodytraining.web.BadRequestException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +26,11 @@ public class LearningController {
     private static final String REQUEST_ID_PATTERN = "[A-Za-z0-9_-]{8,64}";
 
     private final LearningService service;
+    private final ObjectMapper objectMapper;
 
-    public LearningController(LearningService service) {
+    public LearningController(LearningService service, ObjectMapper objectMapper) {
         this.service = service;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping("/worlds")
@@ -80,14 +83,14 @@ public class LearningController {
         if (body == null || !body.isObject()
                 || body.size() < 2 || body.size() > 3
                 || !body.has("contentVersion") || !body.has("answer")
-                || !body.path("contentVersion").isTextual() || !body.path("answer").isTextual()
+                || !body.path("contentVersion").isTextual() || !validComprehensiveAnswer(body.path("answer"))
                 || (body.has("expectedRevision") && !body.path("expectedRevision").canConvertToLong())) {
             throw new BadRequestException("草稿请求格式无效");
         }
         Long expectedRevision = body.has("expectedRevision")
                 ? body.path("expectedRevision").asLong() : null;
         return service.saveDraft(user(authentication).id(), routeId,
-                body.path("contentVersion").asText(), body.path("answer").asText(),
+                body.path("contentVersion").asText(), canonicalAnswer(body.path("answer")),
                 expectedRevision);
     }
 
@@ -99,7 +102,7 @@ public class LearningController {
         requireRequestId(requestId);
         return service.submit(user(authentication).id(), user(authentication).employeeNo(),
                 routeId, requiredText(body, "contentVersion"),
-                requiredText(body, "rubricVersion"), requestId, requiredText(body, "answer"));
+                requiredText(body, "rubricVersion"), requestId, canonicalAnswer(body.path("answer")));
     }
 
     @GetMapping("/attempts/{attemptId}")
@@ -127,9 +130,10 @@ public class LearningController {
                 answerArray(body.path("answer")));
     }
 
-    @PostMapping("/attempts/{attemptId}/challenge")
-    public ObjectNode challenge(@PathVariable long attemptId, Authentication authentication) {
-        return service.challenge(user(authentication).id(), attemptId);
+    @PostMapping("/attempts/{attemptId}/comprehensive-practice-retry")
+    public ObjectNode comprehensivePracticeRetry(@PathVariable long attemptId,
+                                                  Authentication authentication) {
+        return service.comprehensivePracticeRetry(user(authentication).id(), attemptId);
     }
 
     @GetMapping("/training-records")
@@ -195,6 +199,28 @@ public class LearningController {
     private void requireRequestId(String requestId) {
         if (requestId == null || !requestId.matches(REQUEST_ID_PATTERN)) {
             throw new BadRequestException("请求幂等标识格式无效");
+        }
+    }
+
+    private boolean validComprehensiveAnswer(JsonNode answer) {
+        return answer != null && answer.isObject() && answer.size() == 1
+                && answer.path("responses").isObject()
+                && !answer.path("responses").isEmpty()
+                && answer.path("responses").size() <= 100;
+    }
+
+    private String canonicalAnswer(JsonNode answer) {
+        if (!validComprehensiveAnswer(answer)) {
+            throw new BadRequestException("综合实务答案格式无效");
+        }
+        try {
+            String value = objectMapper.writeValueAsString(answer);
+            if (value.length() > 50000) {
+                throw new BadRequestException("综合实务答案不得超过 50000 个字符");
+            }
+            return value;
+        } catch (com.fasterxml.jackson.core.JsonProcessingException exception) {
+            throw new BadRequestException("综合实务答案格式无效");
         }
     }
 }

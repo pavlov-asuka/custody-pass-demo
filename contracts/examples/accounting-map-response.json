@@ -1,7 +1,7 @@
 {
   "line": "ACCOUNTING",
   "name": "核算学习世界",
-  "mapVersion": "2026.07.1",
+  "mapVersion": "2026.08.1",
   "regions": [{
     "regionId": "ACC-REGION-LIFECYCLE",
     "name": "核算基础与产品生命周期",

@@ -1,0 +1,25 @@
+{
+  "releaseId": "ACCOUNTING_2026.08.1",
+  "releasedAt": "2026-08-04T00:00:00+08:00",
+  "map": {
+    "id": "CUSTODY_LEARNING_MAP",
+    "version": "2026.08.1",
+    "path": "maps/custody-learning-map.json"
+  },
+  "routes": [
+    {
+      "routeId": "ACC-LIFE-ROLE-001",
+      "contentVersion": "2.0.0",
+      "rubricVersion": "2.0.0",
+      "contentPath": "routes/accounting/ACC-LIFE-ROLE-001.json",
+      "rubricPath": "rubrics/accounting/ACC-LIFE-ROLE-001.json"
+    },
+    {
+      "routeId": "ACC-STOCK-TRADE-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-TRADE-001.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-TRADE-001.json"
+    }
+  ]
+}

@@ -110,7 +110,7 @@ paths:
     get:
       tags: [learning]
       summary: 按需加载单个学习环节
-      description: BASIC_PRACTICE 不返回答案、解析或提示；EXCEPTION_CASE 不返回任何评分私有资产。
+      description: BASIC_PRACTICE 不返回答案、解析或提示；COMPREHENSIVE_PRACTICE 不返回任何评分私有资产。
       parameters:
         - {$ref: '#/components/parameters/RouteId'}
         - {$ref: '#/components/parameters/StepType'}
@@ -167,7 +167,7 @@ paths:
   /api/routes/{routeId}/draft:
     get:
       tags: [learning]
-      summary: 获取当前用户异常案例草稿
+      summary: 获取当前用户综合实务草稿
       parameters: [{$ref: '#/components/parameters/RouteId'}]
       responses:
         '200':
@@ -177,7 +177,7 @@ paths:
               schema: {$ref: '#/components/schemas/DraftResponse'}
     put:
       tags: [learning]
-      summary: 自动保存异常案例草稿
+      summary: 自动保存综合实务草稿
       parameters:
         - {$ref: '#/components/parameters/RouteId'}
         - {$ref: '#/components/parameters/CsrfHeader'}
@@ -196,7 +196,7 @@ paths:
   /api/routes/{routeId}/attempts:
     post:
       tags: [attempts]
-      summary: 正式提交异常案例
+      summary: 正式提交综合实务
       description: |
         在当前用户范围使用 clientRequestId 幂等。立即创建不可变答案、内容和 Rubric 快照，
         返回 attemptId；后台异步评分。重复请求必须复用同一标识。
@@ -278,15 +278,15 @@ paths:
           content:
             application/json:
               schema: {$ref: '#/components/schemas/RemediationFeedback'}
-  /api/attempts/{attemptId}/challenge:
+  /api/attempts/{attemptId}/comprehensive-practice-retry:
     post:
       tags: [remediation]
-      summary: 全部补学完成后解锁完整异常案例重新挑战
+      summary: 全部补学完成后解锁综合实务重做
       parameters:
         - {$ref: '#/components/parameters/AttemptId'}
         - {$ref: '#/components/parameters/CsrfHeader'}
       responses:
-        '200': {description: 完整异常案例已解锁}
+        '200': {description: 综合实务已解锁}
         '409': {$ref: '#/components/responses/BusinessConflict'}
   /api/training-records:
     get:
@@ -365,7 +365,7 @@ components:
     Line: {type: string, enum: [CLEARING, ACCOUNTING, SUPERVISION]}
     Availability: {type: string, enum: [OPEN, BUILDING]}
     RouteState: {type: string, enum: [LOCKED, NOT_STARTED, IN_PROGRESS, LEARNED_NOT_MASTERED, PASSED]}
-    StepType: {type: string, enum: [KNOWLEDGE_CARD, DEMONSTRATION, BASIC_PRACTICE, EXCEPTION_CASE]}
+    StepType: {type: string, enum: [KNOWLEDGE_CARD, DEMONSTRATION, BASIC_PRACTICE, COMPREHENSIVE_PRACTICE]}
     ProcessingStatus: {type: string, enum: [SCORING, COMPLETED, FAILED]}
     Conclusion: {type: string, enum: [PASSED, LEARNED_NOT_MASTERED]}
     Dimension: {type: string, enum: [CONCEPT, PROCESS, RISK, EXPRESSION]}
@@ -432,8 +432,132 @@ components:
         routeId: {type: string}
         contentVersion: {type: string}
         stepType: {$ref: '#/components/schemas/StepType'}
-        content: {type: object}
+        content:
+          type: object
+          description: BASIC_PRACTICE 的 content 为 BasicPracticeContent；题面只返回结构化输入所需字段，不返回 answer、explanation 或 hints。
         completed: {type: boolean}
+    BasicPracticeContent:
+      type: object
+      additionalProperties: false
+      required: [questions]
+      properties:
+        questions:
+          type: array
+          minItems: 1
+          maxItems: 5
+          items: {$ref: '#/components/schemas/BasicPracticeQuestion'}
+    BasicPracticeQuestion:
+      type: object
+      additionalProperties: false
+      required: [questionId, type, prompt]
+      properties:
+        questionId: {type: string}
+        type:
+          type: string
+          enum: [SINGLE_CHOICE, MULTIPLE_CHOICE, ORDERING, FIELD_MAP, CALCULATION, LEDGER_ENTRY, RECONCILIATION, SHORT_TEXT]
+        prompt: {type: string}
+        options:
+          type: array
+          items: {$ref: '#/components/schemas/PracticeChoiceOption'}
+        items:
+          type: array
+          items: {$ref: '#/components/schemas/PracticeOrderingItem'}
+        fieldMappings:
+          type: array
+          items: {$ref: '#/components/schemas/PracticeFieldMapping'}
+        calculation:
+          type: object
+          required: [fields]
+          properties:
+            fields:
+              type: array
+              items: {$ref: '#/components/schemas/PracticeCalculationField'}
+        ledgerEntries:
+          type: array
+          items: {$ref: '#/components/schemas/PracticeLedgerEntry'}
+        reconciliation:
+          type: object
+          required: [fields]
+          properties:
+            fields:
+              type: array
+              items: {$ref: '#/components/schemas/PracticeReconciliationField'}
+        textInput:
+          type: object
+          required: [label, placeholder]
+          properties:
+            label: {type: string}
+            placeholder: {type: string}
+    PracticeChoiceOption:
+      type: object
+      required: [optionId, text]
+      properties:
+        optionId: {type: string}
+        text: {type: string}
+    PracticeOrderingItem:
+      type: object
+      required: [itemId, text]
+      properties:
+        itemId: {type: string}
+        text: {type: string}
+    PracticeFieldMapping:
+      type: object
+      required: [fieldId, label, source, options]
+      properties:
+        fieldId: {type: string}
+        label: {type: string}
+        source: {type: string}
+        options:
+          type: array
+          items: {$ref: '#/components/schemas/PracticeChoiceOption'}
+    PracticeCalculationField:
+      type: object
+      required: [fieldId, label, formula, placeholder, unit]
+      properties:
+        fieldId: {type: string}
+        label: {type: string}
+        formula: {type: string}
+        placeholder: {type: string}
+        unit: {type: string}
+        precision:
+          type: integer
+          minimum: 0
+          maximum: 8
+          description: 建议显示的小数位数；不限制学员输入更多有效小数位。
+        tolerance:
+          type: number
+          minimum: 0
+          description: 数值判定允许的绝对误差；未提供时按精确数值匹配。
+    PracticeLedgerEntry:
+      type: object
+      required: [entryId, direction, label, amount, placeholder]
+      properties:
+        entryId: {type: string}
+        direction: {type: string}
+        label: {type: string}
+        amount: {type: string}
+        placeholder: {type: string}
+    PracticeReconciliationField:
+      type: object
+      required: [fieldId, label, kind, formula, placeholder]
+      properties:
+        fieldId: {type: string}
+        label: {type: string}
+        kind: {type: string, enum: [NUMBER, SELECT]}
+        formula: {type: string}
+        placeholder: {type: string}
+        precision:
+          type: integer
+          minimum: 0
+          maximum: 8
+          description: 建议显示的小数位数；不限制学员输入更多有效小数位。
+        tolerance:
+          type: number
+          minimum: 0
+          description: 数值判定允许的绝对误差；未提供时按精确数值匹配。
+        options:
+          type: array
+          items: {$ref: '#/components/schemas/PracticeChoiceOption'}
     CompleteStepRequest:
       type: object
       additionalProperties: false
@@ -453,7 +577,11 @@ components:
       properties:
         requestId: {$ref: '#/components/schemas/IdempotencyKey'}
         contentVersion: {type: string}
-        answer: {type: array, minItems: 1, items: {type: string}}
+        answer:
+          type: array
+          minItems: 1
+          items: {type: string}
+          description: 按题型顺序提交字段映射、数字复算、凭证科目、勾稽字段或一段结论；服务端按题型匹配，题面答案不下发。
     PracticeFeedback:
       type: object
       required: [questionId, correct, correctOnce, explanation, practiceCompleted, progress]
@@ -480,7 +608,7 @@ components:
       required: [contentVersion, answer]
       properties:
         contentVersion: {type: string}
-        answer: {type: string, maxLength: 12000}
+        answer: {$ref: '#/components/schemas/ComprehensivePracticeAnswer'}
         expectedRevision: {type: integer, minimum: 0}
     DraftResponse:
       type: object
@@ -488,7 +616,7 @@ components:
       properties:
         routeId: {type: string}
         contentVersion: {type: string}
-        answer: {type: string}
+        answer: {$ref: '#/components/schemas/ComprehensivePracticeAnswer'}
         revision: {type: integer}
         updatedAt: {type: string, format: date-time, nullable: true}
     SubmitAttemptRequest:
@@ -499,7 +627,7 @@ components:
         clientRequestId: {$ref: '#/components/schemas/IdempotencyKey'}
         contentVersion: {type: string}
         rubricVersion: {type: string}
-        answer: {type: string, minLength: 1, maxLength: 12000}
+        answer: {$ref: '#/components/schemas/ComprehensivePracticeAnswer'}
     AttemptResponse:
       type: object
       required: [attemptId, routeId, processingStatus, submittedAt, contentVersion, rubricVersion]
@@ -512,7 +640,7 @@ components:
         rubricVersion: {type: string}
         technicalErrorCode: {type: string}
         result: {$ref: '#/components/schemas/ScoringResult'}
-        answerSnapshot: {type: string}
+        answerSnapshot: {$ref: '#/components/schemas/ComprehensivePracticeAnswer'}
         historicalConclusion: {$ref: '#/components/schemas/Conclusion'}
         currentRouteState: {$ref: '#/components/schemas/RouteState'}
         remediationSummary: {type: object}
@@ -550,8 +678,21 @@ components:
                     evidence: {type: string}
     RemediationPlan:
       type: object
-      required: [planId, attemptId, completedTargets, totalTargets, completed, challengeUnlocked, targets]
+      required: [planId, attemptId, completedTargets, totalTargets, completed, practiceRetryUnlocked, targets]
       additionalProperties: true
+    ComprehensivePracticeAnswer:
+      type: object
+      additionalProperties: false
+      required: [responses]
+      properties:
+        responses:
+          type: object
+          minProperties: 1
+          maxProperties: 100
+          additionalProperties:
+            oneOf:
+              - {type: string, minLength: 1, maxLength: 500}
+              - {type: number}
     RemediationAnswerRequest:
       type: object
       additionalProperties: false

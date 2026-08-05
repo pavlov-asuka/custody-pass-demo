@@ -57,6 +57,9 @@ function Test-JsonSchema {
             'string' { $Value -is [string] }
             'integer' { $Value -is [byte] -or $Value -is [int16] -or
                 $Value -is [int32] -or $Value -is [int64] }
+            'number' { $Value -is [byte] -or $Value -is [int16] -or
+                $Value -is [int32] -or $Value -is [int64] -or
+                $Value -is [single] -or $Value -is [double] -or $Value -is [decimal] }
             'boolean' { $Value -is [bool] }
             default { throw "$Path 使用了脚本未支持的 Schema 类型：$($Schema.type)" }
         }
@@ -81,6 +84,11 @@ function Test-JsonSchema {
         $null -ne $Schema.PSObject.Properties['minimum'] -and
         [decimal]$Value -lt [decimal]$Schema.minimum) {
         throw "$Path 小于 minimum。"
+    }
+    if ($null -ne $Value -and
+        $null -ne $Schema.PSObject.Properties['maximum'] -and
+        [decimal]$Value -gt [decimal]$Schema.maximum) {
+        throw "$Path 大于 maximum。"
     }
     if ($Value -is [System.Array]) {
         if ($null -ne $Schema.PSObject.Properties['minItems'] -and
@@ -143,7 +151,7 @@ foreach ($schemaFile in $schemaFiles) {
     }
 }
 
-$releasePath = Join-Path $contentRoot 'releases/ACCOUNTING_2026.07.1.json'
+$releasePath = Join-Path $contentRoot 'releases/ACCOUNTING_2026.08.1.json'
 $release = Read-Json $releasePath
 Test-JsonSchema $release $schemas['release-manifest.schema.json'] '$.release'
 foreach ($field in @('releaseId', 'releasedAt', 'map', 'routes')) {
@@ -211,7 +219,7 @@ foreach ($routeRelease in @($release.routes)) {
         $rubric.rubricVersion -ne $routeRelease.rubricVersion) {
         throw "发布路线版本或稳定 ID 不一致：$($routeRelease.routeId)"
     }
-    foreach ($step in @('KNOWLEDGE_CARD', 'DEMONSTRATION', 'BASIC_PRACTICE', 'EXCEPTION_CASE')) {
+    foreach ($step in @('KNOWLEDGE_CARD', 'DEMONSTRATION', 'BASIC_PRACTICE', 'COMPREHENSIVE_PRACTICE')) {
         Require-Property $route.steps $step "路线 $($route.routeId)"
     }
     if (@($route.steps.KNOWLEDGE_CARD.cards).Count -lt 1 -or
@@ -219,7 +227,7 @@ foreach ($routeRelease in @($release.routes)) {
         throw "知识卡数量不符合 Schema：$($route.routeId)"
     }
     if (@($route.steps.BASIC_PRACTICE.questions).Count -lt 1 -or
-        @($route.steps.BASIC_PRACTICE.questions).Count -gt 3) {
+        @($route.steps.BASIC_PRACTICE.questions).Count -gt 5) {
         throw "基础练习数量不符合 Schema：$($route.routeId)"
     }
     $questionIds = @{}
@@ -229,6 +237,18 @@ foreach ($routeRelease in @($release.routes)) {
         }
         if ($questionIds.ContainsKey($question.questionId)) { throw "题目 ID 重复：$($question.questionId)" }
         $questionIds[$question.questionId] = $true
+        $shapeProperty = switch ($question.type) {
+            'FIELD_MAP' { 'fieldMappings'; break }
+            'CALCULATION' { 'calculation'; break }
+            'LEDGER_ENTRY' { 'ledgerEntries'; break }
+            'RECONCILIATION' { 'reconciliation'; break }
+            'SHORT_TEXT' { 'textInput'; break }
+            default { $null }
+        }
+        if ($null -ne $shapeProperty -and
+            $null -eq $question.PSObject.Properties[$shapeProperty]) {
+            throw "基础练习题 $($question.questionId) 的 $($question.type) 缺少结构化题面字段 $shapeProperty。"
+        }
     }
 
     if ($rubric.totalScore -ne 100 -or $rubric.passScore -ne 75) {

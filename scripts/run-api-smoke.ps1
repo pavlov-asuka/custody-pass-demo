@@ -126,9 +126,9 @@ try {
     $null = Complete-Step -StepType 'DEMONSTRATION' -ContentVersion $contentVersion
     $null = Invoke-JsonApi -Method GET -Path "/api/routes/$routeId/steps/BASIC_PRACTICE"
     $q1 = Answer-Basic -QuestionId 'ACC-ROLE-Q-01' -Answer @('B') -ContentVersion $contentVersion
-    $q2 = Answer-Basic -QuestionId 'ACC-ROLE-Q-02' -Answer @('A', 'B', 'D') -ContentVersion $contentVersion
+    $q2 = Answer-Basic -QuestionId 'ACC-ROLE-Q-02' -Answer @('B') -ContentVersion $contentVersion
     $q3 = Answer-Basic -QuestionId 'ACC-ROLE-Q-03' `
-        -Answer @('FACT', 'CHECK', 'ACTION', 'FEEDBACK') -ContentVersion $contentVersion
+        -Answer @('SOURCE', 'CALC', 'POST', 'RECON') -ContentVersion $contentVersion
     if (-not $q1.correct -or -not $q2.correct -or -not $q3.practiceCompleted) {
         throw 'basic practice did not complete'
     }
@@ -137,18 +137,19 @@ try {
         -Headers $csrfHeaders `
         -Body @{
             contentVersion = $contentVersion
-            answer = 'HTTP smoke 自动保存草稿'
+            answer = @{ responses = @{
+                'payment-source' = 'BANK-STATEMENT'; 'ending-payable' = 800
+            } }
             expectedRevision = 0
         }
     if ($draft.revision -lt 1) { throw 'draft revision was not created' }
 
-    $answer = @'
-事实：7月9日托管费指令已执行但余额未变。核算岗不只是录入，我对组合责任和结果负责。
-核查：先核实再判断，核查数据接收、资金执行、凭证、账务结果、估值结果和余额；执行成功不代表业务结果正确，系统成功不等于人工核验。
-措施：协调相关岗位复核，按权限处理，超出权限及时报告和升级，不擅自修改。
-责任人：本人持续跟进，识别可能影响账务、估值、净值及下游结果。
-反馈：异常消除后复核，向管理人反馈结论，保存证据和处理记录，持续跟踪闭环。
-'@
+    $answer = @{ responses = @{
+        'payment-source' = 'BANK-STATEMENT'; 'ending-payable' = 800
+        'debit-account' = '应付托管费'; 'credit-account' = '银行存款'
+        'reconciliation-result' = 'BALANCED'
+        'result-note' = '当日支付托管费1400元，期末应付托管费800元，资金、台账和估值结果勾稽一致。'
+    } }
     $requestId = New-RequestId
     $attempt = Invoke-JsonApi -Method POST -Path "/api/routes/$routeId/attempts" `
         -Headers $csrfHeaders `

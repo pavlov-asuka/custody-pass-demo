@@ -46,7 +46,7 @@ mvn -Pfinxscope spring-boot:run -Dspring-boot.run.profiles=internal,finxscope
 - `models-config.yml`、`agent-config.yml`、`skill-config.yml` 均被加载。
 - `X-User-ID` 由服务端当前登录学员设置，不能由前端传入覆盖。
 - 并发超过固定线程数和 `threads*2` 有界队列后，接口统一返回 `BUSY`，响应中不得包含请求内容；验证 `shutdownNow` 后不再接受新任务。
-- 关闭思考模式，单次正式异常案例结构化证据判定成功一次；返回值仍通过 Java 的 item ID 白名单、完整性和证据校验，并由 Java 裁决分数、硬门槛和结论。
+- 关闭思考模式，单次正式综合实务结构化证据判定成功一次；返回值仍通过 Java 的 item ID 白名单、完整性和证据校验，并由 Java 裁决分数、硬门槛和结论。
 - 两个不同登录学员分别提交后，训练记录不能互读。
 
 ## 4. 已核验配置与关闭项

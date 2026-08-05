@@ -75,7 +75,7 @@ export function RecordsPage() {
         {loading && <LoadingState label="正在整理训练记录…" />}
         {error && <ErrorState error={error} />}
         {records && !records.items.length && (
-          <EmptyState title="还没有符合条件的记录" description="正式提交异常案例后，评分记录会出现在这里。" />
+          <EmptyState title="还没有符合条件的记录" description="正式提交综合实务后，评分记录会出现在这里。" />
         )}
         {records && records.items.length > 0 && (
           <section className="records-list" data-testid="records-list">

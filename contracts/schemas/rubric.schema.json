@@ -27,13 +27,17 @@
             "items": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["criterionId", "description", "weight", "evidenceRequirement", "keywords", "remediationTargetId"],
+              "required": ["criterionId", "description", "weight", "evidenceRequirement", "evidenceRules", "remediationTargetId"],
               "properties": {
                 "criterionId": {"type": "string"},
                 "description": {"type": "string"},
                 "weight": {"type": "integer", "minimum": 1},
                 "evidenceRequirement": {"type": "string"},
-                "keywords": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+                "evidenceRules": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {"$ref": "#/$defs/evidenceRule"}
+                },
                 "remediationTargetId": {"type": "string"}
               }
             }
@@ -48,12 +52,16 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["requirementId", "description", "evidenceRequirement", "keywords", "remediationTargetId"],
+        "required": ["requirementId", "description", "evidenceRequirement", "evidenceRules", "remediationTargetId"],
         "properties": {
           "requirementId": {"type": "string"},
           "description": {"type": "string"},
           "evidenceRequirement": {"type": "string"},
-          "keywords": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "evidenceRules": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"$ref": "#/$defs/evidenceRule"}
+          },
           "remediationTargetId": {"type": "string"}
         }
       }
@@ -75,6 +83,25 @@
         }
       }
     },
-    "referenceAnswer": {"type": "string"}
+    "referenceAnswer": {"type": "object"}
+  },
+  "$defs": {
+    "evidenceRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fieldId", "operator", "expected"],
+      "properties": {
+        "fieldId": {"type": "string"},
+        "operator": {"enum": ["EQUALS", "NUMBER_EQUALS", "CONTAINS_ALL"]},
+        "expected": {
+          "oneOf": [
+            {"type": "string"},
+            {"type": "number"},
+            {"type": "array", "minItems": 1, "items": {"type": "string"}}
+          ]
+        },
+        "tolerance": {"type": "number", "minimum": 0}
+      }
+    }
   }
 }
