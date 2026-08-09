@@ -1,0 +1,249 @@
+{
+  "routeId": "ACC-STOCK-DIVIDEND-TAX-004",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-STK-DIV-CONCEPT-LINK",
+          "description": "识别历史红利、后续卖出和批准适用结论共同构成的税款匹配关系",
+          "weight": 9,
+          "evidenceRequirement": "关联红利、关联卖出和批准适用结论全部正确",
+          "evidenceRules": [
+            {"fieldId": "div-match", "operator": "EQUALS", "expected": "DIVIDEND-D-2026-02-16"},
+            {"fieldId": "sell-match", "operator": "EQUALS", "expected": "SELL-D-2026-07-15"},
+            {"fieldId": "tax-applicability", "operator": "EQUALS", "expected": "APPROVED_FOR_DEDUCTION"}
+          ],
+          "remediationTargetId": "R-STK-DIV-FIELDS"
+        },
+        {
+          "criterionId": "C-STK-DIV-CONCEPT-AMOUNT",
+          "description": "理解税额由数据记录直接读取且记录状态正常",
+          "weight": 8,
+          "evidenceRequirement": "批准税额读取正确且状态判断正确",
+          "evidenceRules": [
+            {"fieldId": "tax-amount", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01},
+            {"fieldId": "tax-record-status", "operator": "EQUALS", "expected": "NORMAL"}
+          ],
+          "remediationTargetId": "R-STK-DIV-AMOUNT"
+        },
+        {
+          "criterionId": "C-STK-DIV-CONCEPT-TIMING",
+          "description": "按题面确认资料读取确认结果发送日与批准扣收日",
+          "weight": 8,
+          "evidenceRequirement": "发送确认结果日期和题面批准扣收日期均正确",
+          "evidenceRules": [
+            {"fieldId": "confirm-date", "operator": "EQUALS", "expected": "CONFIRM-2026-07-16"},
+            {"fieldId": "deduction-date", "operator": "EQUALS", "expected": "DEDUCT-2026-07-17"}
+          ],
+          "remediationTargetId": "R-STK-DIV-TIMING"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-STK-DIV-PROCESS-ACCRUAL",
+          "description": "完成计提凭证的科目和金额，方向一致、金额相反",
+          "weight": 10,
+          "evidenceRequirement": "待补缴与红利收入两行科目、金额均正确",
+          "evidenceRules": [
+            {"fieldId": "accrual-payable-account", "operator": "CONTAINS_ALL", "expected": ["待补缴", "股息红利税"]},
+            {"fieldId": "accrual-payable-amount", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01},
+            {"fieldId": "accrual-income-account", "operator": "CONTAINS_ALL", "expected": ["投资收益", "红利收入"]},
+            {"fieldId": "accrual-income-amount", "operator": "NUMBER_EQUALS", "expected": -1800, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-STK-DIV-LEDGER"
+        },
+        {
+          "criterionId": "C-STK-DIV-PROCESS-DEDUCTION",
+          "description": "完成实际扣收凭证的科目和金额",
+          "weight": 10,
+          "evidenceRequirement": "借方结清待补缴、贷方银行存款且金额正确",
+          "evidenceRules": [
+            {"fieldId": "deduction-debit-account", "operator": "CONTAINS_ALL", "expected": ["待补缴", "股息红利税"]},
+            {"fieldId": "deduction-credit-account", "operator": "CONTAINS_ALL", "expected": ["银行存款"]},
+            {"fieldId": "deduction-amount", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-STK-DIV-LEDGER"
+        },
+        {
+          "criterionId": "C-STK-DIV-PROCESS-RECON",
+          "description": "用待补缴余额、银行存款和勾稽结论完成复算",
+          "weight": 10,
+          "evidenceRequirement": "余额归零、现金减少正确且勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "payable-ending", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "cash-ending", "operator": "NUMBER_EQUALS", "expected": 248200, "tolerance": 0.01},
+            {"fieldId": "recon-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-STK-DIV-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-STK-DIV-RISK-MATCH",
+          "description": "控制税款必须匹配正确的历史红利和后续卖出记录",
+          "weight": 9,
+          "evidenceRequirement": "关联记录与批准适用结论均正确",
+          "evidenceRules": [
+            {"fieldId": "div-match", "operator": "EQUALS", "expected": "DIVIDEND-D-2026-02-16"},
+            {"fieldId": "sell-match", "operator": "EQUALS", "expected": "SELL-D-2026-07-15"},
+            {"fieldId": "tax-applicability", "operator": "EQUALS", "expected": "APPROVED_FOR_DEDUCTION"}
+          ],
+          "remediationTargetId": "R-STK-DIV-FIELDS"
+        },
+        {
+          "criterionId": "C-STK-DIV-RISK-DUP",
+          "description": "控制同一笔税款不重复计提或扣收",
+          "weight": 8,
+          "evidenceRequirement": "扣收金额正确、余额归零且状态正常",
+          "evidenceRules": [
+            {"fieldId": "deduction-amount", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01},
+            {"fieldId": "payable-ending", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "tax-record-status", "operator": "EQUALS", "expected": "NORMAL"}
+          ],
+          "remediationTargetId": "R-STK-DIV-RECON"
+        },
+        {
+          "criterionId": "C-STK-DIV-RISK-DIRECTION",
+          "description": "控制计提方向相反、扣收现金方向和时点",
+          "weight": 8,
+          "evidenceRequirement": "红利收入冲减方向、银行存款方向和扣收日期正确",
+          "evidenceRules": [
+            {"fieldId": "accrual-income-amount", "operator": "NUMBER_EQUALS", "expected": -1800, "tolerance": 0.01},
+            {"fieldId": "deduction-credit-account", "operator": "CONTAINS_ALL", "expected": ["银行存款"]},
+            {"fieldId": "deduction-date", "operator": "EQUALS", "expected": "DEDUCT-2026-07-17"}
+          ],
+          "remediationTargetId": "R-STK-DIV-LEDGER"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-STK-DIV-EXPR-RESULT",
+          "description": "以简短结论同时表达关联红利、卖出、税额、扣收和勾稽结果",
+          "weight": 20,
+          "evidenceRequirement": "结论包含关键业务信息并明确勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["红利", "卖出", "税额", "扣收", "勾稽一致"]},
+            {"fieldId": "recon-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-STK-DIV-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-STK-DIV-TAX-MATCH",
+      "description": "税款必须匹配到正确的历史红利和后续卖出记录",
+      "evidenceRequirement": "关联红利、关联卖出、批准适用结论和批准税额均正确",
+      "evidenceRules": [
+        {"fieldId": "div-match", "operator": "EQUALS", "expected": "DIVIDEND-D-2026-02-16"},
+        {"fieldId": "sell-match", "operator": "EQUALS", "expected": "SELL-D-2026-07-15"},
+        {"fieldId": "tax-applicability", "operator": "EQUALS", "expected": "APPROVED_FOR_DEDUCTION"},
+        {"fieldId": "tax-amount", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-STK-DIV-FIELDS"
+    },
+    {
+      "requirementId": "M-STK-DIV-AMOUNT-NO-DUP",
+      "description": "税款金额、账务记录和实际资金扣款必须一致且不得重复处理",
+      "evidenceRequirement": "计提、扣收、银行存款、待补缴余额和现金余额全部闭合",
+      "evidenceRules": [
+        {"fieldId": "accrual-payable-amount", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01},
+        {"fieldId": "deduction-amount", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01},
+        {"fieldId": "deduction-credit-account", "operator": "CONTAINS_ALL", "expected": ["银行存款"]},
+        {"fieldId": "payable-ending", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "cash-ending", "operator": "NUMBER_EQUALS", "expected": 248200, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-STK-DIV-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-STK-DIV-FIELDS",
+      "title": "匹配红利、卖出与税款关联字段",
+      "reason": "历史红利、后续卖出或批准适用结论未从资料正确关联",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "STK-DIV-TAX-KC-02",
+      "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-01"
+    },
+    {
+      "targetId": "R-STK-DIV-TIMING",
+      "title": "区分确认与扣收时点",
+      "reason": "未按题面确认资料读取确认日与批准扣收日期，或把历史扣收时点当作永久规则",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "STK-DIV-TAX-KC-03",
+      "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-02"
+    },
+    {
+      "targetId": "R-STK-DIV-AMOUNT",
+      "title": "读取并复算批准税额",
+      "reason": "批准税额读取或三处金额一致关系不完整",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-02",
+      "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-04"
+    },
+    {
+      "targetId": "R-STK-DIV-LEDGER",
+      "title": "补全计提与扣收凭证",
+      "reason": "计提方向一致金额相反、扣收借方待补缴或贷方银行存款未形成正确凭证证据",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-03"
+    },
+    {
+      "targetId": "R-STK-DIV-RECON",
+      "title": "完成税款、账务与现金勾稽",
+      "reason": "待补缴余额、银行存款或防重复关系未完成跨来源复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-04"
+    },
+    {
+      "targetId": "R-STK-DIV-EXPRESSION",
+      "title": "形成可追溯业务结论",
+      "reason": "简短结论未清楚覆盖红利、卖出、税额、扣收和勾稽判断",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "div-match": "DIVIDEND-D-2026-02-16",
+      "sell-match": "SELL-D-2026-07-15",
+      "tax-applicability": "APPROVED_FOR_DEDUCTION",
+      "tax-amount": 1800,
+      "tax-record-status": "NORMAL",
+      "accrual-payable-account": "证券清算款-待补缴股息红利税",
+      "accrual-payable-amount": 1800,
+      "accrual-income-account": "投资收益-红利收入",
+      "accrual-income-amount": -1800,
+      "confirm-date": "CONFIRM-2026-07-16",
+      "deduction-date": "DEDUCT-2026-07-17",
+      "deduction-debit-account": "证券清算款-待补缴股息红利税",
+      "deduction-credit-account": "银行存款",
+      "deduction-amount": 1800,
+      "payable-ending": 0,
+      "cash-ending": 248200,
+      "recon-result": "BALANCED",
+      "result-note": "关联 2026-02-16 发放的案例股份 D 历史红利与 2026-07-15 卖出 8,000 股，确认资料批准适用补缴，批准税额 1,800 元，2026-07-17 完成扣收，税款、账务与现金扣收勾稽一致且余额归零。"
+    }
+  }
+}

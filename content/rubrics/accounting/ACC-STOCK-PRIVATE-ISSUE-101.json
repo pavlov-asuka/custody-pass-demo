@@ -1,0 +1,248 @@
+{
+  "routeId": "ACC-STOCK-PRIVATE-ISSUE-101",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-PRIVATE-CONCEPT-STATUS",
+          "description": "区分非公开申购付款与正式中签确认两个状态",
+          "weight": 9,
+          "evidenceRequirement": "申购付款阶段判断、确认日期读取和处理方式正确，成本确认时点正确",
+          "evidenceRules": [
+            {"fieldId": "apply-stage", "operator": "EQUALS", "expected": "SUBSCRIPTION_PAYMENT"},
+            {"fieldId": "confirm-date", "operator": "EQUALS", "expected": "CONFIRM_DAY_1021"},
+            {"fieldId": "payment-rule", "operator": "EQUALS", "expected": "PAYMENT_ONLY"},
+            {"fieldId": "confirm-timing", "operator": "EQUALS", "expected": "CONFIRM_DAY"}
+          ],
+          "remediationTargetId": "R-PRIVATE-STATUS"
+        },
+        {
+          "criterionId": "C-PRIVATE-CONCEPT-COST",
+          "description": "理解正式确认成本等于确认数量 × 发行价格",
+          "weight": 8,
+          "evidenceRequirement": "中签数量、发行价格和确认未流通成本读取与计算正确",
+          "evidenceRules": [
+            {"fieldId": "confirm-quantity", "operator": "NUMBER_EQUALS", "expected": 800000, "tolerance": 0.01},
+            {"fieldId": "confirm-issue-price", "operator": "NUMBER_EQUALS", "expected": 4.2, "tolerance": 0.01},
+            {"fieldId": "confirm-cost", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-PRIVATE-CONFIRM"
+        },
+        {
+          "criterionId": "C-PRIVATE-CONCEPT-LISTING",
+          "description": "理解锁定台账维护与最新上市流通公告对转流通的决定作用",
+          "weight": 8,
+          "evidenceRequirement": "锁定口径、最新上市流通日期和差异处理判断正确",
+          "evidenceRules": [
+            {"fieldId": "lock-maintenance", "operator": "EQUALS", "expected": "LOCK_BY_ISSUE"},
+            {"fieldId": "announcement-date", "operator": "EQUALS", "expected": "LATEST_1120"},
+            {"fieldId": "announcement-update", "operator": "EQUALS", "expected": "UPDATE_BY_LATEST"}
+          ],
+          "remediationTargetId": "R-PRIVATE-LOCK-ANNOUNCEMENT"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-PRIVATE-PROCESS-PAYMENT",
+          "description": "完成申购付款金额、资金余额、付款凭证科目与不增持仓的连续处理",
+          "weight": 8,
+          "evidenceRequirement": "付款清算金额、方向、科目与资金余额闭合",
+          "evidenceRules": [
+            {"fieldId": "apply-payment-amount", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01},
+            {"fieldId": "payment-debit-account", "operator": "CONTAINS_ALL", "expected": ["清算"]},
+            {"fieldId": "payment-credit-account", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]},
+            {"fieldId": "payment-ending-cash", "operator": "NUMBER_EQUALS", "expected": 1640000, "tolerance": 0.01},
+            {"fieldId": "payment-position", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-PRIVATE-PAYMENT"
+        },
+        {
+          "criterionId": "C-PRIVATE-PROCESS-CONFIRM",
+          "description": "完成正式确认字段、未流通成本与中签确认凭证的连续处理",
+          "weight": 8,
+          "evidenceRequirement": "确认数量、发行价格、确认成本和凭证科目正确",
+          "evidenceRules": [
+            {"fieldId": "confirm-quantity", "operator": "NUMBER_EQUALS", "expected": 800000, "tolerance": 0.01},
+            {"fieldId": "confirm-issue-price", "operator": "NUMBER_EQUALS", "expected": 4.2, "tolerance": 0.01},
+            {"fieldId": "confirm-cost", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01},
+            {"fieldId": "confirm-cost-account", "operator": "CONTAINS_ALL", "expected": ["特定对象", "未流通"]},
+            {"fieldId": "confirm-clearing-account", "operator": "CONTAINS_ALL", "expected": ["清算"]}
+          ],
+          "remediationTargetId": "R-PRIVATE-LEDGER"
+        },
+        {
+          "criterionId": "C-PRIVATE-PROCESS-TRANSFER",
+          "description": "完成转流通凭证科目与转流通后持仓台账补全",
+          "weight": 9,
+          "evidenceRequirement": "四个转流通科目和转流通后数量、成本、估值增值正确",
+          "evidenceRules": [
+            {"fieldId": "transfer-debit-cost-account", "operator": "CONTAINS_ALL", "expected": ["股票-流通", "成本"]},
+            {"fieldId": "transfer-credit-cost-account", "operator": "CONTAINS_ALL", "expected": ["特定对象", "未流通", "成本"]},
+            {"fieldId": "transfer-debit-valuation-account", "operator": "CONTAINS_ALL", "expected": ["股票-流通", "估值"]},
+            {"fieldId": "transfer-credit-valuation-account", "operator": "CONTAINS_ALL", "expected": ["特定对象", "未流通", "估值"]},
+            {"fieldId": "fl-quantity", "operator": "NUMBER_EQUALS", "expected": 800000, "tolerance": 0.01},
+            {"fieldId": "fl-cost", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01},
+            {"fieldId": "fl-valuation", "operator": "NUMBER_EQUALS", "expected": 240000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-PRIVATE-TRANSFER"
+        },
+        {
+          "criterionId": "C-PRIVATE-PROCESS-RECON",
+          "description": "用付款确认一致性和流通日市值完成跨来源复算",
+          "weight": 5,
+          "evidenceRequirement": "新股清算款结清、转流通后市值和勾稽结论正确",
+          "evidenceRules": [
+            {"fieldId": "clearing-match", "operator": "EQUALS", "expected": "MATCHED"},
+            {"fieldId": "market-value", "operator": "NUMBER_EQUALS", "expected": 3600000, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-PRIVATE-TRANSFER"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-PRIVATE-RISK-PREMATURE",
+          "description": "控制正式中签确认前提前确认最终股票成本或持仓的风险",
+          "weight": 9,
+          "evidenceRequirement": "付款阶段只做清算、不增加持仓且成本确认时点正确",
+          "evidenceRules": [
+            {"fieldId": "payment-rule", "operator": "EQUALS", "expected": "PAYMENT_ONLY"},
+            {"fieldId": "payment-position", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "confirm-timing", "operator": "EQUALS", "expected": "CONFIRM_DAY"},
+            {"fieldId": "apply-payment-amount", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-PRIVATE-PAYMENT"
+        },
+        {
+          "criterionId": "C-PRIVATE-RISK-SOURCE",
+          "description": "控制付款与确认同源、新股清算款结清与金额一致的风险",
+          "weight": 8,
+          "evidenceRequirement": "付款金额与确认成本同源一致且清算结清",
+          "evidenceRules": [
+            {"fieldId": "clearing-match", "operator": "EQUALS", "expected": "MATCHED"},
+            {"fieldId": "apply-payment-amount", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01},
+            {"fieldId": "confirm-cost", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-PRIVATE-CONFIRM"
+        },
+        {
+          "criterionId": "C-PRIVATE-RISK-CONTINUITY",
+          "description": "控制转流通依据与数量、成本、估值增值连续性的风险",
+          "weight": 8,
+          "evidenceRequirement": "按最新公告转流通且转流通后余额完整连续并勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "announcement-date", "operator": "EQUALS", "expected": "LATEST_1120"},
+            {"fieldId": "announcement-update", "operator": "EQUALS", "expected": "UPDATE_BY_LATEST"},
+            {"fieldId": "fl-quantity", "operator": "NUMBER_EQUALS", "expected": 800000, "tolerance": 0.01},
+            {"fieldId": "fl-cost", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01},
+            {"fieldId": "fl-valuation", "operator": "NUMBER_EQUALS", "expected": 240000, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-PRIVATE-TRANSFER"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-PRIVATE-EXPR-RESULT",
+          "description": "以简短结论同时表达转流通后数量、成本、估值增值、市值和勾稽结果",
+          "weight": 20,
+          "evidenceRequirement": "结论包含关键结果并明确勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["转流通后", "数量", "成本", "估值增值", "市值", "勾稽一致"]},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-PRIVATE-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-PRIVATE-NO-PREMATURE",
+      "description": "正式中签确认前不得确认最终股票成本与持仓；申购付款阶段只完成资金清算",
+      "evidenceRequirement": "付款阶段判断、处理方式、资金清算和成本确认时点均符合正式确认边界",
+      "evidenceRules": [
+        {"fieldId": "payment-rule", "operator": "EQUALS", "expected": "PAYMENT_ONLY"},
+        {"fieldId": "apply-stage", "operator": "EQUALS", "expected": "SUBSCRIPTION_PAYMENT"},
+        {"fieldId": "payment-position", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "confirm-timing", "operator": "EQUALS", "expected": "CONFIRM_DAY"},
+        {"fieldId": "apply-payment-amount", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01},
+        {"fieldId": "payment-ending-cash", "operator": "NUMBER_EQUALS", "expected": 1640000, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-PRIVATE-PAYMENT"
+    },
+    {
+      "requirementId": "M-PRIVATE-LISTING-CLOSURE",
+      "description": "转流通必须使用题面最新有效上市流通公告，数量、成本、估值增值及相关余额完整结转并闭合",
+      "evidenceRequirement": "最新公告依据正确，转流通后数量、成本、估值增值、市值和勾稽结论闭合",
+      "evidenceRules": [
+        {"fieldId": "announcement-date", "operator": "EQUALS", "expected": "LATEST_1120"},
+        {"fieldId": "announcement-update", "operator": "EQUALS", "expected": "UPDATE_BY_LATEST"},
+        {"fieldId": "fl-quantity", "operator": "NUMBER_EQUALS", "expected": 800000, "tolerance": 0.01},
+        {"fieldId": "fl-cost", "operator": "NUMBER_EQUALS", "expected": 3360000, "tolerance": 0.01},
+        {"fieldId": "fl-valuation", "operator": "NUMBER_EQUALS", "expected": 240000, "tolerance": 0.01},
+        {"fieldId": "market-value", "operator": "NUMBER_EQUALS", "expected": 3600000, "tolerance": 0.01},
+        {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-PRIVATE-TRANSFER"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-PRIVATE-STATUS", "title": "识别申购付款与正式确认状态", "reason": "业务类型、日期或成本确认时点未从原始记录正确判断", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "PRIVATE-KC-02", "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-01"},
+    {"targetId": "R-PRIVATE-PAYMENT", "title": "完成申购付款资金清算", "reason": "付款金额、资金余额、付款凭证科目或付款阶段持仓未按资料处理", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-02", "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-04"},
+    {"targetId": "R-PRIVATE-CONFIRM", "title": "复算正式确认成本", "reason": "中签数量、发行价格或数量 × 发行价关系不完整", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-03"},
+    {"targetId": "R-PRIVATE-LOCK-ANNOUNCEMENT", "title": "维护锁定台账并采用最新公告", "reason": "锁定口径或最新上市流通公告的日期差异处理不正确", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "PRIVATE-KC-03", "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-02"},
+    {"targetId": "R-PRIVATE-LEDGER", "title": "补全确认与付款凭证科目", "reason": "新股清算款、银行存款或未流通成本科目未形成分列凭证证据", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-04"},
+    {"targetId": "R-PRIVATE-TRANSFER", "title": "完成转流通连续性勾稽", "reason": "转流通后数量、成本、估值增值、市值或勾稽结果未完整连续", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-05"},
+    {"targetId": "R-PRIVATE-EXPRESSION", "title": "形成可追溯业务结论", "reason": "简短结论未清楚覆盖转流通后数量、成本、估值增值、市值和勾稽判断", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "apply-stage": "SUBSCRIPTION_PAYMENT",
+      "payment-rule": "PAYMENT_ONLY",
+      "apply-payment-amount": 3360000,
+      "payment-debit-account": "证券清算款-新股清算款",
+      "payment-credit-account": "银行存款",
+      "payment-ending-cash": 1640000,
+      "payment-position": 0,
+      "confirm-date": "CONFIRM_DAY_1021",
+      "confirm-quantity": 800000,
+      "confirm-issue-price": 4.2,
+      "confirm-cost": 3360000,
+      "confirm-cost-account": "股票-特定对象发行未流通-成本",
+      "confirm-clearing-account": "证券清算款-新股清算款",
+      "confirm-timing": "CONFIRM_DAY",
+      "lock-maintenance": "LOCK_BY_ISSUE",
+      "announcement-date": "LATEST_1120",
+      "announcement-update": "UPDATE_BY_LATEST",
+      "clearing-match": "MATCHED",
+      "transfer-debit-cost-account": "股票-流通-成本",
+      "transfer-credit-cost-account": "股票-特定对象发行未流通-成本",
+      "transfer-debit-valuation-account": "股票-流通-估值增值",
+      "transfer-credit-valuation-account": "股票-特定对象发行未流通-估值增值",
+      "fl-quantity": 800000,
+      "fl-cost": 3360000,
+      "fl-valuation": 240000,
+      "market-value": 3600000,
+      "reconciliation-result": "BALANCED",
+      "result-note": "转流通后持仓 800,000 股，股票成本 3,360,000 元，估值增值 240,000 元，市值 3,600,000 元，数量、成本、估值增值与市值勾稽一致。"
+    }
+  }
+}

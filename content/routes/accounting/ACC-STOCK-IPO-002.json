@@ -1,0 +1,576 @@
+{
+  "routeId": "ACC-STOCK-IPO-002",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "网上新股申购与确认",
+  "summary": "沿网上新股信用申购的申请、最终确认、成本与资金清算、持仓与估值结果完成一条可复核的核算链。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "从成交清算日报读取网上新股申购申请与最终确认记录的业务类型、数量、发行价格和记录状态，区分申请与最终确认",
+    "在申购申请阶段不确认股票成本和实际资金变动，只在取得最终确认结果并完成交收后处理",
+    "按最终确认数量 × 发行价格确认股票成本，并完成新股清算款与银行存款的资金清算",
+    "用资金台账、股票持仓台账和估值结果完成交叉勾稽并形成简短结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "IPO-KC-01",
+          "type": "FLOW",
+          "title": "一笔网上新股怎样形成核算结果",
+          "conclusion": "先读申请记录确认尚未最终交收，再等最终确认结果，按确认数量与发行价格确认股票成本，完成资金清算，最后把持仓、成本和估值结果放回同一条链核对。",
+          "items": [
+            "成交清算日报业务类型：新股申购申请与新股申购确认是两个不同状态",
+            "申请阶段：取得申请或预中签信息，但尚未最终交收，不确认股票成本与实际资金变动",
+            "最终确认：按确认数量 × 发行价格确认股票成本，并完成新股清算款资金清算",
+            "结果验证：持仓数量、股票成本、资金余额和估值结果必须能互相解释"
+          ]
+        },
+        {
+          "cardId": "IPO-KC-02",
+          "type": "CATEGORIES",
+          "title": "申请与确认记录中的字段各自证明什么",
+          "conclusion": "业务类型决定当前状态；数量与发行价格只有进入最终确认后才能形成成本和资金清算，申请字段不能直接当作已取得股票。",
+          "items": [
+            "业务类型为“新股申购申请”：仅取得申请或预中签信息，等待最终交收",
+            "业务类型为“新股申购确认”：已取得最终确认结果，按确认数量与发行价格确认成本并清算资金",
+            "确认数量与发行价格来自最终确认记录，确认成本 = 确认数量 × 发行价格",
+            "记录状态正常只是继续处理的前提，不能替代申请与确认状态判断"
+          ]
+        },
+        {
+          "cardId": "IPO-KC-03",
+          "type": "KEY_POINT",
+          "title": "成本和持仓在最终确认后才形成",
+          "conclusion": "申请或预中签不等于取得股票；确认数量、成本、资金和持仓必须由最终确认记录同时闭合。",
+          "items": [
+            "T 日取得新股申购申请信息：不确认股票成本，不确认实际资金变动",
+            "T+2 日取得新股申购确认并完成资金清算：确认股票成本和实际资金变动",
+            "最终确认记录同时提供确认数量、发行价格与资金清算金额，成本与清算金额必须相互一致",
+            "确认后还要用资金台账和估值结果复算，不把申请数量、确认成本与市值混为一项"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品 H 的组合核算人员",
+        "product": "案例产品 H / 案例股份 C",
+        "date": "2026-07-15 至 2026-07-17",
+        "facts": [
+          "7 月 15 日处理前持有案例股份 C 为 0 股，股票成本 0 元，资金台账余额 500,000 元。",
+          "7 月 15 日记录状态正常，成交清算日报业务类型为“新股申购申请”，申购数量 1,000 股，发行价格 9.32 元/股；尚未取得最终确认结果。",
+          "7 月 15 日申请阶段资金台账余额仍为 500,000 元，不确认股票成本和实际资金变动。",
+          "7 月 17 日记录状态正常，业务类型为“新股申购确认”，确认数量 1,000 股，发行价格 9.32 元/股，确认股票成本 9,320 元并完成资金清算。",
+          "7 月 17 日确认后资金台账余额为 490,680 元；估值日收盘价为 9.80 元/股。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取 7 月 15 日成交清算日报的业务类型、申购数量、发行价格和记录状态，判断当前处于网上新股申购申请阶段",
+          "reason": "业务类型为“新股申购申请”且未取得最终确认结果，说明只取得申请或预中签信息，尚未完成最终交收。"
+        },
+        {
+          "order": 2,
+          "action": "7 月 15 日不确认股票成本、不确认实际资金变动，持仓保持 0 股、资金保持 500,000 元",
+          "reason": "材料明确网上信用申购在 T 日不发生实际成本确认或资金变动；预中签信息不等于最终确认，提前确认会虚增资产与资金。"
+        },
+        {
+          "order": 3,
+          "action": "读取 7 月 17 日“新股申购确认”记录，按 1,000 股 × 9.32 元/股 = 9,320 元确认股票成本",
+          "reason": "最终确认并交收成功后，成本和资金才以确认数量与发行价格的乘积形成，申请阶段的字段不能直接入账。"
+        },
+        {
+          "order": 4,
+          "action": "补 7 月 17 日确认凭证：借股票成本 9,320 元，贷证券清算款-新股清算款 9,320 元；再借证券清算款-其他清算款 9,320 元，贷银行存款 9,320 元，资金台账减至 490,680 元",
+          "reason": "材料凭证模板在确认日同时确认成本与资金清算，两笔清算款过渡后再由银行存款支付；确认成本、两笔清算款与银行存款金额一致。"
+        },
+        {
+          "order": 5,
+          "action": "用 500,000 - 9,320 = 490,680 元复算期末资金，用 1,000 股 × 9.80 元/股 = 9,800 元复算收盘市值，再以 9,800 - 9,320 = 480 元复核估值增值",
+          "reason": "期初资金、确认清算、确认成本、确认数量、估值日收盘价和持仓台账共同证明连续业务链闭合，结果不能凭空出现。"
+        }
+      ],
+      "summary": "读申请状态 → 不提前确认 → 读最终确认 → 确认成本并清算资金 → 资金与持仓/估值勾稽"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-STOCK-IPO-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "请把案例股份 E 的成交清算日报字段、业务类型和状态分别对应到正确的业务含义。每一行都要从题面字段取证。",
+          "fieldMappings": [
+            {
+              "fieldId": "apply-record-type",
+              "label": "业务类型：新股申购申请",
+              "source": "8 月 5 日成交清算日报",
+              "options": [
+                {"optionId": "APPLICATION_STAGE", "text": "仅取得申购申请信息，等待最终确认"},
+                {"optionId": "CONFIRMED_STAGE", "text": "已完成最终确认并可确认股票"}
+              ]
+            },
+            {
+              "fieldId": "confirm-record-type",
+              "label": "业务类型：新股申购确认",
+              "source": "8 月 7 日成交清算日报",
+              "options": [
+                {"optionId": "APPLICATION_STAGE", "text": "仍处于申请阶段，不能确认股票"},
+                {"optionId": "CONFIRMED_STAGE", "text": "已取得最终确认结果，可确认股票成本和资金清算"}
+              ]
+            },
+            {
+              "fieldId": "apply-cash-movement",
+              "label": "8 月 5 日资金变动：0.00 元",
+              "source": "8 月 5 日资金台账",
+              "options": [
+                {"optionId": "NO_CASH_CHANGE", "text": "申请阶段不确认实际资金变动"},
+                {"optionId": "CASH_CHANGE", "text": "申请当日已经完成资金清算"}
+              ]
+            },
+            {
+              "fieldId": "confirm-price-quantity",
+              "label": "确认数量 2,500 股、发行价格 7.60 元/股",
+              "source": "8 月 7 日新股申购确认记录",
+              "options": [
+                {"optionId": "COST_BASE", "text": "最终确认后按数量 × 发行价格确认股票成本"},
+                {"optionId": "APPLICATION_ONLY", "text": "仅作申请参考，不能形成成本"}
+              ]
+            }
+          ],
+          "answer": ["APPLICATION_STAGE", "CONFIRMED_STAGE", "NO_CASH_CHANGE", "COST_BASE"],
+          "explanation": "申请记录只表示取得申请信息；确认记录才形成成本和资金清算；申请日资金不变；确认数量和发行价格是成本计算基础。",
+          "hints": ["先逐行定位业务类型和日期来源，再把申请状态、确认状态、资金变动和成本基础分开判断。"]
+        },
+        {
+          "questionId": "ACC-STOCK-IPO-Q-02",
+          "type": "ORDERING",
+          "prompt": "请排列一笔网上新股信用申购的正常处理顺序。",
+          "items": [
+            {"itemId": "APPLY_INFO", "text": "取得新股申购申请信息"},
+            {"itemId": "WAIT_FINAL", "text": "等待最终交收结果"},
+            {"itemId": "CONFIRM_INFO", "text": "取得新股申购确认结果"},
+            {"itemId": "BOOK_AND_SETTLE", "text": "按确认结果确认股票成本并完成资金清算"}
+          ],
+          "answer": ["APPLY_INFO", "WAIT_FINAL", "CONFIRM_INFO", "BOOK_AND_SETTLE"],
+          "explanation": "必须先取得申请信息并等待最终交收，取得确认结果后才能确认成本和完成资金清算，不能跳过最终确认。",
+          "hints": ["把“取得申请”和“确认成本”放在两端，中间必须存在等待与最终确认。"]
+        },
+        {
+          "questionId": "ACC-STOCK-IPO-Q-03",
+          "type": "CALCULATION",
+          "prompt": "从 9 月 10 日新股申购确认记录取数，并按最终确认关系复算确认成本与资金清算金额。请填写四个数字，不要把结果放在选择项里。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "confirm-quantity", "label": "最终确认数量", "formula": "确认记录数量 = 3,000", "placeholder": "输入确认数量", "unit": "股"},
+              {"fieldId": "confirm-issue-price", "label": "发行价格", "formula": "确认记录发行价格 = 5.20", "placeholder": "输入发行价格", "unit": "元/股"},
+              {"fieldId": "confirm-stock-cost", "label": "确认股票成本", "formula": "3,000 × 5.20 = ?", "placeholder": "输入股票成本", "unit": "元"},
+              {"fieldId": "confirm-cash-settlement", "label": "资金清算金额", "formula": "-确认股票成本 = ?", "placeholder": "输入资金清算金额", "unit": "元"}
+            ]
+          },
+          "answer": ["3000", "5.2", "15600", "-15600"],
+          "explanation": "确认数量与发行价格从确认记录读取；成本按 3,000 × 5.20 = 15,600 元确认，资金清算按 -15,600 元处理。",
+          "hints": ["先填两个来源字段，再按数量 × 发行价计算成本；资金清算方向与成本金额相反。"]
+        },
+        {
+          "questionId": "ACC-STOCK-IPO-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全 9 月 10 日网上新股申购确认凭证的四个科目。借贷方向、金额和资料来源已经给出，你只需要补科目名称。",
+          "ledgerEntries": [
+            {"entryId": "debit-cost", "direction": "借", "label": "股票成本，15,600.00 元", "amount": "15,600.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "credit-new-clearing", "direction": "贷", "label": "新股清算款，15,600.00 元", "amount": "15,600.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "debit-other-clearing", "direction": "借", "label": "其他清算款，15,600.00 元", "amount": "15,600.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "credit-bank", "direction": "贷", "label": "银行存款，15,600.00 元", "amount": "15,600.00 元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["金融资产-交易性-股票-成本", "证券清算款-新股清算款", "证券清算款-其他清算款", "银行存款"],
+          "explanation": "确认凭证先确认股票成本与新股清算款，再由其他清算款过渡至银行存款完成资金清算，四行金额一致。",
+          "hints": ["按材料模板确认成本、新股清算款、其他清算款和银行存款四行，不要把两笔清算款合并。"]
+        },
+        {
+          "questionId": "ACC-STOCK-IPO-Q-05",
+          "type": "RECONCILIATION",
+          "prompt": "用案例股份 F 的确认记录、资金台账和估值资料完成跨来源复算。数字字段逐格填写，最后选择勾稽结论。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "confirm-cost", "label": "确认股票成本", "kind": "NUMBER", "formula": "2,000 × 8.50 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "apply-day-cash", "label": "申请日资金余额", "kind": "NUMBER", "formula": "600,000 - 0 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "confirm-day-cash", "label": "确认日资金余额", "kind": "NUMBER", "formula": "600,000 - 17,000 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "ending-fair-value", "label": "期末股票市值", "kind": "NUMBER", "formula": "2,000 × 9.20 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "ending-valuation", "label": "期末估值增值", "kind": "NUMBER", "formula": "18,400 - 17,000 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "result", "label": "跨来源勾稽结论", "kind": "SELECT", "formula": "资金、持仓、成本和估值结果应相互解释", "placeholder": "选择勾稽结论", "options": [
+                {"optionId": "BALANCED", "text": "资金、持仓、成本和估值勾稽一致"},
+                {"optionId": "UNBALANCED", "text": "至少一项结果无法由资料复算"}
+              ]}
+            ]
+          },
+          "answer": ["17000", "600000", "583000", "18400", "1400", "BALANCED"],
+          "explanation": "成本、申请日资金、确认日资金、市值和估值增值分别由确认记录、资金台账和估值日收盘价复算，全部关系闭合后才能判断勾稽一致。",
+          "hints": ["先按数量 × 发行价确认成本，再分别核对申请日不变、确认日扣款和 2,000 × 9.20 的市值公式。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品 B 的组合核算人员",
+        "product": "案例产品 B / 案例股份 E",
+        "date": "2026-08-05 至 2026-08-07",
+        "purpose": "根据一组资料充分、状态正常的网上新股信用申购资料，独立完成申请与确认状态判断、确认数量 × 发行价格的成本确认、确认凭证与台账补全，以及资金、持仓和估值结果勾稽。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "IPO-CASE-PARAMETERS",
+          "title": "本案计算口径与批准参数",
+          "kind": "PARAMETER",
+          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史费率、时点或系统默认值固化为永久规则。",
+          "fields": [
+            {"fieldId": "scope", "label": "业务范围", "value": "普通交易性股票的网上新股信用申购；两笔记录状态均为正常"},
+            {"fieldId": "timeline", "label": "本案时间线", "value": "T 日取得新股申购申请信息；T+2 日取得新股申购确认并完成资金清算"},
+            {"fieldId": "apply-stage-rule", "label": "申请阶段处理", "value": "不确认股票成本，不确认实际资金变动，不增加持仓"},
+            {"fieldId": "confirm-cost-rule", "label": "确认成本口径", "value": "最终确认数量 × 发行价格"},
+            {"fieldId": "settlement-rule", "label": "资金清算口径", "value": "T+2 日按确认成本完成资金清算，清算金额与确认成本一致"},
+            {"fieldId": "precision-boundary", "label": "本案精度边界", "value": "关键金额按 0.01 元填写；本案中间值均可直接得到，不检验参数配置"}
+          ]
+        },
+        {
+          "materialId": "IPO-APPLY-REPORT",
+          "title": "8 月 5 日成交清算日报—新股申购申请记录",
+          "kind": "STATEMENT",
+          "description": "案例产品 B 的网上新股申购申请记录。字段已经完成正常解析，业务类型与状态必须由学员自行读取判断。",
+          "fields": [
+            {"fieldId": "apply-date", "label": "业务日期", "value": "2026-08-05"},
+            {"fieldId": "apply-product", "label": "产品", "value": "案例产品 B"},
+            {"fieldId": "apply-security", "label": "证券", "value": "案例股份 E"},
+            {"fieldId": "apply-biz-type", "label": "业务类型", "value": "新股申购申请"},
+            {"fieldId": "apply-quantity", "label": "申购数量", "value": "+2,500", "unit": "股"},
+            {"fieldId": "apply-issue-price", "label": "发行价格", "value": "7.60", "unit": "元/股"},
+            {"fieldId": "apply-preliminary", "label": "预中签信息", "value": "已取得，尚未缴款交收"},
+            {"fieldId": "apply-status", "label": "记录状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "IPO-CASH-LEDGER-T",
+          "title": "8 月 5 日资金台账—申请日资金变动",
+          "kind": "LEDGER",
+          "description": "申请日资金台账，用于核对申请阶段是否发生实际资金变动。",
+          "fields": [
+            {"fieldId": "cash-t-opening", "label": "期初资金余额", "value": "860,000.00", "unit": "元"},
+            {"fieldId": "cash-t-movement", "label": "8 月 5 日资金变动", "value": "0.00", "unit": "元"},
+            {"fieldId": "cash-t-ending", "label": "8 月 5 日资金余额", "value": "860,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "IPO-OPENING-POSITION",
+          "title": "8 月 5 日处理前股票持仓台账",
+          "kind": "LEDGER",
+          "description": "同一证券申请日前的账簿余额，用于确认申请阶段不新增持仓。",
+          "fields": [
+            {"fieldId": "opening-quantity", "label": "期初持仓数量", "value": "0", "unit": "股"},
+            {"fieldId": "opening-cost", "label": "期初股票成本余额", "value": "0.00", "unit": "元"},
+            {"fieldId": "opening-valuation", "label": "期初估值增值余额", "value": "0.00", "unit": "元"},
+            {"fieldId": "opening-fair-value", "label": "期初股票市值", "value": "0.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "IPO-CONFIRM-REPORT",
+          "title": "8 月 7 日成交清算日报—新股申购确认记录",
+          "kind": "STATEMENT",
+          "description": "同一产品、同一证券的最终申购确认记录，是确认成本和资金清算的唯一字段来源。",
+          "fields": [
+            {"fieldId": "confirm-date", "label": "业务日期", "value": "2026-08-07"},
+            {"fieldId": "confirm-product", "label": "产品", "value": "案例产品 B"},
+            {"fieldId": "confirm-security", "label": "证券", "value": "案例股份 E"},
+            {"fieldId": "confirm-biz-type", "label": "业务类型", "value": "新股申购确认"},
+            {"fieldId": "confirm-quantity", "label": "确认数量", "value": "+2,500", "unit": "股"},
+            {"fieldId": "confirm-issue-price", "label": "发行价格", "value": "7.60", "unit": "元/股"},
+            {"fieldId": "confirm-trade-amount", "label": "成交金额", "value": "19,000.00", "unit": "元"},
+            {"fieldId": "confirm-cash-settlement", "label": "资金清算金额", "value": "-19,000.00", "unit": "元"},
+            {"fieldId": "confirm-status", "label": "记录状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "IPO-CONFIRM-VOUCHER-TEMPLATE",
+          "title": "8 月 7 日新股申购确认凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "根据确认日报和批准参数补全科目方向；金额字段由原始记录直接提供。",
+          "fields": [
+            {"fieldId": "voucher-cost-account", "label": "借方—股票成本科目", "value": "待填写"},
+            {"fieldId": "voucher-cost-amount", "label": "借方—股票成本金额", "value": "19,000.00", "unit": "元"},
+            {"fieldId": "voucher-new-clearing-account", "label": "贷方—新股清算款科目", "value": "待填写"},
+            {"fieldId": "voucher-new-clearing-amount", "label": "贷方—新股清算款金额", "value": "19,000.00", "unit": "元"},
+            {"fieldId": "voucher-other-clearing-account", "label": "借方—其他清算款科目", "value": "待填写"},
+            {"fieldId": "voucher-other-clearing-amount", "label": "借方—其他清算款金额", "value": "19,000.00", "unit": "元"},
+            {"fieldId": "voucher-bank-account", "label": "贷方—银行存款科目", "value": "待填写"},
+            {"fieldId": "voucher-bank-amount", "label": "贷方—银行存款金额", "value": "19,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "IPO-CASH-LEDGER-T2",
+          "title": "8 月 7 日资金台账—确认日资金变动",
+          "kind": "LEDGER",
+          "description": "确认日资金台账，用确认日报的资金清算金额更新资金余额。",
+          "fields": [
+            {"fieldId": "cash-t2-opening", "label": "确认前资金余额", "value": "860,000.00", "unit": "元"},
+            {"fieldId": "cash-t2-movement", "label": "8 月 7 日资金变动", "value": "-19,000.00", "unit": "元"},
+            {"fieldId": "cash-t2-ending", "label": "期末资金余额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "IPO-POSITION-LEDGER-T2",
+          "title": "8 月 7 日确认后股票持仓台账",
+          "kind": "LEDGER",
+          "description": "最终确认入账后的正常日终持仓台账，作为估值与勾稽的账簿余额。",
+          "fields": [
+            {"fieldId": "position-quantity", "label": "确认后持仓数量", "value": "待计算", "unit": "股"},
+            {"fieldId": "position-cost", "label": "确认后股票成本", "value": "待计算", "unit": "元"},
+            {"fieldId": "position-unit-cost", "label": "单位持仓成本", "value": "待计算", "unit": "元/股"},
+            {"fieldId": "position-valuation", "label": "确认后估值增值", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "IPO-VALUATION-WORKSHEET",
+          "title": "8 月 7 日股票估值工作表",
+          "kind": "VALUATION",
+          "description": "以确认后数量和估值日收盘价复算期末市值、成本和估值增值。",
+          "fields": [
+            {"fieldId": "valuation-quantity", "label": "估值日持仓数量", "value": "2,500", "unit": "股"},
+            {"fieldId": "valuation-close-price", "label": "估值日收盘价", "value": "8.40", "unit": "元/股"},
+            {"fieldId": "valuation-fair-value", "label": "期末股票市值", "value": "待计算", "unit": "元"},
+            {"fieldId": "valuation-cost", "label": "期末股票成本", "value": "待计算", "unit": "元"},
+            {"fieldId": "valuation-appreciation", "label": "期末估值增值", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "IPO-RECONCILIATION-WORKSHEET",
+          "title": "连续业务结果勾稽工作表",
+          "kind": "RECONCILIATION",
+          "description": "将资金、数量、成本和估值结果放入同一张复核表，判断本组正常业务是否闭合。",
+          "fields": [
+            {"fieldId": "cash-equation", "label": "资金勾稽关系", "value": "860,000 - 19,000 = 期末资金"},
+            {"fieldId": "position-equation", "label": "数量勾稽关系", "value": "申请阶段不增加持仓；8 月 7 日确认后持仓 = 2,500 股"},
+            {"fieldId": "valuation-equation", "label": "估值勾稽关系", "value": "2,500 × 8.40 = 期末市值 = 期末成本 + 期末估值增值"},
+            {"fieldId": "reconciliation-conclusion", "label": "勾稽结论", "value": "待填写"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "apply-status",
+          "type": "FIELD_MAP",
+          "title": "判断 8 月 5 日记录状态",
+          "instruction": "根据 8 月 5 日成交清算日报的业务类型和预中签信息，选择当前处于哪个阶段。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择业务阶段",
+            "options": [
+              {"optionId": "APPLICATION", "text": "新股申购申请，等待最终确认"},
+              {"optionId": "CONFIRMED", "text": "新股申购确认，可确认股票"},
+              {"optionId": "UNDETERMINED", "text": "无法判断"}
+            ]
+          }
+        },
+        {
+          "workItemId": "apply-stage-action",
+          "type": "FIELD_MAP",
+          "title": "选择申请阶段处理方式",
+          "instruction": "根据本案批准参数，选择 8 月 5 日应进行的账务处理。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择处理方式",
+            "options": [
+              {"optionId": "NO_BOOKING", "text": "不确认股票成本，不确认实际资金变动，等待最终确认"},
+              {"optionId": "PREMATURE_CONFIRM", "text": "按预中签数量与发行价格立即确认股票成本并扣减资金"}
+            ]
+          }
+        },
+        {
+          "workItemId": "apply-cash-change",
+          "type": "CALCULATION",
+          "title": "填写 8 月 5 日资金变动",
+          "instruction": "从 8 月 5 日资金台账读取当日资金变动金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入资金变动", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "apply-position",
+          "type": "CALCULATION",
+          "title": "填写 8 月 5 日新增持仓",
+          "instruction": "判断 8 月 5 日申请阶段应增加的股票持仓数量。",
+          "response": {"kind": "NUMBER", "placeholder": "输入新增持仓", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "confirm-quantity",
+          "type": "CALCULATION",
+          "title": "读取最终确认数量",
+          "instruction": "从 8 月 7 日新股申购确认记录读取最终确认数量。",
+          "response": {"kind": "NUMBER", "placeholder": "输入确认数量", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "confirm-issue-price",
+          "type": "CALCULATION",
+          "title": "读取发行价格",
+          "instruction": "从 8 月 7 日新股申购确认记录读取发行价格。",
+          "response": {"kind": "NUMBER", "placeholder": "输入发行价格", "unit": "元/股", "precision": 2}
+        },
+        {
+          "workItemId": "confirm-cost",
+          "type": "CALCULATION",
+          "title": "计算确认股票成本",
+          "instruction": "按本案批准口径，用最终确认数量 × 发行价格计算应确认的股票成本。",
+          "response": {"kind": "NUMBER", "placeholder": "输入股票成本", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "confirm-settlement",
+          "type": "CALCULATION",
+          "title": "填写确认日资金清算金额",
+          "instruction": "从 8 月 7 日确认记录读取资金清算金额，保留资金方向。",
+          "response": {"kind": "NUMBER", "placeholder": "输入资金清算金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "confirm-cost-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写确认凭证股票成本科目",
+          "instruction": "填写 8 月 7 日确认凭证借方的股票成本科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "confirm-new-clearing-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写新股清算款科目",
+          "instruction": "填写 8 月 7 日确认凭证贷方的新股清算款科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "confirm-other-clearing-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写其他清算款科目",
+          "instruction": "填写 8 月 7 日确认凭证借方的其他清算款科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "confirm-bank-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写银行存款科目",
+          "instruction": "填写 8 月 7 日确认凭证贷方完成资金清算的银行存款科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "confirm-timing",
+          "type": "FIELD_MAP",
+          "title": "判断成本确认时点",
+          "instruction": "根据本案时间线和批准参数，选择股票成本首次确认的时点。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择确认时点",
+            "options": [
+              {"optionId": "APPLY_DAY", "text": "T 日申请日确认"},
+              {"optionId": "CONFIRM_DAY", "text": "T+2 日取得最终确认并完成交收后确认"}
+            ]
+          }
+        },
+        {
+          "workItemId": "confirm-source-match",
+          "type": "RECONCILIATION",
+          "title": "核对确认来源与成本—清算一致性",
+          "instruction": "核对 8 月 7 日确认成本 19,000 元与资金清算金额 -19,000 元是否来自同一新股申购确认记录，且成本与清算金额一致。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择核对结果",
+            "options": [
+              {"optionId": "MATCHED", "text": "确认数量、发行价格、成交金额与资金清算同源且金额一致"},
+              {"optionId": "MISMATCHED", "text": "存在来源或金额不一致"}
+            ]
+          }
+        },
+        {
+          "workItemId": "ending-cash",
+          "type": "CALCULATION",
+          "title": "计算确认后资金余额",
+          "instruction": "用确认前资金余额 860,000 元加上 8 月 7 日资金清算金额 -19,000 元，计算期末资金余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末资金", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "ending-quantity",
+          "type": "LEDGER_ENTRY",
+          "title": "填写确认后持仓数量",
+          "instruction": "根据最终确认数量和申请阶段不增加持仓的规则，填写 8 月 7 日确认后持仓数量。",
+          "response": {"kind": "NUMBER", "placeholder": "输入持仓数量", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "ending-cost",
+          "type": "LEDGER_ENTRY",
+          "title": "填写确认后股票成本",
+          "instruction": "用 8 月 7 日确认的股票成本填写确认后持仓台账的股票成本余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入股票成本", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "unit-cost",
+          "type": "RECONCILIATION",
+          "title": "计算单位持仓成本",
+          "instruction": "用确认后股票成本 19,000 元 ÷ 确认后持仓数量 2,500 股，计算单位持仓成本。",
+          "response": {"kind": "NUMBER", "placeholder": "输入单位成本", "unit": "元/股", "precision": 2}
+        },
+        {
+          "workItemId": "ending-fair-value",
+          "type": "RECONCILIATION",
+          "title": "计算期末股票市值",
+          "instruction": "用估值日持仓数量 2,500 股 × 估值日收盘价 8.40 元，填写期末股票市值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末市值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "ending-valuation-appreciation",
+          "type": "RECONCILIATION",
+          "title": "计算期末估值增值",
+          "instruction": "用期末股票市值减去期末股票成本，填写确认后估值增值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入估值增值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "reconciliation-result",
+          "type": "RECONCILIATION",
+          "title": "完成跨来源勾稽",
+          "instruction": "资金、数量、成本和估值关系均可由资料包复算且相互一致，选择本次勾稽结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择勾稽结论",
+            "options": [
+              {"optionId": "BALANCED", "text": "资金、持仓、成本和估值勾稽一致"},
+              {"optionId": "UNBALANCED", "text": "仍有未解释差异"}
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录连续业务结论",
+          "instruction": "用一句话写明最终确认后持仓数量、股票成本、期末资金、期末市值和勾稽结论。",
+          "response": {"kind": "TEXT", "placeholder": "例如：确认后持仓……，成本……，资金……，市值……，勾稽……"}
+        }
+      ],
+      "submissionNote": "提交前请按顺序复核业务类型、申请阶段不确认、确认数量与发行价格、确认凭证科目、资金清算、持仓台账和估值勾稽。提交后将生成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-STOCK-IPO-PDF-2024",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（PDF主证据）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.pdf；第 29—31 页",
+      "usage": "网上新股申购申请与确认的业务类型与状态、T 日不确认成本与资金、T+2 确认与资金清算、确认凭证科目"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-IPO-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（OFD同源格式）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.ofd；与 PDF 同源，仅用于格式交叉核对",
+      "usage": "不重复计权；辅助核对章节顺序、凭证页和 PDF 页级证据"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-IPO-ROUTE-DECISIONS",
+      "title": "股票高保真路线设计决定",
+      "source": "核算案例库讨论记录.md 第 22 节及情境 A 网上新股申购",
+      "usage": "网上新股信用申购范围、申请与确认两状态、申请阶段不提前确认、不泛化网下申购时间线"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-IPO-CASE-PARAMETERS-202608",
+      "title": "本路线题面批准合成参数",
+      "source": "本路线综合实务资料包中的 IPO-CASE-PARAMETERS（2026.08 版本）",
+      "usage": "仅约束本案直接给出的时间线、确认成本口径和资金清算口径，不替代当前业务规则"
+    }
+  ]
+}

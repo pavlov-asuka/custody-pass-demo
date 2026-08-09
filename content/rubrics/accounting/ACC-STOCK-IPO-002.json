@@ -1,0 +1,232 @@
+{
+  "routeId": "ACC-STOCK-IPO-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-IPO-CONCEPT-STATUS",
+          "description": "区分新股申购申请与最终确认两个状态",
+          "weight": 9,
+          "evidenceRequirement": "申请阶段和成本确认时点判断正确",
+          "evidenceRules": [
+            {"fieldId": "apply-status", "operator": "EQUALS", "expected": "APPLICATION"},
+            {"fieldId": "confirm-timing", "operator": "EQUALS", "expected": "CONFIRM_DAY"}
+          ],
+          "remediationTargetId": "R-IPO-STATUS"
+        },
+        {
+          "criterionId": "C-IPO-CONCEPT-CALC",
+          "description": "理解最终确认成本等于确认数量 × 发行价格",
+          "weight": 8,
+          "evidenceRequirement": "确认数量、发行价格和确认成本读取与计算正确",
+          "evidenceRules": [
+            {"fieldId": "confirm-quantity", "operator": "NUMBER_EQUALS", "expected": 2500, "tolerance": 0.01},
+            {"fieldId": "confirm-issue-price", "operator": "NUMBER_EQUALS", "expected": 7.6, "tolerance": 0.01},
+            {"fieldId": "confirm-cost", "operator": "NUMBER_EQUALS", "expected": 19000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-IPO-FIELDS"
+        },
+        {
+          "criterionId": "C-IPO-CONCEPT-CASH",
+          "description": "理解申请阶段不确认实际资金变动、确认日才完成资金清算",
+          "weight": 8,
+          "evidenceRequirement": "申请日资金变动和确认日资金清算均正确",
+          "evidenceRules": [
+            {"fieldId": "apply-cash-change", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "confirm-settlement", "operator": "NUMBER_EQUALS", "expected": -19000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-IPO-TIMING"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-IPO-PROCESS-FIELDS",
+          "description": "完成申请记录字段读取与申请阶段不确认处理",
+          "weight": 8,
+          "evidenceRequirement": "申请状态、资金变动和新增持仓判断正确",
+          "evidenceRules": [
+            {"fieldId": "apply-status", "operator": "EQUALS", "expected": "APPLICATION"},
+            {"fieldId": "apply-cash-change", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "apply-position", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-IPO-PREMATURE"
+        },
+        {
+          "criterionId": "C-IPO-PROCESS-CONFIRM",
+          "description": "完成确认数量、发行价格、成本与资金清算的连续计算",
+          "weight": 10,
+          "evidenceRequirement": "确认字段、成本和期末资金计算闭合",
+          "evidenceRules": [
+            {"fieldId": "confirm-quantity", "operator": "NUMBER_EQUALS", "expected": 2500, "tolerance": 0.01},
+            {"fieldId": "confirm-issue-price", "operator": "NUMBER_EQUALS", "expected": 7.6, "tolerance": 0.01},
+            {"fieldId": "confirm-cost", "operator": "NUMBER_EQUALS", "expected": 19000, "tolerance": 0.01},
+            {"fieldId": "confirm-settlement", "operator": "NUMBER_EQUALS", "expected": -19000, "tolerance": 0.01},
+            {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 841000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-IPO-TIMING"
+        },
+        {
+          "criterionId": "C-IPO-PROCESS-LEDGER",
+          "description": "补全确认凭证科目与确认后持仓台账",
+          "weight": 8,
+          "evidenceRequirement": "四个凭证科目和持仓台账结果正确",
+          "evidenceRules": [
+            {"fieldId": "confirm-cost-account", "operator": "CONTAINS_ALL", "expected": ["股票", "成本"]},
+            {"fieldId": "confirm-new-clearing-account", "operator": "CONTAINS_ALL", "expected": ["证券", "清算"]},
+            {"fieldId": "confirm-other-clearing-account", "operator": "CONTAINS_ALL", "expected": ["证券", "清算"]},
+            {"fieldId": "confirm-bank-account", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]},
+            {"fieldId": "ending-quantity", "operator": "NUMBER_EQUALS", "expected": 2500, "tolerance": 0.01},
+            {"fieldId": "ending-cost", "operator": "NUMBER_EQUALS", "expected": 19000, "tolerance": 0.01},
+            {"fieldId": "unit-cost", "operator": "NUMBER_EQUALS", "expected": 7.6, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-IPO-LEDGER"
+        },
+        {
+          "criterionId": "C-IPO-PROCESS-RECON",
+          "description": "用资金台账和估值结果完成跨来源复算",
+          "weight": 4,
+          "evidenceRequirement": "期末市值、估值增值和勾稽结论正确",
+          "evidenceRules": [
+            {"fieldId": "ending-fair-value", "operator": "NUMBER_EQUALS", "expected": 21000, "tolerance": 0.01},
+            {"fieldId": "ending-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-IPO-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-IPO-RISK-PREMATURE",
+          "description": "控制申请阶段提前确认股票成本、资金或持仓的风险",
+          "weight": 9,
+          "evidenceRequirement": "申请阶段不确认且未增加持仓或资金变动",
+          "evidenceRules": [
+            {"fieldId": "apply-stage-action", "operator": "EQUALS", "expected": "NO_BOOKING"},
+            {"fieldId": "apply-cash-change", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "apply-position", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-IPO-PREMATURE"
+        },
+        {
+          "criterionId": "C-IPO-RISK-TIMING",
+          "description": "控制最终确认时点与资金清算日的混淆",
+          "weight": 8,
+          "evidenceRequirement": "确认时点在最终确认日且资金清算在确认日完成",
+          "evidenceRules": [
+            {"fieldId": "confirm-timing", "operator": "EQUALS", "expected": "CONFIRM_DAY"},
+            {"fieldId": "confirm-settlement", "operator": "NUMBER_EQUALS", "expected": -19000, "tolerance": 0.01},
+            {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 841000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-IPO-TIMING"
+        },
+        {
+          "criterionId": "C-IPO-RISK-SOURCE",
+          "description": "控制最终确认记录来源与成本—资金清算一致性的风险",
+          "weight": 8,
+          "evidenceRequirement": "确认记录同源且成本与清算金额一致",
+          "evidenceRules": [
+            {"fieldId": "confirm-source-match", "operator": "EQUALS", "expected": "MATCHED"},
+            {"fieldId": "confirm-cost", "operator": "NUMBER_EQUALS", "expected": 19000, "tolerance": 0.01},
+            {"fieldId": "confirm-settlement", "operator": "NUMBER_EQUALS", "expected": -19000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-IPO-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-IPO-EXPR-RESULT",
+          "description": "以简短结论同时表达确认后持仓、成本、资金、市值和勾稽结果",
+          "weight": 20,
+          "evidenceRequirement": "结论包含关键结果并明确勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["确认后", "持仓", "成本", "资金", "市值", "勾稽一致"]},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-IPO-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-IPO-NO-PREMATURE",
+      "description": "申请阶段不得提前确认股票成本、实际资金变动或新增持仓",
+      "evidenceRequirement": "申请阶段判断、资金变动和新增持仓均符合申请状态",
+      "evidenceRules": [
+        {"fieldId": "apply-stage-action", "operator": "EQUALS", "expected": "NO_BOOKING"},
+        {"fieldId": "apply-status", "operator": "EQUALS", "expected": "APPLICATION"},
+        {"fieldId": "apply-cash-change", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "apply-position", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-IPO-PREMATURE"
+    },
+    {
+      "requirementId": "M-IPO-CONFIRM-CLOSURE",
+      "description": "最终确认数量、成本、资金、持仓和估值结果必须闭合",
+      "evidenceRequirement": "确认后成本、资金、持仓、市值和估值增值可复算且勾稽一致",
+      "evidenceRules": [
+        {"fieldId": "confirm-quantity", "operator": "NUMBER_EQUALS", "expected": 2500, "tolerance": 0.01},
+        {"fieldId": "confirm-cost", "operator": "NUMBER_EQUALS", "expected": 19000, "tolerance": 0.01},
+        {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 841000, "tolerance": 0.01},
+        {"fieldId": "ending-quantity", "operator": "NUMBER_EQUALS", "expected": 2500, "tolerance": 0.01},
+        {"fieldId": "ending-cost", "operator": "NUMBER_EQUALS", "expected": 19000, "tolerance": 0.01},
+        {"fieldId": "ending-fair-value", "operator": "NUMBER_EQUALS", "expected": 21000, "tolerance": 0.01},
+        {"fieldId": "ending-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0.01},
+        {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-IPO-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-IPO-STATUS", "title": "识别申请与确认状态", "reason": "业务类型或确认时点未从原始记录正确判断", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "IPO-KC-02", "questionId": "ACC-STOCK-IPO-Q-01"},
+    {"targetId": "R-IPO-PREMATURE", "title": "控制申请阶段提前确认", "reason": "在申请阶段提前确认了股票成本、实际资金变动或持仓", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "IPO-KC-03", "questionId": "ACC-STOCK-IPO-Q-02"},
+    {"targetId": "R-IPO-FIELDS", "title": "复算确认成本", "reason": "确认数量、发行价格或数量 × 发行价关系不完整", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-STOCK-IPO-Q-03"},
+    {"targetId": "R-IPO-LEDGER", "title": "补全确认凭证科目", "reason": "股票成本、新股清算款、其他清算款或银行存款未形成分列凭证证据", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-STOCK-IPO-Q-04"},
+    {"targetId": "R-IPO-TIMING", "title": "完成资金清算与确认时点", "reason": "申请日与确认日的资金变动或清算方向未正确区分", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-02", "questionId": "ACC-STOCK-IPO-Q-02"},
+    {"targetId": "R-IPO-RECON", "title": "完成资金与持仓/估值勾稽", "reason": "期末资金、持仓成本、市值或估值增值未完成跨来源复算", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-STOCK-IPO-Q-05"},
+    {"targetId": "R-IPO-EXPRESSION", "title": "形成可追溯业务结论", "reason": "简短结论未清楚覆盖确认后持仓、成本、资金、市值和勾稽判断", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-STOCK-IPO-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "apply-status": "APPLICATION",
+      "apply-stage-action": "NO_BOOKING",
+      "apply-cash-change": 0,
+      "apply-position": 0,
+      "confirm-quantity": 2500,
+      "confirm-issue-price": 7.6,
+      "confirm-cost": 19000,
+      "confirm-settlement": -19000,
+      "confirm-cost-account": "金融资产-交易性-股票-成本",
+      "confirm-new-clearing-account": "证券清算款-新股清算款",
+      "confirm-other-clearing-account": "证券清算款-其他清算款",
+      "confirm-bank-account": "银行存款",
+      "confirm-timing": "CONFIRM_DAY",
+      "confirm-source-match": "MATCHED",
+      "ending-cash": 841000,
+      "ending-quantity": 2500,
+      "ending-cost": 19000,
+      "unit-cost": 7.6,
+      "ending-fair-value": 21000,
+      "ending-valuation-appreciation": 2000,
+      "reconciliation-result": "BALANCED",
+      "result-note": "确认后持仓 2,500 股，股票成本 19,000 元，期末资金 841,000 元，期末市值 21,000 元，资金、持仓、成本和估值勾稽一致。"
+    }
+  }
+}

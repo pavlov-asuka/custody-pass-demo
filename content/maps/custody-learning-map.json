@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.1",
+  "version": "2026.08.2",
   "lines": [
     {
       "line": "CLEARING",
@@ -56,7 +56,7 @@
             },
             {
               "moduleId": "ACC-MODULE-STOCK",
-              "name": "股票买卖与成本",
+              "name": "股票核算业务",
               "order": 2,
               "nodes": [
                 {
@@ -68,6 +68,83 @@
                   "order": 1,
                   "position": "CENTER",
                   "prerequisiteNodeIds": ["ACC-NODE-ROLE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-STOCK-IPO-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-STOCK-IPO-002",
+                  "title": "网上新股申购与确认",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-STOCK-TRADE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-STOCK-EQUITY-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-STOCK-EQUITY-003",
+                  "title": "现金分红与送转股",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-STOCK-IPO-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-STOCK-DIVIDEND-TAX-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-STOCK-DIVIDEND-TAX-004",
+                  "title": "股息红利税资料匹配与账务闭环",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-STOCK-EQUITY-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-STOCK-PRIVATE-ISSUE-101",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-STOCK-PRIVATE-ISSUE-101",
+                  "title": "非公开发行申购、确认与流通",
+                  "pathType": "ADVANCED",
+                  "order": 5,
+                  "position": "LEFT",
+                  "prerequisiteNodeIds": ["ACC-NODE-STOCK-IPO-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-STOCK-RESTRICTED-VALUATION-102",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-STOCK-RESTRICTED-VALUATION-102",
+                  "title": "流通受限股票估值与转流通",
+                  "pathType": "ADVANCED",
+                  "order": 6,
+                  "position": "LEFT",
+                  "prerequisiteNodeIds": ["ACC-NODE-STOCK-PRIVATE-ISSUE-101"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-STOCK-HK-TRADE-103",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-STOCK-HK-TRADE-103",
+                  "title": "港股通交易、汇率与交收",
+                  "pathType": "ADVANCED",
+                  "order": 7,
+                  "position": "RIGHT",
+                  "prerequisiteNodeIds": ["ACC-NODE-STOCK-TRADE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-STOCK-HK-DIVIDEND-104",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-STOCK-HK-DIVIDEND-104",
+                  "title": "港股通现金分红与到账汇差",
+                  "pathType": "ADVANCED",
+                  "order": 8,
+                  "position": "RIGHT",
+                  "prerequisiteNodeIds": ["ACC-NODE-STOCK-HK-TRADE-103", "ACC-NODE-STOCK-EQUITY-003"],
                   "contentAvailability": "PUBLISHED"
                 }
               ]

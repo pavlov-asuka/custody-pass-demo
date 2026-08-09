@@ -1,0 +1,655 @@
+{
+  "routeId": "ACC-STOCK-HK-TRADE-103",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "港股通交易、汇率与交收",
+  "summary": "沿港股通股票的正常买入，完成原币成交读取、交易汇率折算人民币成本与费用、T+2 交收、估值汇率市值与双币种勾稽的可复核核算链。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "从港股通成交清算记录读取原币数量、原币单价、原币成交金额、交易汇率、费用与佣金和实际清算金额，判断正常买入方向与状态",
+    "按题面批准的交易汇率将原币成交金额、交易费用和席位佣金折算为人民币，并清楚区分交易汇率与估值汇率",
+    "按题面批准的 T 日交易、T+2 结算规则完成交收日资金清算，并用估值日原币收盘价与估值汇率计算人民币市值和估值增值",
+    "用原币成交、人民币成本与费用、结算日资金、持仓台账和估值结果完成跨来源勾稽并形成简短结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "HK-TRADE-KC-01",
+          "type": "FLOW",
+          "title": "一笔港股通买入怎样从原币成交走到人民币估值",
+          "conclusion": "先读原币成交记录与交易汇率，按交易汇率折算人民币成本与费用，再按题面交收规则完成 T+2 资金交收，并用估值汇率计算人民币市值后放回同一条链核对。交易日确认、资金交收与估值复核是不同状态，不能互相替代；本案例把估值复核安排在 T+2 当日仅为题面日期安排。",
+          "items": [
+            "原币成交记录：成交数量、原币单价、原币成交金额、交易费用、席位佣金和实际清算金额",
+            "交易汇率：来自 jsmx 文件的交易汇率，用于交易日把原币折算为人民币成本与费用",
+            "交收规则：T 日交易、T+2 日结算，净应付资金与净应收资金按题面批次完成交收",
+            "估值汇率：估值日中国人民银行每日公布的外汇中间价，用于估值日人民币市值",
+            "交易日确认、资金交收与估值复核是不同状态，不能互相替代；本案例 T+2 当日既完成资金交收又作估值复核日，仅为题面日期安排"
+          ]
+        },
+        {
+          "cardId": "HK-TRADE-KC-02",
+          "type": "CATEGORIES",
+          "title": "交易汇率与估值汇率不能互相替代",
+          "conclusion": "交易汇率用于交易日人民币成本与费用的初始确认，估值汇率用于估值日人民币市值；两者来源、用途和日期不同，不能混用。",
+          "items": [
+            "交易汇率：jsmx 文件中的交易汇率，折算原币成交金额、交易费用和席位佣金",
+            "估值汇率：估值日人民银行每日公布的外汇中间价，折算估值日原币市值",
+            "人民币成本与人民币市值必须分别标注所用汇率，不能用同一汇率代替两个口径",
+            "估值日市值按题面批准口径：数量 × 原币收盘价 × 估值汇率"
+          ]
+        },
+        {
+          "cardId": "HK-TRADE-KC-03",
+          "type": "KEY_POINT",
+          "title": "原币、人民币、交收与持仓必须形成闭合关系",
+          "conclusion": "原币成交金额由数量与原币单价形成，人民币成本由原币成交金额乘以交易汇率形成，结算日资金按实际清算金额交收，期末市值由数量、原币收盘价和估值汇率形成，且市值等于成本加估值增值。",
+          "items": [
+            "原币成交金额 = 成交数量 × 原币单价",
+            "人民币股票成本 = 原币成交金额 × 交易汇率；交易费用与席位佣金按题面口径折算",
+            "T 日确认成本、费用与应付佣金，T+2 结算日按批次完成净应付或净应收资金交收；交易日确认、资金交收与估值复核是不同状态，不能互相替代",
+            "期末人民币市值 = 数量 × 估值日原币收盘价 × 估值汇率 = 人民币成本 + 估值增值"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品 A 的组合核算人员",
+        "product": "案例产品 A / 案例港股 A",
+        "date": "2026-08-11 至 2026-08-13",
+        "facts": [
+          "8 月 11 日处理前资金台账余额为 20,000,000.00 元，案例港股 A 无期初持仓。",
+          "8 月 11 日（T 日）记录状态正常，买入 1,000,000 股，原币单价 12.5600 港元，原币成交金额 12,560,000.00 港元。",
+          "jsmx 文件交易汇率为 0.8840 元/港元；交易费用原币 2,180.00 港元，席位佣金原币 1,540.00 港元。",
+          "8 月 13 日（T+2 结算日/估值复核日）第一批 10:30 交收净应付资金，交收后再做日终估值复核（本案题面日期安排）；估值日收盘价 12.6000 港元/股，估值汇率 0.8850 元/港元（人民银行中间价）。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取 8 月 11 日成交清算记录的成交数量 +1,000,000 股、原币单价 12.5600 港元、原币成交金额 12,560,000.00 港元、交易汇率 0.8840 元/港元（jsmx 文件）和交收日期 8 月 13 日",
+          "reason": "数量为正且实际清算金额为负说明正常买入；交易汇率必须与估值汇率分开记录，交收日期按 T+2 结算规则读取。"
+        },
+        {
+          "order": 2,
+          "action": "按题面批准口径折算：人民币成本 12,560,000.00 × 0.8840 = 11,103,040.00 元；交易费用 2,180.00 × 0.8840 = 1,927.12 元；席位佣金 1,540.00 × 0.8840 = 1,361.36 元；复算实际清算金额 -(11,103,040.00 + 1,927.12 - 1,361.36) = -11,103,605.76 元",
+          "reason": "原币金额按交易汇率逐笔折算为人民币（明细计算口径），成本、费用与佣金分开处理，清算款必须由三项金额复算闭合。"
+        },
+        {
+          "order": 3,
+          "action": "补全 8 月 11 日买入凭证：借股票成本 11,103,040.00 元、借交易费用-港股通 1,927.12 元；贷应付交易费用-券商佣金 1,361.36 元、贷证券清算款 11,103,605.76 元；持仓台账登记 1,000,000 股、成本 11,103,040.00 元",
+          "reason": "成本与费用分列，佣金交易日确认形成应付；凭证借贷合计相等，持仓数量与成本由成交记录和折算结果直接形成。"
+        },
+        {
+          "order": 4,
+          "action": "8 月 13 日（T+2）第一批 10:30 按净应付资金 11,103,605.76 元完成资金交收，资金台账余额 20,000,000.00 - 11,103,605.76 = 8,896,394.24 元，证券清算款结清",
+          "reason": "港股通股票 T 日交易、T+2 日结算；净应付资金按题面批次交收，交收金额与实际清算金额一致。"
+        },
+        {
+          "order": 5,
+          "action": "8 月 13 日（T+2，本案估值复核日）日终估值：人民币市值 1,000,000 × 12.6000 × 0.8850 = 11,151,000.00 元，估值增值 11,151,000.00 - 11,103,040.00 = 47,960.00 元；用原币成交、人民币成本、期末资金和市值完成跨来源勾稽",
+          "reason": "估值必须使用估值日原币收盘价与估值汇率（人民银行中间价），不能使用交易汇率；市值、成本、增值、持仓和资金结果共同证明链条闭合。本案把估值复核安排在 T+2 当日 10:30 交收后的日终，仅为题面日期安排，不表示估值必须等待资金交收。"
+        }
+      ],
+      "summary": "读原币成交与交易汇率 → 折算人民币成本/费用 → 交易日确认凭证与持仓台账 → 本案 T+2 当日先交收、后日终估值复核 → 估值汇率市值与双币种勾稽"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-STOCK-HK-TRADE-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "请把港股通字段、汇率口径和组合费提醒分别对应到正确的业务含义。每一行都要从题面材料取证。",
+          "fieldMappings": [
+            {
+              "fieldId": "trade-rate-usage",
+              "label": "交易汇率 0.8840 元/港元（jsmx 文件）",
+              "source": "8 月 11 日成交清算记录",
+              "options": [
+                {"optionId": "TRADE_RATE_CONVERT", "text": "交易日把原币成交金额、费用和佣金折算为人民币"},
+                {"optionId": "VALUATION_RATE_USE", "text": "估值日把原币市值折算为人民币"}
+              ]
+            },
+            {
+              "fieldId": "valuation-rate-usage",
+              "label": "估值汇率 0.8850 元/港元（人民银行中间价）",
+              "source": "8 月 13 日估值汇率通知",
+              "options": [
+                {"optionId": "VALUATION_DAY_MV", "text": "估值日计算人民币市值"},
+                {"optionId": "TRADE_DAY_COST", "text": "交易日计算人民币成本"}
+              ]
+            },
+            {
+              "fieldId": "settlement-day",
+              "label": "交收日期 8 月 13 日（T+2）",
+              "source": "成交清算记录交收字段与交收安排",
+              "options": [
+                {"optionId": "SETTLEMENT_DAY_FUNDS", "text": "结算日按批次完成资金交收"},
+                {"optionId": "TRADE_DAY_COST", "text": "交易日立即完成资金划出"}
+              ]
+            },
+            {
+              "fieldId": "portfolio-fee",
+              "label": "证券组合费",
+              "source": "港股通业务资料与成交清算日报",
+              "options": [
+                {"optionId": "PORTFOLIO_REMIND_ONLY", "text": "按日终港股市值计收的存管服务费提醒，本案只识别不计算"},
+                {"optionId": "PORTFOLIO_CALCULATE", "text": "按本案费率计算并作为主要计算目标"}
+              ]
+            }
+          ],
+          "answer": ["TRADE_RATE_CONVERT", "VALUATION_DAY_MV", "SETTLEMENT_DAY_FUNDS", "PORTFOLIO_REMIND_ONLY"],
+          "explanation": "交易汇率用于交易日原币折算，估值汇率用于估值日市值；T+2 为结算日资金交收；证券组合费只作资料提醒，不作为本案计算目标。",
+          "hints": ["先定位每个字段的来源，再把交易日折算、估值日折算、交收日和组合费边界分开判断。"]
+        },
+        {
+          "questionId": "ACC-STOCK-HK-TRADE-Q-02",
+          "type": "CALCULATION",
+          "prompt": "从 8 月 20 日买入清算记录取数，并按题面批准关系复算五个数字。请填写数字，不要把结果放在选择项里。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "original-trade-amount", "label": "原币成交金额", "formula": "200,000 × 11.2500 = ?", "placeholder": "输入港元", "unit": "港元", "precision": 2},
+              {"fieldId": "rmb-cost", "label": "人民币股票成本", "formula": "2,250,000.00 × 0.9018 = ?", "placeholder": "输入元", "unit": "元", "precision": 2},
+              {"fieldId": "fee-rmb", "label": "交易费用人民币", "formula": "360.00 × 0.9018 = ?", "placeholder": "输入元", "unit": "元", "precision": 2},
+              {"fieldId": "commission-rmb", "label": "席位佣金人民币", "formula": "240.00 × 0.9018 = ?", "placeholder": "输入元", "unit": "元", "precision": 2},
+              {"fieldId": "actual-settlement", "label": "实际清算金额", "formula": "-(2,029,050.00 + 324.65 - 216.43) = ?", "placeholder": "输入元", "unit": "元", "precision": 2}
+            ]
+          },
+          "answer": ["2250000", "2029050", "324.65", "216.43", "-2029158.22"],
+          "explanation": "原币成交金额、人民币成本、费用和佣金分别取数并按交易汇率折算；实际清算金额按 -(成本 + 交易费用 - 席位佣金) 复算。",
+          "hints": ["先填原币成交金额和人民币成本，再填费用与佣金的人民币金额，最后一格用四项关系复算；逗号和空格不影响数字识别。"]
+        },
+        {
+          "questionId": "ACC-STOCK-HK-TRADE-Q-03",
+          "type": "ORDERING",
+          "prompt": "请按本案例题面时间线排列一笔港股通正常买入从交易到日终估值复核的处理顺序。",
+          "items": [
+            {
+              "itemId": "READ_RECORD",
+              "text": "读取原币成交记录、交易汇率（jsmx）和 T+2 交收日期"
+            },
+            {
+              "itemId": "CONVERT_RMB",
+              "text": "按交易汇率折算人民币成本与费用并确认佣金"
+            },
+            {
+              "itemId": "BOOK_VOUCHER",
+              "text": "交易日确认凭证并登记持仓台账"
+            },
+            {
+              "itemId": "SETTLE_FUNDS",
+              "text": "T+2 结算日按批次完成净应付资金交收"
+            },
+            {
+              "itemId": "VALUE_DAY",
+              "text": "估值日用估值汇率计算人民币市值并完成勾稽"
+            }
+          ],
+          "answer": ["READ_RECORD", "CONVERT_RMB", "BOOK_VOUCHER", "SETTLE_FUNDS", "VALUE_DAY"],
+          "explanation": "本案按题面时间线先读取原币与交易汇率，再折算、确认凭证和登记持仓台账，T+2 当日先按批次完成资金交收，再做日终估值复核并完成勾稽。交易日确认、资金交收与估值复核是不同状态，不能互相替代；本案例把估值复核安排在 T+2 当日仅为题面日期安排，不表示所有估值都必须等待资金交收。",
+          "hints": ["把读取原币和日终估值复核放在两端，中间按本案题面时间线排列交易日确认与 T+2 交收。"]
+        },
+        {
+          "questionId": "ACC-STOCK-HK-TRADE-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "用案例港股 A 的资金台账、持仓台账和 8 月 13 日估值资料完成跨来源复算。数字字段逐格填写，最后选择汇率口径与勾稽结论。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "ending-cash", "label": "期末资金台账余额", "kind": "NUMBER", "formula": "20,000,000.00 - 11,103,605.76 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "position-quantity", "label": "期末持仓数量", "kind": "NUMBER", "formula": "8 月 11 日买入 1,000,000 股", "placeholder": "输入股", "precision": 0, "tolerance": 0.01},
+              {"fieldId": "position-cost", "label": "期末人民币成本", "kind": "NUMBER", "formula": "12,560,000.00 × 0.8840 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "market-value", "label": "期末人民币市值", "kind": "NUMBER", "formula": "1,000,000 × 12.6000 × 0.8850 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "valuation-appreciation", "label": "期末估值增值", "kind": "NUMBER", "formula": "11,151,000.00 - 11,103,040.00 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "rate-usage-result", "label": "汇率口径使用结论", "kind": "SELECT", "formula": "成本用交易汇率、市值用估值汇率", "placeholder": "选择汇率口径", "options": [
+                {"optionId": "RATES_SEPARATE", "text": "交易汇率与估值汇率已分开使用"},
+                {"optionId": "RATES_MIXED", "text": "交易汇率与估值汇率存在混用"}
+              ]},
+              {"fieldId": "result", "label": "跨来源勾稽结论", "kind": "SELECT", "formula": "原币成交、人民币成本、资金、持仓和估值应相互解释", "placeholder": "选择勾稽结论", "options": [
+                {"optionId": "BALANCED", "text": "原币、人民币、资金、持仓和估值勾稽一致"},
+                {"optionId": "UNBALANCED", "text": "至少一项结果无法由资料复算"}
+              ]}
+            ]
+          },
+          "answer": ["8896394.24", "1000000", "11103040", "11151000", "47960", "RATES_SEPARATE", "BALANCED"],
+          "explanation": "期末资金、持仓、成本、市值和增值分别由资金台账、原币成交、交易汇率与估值汇率复算；两套汇率口径分开且全部关系闭合后才能判断勾稽一致。",
+          "hints": ["先核对 20,000,000 - 11,103,605.76 的资金公式，再核对 1,000,000 × 12.6000 × 0.8850 的市值公式，最后判断汇率口径。"]
+        },
+        {
+          "questionId": "ACC-STOCK-HK-TRADE-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "请用一句可追溯的正常业务结论，清楚写出期末持仓、人民币成本、期末资金、人民币市值，并明确交易汇率与估值汇率分开使用及勾稽结论。",
+          "textInput": {
+            "label": "双汇率业务结论",
+            "placeholder": "例如：期末持仓……，人民币成本……，期末资金……，人民币市值……，交易汇率与估值汇率分开使用，勾稽一致。"
+          },
+          "answer": ["持仓", "人民币成本", "期末资金", "人民币市值", "勾稽一致"],
+          "explanation": "表达项评价的是是否清楚覆盖期末持仓、人民币成本、期末资金、人民币市值和勾稽结论；金额的千分位、空格和常见书写格式不应替代业务信息判断。",
+          "hints": ["不要只写‘正确’或只报一个数字，至少让读者能找到持仓、成本、资金、市值和勾稽结论。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品 B 的组合核算人员",
+        "product": "案例产品 B / 案例港股 H",
+        "date": "2026-08-17 至 2026-08-19",
+        "purpose": "根据一组资料充分、状态正常的港股通买入与持仓资料，独立完成原币字段读取、交易汇率折算、交易日凭证/持仓台账补全、T+2 资金交收、估值汇率市值计算和双币种勾稽。本案按题面日期安排把 T+2 当日同时作为资金交收日与估值复核日，仅为本题时间线。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "HK-CASE-PARAMETERS",
+          "title": "本案计算口径与批准参数",
+          "kind": "PARAMETER",
+          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史费率、汇率、折算方式或交收批次固化为永久规则。",
+          "fields": [
+            {"fieldId": "scope", "label": "业务范围", "value": "港股通正常买入与持仓估值；记录状态均为正常"},
+            {"fieldId": "trade-rate-rule", "label": "交易汇率来源与用途", "value": "jsmx 文件中的交易汇率，用于交易日把原币折算为人民币成本与费用"},
+            {"fieldId": "valuation-rate-rule", "label": "估值汇率来源与用途", "value": "估值日中国人民银行每日公布的外汇中间价，用于估值日人民币市值"},
+            {"fieldId": "conversion-rule", "label": "费用折算口径", "value": "交易费用与席位佣金按题面原币金额与交易汇率逐笔折算为人民币后汇总（明细计算口径）"},
+            {"fieldId": "settlement-rule", "label": "交收规则", "value": "T 日交易、T+2 日结算；净应付资金在 T+2 日第一批 10:30 交收"},
+            {"fieldId": "date-arrangement-note", "label": "本案日期安排", "value": "本案按题面安排把 T+2 当日（2026-08-19）同时作为资金交收日与估值复核日：10:30 完成净应付资金交收后再做日终估值复核；这只是本题的日期安排，不表示所有估值都必须等待资金交收"},
+            {"fieldId": "valuation-rule", "label": "估值口径", "value": "人民币市值 = 数量 × 估值日原币收盘价 × 估值汇率；估值增值 = 人民币市值 - 人民币成本"},
+            {"fieldId": "precision-boundary", "label": "本案精度边界", "value": "原币单价与汇率按 4 位小数；金额按 0.01 元填写；本案中间值均可直接得到"},
+            {"fieldId": "portfolio-fee-note", "label": "证券组合费提醒", "value": "证券组合费是按日终港股市值计收的存管服务费，本案只识别提醒，不计算"}
+          ]
+        },
+        {
+          "materialId": "HK-BUY-REPORT",
+          "title": "8 月 17 日港股通成交清算日报—买入记录",
+          "kind": "STATEMENT",
+          "description": "案例产品 B 的港股通正常买入记录。原币字段和交易汇率已按成交清算资料拆分。",
+          "fields": [
+            {"fieldId": "business-date", "label": "业务日期", "value": "2026-08-17"},
+            {"fieldId": "product", "label": "产品", "value": "案例产品 B"},
+            {"fieldId": "security", "label": "证券", "value": "案例港股 H"},
+            {"fieldId": "market", "label": "交易市场", "value": "深圳港股通"},
+            {"fieldId": "trade-quantity", "label": "成交数量", "value": "+500,000", "unit": "股"},
+            {"fieldId": "original-unit-price", "label": "原币单价", "value": "9.8400", "unit": "港元"},
+            {"fieldId": "original-trade-amount", "label": "原币成交金额", "value": "4,920,000.00", "unit": "港元"},
+            {"fieldId": "trade-fee-original", "label": "交易费用（原币）", "value": "880.00", "unit": "港元"},
+            {"fieldId": "commission-original", "label": "席位佣金（原币）", "value": "620.00", "unit": "港元"},
+            {"fieldId": "trade-rate", "label": "交易汇率（jsmx 文件）", "value": "0.9136", "unit": "元/港元"},
+            {"fieldId": "actual-settlement", "label": "实际清算金额", "value": "-4,495,149.54", "unit": "元"},
+            {"fieldId": "settlement-date", "label": "交收日期", "value": "2026-08-19"},
+            {"fieldId": "status", "label": "记录状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "HK-SETTLEMENT-SCHEDULE",
+          "title": "港股通资金交收安排（T+2）",
+          "kind": "INSTRUCTION",
+          "description": "托管行层面 T+2 日港股通资金的交收时点和顺序，用于判断本案净应付资金所在批次。",
+          "fields": [
+            {"fieldId": "settlement-rule", "label": "交收规则", "value": "港股通股票 T 日交易、T+2 日结算"},
+            {"fieldId": "first-batch-time", "label": "第一批时点", "value": "10:30"},
+            {"fieldId": "first-batch-items", "label": "第一批交收内容", "value": "T+1 日清算的风控资金；T 日交易资金清算净应付资金；T+1 日清算的公司行为资金"},
+            {"fieldId": "second-batch-time", "label": "第二批时点", "value": "18:00"},
+            {"fieldId": "second-batch-items", "label": "第二批交收内容", "value": "T+1 日清算的证券组合费；T 日交易资金清算净应收资金"},
+            {"fieldId": "this-case", "label": "本案判断", "value": "买入为净应付资金，交收日为 2026-08-19；本案同日作估值复核日（题面日期安排）"}
+          ]
+        },
+        {
+          "materialId": "HK-BUY-VOUCHER-TEMPLATE",
+          "title": "8 月 17 日买入凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "根据买入日报、交易汇率和批准参数补全科目方向与人民币金额。",
+          "fields": [
+            {"fieldId": "cost-account", "label": "借方—股票成本科目", "value": "待填写"},
+            {"fieldId": "cost-amount", "label": "借方—股票成本金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "fee-account", "label": "借方—交易费用科目", "value": "待填写"},
+            {"fieldId": "fee-amount", "label": "借方—交易费用金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "commission-account", "label": "贷方—应付佣金科目", "value": "待填写"},
+            {"fieldId": "commission-amount", "label": "贷方—应付佣金金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "clearing-account", "label": "贷方—证券清算款科目", "value": "待填写"},
+            {"fieldId": "clearing-amount", "label": "贷方—证券清算款金额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "HK-POSITION-LEDGER",
+          "title": "8 月 17 日买入入账后持仓台账",
+          "kind": "LEDGER",
+          "description": "买入入账后的正常日终持仓台账，数量与人民币成本由成交记录和交易汇率形成。",
+          "fields": [
+            {"fieldId": "position-quantity", "label": "持仓数量", "value": "待计算", "unit": "股"},
+            {"fieldId": "position-cost", "label": "人民币成本余额", "value": "待计算", "unit": "元"},
+            {"fieldId": "position-market-value", "label": "人民币市值", "value": "待计算", "unit": "元"},
+            {"fieldId": "position-appreciation", "label": "估值增值", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "HK-CASH-LEDGER",
+          "title": "资金台账—T 日与 T+2 日资金变动",
+          "kind": "LEDGER",
+          "description": "T 日确认证券清算款但不立即划出资金；T+2 结算日按实际清算金额完成交收。",
+          "fields": [
+            {"fieldId": "cash-opening", "label": "期初资金余额", "value": "12,000,000.00", "unit": "元"},
+            {"fieldId": "cash-t-day", "label": "8 月 17 日（T 日）资金变动", "value": "0.00（只确认证券清算款）", "unit": "元"},
+            {"fieldId": "cash-settlement", "label": "8 月 19 日（T+2）净应付资金", "value": "-4,495,149.54", "unit": "元"},
+            {"fieldId": "cash-ending", "label": "期末资金余额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "HK-VALUATION-RATE-NOTICE",
+          "title": "8 月 19 日估值汇率通知",
+          "kind": "REPORT",
+          "description": "估值日可查询的估值汇率，用于计算人民币市值；与 jsmx 文件中的交易汇率不是同一口径。",
+          "fields": [
+            {"fieldId": "valuation-date", "label": "估值日期", "value": "2026-08-19"},
+            {"fieldId": "valuation-rate", "label": "估值汇率", "value": "0.9148", "unit": "元/港元"},
+            {"fieldId": "valuation-rate-source", "label": "估值汇率来源", "value": "中国人民银行每日公布的外汇中间价"},
+            {"fieldId": "rate-note", "label": "汇率口径备注", "value": "估值汇率用于估值日人民币市值，不用于交易日成本折算"}
+          ]
+        },
+        {
+          "materialId": "HK-VALUATION-WORKSHEET",
+          "title": "8 月 19 日股票估值工作表",
+          "kind": "VALUATION",
+          "description": "以买入后数量、估值日原币收盘价和估值汇率复算人民币市值、成本和估值增值。",
+          "fields": [
+            {"fieldId": "valuation-quantity", "label": "估值日持仓数量", "value": "500,000", "unit": "股"},
+            {"fieldId": "original-close", "label": "估值日原币收盘价", "value": "9.9200", "unit": "港元/股"},
+            {"fieldId": "valuation-rate", "label": "估值汇率", "value": "0.9148", "unit": "元/港元"},
+            {"fieldId": "market-value", "label": "人民币市值", "value": "待计算", "unit": "元"},
+            {"fieldId": "cost", "label": "人民币成本", "value": "待计算", "unit": "元"},
+            {"fieldId": "appreciation", "label": "估值增值", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "HK-PORTFOLIO-FEE-NOTICE",
+          "title": "证券组合费提醒",
+          "kind": "INSTRUCTION",
+          "description": "港股通业务需每日缴纳的证券组合费说明，只作资料识别和控制提示，不作为本案计算目标。",
+          "fields": [
+            {"fieldId": "portfolio-fee-basis", "label": "计收基础", "value": "香港结算根据证券持有账户每自然日日终持有的港股市值计收的存管与服务费用"},
+            {"fieldId": "portfolio-fee-source", "label": "数据来源", "value": "中登数据（hk_jsmx、HK_SJSMX2）解析，可在成交清算日报查看"},
+            {"fieldId": "portfolio-fee-this-case", "label": "本案处理", "value": "只识别提醒，不计算组合费"}
+          ]
+        },
+        {
+          "materialId": "HK-RECONCILIATION-WORKSHEET",
+          "title": "双币种连续业务结果勾稽工作表",
+          "kind": "RECONCILIATION",
+          "description": "将原币成交、人民币成本、资金、持仓和估值结果放入同一张复核表，判断本组正常业务是否闭合。",
+          "fields": [
+            {"fieldId": "original-equation", "label": "原币成交勾稽关系", "value": "500,000 × 9.8400 = 4,920,000.00 港元"},
+            {"fieldId": "rmb-cost-equation", "label": "人民币成本勾稽关系", "value": "4,920,000.00 × 0.9136 = 人民币成本"},
+            {"fieldId": "cash-equation", "label": "资金勾稽关系", "value": "12,000,000.00 - 4,495,149.54 = 期末资金"},
+            {"fieldId": "valuation-equation", "label": "估值勾稽关系", "value": "500,000 × 9.9200 × 0.9148 = 人民币市值 = 人民币成本 + 估值增值"},
+            {"fieldId": "rate-usage", "label": "汇率口径", "value": "交易汇率用于成本与费用折算；估值汇率用于日终市值"},
+            {"fieldId": "conclusion", "label": "勾稽结论", "value": "待填写"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "hk-direction",
+          "type": "FIELD_MAP",
+          "title": "判断买入方向",
+          "instruction": "根据 8 月 17 日成交数量 +500,000 股和实际清算金额 -4,495,149.54 元，选择交易方向。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择交易方向",
+            "options": [
+              {"optionId": "BUY", "text": "买入"},
+              {"optionId": "SELL", "text": "卖出"},
+              {"optionId": "UNDETERMINED", "text": "无法判断"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hk-status",
+          "type": "FIELD_MAP",
+          "title": "确认记录状态",
+          "instruction": "从港股通成交清算日报选择当前记录是否可以进入后续正常处理。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择记录状态",
+            "options": [
+              {"optionId": "NORMAL", "text": "正常，可以继续"},
+              {"optionId": "PENDING", "text": "待审核，不能继续"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hk-original-unit-price",
+          "type": "CALCULATION",
+          "title": "填写原币单价",
+          "instruction": "从港股通成交清算日报读取原币单价，保留 4 位小数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入原币单价", "unit": "港元", "precision": 4}
+        },
+        {
+          "workItemId": "hk-original-trade-amount",
+          "type": "CALCULATION",
+          "title": "复算原币成交金额",
+          "instruction": "用成交数量 × 原币单价复算原币成交金额，并与日报字段核对。",
+          "response": {"kind": "NUMBER", "placeholder": "输入原币成交金额", "unit": "港元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-trade-rate",
+          "type": "CALCULATION",
+          "title": "填写交易汇率",
+          "instruction": "读取 jsmx 文件中的交易汇率，保留 4 位小数；该汇率用于交易日人民币折算。",
+          "response": {"kind": "NUMBER", "placeholder": "输入交易汇率", "unit": "元/港元", "precision": 4}
+        },
+        {
+          "workItemId": "hk-rmb-cost",
+          "type": "CALCULATION",
+          "title": "计算人民币股票成本",
+          "instruction": "用原币成交金额 × 交易汇率计算应计入股票成本的人民币金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入人民币成本", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-trade-fee-original",
+          "type": "CALCULATION",
+          "title": "填写交易费用原币金额",
+          "instruction": "从成交清算日报读取交易费用原币金额，单独填写。",
+          "response": {"kind": "NUMBER", "placeholder": "输入交易费用", "unit": "港元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-trade-fee-rmb",
+          "type": "CALCULATION",
+          "title": "计算交易费用人民币金额",
+          "instruction": "按题面明细计算口径，用交易费用原币金额 × 交易汇率折算为人民币。",
+          "response": {"kind": "NUMBER", "placeholder": "输入交易费用人民币", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-commission-original",
+          "type": "CALCULATION",
+          "title": "填写席位佣金原币金额",
+          "instruction": "从成交清算日报读取席位佣金原币金额，单独填写。",
+          "response": {"kind": "NUMBER", "placeholder": "输入席位佣金", "unit": "港元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-commission-rmb",
+          "type": "CALCULATION",
+          "title": "计算席位佣金人民币金额",
+          "instruction": "用席位佣金原币金额 × 交易汇率折算为人民币，作为交易日确认的应付佣金金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入席位佣金人民币", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-actual-settlement",
+          "type": "CALCULATION",
+          "title": "复算实际清算金额",
+          "instruction": "按本案批准关系 -(人民币成本 + 交易费用人民币 - 席位佣金人民币) 复算实际清算金额，保留资金方向。",
+          "response": {"kind": "NUMBER", "placeholder": "输入实际清算金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-settlement-date",
+          "type": "FIELD_MAP",
+          "title": "选择 T+2 交收日期",
+          "instruction": "按 T 日交易、T+2 日结算规则，从成交清算记录选择本案的交收日期。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择交收日期",
+            "options": [
+              {"optionId": "2026-08-18", "text": "2026-08-18（T+1）"},
+              {"optionId": "2026-08-19", "text": "2026-08-19（T+2）"},
+              {"optionId": "2026-08-20", "text": "2026-08-20（T+3）"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hk-settlement-batch",
+          "type": "FIELD_MAP",
+          "title": "判断净应付资金交收批次",
+          "instruction": "根据交收安排，选择本案买入净应付资金在 T+2 日完成交收的批次。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择交收批次",
+            "options": [
+              {"optionId": "FIRST_BATCH_1030", "text": "第一批 10:30（T 日交易资金清算净应付资金）"},
+              {"optionId": "SECOND_BATCH_1800", "text": "第二批 18:00（T 日交易资金清算净应收资金）"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hk-buy-cost-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写买入股票成本科目",
+          "instruction": "填写买入凭证借方的港股通股票成本科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "hk-buy-fee-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写买入交易费用科目",
+          "instruction": "填写买入凭证借方的港股通交易费用科目，不能把它并入股票成本。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "hk-buy-commission-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写买入应付佣金科目",
+          "instruction": "填写买入凭证贷方形成应付佣金的科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "hk-buy-clearing-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写买入证券清算款科目",
+          "instruction": "填写买入凭证贷方反映实际清算款的科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "hk-position-quantity",
+          "type": "LEDGER_ENTRY",
+          "title": "填写买入后持仓数量",
+          "instruction": "用成交数量填写买入入账后的持仓数量。",
+          "response": {"kind": "NUMBER", "placeholder": "输入持仓数量", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "hk-position-cost",
+          "type": "LEDGER_ENTRY",
+          "title": "填写买入后人民币成本",
+          "instruction": "用人民币股票成本填写买入入账后的成本余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入人民币成本", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-cash-ending",
+          "type": "RECONCILIATION",
+          "title": "计算期末资金台账余额",
+          "instruction": "用期初资金 12,000,000.00 元减去 T+2 交收日净应付资金 4,495,149.54 元，计算期末余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末资金", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-valuation-rate",
+          "type": "CALCULATION",
+          "title": "填写估值汇率",
+          "instruction": "从 8 月 19 日估值汇率通知读取估值汇率，保留 4 位小数；该汇率用于估值日人民币市值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入估值汇率", "unit": "元/港元", "precision": 4}
+        },
+        {
+          "workItemId": "hk-valuation-rate-source",
+          "type": "FIELD_MAP",
+          "title": "选择估值汇率来源",
+          "instruction": "从估值资料选择本案估值汇率使用的来源口径。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择估值汇率来源",
+            "options": [
+              {"optionId": "PBOC", "text": "中国人民银行每日公布的外汇中间价"},
+              {"optionId": "JSMX_TRADE_RATE", "text": "jsmx 文件中的交易汇率"},
+              {"optionId": "CLOSE_PRICE", "text": "估值日原币收盘价"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hk-valuation-market-value",
+          "type": "CALCULATION",
+          "title": "计算期末人民币市值",
+          "instruction": "按题面批准口径，用持仓数量 × 估值日原币收盘价 × 估值汇率计算人民币市值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入人民币市值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-valuation-appreciation",
+          "type": "CALCULATION",
+          "title": "计算期末估值增值",
+          "instruction": "用期末人民币市值减去人民币股票成本，计算期末估值增值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入估值增值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hk-portfolio-fee",
+          "type": "FIELD_MAP",
+          "title": "确认证券组合费处理方式",
+          "instruction": "根据组合费提醒材料，选择证券组合费在本案中的处理方式。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择组合费处理方式",
+            "options": [
+              {"optionId": "REMIND_ONLY", "text": "只识别为按日终港股市值计收的存管服务费提醒，本案不计算"},
+              {"optionId": "CALCULATE", "text": "按本案费率计算组合费"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hk-reconciliation-result",
+          "type": "RECONCILIATION",
+          "title": "完成双币种跨来源勾稽",
+          "instruction": "原币成交、人民币成本、资金交收、持仓和估值五条关系均可由资料包复算且两套汇率口径分开使用，选择本次勾稽结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择勾稽结论",
+            "options": [
+              {"optionId": "BALANCED", "text": "原币、人民币、资金、持仓和估值勾稽一致"},
+              {"optionId": "UNBALANCED", "text": "仍有未解释差异或汇率口径混用"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hk-result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录双汇率业务结论",
+          "instruction": "用一句话写明买入后持仓数量、人民币成本、期末资金、人民币市值和勾稽结论，并说明交易汇率与估值汇率分开使用。",
+          "response": {"kind": "TEXT", "placeholder": "例如：买入后持仓……，人民币成本……，期末资金……，人民币市值……，交易汇率与估值汇率分开使用，勾稽一致。"}
+        }
+      ],
+      "submissionNote": "提交前请按顺序复核记录状态、原币成交与交易汇率、人民币成本与费用、交易日凭证与持仓台账、T+2 交收批次、估值汇率市值和双币种勾稽。提交后将生成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-STOCK-HK-TRADE-PDF-2024",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（PDF主证据）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.pdf；第 85—94 页",
+      "usage": "港股通基本设置、交易费用与佣金折算方式、交易汇率与估值汇率口径、T 日交易 T+2 结算与交收批次、买入凭证、证券组合费提醒"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-TRADE-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（OFD同源格式）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.ofd；与 PDF 同源，仅用于格式交叉核对",
+      "usage": "不重复计权；辅助核对交易费用/佣金折算方式、交收批次、交易汇率与估值汇率说明和组合费页"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-ROUTE-DECISIONS",
+      "title": "股票高保真路线施工计划—路线 7 决定",
+      "source": "核算案例库股票模块高保真施工计划.md；路线 7、防机械化活动矩阵、子代理检查表与排除范围",
+      "usage": "港股通交易、汇率与交收范围，原币成交→折算→交收→估值答案链，四环节活动组合与排除边界"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-CASE-PARAMETERS-202608",
+      "title": "本路线题面批准合成参数",
+      "source": "本路线综合实务资料包中的 HK-CASE-PARAMETERS（2026.08 版本）",
+      "usage": "仅约束本案直接给出的交易汇率、估值汇率、费用折算口径、交收批次和精度边界，不替代当前业务规则"
+    }
+  ]
+}

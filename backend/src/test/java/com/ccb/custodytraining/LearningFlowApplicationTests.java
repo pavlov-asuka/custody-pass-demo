@@ -108,7 +108,8 @@ class LearningFlowApplicationTests {
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].state").value("NOT_STARTED"))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].state").value("LOCKED"))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].contentAvailability").value("BUILDING"))
-                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(2));
+                .andExpect(jsonPath("$.regions[0].modules[1].nodes[4].pathType").value("ADVANCED"))
+                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(5));
     }
 
     @Test

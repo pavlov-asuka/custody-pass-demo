@@ -46,6 +46,7 @@ public class LearningService {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("mapVersion", catalog.map().path("version").asText());
         ArrayNode worlds = response.putArray("worlds");
+        List<String> requiredRouteIds = publishedRequiredRouteIds();
         for (JsonNode line : catalog.map().path("lines")) {
             ObjectNode world = worlds.addObject();
             world.put("line", line.path("line").asText());
@@ -54,9 +55,9 @@ public class LearningService {
             world.put("availability", line.path("availability").asText());
             world.put("sceneAssetId", line.path("sceneAssetId").asText());
             int total = "ACCOUNTING".equals(line.path("line").asText())
-                    ? catalog.publishedRouteIds().size() : 0;
+                    ? requiredRouteIds.size() : 0;
             int passed = "ACCOUNTING".equals(line.path("line").asText())
-                    ? (int) catalog.publishedRouteIds().stream()
+                    ? (int) requiredRouteIds.stream()
                     .filter(routeId -> repository.hasPassed(userId, routeId)).count() : 0;
             boolean hasActivity = "ACCOUNTING".equals(line.path("line").asText())
                     && catalog.publishedRouteIds().stream()
@@ -101,7 +102,8 @@ public class LearningService {
                     String routeId = node.path("routeId").asText();
                     boolean unlocked = prerequisitesPassed(userId, line, node);
                     RouteState state = unlocked ? state(userId, routeId) : RouteState.LOCKED;
-                    if (state == RouteState.PASSED && catalog.isPublished(routeId)) {
+                    if (state == RouteState.PASSED && catalog.isPublished(routeId)
+                            && "REQUIRED".equals(node.path("pathType").asText())) {
                         passedCount++;
                     }
                     if (recommended == null && unlocked && catalog.isPublished(routeId)
@@ -132,7 +134,7 @@ public class LearningService {
         }
         response.put("recommendedNodeId", recommended);
         ObjectNode progress = response.putObject("progress");
-        int total = catalog.publishedRouteIds().size();
+        int total = publishedRequiredRouteIds().size();
         progress.put("passedRequiredRoutes", passedCount);
         progress.put("publishedRequiredRoutes", total);
         progress.put("percent", total == 0 ? 0 : passedCount * 100 / total);
@@ -772,6 +774,24 @@ public class LearningService {
             }
         }
         throw new NotFoundException("学习世界不存在");
+    }
+
+    private List<String> publishedRequiredRouteIds() {
+        List<String> routeIds = new ArrayList<>();
+        for (JsonNode line : catalog.map().path("lines")) {
+            for (JsonNode region : line.path("regions")) {
+                for (JsonNode module : region.path("modules")) {
+                    for (JsonNode node : module.path("nodes")) {
+                        String routeId = node.path("routeId").asText();
+                        if ("REQUIRED".equals(node.path("pathType").asText())
+                                && catalog.isPublished(routeId)) {
+                            routeIds.add(routeId);
+                        }
+                    }
+                }
+            }
+        }
+        return routeIds;
     }
 
     private String worldStatus(String availability, int passed, int total, boolean hasActivity) {

@@ -1,8 +1,8 @@
 {
-  "mapVersion": "2026.08.1",
+  "mapVersion": "2026.08.2",
   "worlds": [
     {"line": "CLEARING", "name": "清算学习世界", "availability": "BUILDING", "sceneAssetId": "world-clearing-source-v1", "passedRequiredRoutes": 0, "publishedRequiredRoutes": 0, "progressPercent": 0, "status": "BUILDING"},
-    {"line": "ACCOUNTING", "name": "核算学习世界", "availability": "OPEN", "sceneAssetId": "world-accounting-source-v1", "passedRequiredRoutes": 0, "publishedRequiredRoutes": 1, "progressPercent": 0, "status": "NOT_STARTED"},
+    {"line": "ACCOUNTING", "name": "核算学习世界", "availability": "OPEN", "sceneAssetId": "world-accounting-source-v1", "passedRequiredRoutes": 0, "publishedRequiredRoutes": 5, "progressPercent": 0, "status": "NOT_STARTED"},
     {"line": "SUPERVISION", "name": "监督学习世界", "availability": "BUILDING", "sceneAssetId": "world-supervision-source-v1", "passedRequiredRoutes": 0, "publishedRequiredRoutes": 0, "progressPercent": 0, "status": "BUILDING"}
   ]
 }

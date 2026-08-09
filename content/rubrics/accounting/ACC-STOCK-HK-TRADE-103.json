@@ -1,0 +1,281 @@
+{
+  "routeId": "ACC-STOCK-HK-TRADE-103",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-HK-CONCEPT-FIELDS",
+          "description": "识别原币成交字段、交易方向与正常状态",
+          "weight": 8,
+          "evidenceRequirement": "买入方向、正常状态和原币成交金额判断正确",
+          "evidenceRules": [
+            {"fieldId": "hk-direction", "operator": "EQUALS", "expected": "BUY"},
+            {"fieldId": "hk-status", "operator": "EQUALS", "expected": "NORMAL"},
+            {"fieldId": "hk-original-trade-amount", "operator": "NUMBER_EQUALS", "expected": 4920000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-FIELDS"
+        },
+        {
+          "criterionId": "C-HK-CONCEPT-RATES",
+          "description": "理解交易汇率与估值汇率的用途和来源",
+          "weight": 9,
+          "evidenceRequirement": "交易汇率、估值汇率和估值汇率来源分别识别正确",
+          "evidenceRules": [
+            {"fieldId": "hk-trade-rate", "operator": "NUMBER_EQUALS", "expected": 0.9136, "tolerance": 0.0001},
+            {"fieldId": "hk-valuation-rate", "operator": "NUMBER_EQUALS", "expected": 0.9148, "tolerance": 0.0001},
+            {"fieldId": "hk-valuation-rate-source", "operator": "EQUALS", "expected": "PBOC"}
+          ],
+          "remediationTargetId": "R-HK-RATES"
+        },
+        {
+          "criterionId": "C-HK-CONCEPT-CHAIN",
+          "description": "理解原币成交、人民币成本、市值与估值增值的连续关系",
+          "weight": 8,
+          "evidenceRequirement": "人民币成本、市值和估值增值按批准口径计算",
+          "evidenceRules": [
+            {"fieldId": "hk-rmb-cost", "operator": "NUMBER_EQUALS", "expected": 4494912, "tolerance": 0.01},
+            {"fieldId": "hk-valuation-market-value", "operator": "NUMBER_EQUALS", "expected": 4537408, "tolerance": 0.01},
+            {"fieldId": "hk-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 42496, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-CONVERT"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-HK-PROCESS-CONVERT",
+          "description": "完成原币成交金额、人民币成本、费用和佣金的折算与清算复算",
+          "weight": 10,
+          "evidenceRequirement": "原币成交、人民币成本、费用、佣金和实际清算金额闭合",
+          "evidenceRules": [
+            {"fieldId": "hk-original-trade-amount", "operator": "NUMBER_EQUALS", "expected": 4920000, "tolerance": 0.01},
+            {"fieldId": "hk-trade-fee-rmb", "operator": "NUMBER_EQUALS", "expected": 803.97, "tolerance": 0.01},
+            {"fieldId": "hk-commission-rmb", "operator": "NUMBER_EQUALS", "expected": 566.43, "tolerance": 0.01},
+            {"fieldId": "hk-rmb-cost", "operator": "NUMBER_EQUALS", "expected": 4494912, "tolerance": 0.01},
+            {"fieldId": "hk-actual-settlement", "operator": "NUMBER_EQUALS", "expected": -4495149.54, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-CONVERT"
+        },
+        {
+          "criterionId": "C-HK-PROCESS-LEDGER",
+          "description": "完成交易日凭证科目与持仓台账补全",
+          "weight": 10,
+          "evidenceRequirement": "凭证四科目、持仓数量和人民币成本正确",
+          "evidenceRules": [
+            {"fieldId": "hk-buy-cost-account", "operator": "CONTAINS_ALL", "expected": ["股票", "港股通", "成本"]},
+            {"fieldId": "hk-buy-fee-account", "operator": "CONTAINS_ALL", "expected": ["交易费用", "港股通"]},
+            {"fieldId": "hk-buy-commission-account", "operator": "CONTAINS_ALL", "expected": ["应付", "佣金"]},
+            {"fieldId": "hk-buy-clearing-account", "operator": "CONTAINS_ALL", "expected": ["证券", "清算"]},
+            {"fieldId": "hk-position-quantity", "operator": "NUMBER_EQUALS", "expected": 500000, "tolerance": 0.01},
+            {"fieldId": "hk-position-cost", "operator": "NUMBER_EQUALS", "expected": 4494912, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-LEDGER"
+        },
+        {
+          "criterionId": "C-HK-PROCESS-RECON",
+          "description": "完成交收日资金、期末市值、估值增值和跨来源勾稽",
+          "weight": 10,
+          "evidenceRequirement": "交收日期与批次、期末资金、市值和勾稽结论正确",
+          "evidenceRules": [
+            {"fieldId": "hk-settlement-date", "operator": "EQUALS", "expected": "2026-08-19"},
+            {"fieldId": "hk-settlement-batch", "operator": "EQUALS", "expected": "FIRST_BATCH_1030"},
+            {"fieldId": "hk-cash-ending", "operator": "NUMBER_EQUALS", "expected": 7504850.46, "tolerance": 0.01},
+            {"fieldId": "hk-valuation-market-value", "operator": "NUMBER_EQUALS", "expected": 4537408, "tolerance": 0.01},
+            {"fieldId": "hk-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 42496, "tolerance": 0.01},
+            {"fieldId": "hk-reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-HK-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-HK-RISK-RATES",
+          "description": "控制交易汇率与估值汇率混用风险",
+          "weight": 9,
+          "evidenceRequirement": "两套汇率来源与数值分别正确，市值未用交易汇率折算",
+          "evidenceRules": [
+            {"fieldId": "hk-trade-rate", "operator": "NUMBER_EQUALS", "expected": 0.9136, "tolerance": 0.0001},
+            {"fieldId": "hk-valuation-rate", "operator": "NUMBER_EQUALS", "expected": 0.9148, "tolerance": 0.0001},
+            {"fieldId": "hk-valuation-rate-source", "operator": "EQUALS", "expected": "PBOC"},
+            {"fieldId": "hk-valuation-market-value", "operator": "NUMBER_EQUALS", "expected": 4537408, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-RATES"
+        },
+        {
+          "criterionId": "C-HK-RISK-SETTLEMENT",
+          "description": "控制交收日期、交收批次与资金方向风险",
+          "weight": 8,
+          "evidenceRequirement": "T+2 交收日期、批次和实际清算金额均与资料一致",
+          "evidenceRules": [
+            {"fieldId": "hk-settlement-date", "operator": "EQUALS", "expected": "2026-08-19"},
+            {"fieldId": "hk-settlement-batch", "operator": "EQUALS", "expected": "FIRST_BATCH_1030"},
+            {"fieldId": "hk-actual-settlement", "operator": "NUMBER_EQUALS", "expected": -4495149.54, "tolerance": 0.01},
+            {"fieldId": "hk-cash-ending", "operator": "NUMBER_EQUALS", "expected": 7504850.46, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-SETTLEMENT"
+        },
+        {
+          "criterionId": "C-HK-RISK-BOUNDARY",
+          "description": "控制费用分列、佣金确认和证券组合费边界风险",
+          "weight": 8,
+          "evidenceRequirement": "费用与佣金分列，佣金按交易日确认，组合费只识别不计算",
+          "evidenceRules": [
+            {"fieldId": "hk-buy-fee-account", "operator": "CONTAINS_ALL", "expected": ["交易费用", "港股通"]},
+            {"fieldId": "hk-portfolio-fee", "operator": "EQUALS", "expected": "REMIND_ONLY"},
+            {"fieldId": "hk-commission-rmb", "operator": "NUMBER_EQUALS", "expected": 566.43, "tolerance": 0.01},
+            {"fieldId": "hk-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 42496, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-FIELDS"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-HK-EXPR-RESULT",
+          "description": "以简短结论同时表达持仓、人民币成本、资金、市值和勾稽结果",
+          "weight": 20,
+          "evidenceRequirement": "结论包含关键结果并明确勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "hk-result-note", "operator": "CONTAINS_ALL", "expected": ["持仓", "成本", "资金", "市值", "勾稽一致"]},
+            {"fieldId": "hk-reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-HK-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-HK-RATES-SEPARATION",
+      "description": "交易汇率与估值汇率不得互相替代",
+      "evidenceRequirement": "交易汇率用于成本与费用折算、估值汇率用于日终市值，来源与数值均正确",
+      "evidenceRules": [
+        {"fieldId": "hk-trade-rate", "operator": "NUMBER_EQUALS", "expected": 0.9136, "tolerance": 0.0001},
+        {"fieldId": "hk-valuation-rate", "operator": "NUMBER_EQUALS", "expected": 0.9148, "tolerance": 0.0001},
+        {"fieldId": "hk-valuation-rate-source", "operator": "EQUALS", "expected": "PBOC"},
+        {"fieldId": "hk-rmb-cost", "operator": "NUMBER_EQUALS", "expected": 4494912, "tolerance": 0.01},
+        {"fieldId": "hk-valuation-market-value", "operator": "NUMBER_EQUALS", "expected": 4537408, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-HK-RATES"
+    },
+    {
+      "requirementId": "M-HK-CLOSURE",
+      "description": "原币成交、人民币成本、资金交收和期末估值必须分别闭合",
+      "evidenceRequirement": "原币成交金额、人民币成本、实际清算、期末资金、市值和估值增值均可复算且勾稽一致",
+      "evidenceRules": [
+        {"fieldId": "hk-original-trade-amount", "operator": "NUMBER_EQUALS", "expected": 4920000, "tolerance": 0.01},
+        {"fieldId": "hk-rmb-cost", "operator": "NUMBER_EQUALS", "expected": 4494912, "tolerance": 0.01},
+        {"fieldId": "hk-actual-settlement", "operator": "NUMBER_EQUALS", "expected": -4495149.54, "tolerance": 0.01},
+        {"fieldId": "hk-cash-ending", "operator": "NUMBER_EQUALS", "expected": 7504850.46, "tolerance": 0.01},
+        {"fieldId": "hk-valuation-market-value", "operator": "NUMBER_EQUALS", "expected": 4537408, "tolerance": 0.01},
+        {"fieldId": "hk-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 42496, "tolerance": 0.01},
+        {"fieldId": "hk-reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-HK-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-HK-FIELDS",
+      "title": "识别原币成交字段、状态与组合费边界",
+      "reason": "原币成交字段、记录状态或证券组合费处理边界未从资料正确识别",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "HK-TRADE-KC-01",
+      "questionId": "ACC-STOCK-HK-TRADE-Q-01"
+    },
+    {
+      "targetId": "R-HK-RATES",
+      "title": "区分交易汇率与估值汇率",
+      "reason": "交易汇率与估值汇率的来源、数值或用途存在混用",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "HK-TRADE-KC-02",
+      "questionId": "ACC-STOCK-HK-TRADE-Q-01"
+    },
+    {
+      "targetId": "R-HK-CONVERT",
+      "title": "复算原币成交与人民币折算",
+      "reason": "原币成交金额、人民币成本、交易费用或席位佣金折算不完整",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-02",
+      "questionId": "ACC-STOCK-HK-TRADE-Q-02"
+    },
+    {
+      "targetId": "R-HK-LEDGER",
+      "title": "补全交易日凭证与持仓台账",
+      "reason": "成本、费用、应付佣金、证券清算款或持仓台账未形成分列证据",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "ACC-STOCK-HK-TRADE-Q-03"
+    },
+    {
+      "targetId": "R-HK-SETTLEMENT",
+      "title": "识别 T+2 交收日与交收批次",
+      "reason": "交收日期、交收批次或资金方向判断错误",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "ACC-STOCK-HK-TRADE-Q-03"
+    },
+    {
+      "targetId": "R-HK-RECON",
+      "title": "完成资金与估值勾稽",
+      "reason": "期末资金、人民币市值或估值增值未完成跨来源复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-STOCK-HK-TRADE-Q-04"
+    },
+    {
+      "targetId": "R-HK-EXPRESSION",
+      "title": "形成双汇率可追溯业务结论",
+      "reason": "简短结论未清楚覆盖持仓、人民币成本、资金、市值和勾稽判断",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-STOCK-HK-TRADE-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "hk-direction": "BUY",
+      "hk-status": "NORMAL",
+      "hk-original-unit-price": 9.84,
+      "hk-original-trade-amount": 4920000,
+      "hk-trade-rate": 0.9136,
+      "hk-rmb-cost": 4494912,
+      "hk-trade-fee-original": 880,
+      "hk-trade-fee-rmb": 803.97,
+      "hk-commission-original": 620,
+      "hk-commission-rmb": 566.43,
+      "hk-actual-settlement": -4495149.54,
+      "hk-settlement-date": "2026-08-19",
+      "hk-settlement-batch": "FIRST_BATCH_1030",
+      "hk-buy-cost-account": "金融资产-交易性-股票-港股通-成本",
+      "hk-buy-fee-account": "交易费用-港股通",
+      "hk-buy-commission-account": "应付交易费用-券商佣金",
+      "hk-buy-clearing-account": "证券清算款",
+      "hk-position-quantity": 500000,
+      "hk-position-cost": 4494912,
+      "hk-cash-ending": 7504850.46,
+      "hk-valuation-rate": 0.9148,
+      "hk-valuation-rate-source": "PBOC",
+      "hk-valuation-market-value": 4537408,
+      "hk-valuation-appreciation": 42496,
+      "hk-portfolio-fee": "REMIND_ONLY",
+      "hk-reconciliation-result": "BALANCED",
+      "hk-result-note": "买入后持仓 500,000 股，人民币成本 4,494,912.00 元，期末资金 7,504,850.46 元，期末人民币市值 4,537,408.00 元，交易汇率与估值汇率分开使用，原币、人民币、资金、持仓和估值勾稽一致。"
+    }
+  }
+}

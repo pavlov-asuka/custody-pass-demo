@@ -1,0 +1,644 @@
+{
+  "routeId": "ACC-STOCK-EQUITY-003",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "现金分红与送转股",
+  "summary": "沿同一只股票的现金分红、转增股份、应收红利、实际到账、数量与成本台账和估值结果完成一条可复核的权益核算链。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "从权益公告、公司股务处理记录和登记日持仓台账读取公司股务类型、登记日、除权日、红利到账日、每股现金红利、转增比例、登记日持仓数量和状态，判断正常现金分红与转增业务",
+    "按现金红利＝登记日持仓 × 每股现金红利确认应收红利，在除权日确认、到账日结清",
+    "按新增股份＝登记日持仓 × 每股转增比例计算送转数量，送转后数量增加而股票总成本不变",
+    "用应收/到账、资金台账、持仓台账和估值结果完成交叉勾稽并形成简短结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "EQU-KC-01",
+          "type": "FLOW",
+          "title": "一笔现金分红与送转怎样形成核算结果",
+          "conclusion": "先读权益公告与公司股务处理记录，确认权益对象、登记日持仓和状态，再分别走现金红利链与送转数量链，最后把应收、到账、持仓、成本和估值结果放回同一条链核对。",
+          "items": [
+            "权益公告与公司股务处理记录：公司股务类型、登记日、除权日、红利到账日、每股现金红利、转增比例、登记日持仓数量和状态",
+            "现金红利链：现金红利＝登记日持仓 × 每股现金红利；除权日确认应收，到账日结清",
+            "送转数量链：新增股份＝登记日持仓 × 每股转增比例；送转后数量增加，股票总成本不变",
+            "结果验证：应收红利、实际到账、资金余额、持仓数量和估值结果必须能互相解释"
+          ]
+        },
+        {
+          "cardId": "EQU-KC-02",
+          "type": "CATEGORIES",
+          "title": "权益公告、公司股务记录和到账资料中的字段各自证明什么",
+          "conclusion": "公司股务类型决定走现金链还是数量链；登记日持仓是两条链的共同基数；除权日与到账日不能互换；状态正常只是继续处理的前提。",
+          "items": [
+            "公司股务类型：区分现金分红、转增等权益事项，决定按现金链或数量链处理",
+            "登记日持仓数量：现金红利与送转数量的共同计算基数，不能用除权日或其他日期持仓替代",
+            "除权日与红利到账日：除权日确认应收红利与数量变化，红利到账日结清应收并增加资金",
+            "处理状态与审核状态：处理结束、审核通过是继续处理的前提，不能替代权益字段判断"
+          ]
+        },
+        {
+          "cardId": "EQU-KC-03",
+          "type": "KEY_POINT",
+          "title": "送转改变数量但不改变股票总成本",
+          "conclusion": "新增股份和送转后数量按登记日持仓计算，送转前后股票总成本不变；凭证只在成本科目录入金额相同、方向相反的数量行。",
+          "items": [
+            "新增股份＝登记日持仓 × 每股转增比例；送转后数量＝送转前数量 + 新增股份",
+            "送转前后股票总成本不变，凭证在成本科目录入金额相同、方向相反的数量行，金额合计为零",
+            "估值勾稽：送转后市值＝送转后数量 × 收盘价；估值增值＝市值－股票成本",
+            "不能把到账金额误认为成本增加，也不能用现金红利金额覆盖数量链"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品 A 的组合核算人员",
+        "product": "案例产品 A / 案例股份 A",
+        "date": "2026-07-08 至 2026-07-13",
+        "facts": [
+          "7 月 8 日权益公告：案例股份 A 同时实施现金分红与转增；每股现金红利 0.25 元（税前），每股转增比例 0.30；登记日 7 月 10 日、除权日 7 月 11 日、红利到账日 7 月 13 日。",
+          "7 月 10 日登记日持仓 80,000 股，股票成本余额 960,000 元，登记日前估值增值余额 144,000 元。",
+          "7 月 10 日处理前资金台账余额为 1,200,000 元；公司股务处理记录状态为处理结束、审核通过。",
+          "7 月 11 日除权日：确认应收红利 20,000 元；转增股份到账 24,000 股，送转后持仓 104,000 股。",
+          "7 月 13 日红利到账 20,000 元；估值日收盘价为 11.00 元/股。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取权益公告与公司股务处理记录：公司股务类型、登记日、除权日、红利到账日、每股现金红利、转增比例、登记日持仓数量和状态",
+          "reason": "公司股务类型决定现金与数量两条处理链；登记日持仓是共同基数，处理结束、审核通过后才进入后续处理。"
+        },
+        {
+          "order": 2,
+          "action": "计算现金红利 80,000 × 0.25 = 20,000 元，并在除权日确认应收：借应收股利 20,000 元，贷红利收入 20,000 元",
+          "reason": "材料公式为金额＝权益比率（每股分红金额）× 登记日持仓数量；除权日先确认应收红利，不等到账日才确认。"
+        },
+        {
+          "order": 3,
+          "action": "红利到账日按到账流水处理：借银行存款 20,000 元，贷应收股利 20,000 元；资金台账由 1,200,000 + 20,000 = 1,220,000 元",
+          "reason": "到账时结清应收并增加资金，实际到账金额必须等于已确认的应收红利，不能重复确认收益。"
+        },
+        {
+          "order": 4,
+          "action": "计算新增股份 80,000 × 0.30 = 24,000 股，送转后数量 80,000 + 24,000 = 104,000 股，股票总成本保持 960,000 元不变；转增凭证在成本科目录入金额相同、方向相反的数量行",
+          "reason": "材料明确送转业务不改变股票成本，凭证目的在于体现数量变化；到账数量与计算新增股份必须一致。"
+        },
+        {
+          "order": 5,
+          "action": "用 104,000 × 11.00 = 1,144,000 元复算收盘市值，再以 1,144,000 - 960,000 = 184,000 元复核估值增值；应收 20,000 元、到账 20,000 元、数量、成本、资金和市值结果全部闭合",
+          "reason": "应收红利、实际到账、送转后数量、不变的总成本、期末资金和估值结果共同证明权益链闭合，结果不能凭空出现。"
+        }
+      ],
+      "summary": "读公告与状态 → 计算红利并确认应收 → 到账结清 → 送转数量与成本不变 → 估值勾稽"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-STOCK-EQUITY-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "请把案例股份 C 的权益字段和状态分别对应到正确的业务含义。每一行都要从题面字段取证。",
+          "fieldMappings": [
+            {
+              "fieldId": "equity-type",
+              "label": "公司股务类型：现金分红与转增",
+              "source": "8 月 3 日权益公告",
+              "options": [
+                {"optionId": "BOTH_CHAINS", "text": "现金红利链与送转数量链同时成立"},
+                {"optionId": "CASH_ONLY", "text": "只处理现金红利，不改变数量"}
+              ]
+            },
+            {
+              "fieldId": "record-holding",
+              "label": "登记日持仓数量：60,000 股",
+              "source": "8 月 5 日登记日持仓台账",
+              "options": [
+                {"optionId": "COMMON_BASE", "text": "现金红利与新增股份的共同计算基数"},
+                {"optionId": "EX_DATE_BASE", "text": "只能用除权日持仓计算"}
+              ]
+            },
+            {
+              "fieldId": "ex-date",
+              "label": "除权日：8 月 6 日",
+              "source": "权益公告",
+              "options": [
+                {"optionId": "RECOGNIZE_DAY", "text": "确认应收红利与数量变化的日期"},
+                {"optionId": "CASH_DAY", "text": "现金实际到账并结清应收的日期"}
+              ]
+            },
+            {
+              "fieldId": "arrival-date",
+              "label": "红利到账日：8 月 8 日",
+              "source": "权益公告与红利到账流水",
+              "options": [
+                {"optionId": "CASH_ARRIVAL_DAY", "text": "现金实际到账并结清应收红利"},
+                {"optionId": "RECOGNIZE_DAY", "text": "确认应收红利的日期"}
+              ]
+            }
+          ],
+          "answer": ["BOTH_CHAINS", "COMMON_BASE", "RECOGNIZE_DAY", "CASH_ARRIVAL_DAY"],
+          "explanation": "公司股务类型决定现金与数量两条链；登记日持仓是共同基数；除权日确认应收与数量变化，到账日结清应收。",
+          "hints": ["先逐行定位字段来源，再把权益类型、计算基数、除权日和到账日分开判断。"]
+        },
+        {
+          "questionId": "ACC-STOCK-EQUITY-Q-02",
+          "type": "CALCULATION",
+          "prompt": "从 9 月 10 日权益公告与登记日持仓台账取数，并按权益关系复算现金红利、新增股份与送转后结果。请填写四个数字，不要把结果放在选择项里。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "cash-dividend", "label": "现金红利", "formula": "登记日持仓 45,000 × 每股红利 0.16 = ?", "placeholder": "输入现金红利", "unit": "元"},
+              {"fieldId": "bonus-shares", "label": "新增股份", "formula": "登记日持仓 45,000 × 每股转增比例 0.20 = ?", "placeholder": "输入新增股份", "unit": "股"},
+              {"fieldId": "total-quantity", "label": "送转后数量", "formula": "45,000 + 9,000 = ?", "placeholder": "输入送转后数量", "unit": "股"},
+              {"fieldId": "total-cost", "label": "送转后股票总成本", "formula": "送转前后总成本不变 = ?", "placeholder": "输入股票总成本", "unit": "元"}
+            ]
+          },
+          "answer": ["7200", "9000", "54000", "315000"],
+          "explanation": "现金红利按登记日持仓 × 每股红利计算，新增股份按登记日持仓 × 转增比例计算，送转后数量相加，总成本保持不变。",
+          "hints": ["先分别按两条公式计算，再相加得到送转后数量；总成本不需要按数量变化调整。"]
+        },
+        {
+          "questionId": "ACC-STOCK-EQUITY-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全案例股份 E 除权确认与红利到账凭证的四个科目。借贷方向、金额和资料来源已经给出，你只需要补科目名称。",
+          "ledgerEntries": [
+            {"entryId": "debit-receivable", "direction": "借", "label": "应收股利，7,200.00 元", "amount": "7,200.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "credit-income", "direction": "贷", "label": "红利收入，7,200.00 元", "amount": "7,200.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "debit-bank", "direction": "借", "label": "银行存款，7,200.00 元", "amount": "7,200.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "credit-receivable", "direction": "贷", "label": "应收股利，7,200.00 元", "amount": "7,200.00 元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["应收股利", "红利收入", "银行存款", "应收股利"],
+          "explanation": "除权日先确认应收股利与红利收入，到账日再借银行存款、贷应收股利结清；两笔凭证方向不同，不能合并。",
+          "hints": ["先按除权确认区分应收股利与红利收入，再按到账结清区分银行存款与应收股利。"]
+        },
+        {
+          "questionId": "ACC-STOCK-EQUITY-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "用案例股份 F 的权益公告、到账资料、资金台账和估值资料完成跨来源复算。数字字段逐格填写，最后选择勾稽结论。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "cash-arrival", "label": "红利实际到账", "kind": "NUMBER", "formula": "登记日持仓 100,000 × 0.30 = ?，并与到账流水核对", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "bonus-arrival-quantity", "label": "转增股份到账数量", "kind": "NUMBER", "formula": "登记日持仓 100,000 × 0.25 = ?，并与到账资料核对", "placeholder": "输入股", "precision": 0, "tolerance": 0.01},
+              {"fieldId": "ending-cash", "label": "期末资金余额", "kind": "NUMBER", "formula": "900,000 + 30,000 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "ending-quantity", "label": "送转后持仓数量", "kind": "NUMBER", "formula": "100,000 + 25,000 = ?", "placeholder": "输入股", "precision": 0, "tolerance": 0.01},
+              {"fieldId": "ending-cost", "label": "送转后股票总成本", "kind": "NUMBER", "formula": "送转前后总成本不变 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "ending-fair-value", "label": "期末股票市值", "kind": "NUMBER", "formula": "125,000 × 8.60 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "ending-valuation", "label": "期末估值增值", "kind": "NUMBER", "formula": "1,075,000 - 875,000 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "result", "label": "跨来源勾稽结论", "kind": "SELECT", "formula": "应收/到账、数量、成本、资金和估值结果应相互解释", "placeholder": "选择勾稽结论", "options": [
+                {"optionId": "BALANCED", "text": "应收/到账、持仓、成本和估值勾稽一致"},
+                {"optionId": "UNBALANCED", "text": "至少一项结果无法由资料复算"}
+              ]}
+            ]
+          },
+          "answer": ["30000", "25000", "930000", "125000", "875000", "1075000", "200000", "BALANCED"],
+          "explanation": "红利到账、转增到账数量、期末资金、送转后数量、不变的成本、市值和估值增值分别由公告、到账资料、资金台账和估值日收盘价复算，全部关系闭合后才能判断勾稽一致。",
+          "hints": ["先按登记日持仓分别算红利与新增股份并核对到账，再核对资金公式与 125,000 × 8.60 的市值公式。"]
+        },
+        {
+          "questionId": "ACC-STOCK-EQUITY-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "请用一句可追溯的正常业务结论，清楚写出送转后持仓、股票总成本、红利到账、期末资金、期末市值，并明确勾稽结论。",
+          "textInput": {
+            "label": "权益业务结论",
+            "placeholder": "例如：送转后持仓……，总成本……，红利到账……，期末资金……，期末市值……，勾稽一致。"
+          },
+          "answer": ["送转后持仓", "总成本", "红利到账", "期末资金", "期末市值", "勾稽一致"],
+          "explanation": "表达项评价的是是否清楚覆盖五个业务信息点；金额的千分位、空格和常见书写格式不应替代业务信息判断。",
+          "hints": ["不要只写‘正确’或只报一个数字，至少让读者能找到持仓、成本、红利到账、资金、市值和勾稽结论。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品 B 的组合核算人员",
+        "product": "案例产品 B / 案例股份 D",
+        "date": "2026-08-03 至 2026-08-07",
+        "purpose": "根据一组资料充分、状态正常的现金分红与转增资料，独立完成权益公告与登记日持仓字段读取、现金红利与新增股份计算、除权确认与到账结清凭证、送转数量与成本台账补全，以及应收/到账、资金、持仓和估值结果勾稽。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "EQU-CASE-PARAMETERS",
+          "title": "本案计算口径与批准参数",
+          "kind": "PARAMETER",
+          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史时点、税率、费率或系统默认值固化为永久规则。",
+          "fields": [
+            {"fieldId": "scope", "label": "业务范围", "value": "普通交易性股票的现金分红与转增；所有记录状态均为正常"},
+            {"fieldId": "dividend-rule", "label": "现金红利口径", "value": "现金红利＝登记日持仓 × 每股现金红利"},
+            {"fieldId": "bonus-rule", "label": "转增数量口径", "value": "新增股份＝登记日持仓 × 每股转增比例"},
+            {"fieldId": "cost-rule", "label": "成本口径", "value": "送转前后股票总成本不变，凭证数量行金额相互抵消"},
+            {"fieldId": "ex-date-recognition", "label": "确认与到账时点", "value": "除权日确认应收红利与数量变化；红利到账日结清应收并增加资金"},
+            {"fieldId": "precision-boundary", "label": "本案精度边界", "value": "关键金额按 0.01 元填写；本案中间值均可直接得到，不检验参数配置"}
+          ]
+        },
+        {
+          "materialId": "EQU-ANNOUNCEMENT",
+          "title": "8 月 3 日权益公告",
+          "kind": "STATEMENT",
+          "description": "案例股份 D 同时实施现金分红与转增的权益公告，是权益对象、日期和比例的第一来源。",
+          "fields": [
+            {"fieldId": "announcement-date", "label": "公告日期", "value": "2026-08-03"},
+            {"fieldId": "equity-type", "label": "公司股务类型", "value": "现金分红与转增"},
+            {"fieldId": "security", "label": "证券", "value": "案例股份 D"},
+            {"fieldId": "dividend-per-share", "label": "每股现金红利（税前）", "value": "0.35", "unit": "元/股"},
+            {"fieldId": "bonus-ratio", "label": "每股转增比例", "value": "0.50"},
+            {"fieldId": "record-date", "label": "登记日", "value": "2026-08-05"},
+            {"fieldId": "ex-date", "label": "除权日", "value": "2026-08-06"},
+            {"fieldId": "dividend-arrival-date", "label": "红利到账日", "value": "2026-08-07"}
+          ]
+        },
+        {
+          "materialId": "EQU-HOLDING-LEDGER",
+          "title": "8 月 5 日登记日持仓台账",
+          "kind": "LEDGER",
+          "description": "同一证券在登记日的账簿余额，是现金红利与新增股份的共同计算基数。",
+          "fields": [
+            {"fieldId": "record-date", "label": "登记日", "value": "2026-08-05"},
+            {"fieldId": "record-quantity", "label": "登记日持仓数量", "value": "120,000", "unit": "股"},
+            {"fieldId": "record-cost", "label": "股票成本余额", "value": "1,560,000.00", "unit": "元"},
+            {"fieldId": "record-valuation", "label": "登记日前估值增值余额", "value": "240,000.00", "unit": "元"},
+            {"fieldId": "record-cash", "label": "登记日前资金余额", "value": "800,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "EQU-CORPORATE-ACTION-RECORD",
+          "title": "8 月 5 日公司股务处理记录",
+          "kind": "CONFIRMATION",
+          "description": "公司股务系统对本案权益的处理记录，用于交叉核对登记日持仓、比例和状态。",
+          "fields": [
+            {"fieldId": "ca-reference", "label": "公司股务编号", "value": "EQU-CASE-202608-001"},
+            {"fieldId": "ca-type", "label": "公司股务类型", "value": "现金分红与转增"},
+            {"fieldId": "ca-record-quantity", "label": "登记日持仓数量", "value": "120,000", "unit": "股"},
+            {"fieldId": "ca-dividend-ratio", "label": "税前权益比率（每股现金红利）", "value": "0.35", "unit": "元/股"},
+            {"fieldId": "ca-bonus-ratio", "label": "权益比率（每股转增）", "value": "0.50"},
+            {"fieldId": "ca-status", "label": "处理状态", "value": "处理结束"},
+            {"fieldId": "ca-audit-status", "label": "审核状态", "value": "审核通过"}
+          ]
+        },
+        {
+          "materialId": "EQU-EX-VOUCHER-TEMPLATE",
+          "title": "8 月 6 日除权确认凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "除权日确认应收红利的凭证模板，科目和金额由学员根据公告、登记日持仓和公司股务记录补全。",
+          "fields": [
+            {"fieldId": "ex-voucher-date", "label": "账务日期", "value": "2026-08-06"},
+            {"fieldId": "ex-voucher-debit-account", "label": "借方—应收科目", "value": "待填写"},
+            {"fieldId": "ex-voucher-debit-amount", "label": "借方金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "ex-voucher-credit-account", "label": "贷方—收入科目", "value": "待填写"},
+            {"fieldId": "ex-voucher-credit-amount", "label": "贷方金额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "EQU-CASH-ARRIVAL",
+          "title": "8 月 7 日红利到账流水",
+          "kind": "STATEMENT",
+          "description": "现金红利实际到账的资金流水，用于与应收红利核对并更新资金台账。",
+          "fields": [
+            {"fieldId": "arrival-date", "label": "到账日期", "value": "2026-08-07"},
+            {"fieldId": "arrival-biz-type", "label": "业务", "value": "现金分红"},
+            {"fieldId": "arrival-amount", "label": "到账金额", "value": "42,000.00", "unit": "元"},
+            {"fieldId": "arrival-status", "label": "到账状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "EQU-ARRIVAL-VOUCHER-TEMPLATE",
+          "title": "8 月 7 日红利到账凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "红利到账并结清应收的凭证模板，科目由学员补全，金额与到账流水一致。",
+          "fields": [
+            {"fieldId": "arrival-voucher-date", "label": "账务日期", "value": "2026-08-07"},
+            {"fieldId": "arrival-voucher-debit-account", "label": "借方—资金科目", "value": "待填写"},
+            {"fieldId": "arrival-voucher-debit-amount", "label": "借方金额", "value": "42,000.00", "unit": "元"},
+            {"fieldId": "arrival-voucher-credit-account", "label": "贷方—应收结清科目", "value": "待填写"},
+            {"fieldId": "arrival-voucher-credit-amount", "label": "贷方金额", "value": "42,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "EQU-BONUS-ARRIVAL",
+          "title": "8 月 6 日转增股份到账资料",
+          "kind": "STATEMENT",
+          "description": "转增股份实际到账的数量资料，用于与按登记日持仓计算的新增股份核对。",
+          "fields": [
+            {"fieldId": "bonus-arrival-date", "label": "到账日期", "value": "2026-08-06"},
+            {"fieldId": "bonus-arrival-biz-type", "label": "业务", "value": "转增股份"},
+            {"fieldId": "bonus-arrival-quantity", "label": "到账数量", "value": "60,000", "unit": "股"},
+            {"fieldId": "bonus-arrival-status", "label": "到账状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "EQU-BONUS-VOUCHER-TEMPLATE",
+          "title": "8 月 6 日转增数量凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "转增业务不改变股票成本，凭证在成本科目录入金额相同、方向相反的数量行。",
+          "fields": [
+            {"fieldId": "bonus-voucher-date", "label": "账务日期", "value": "2026-08-06"},
+            {"fieldId": "bonus-voucher-account", "label": "股票成本科目（数量行）", "value": "金融资产-交易性-股票-成本"},
+            {"fieldId": "bonus-voucher-debit-quantity", "label": "借方数量行", "value": "60,000", "unit": "股"},
+            {"fieldId": "bonus-voucher-credit-quantity", "label": "贷方数量行", "value": "60,000", "unit": "股"},
+            {"fieldId": "bonus-voucher-amount-effect", "label": "金额影响", "value": "0.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "EQU-CASH-LEDGER",
+          "title": "资金台账—红利到账资金变动",
+          "kind": "LEDGER",
+          "description": "用红利到账流水的实际到账金额更新资金台账，应收红利同日结清。",
+          "fields": [
+            {"fieldId": "cash-opening", "label": "登记日前资金余额", "value": "800,000.00", "unit": "元"},
+            {"fieldId": "cash-arrival-movement", "label": "红利到账资金变动", "value": "+42,000.00", "unit": "元"},
+            {"fieldId": "cash-ending", "label": "期末资金余额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "EQU-VALUATION-WORKSHEET",
+          "title": "8 月 7 日股票估值工作表",
+          "kind": "VALUATION",
+          "description": "以送转后数量和估值日收盘价复算期末市值、成本与估值增值。",
+          "fields": [
+            {"fieldId": "valuation-date", "label": "估值日", "value": "2026-08-07"},
+            {"fieldId": "valuation-quantity", "label": "送转后持仓数量", "value": "待计算", "unit": "股"},
+            {"fieldId": "valuation-close-price", "label": "估值日收盘价", "value": "9.50", "unit": "元/股"},
+            {"fieldId": "valuation-fair-value", "label": "期末股票市值", "value": "待计算", "unit": "元"},
+            {"fieldId": "valuation-cost", "label": "期末股票成本", "value": "待计算", "unit": "元"},
+            {"fieldId": "valuation-appreciation", "label": "期末估值增值", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "EQU-RECONCILIATION-WORKSHEET",
+          "title": "权益业务结果勾稽工作表",
+          "kind": "RECONCILIATION",
+          "description": "将应收/到账、数量、成本、资金和估值结果放入同一张复核表，判断本组正常权益业务是否闭合。",
+          "fields": [
+            {"fieldId": "cash-equation", "label": "现金勾稽关系", "value": "应收红利 42,000 = 实际到账 42,000；资金 800,000 + 42,000 = 期末资金"},
+            {"fieldId": "quantity-equation", "label": "数量勾稽关系", "value": "计算新增 60,000 = 到账 60,000；120,000 + 60,000 = 期末数量"},
+            {"fieldId": "cost-equation", "label": "成本勾稽关系", "value": "送转前后股票总成本均为 1,560,000"},
+            {"fieldId": "valuation-equation", "label": "估值勾稽关系", "value": "期末数量 × 9.50 = 期末市值 = 期末成本 + 期末估值增值"},
+            {"fieldId": "reconciliation-conclusion", "label": "勾稽结论", "value": "待填写"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "equity-type",
+          "type": "FIELD_MAP",
+          "title": "判断公告包含的权益业务",
+          "instruction": "根据 8 月 3 日权益公告的公司股务类型，选择本案需要同时处理的权益业务。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择权益业务",
+            "options": [
+              {"optionId": "BOTH", "text": "现金分红与转增同时存在"},
+              {"optionId": "CASH_ONLY", "text": "只有现金分红"},
+              {"optionId": "BONUS_ONLY", "text": "只有转增"}
+            ]
+          }
+        },
+        {
+          "workItemId": "record-date",
+          "type": "FIELD_MAP",
+          "title": "确认登记日",
+          "instruction": "从权益公告与公司股务处理记录选择现金红利和转增数量的计算日期。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择登记日",
+            "options": [
+              {"optionId": "DATE_0803", "text": "2026-08-03 公告日"},
+              {"optionId": "DATE_0805", "text": "2026-08-05 登记日"},
+              {"optionId": "DATE_0806", "text": "2026-08-06 除权日"}
+            ]
+          }
+        },
+        {
+          "workItemId": "record-status",
+          "type": "FIELD_MAP",
+          "title": "确认公司股务处理状态",
+          "instruction": "根据公司股务处理记录的处理状态与审核状态，选择是否可以进入后续正常处理。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择处理状态",
+            "options": [
+              {"optionId": "NORMAL", "text": "处理结束且审核通过，可以继续"},
+              {"optionId": "PENDING", "text": "尚未处理结束，不能继续"}
+            ]
+          }
+        },
+        {
+          "workItemId": "cash-dividend",
+          "type": "CALCULATION",
+          "title": "计算现金红利",
+          "instruction": "按本案批准口径，用登记日持仓数量 × 每股现金红利计算现金红利。",
+          "response": {"kind": "NUMBER", "placeholder": "输入现金红利", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "bonus-shares",
+          "type": "CALCULATION",
+          "title": "计算新增股份",
+          "instruction": "按本案批准口径，用登记日持仓数量 × 每股转增比例计算新增股份。",
+          "response": {"kind": "NUMBER", "placeholder": "输入新增股份", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "total-quantity",
+          "type": "CALCULATION",
+          "title": "计算送转后数量",
+          "instruction": "用登记日持仓数量加上新增股份，填写送转后总数量。",
+          "response": {"kind": "NUMBER", "placeholder": "输入送转后数量", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "total-cost",
+          "type": "CALCULATION",
+          "title": "填写送转后股票总成本",
+          "instruction": "根据本案成本口径，填写送转后股票成本余额（不随数量变化调整）。",
+          "response": {"kind": "NUMBER", "placeholder": "输入股票总成本", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "ex-date-recognize",
+          "type": "FIELD_MAP",
+          "title": "判断应收红利确认时点",
+          "instruction": "根据本案批准参数，选择应收红利首次确认的时点。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择确认时点",
+            "options": [
+              {"optionId": "EX_DATE", "text": "除权日确认应收红利"},
+              {"optionId": "ARRIVAL_DATE", "text": "红利到账日才首次确认"}
+            ]
+          }
+        },
+        {
+          "workItemId": "receivable-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写除权凭证借方科目",
+          "instruction": "填写 8 月 6 日除权确认凭证借方的应收科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "dividend-income-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写除权凭证贷方科目",
+          "instruction": "填写 8 月 6 日除权确认凭证贷方的红利收入科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "receivable-amount",
+          "type": "CALCULATION",
+          "title": "填写除权凭证确认金额",
+          "instruction": "除权凭证确认金额等于已计算的现金红利，填写该金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入确认金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "cash-arrival-amount",
+          "type": "RECONCILIATION",
+          "title": "读取红利实际到账金额",
+          "instruction": "从 8 月 7 日红利到账流水读取实际到账金额，与应收红利核对。",
+          "response": {"kind": "NUMBER", "placeholder": "输入到账金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "arrival-match",
+          "type": "RECONCILIATION",
+          "title": "核对应收与到账是否一致",
+          "instruction": "用除权确认的应收红利与红利到账流水金额比较，选择核对结果。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择核对结果",
+            "options": [
+              {"optionId": "MATCHED", "text": "应收红利与实际到账一致"},
+              {"optionId": "MISMATCHED", "text": "应收红利与实际到账存在差异"}
+            ]
+          }
+        },
+        {
+          "workItemId": "cash-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写到账凭证借方科目",
+          "instruction": "填写 8 月 7 日红利到账凭证借方的资金科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "receivable-clearing-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写到账凭证贷方科目",
+          "instruction": "填写 8 月 7 日红利到账凭证贷方结清应收的科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "ending-cash",
+          "type": "RECONCILIATION",
+          "title": "计算期末资金余额",
+          "instruction": "用登记日前资金余额 800,000 元加上红利实际到账金额，计算期末资金余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末资金", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "bonus-arrival-quantity",
+          "type": "RECONCILIATION",
+          "title": "读取转增股份到账数量",
+          "instruction": "从 8 月 6 日转增股份到账资料读取实际到账数量，与计算的新增股份核对。",
+          "response": {"kind": "NUMBER", "placeholder": "输入到账数量", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "bonus-quantity-match",
+          "type": "RECONCILIATION",
+          "title": "核对计算新增与到账数量是否一致",
+          "instruction": "用计算的新增股份与转增股份到账数量比较，选择核对结果。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择核对结果",
+            "options": [
+              {"optionId": "MATCHED", "text": "计算新增股份与到账数量一致"},
+              {"optionId": "MISMATCHED", "text": "计算新增股份与到账数量存在差异"}
+            ]
+          }
+        },
+        {
+          "workItemId": "bonus-voucher-impact",
+          "type": "FIELD_MAP",
+          "title": "判断转增凭证的成本影响",
+          "instruction": "根据转增数量凭证工作底稿的金额影响，选择送转对股票总成本的处理。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择成本影响",
+            "options": [
+              {"optionId": "NO_COST_CHANGE", "text": "数量行金额相互抵消，股票总成本不变"},
+              {"optionId": "COST_INCREASE", "text": "按到账数量增加股票总成本"}
+            ]
+          }
+        },
+        {
+          "workItemId": "ending-quantity",
+          "type": "LEDGER_ENTRY",
+          "title": "填写送转后持仓数量",
+          "instruction": "用登记日持仓数量加新增股份，填写送转后持仓台账的数量。",
+          "response": {"kind": "NUMBER", "placeholder": "输入持仓数量", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "ending-cost",
+          "type": "LEDGER_ENTRY",
+          "title": "填写送转后持仓成本",
+          "instruction": "根据送转前后股票总成本不变的口径，填写送转后持仓台账的成本余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入股票成本", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "ending-fair-value",
+          "type": "RECONCILIATION",
+          "title": "计算期末股票市值",
+          "instruction": "用送转后持仓数量 × 估值日收盘价 9.50 元，填写期末股票市值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末市值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "ending-valuation-appreciation",
+          "type": "RECONCILIATION",
+          "title": "计算期末估值增值",
+          "instruction": "用期末股票市值减去期末股票成本，填写期末估值增值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末估值增值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "reconciliation-result",
+          "type": "RECONCILIATION",
+          "title": "完成跨来源勾稽",
+          "instruction": "应收/到账、数量、成本、资金和估值关系均可由资料包复算且相互一致，选择本次勾稽结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择勾稽结论",
+            "options": [
+              {"optionId": "BALANCED", "text": "应收/到账、持仓、成本和估值勾稽一致"},
+              {"optionId": "UNBALANCED", "text": "仍有未解释差异"}
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录权益业务结论",
+          "instruction": "用一句话写明送转后持仓、股票总成本、红利到账、期末资金、期末市值和勾稽结论。",
+          "response": {"kind": "TEXT", "placeholder": "例如：送转后持仓……，总成本……，红利到账……，资金……，市值……，勾稽……"}
+        }
+      ],
+      "submissionNote": "提交前请按顺序复核权益公告与状态、登记日持仓、现金红利与新增股份、除权确认与到账结清凭证、送转数量与成本台账、资金台账和估值勾稽。提交后将生成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-STOCK-EQUITY-PDF-2024",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（PDF主证据）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.pdf；第 60—63 页",
+      "usage": "现金分红公式与权益字段、除权凭证与红利到账、送股/转增数量公式、转增凭证数量行与股票总成本不变"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-EQUITY-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（OFD同源格式）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.ofd；与 PDF 同源，仅用于格式交叉核对",
+      "usage": "不重复计权；辅助核对章节顺序、权益信息表/凭证页和 PDF 页级证据"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-EQUITY-ROUTE-DECISIONS",
+      "title": "股票高保真路线施工计划—路线 3",
+      "source": "核算案例库股票模块高保真施工计划.md 路线 3 与排除范围",
+      "usage": "现金分红与送转范围、登记日持仓基数、成本不变、应收/到账/持仓/估值答案链、四环节活动组合、配股排除"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-EQUITY-CASE-PARAMETERS-202608",
+      "title": "本路线题面批准合成参数",
+      "source": "本路线综合实务资料包中的 EQU-CASE-PARAMETERS（2026.08 版本）",
+      "usage": "仅约束本案直接给出的现金红利口径、转增口径、成本口径、确认与到账时点和精度边界，不替代当前业务规则"
+    }
+  ]
+}

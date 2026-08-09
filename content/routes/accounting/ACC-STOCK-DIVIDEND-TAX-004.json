@@ -1,0 +1,558 @@
+{
+  "routeId": "ACC-STOCK-DIVIDEND-TAX-004",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "股息红利税资料匹配与账务闭环",
+  "summary": "沿历史现金红利、后续卖出、股息红利税数据、计提确认、实际扣收和结果勾稽完成一条可复核的正常业务链。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "从历史现金红利记录、后续卖出记录和股息红利税数据中读取关联字段，识别触发补缴的正常业务状态",
+    "按题面批准口径匹配正确的历史红利与卖出记录，直接读取批准适用结论与批准的税款金额，不做税率或期限计算",
+    "按材料稳定关系完成计提凭证和实际扣收凭证，区分税款确认与扣收时点",
+    "用待补缴股息红利税台账、投资收益红利收入、银行存款和税款数据完成勾稽并形成简短结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "STK-DIV-TAX-KC-01",
+          "type": "FLOW",
+          "title": "一笔股息红利税怎样形成核算结果",
+          "conclusion": "先确认同一证券的历史红利与后续卖出，再匹配税款数据，完成计提确认与实际扣收，最后把税款、账务和资金放回同一条链核对。",
+          "items": [
+            "触发前提：股票红利发放后发生后续卖出，且题面税款确认资料明确批准适用补缴；本路线不教期限算法、不固化当前政策",
+            "税款来源：股息红利税数据记录直接提供已批准的税额，学员只读取和匹配，不做税率或期限计算",
+            "计提与扣收：税款确认后先计提，实际扣收日期以题面确认资料批准的日期为准",
+            "结果验证：税款数据金额、计提金额、扣收金额、待补缴余额和银行存款必须互相解释"
+          ]
+        },
+        {
+          "cardId": "STK-DIV-TAX-KC-02",
+          "type": "CATEGORIES",
+          "title": "四份资料各自的关联字段",
+          "conclusion": "历史红利、卖出、税款数据和资金扣款通过证券、日期、数量和金额关联，任何一份资料的字段都不能被另一份替代。",
+          "items": [
+            "历史现金红利记录：证券、红利发放日、登记日持仓、每股红利与红利金额",
+            "后续卖出记录：证券、卖出日、卖出数量与卖出前持仓，用于确认卖出发生在红利发放之后并核对关联记录",
+            "股息红利税数据：关联红利记录、关联卖出记录、已批准税额与记录状态",
+            "税款确认资料：批准适用补缴结论与题面批准的实际扣收日期",
+            "实际扣款：扣收日与扣收金额，与待补缴股息红利税和银行存款对应"
+          ]
+        },
+        {
+          "cardId": "STK-DIV-TAX-KC-03",
+          "type": "KEY_POINT",
+          "title": "税款确认与实际扣收是两件事",
+          "conclusion": "计提凭证方向一致、金额相反；实际扣收按题面确认资料批准的日期完成，同一笔税款只能处理一次。",
+          "items": [
+            "计提：贷方确认待补缴股息红利税，同时贷方冲减投资收益-红利收入，金额一致、方向相反",
+            "扣收：借方结清待补缴股息红利税，贷方减少银行存款",
+            "时点：扣收日期以题面确认资料批准的日期为准，不能用税款数据生成日代替",
+            "防重复：扣收完成后待补缴余额归零，同一税款记录不得再次计提或扣收"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品 A 的组合核算人员",
+        "product": "案例产品 A / 案例股份 A",
+        "date": "2026-04-08 至 2026-06-11",
+        "facts": [
+          "4 月 8 日权益登记日，案例股份 A 登记日持仓 50,000 股；4 月 10 日现金红利发放，每股红利 0.20 元，红利金额 10,000 元，已正常到账。",
+          "6 月 9 日正常卖出 20,000 股，卖出前持仓 50,000 股。",
+          "6 月 9 日股息红利税数据记录状态正常，关联 4 月 10 日红利与 6 月 9 日卖出，已批准税额 2,400 元。",
+          "6 月 10 日税款确认资料标注批准适用补缴（APPROVED_FOR_DEDUCTION）；托管行同日向中登公司发送扣收税款确认结果，题面批准的扣收日期为 6 月 11 日。",
+          "扣收前银行存款余额为 500,000 元。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取历史红利记录与卖出记录，确认同一证券、卖出发生在红利发放之后；读取税款确认资料确认批准适用补缴",
+          "reason": "处理前提是同一证券的历史红利、后续卖出和题面批准的适用结论；本路线不计算期限或税率。"
+        },
+        {
+          "order": 2,
+          "action": "读取股息红利税数据中的关联红利、关联卖出和已批准税额 2,400 元，确认记录状态正常与批准适用结论",
+          "reason": "税额与适用结论由数据/确认资料直接提供，不做税率或期限计算；匹配对象必须是同一证券对应的红利与卖出。"
+        },
+        {
+          "order": 3,
+          "action": "完成计提凭证：贷：证券清算款-待补缴股息红利税 2,400 元；贷：投资收益-红利收入 -2,400 元",
+          "reason": "材料稳定关系为方向一致、金额相反；确认义务时先计提，不代表已经发生现金扣收。"
+        },
+        {
+          "order": 4,
+          "action": "按题面确认资料批准的扣收日期 6 月 11 日完成扣收：借：证券清算款-待补缴股息红利税 2,400 元；贷：银行存款 2,400 元",
+          "reason": "实际扣收日期以题面确认资料批准为准，不能与计提日或税款数据生成日混同；历史材料中的扣收时点不固化为永久规则。"
+        },
+        {
+          "order": 5,
+          "action": "勾稽：税款数据 2,400 = 计提 2,400 = 扣收 2,400；待补缴余额 0；投资收益-红利收入累计 -2,400；银行存款由 500,000 变为 497,600；不得重复处理",
+          "reason": "税款金额、账务记录和实际资金扣款必须相互解释，余额归零证明同一笔税款只处理一次。"
+        }
+      ],
+      "summary": "核对红利与卖出 → 匹配税款数据 → 计提确认 → 按批准日期扣收 → 资金与余额勾稽"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "请把四份资料中的关联字段分别对应到正确的业务含义。每一行都要从题面资料取证。",
+          "fieldMappings": [
+            {
+              "fieldId": "dividend-match-field",
+              "label": "历史现金红利记录中的红利发放日与红利金额",
+              "source": "历史现金红利记录",
+              "options": [
+                {"optionId": "DIVIDEND_MATCH", "text": "用于识别哪笔红利与后续卖出对应"},
+                {"optionId": "TAX_RATE_INPUT", "text": "用于自行计算税率"}
+              ]
+            },
+            {
+              "fieldId": "sell-match-field",
+              "label": "卖出记录中的卖出日期与卖出数量",
+              "source": "后续卖出记录",
+              "options": [
+                {"optionId": "SELL_MATCH", "text": "用于确认卖出发生在红利发放之后并核对关联记录"},
+                {"optionId": "SELL_FUND_BALANCE", "text": "用于直接确定应补缴税额"}
+              ]
+            },
+            {
+              "fieldId": "tax-amount-source",
+              "label": "股息红利税数据中的已批准税额",
+              "source": "股息红利税数据记录",
+              "options": [
+                {"optionId": "READ_APPROVED", "text": "直接读取并使用，不做税率计算"},
+                {"optionId": "RECALCULATE_RATE", "text": "自行重新计算税率和税额"}
+              ]
+            },
+            {
+              "fieldId": "deduction-timing-field",
+              "label": "税款确认资料中批准的扣收日期",
+              "source": "税款确认资料",
+              "options": [
+                {"optionId": "APPROVED_DEDUCTION_DATE", "text": "按题面批准的日期完成实际扣收"},
+                {"optionId": "DATA_GENERATE_DAY", "text": "按税款数据生成日期完成实际扣收"}
+              ]
+            }
+          ],
+          "answer": ["DIVIDEND_MATCH", "SELL_MATCH", "READ_APPROVED", "APPROVED_DEDUCTION_DATE"],
+          "explanation": "红利记录和卖出记录通过证券、日期与数量关联；税额直接读取；实际扣收按题面批准的日期完成。",
+          "hints": ["先逐行定位资料来源，再把匹配字段、税额来源和扣收时点分开判断。"]
+        },
+        {
+          "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-02",
+          "type": "ORDERING",
+          "prompt": "把一笔正常股息红利税业务的处理顺序按发生先后排列。每步都对应资料包中的一条记录。",
+          "items": [
+            {"itemId": "DIVIDEND_ISSUED", "text": "历史现金红利正常发放到账"},
+            {"itemId": "LATER_SELL", "text": "后续卖出同一证券"},
+            {"itemId": "TAX_MATCH", "text": "股息红利税数据匹配到该红利与卖出"},
+            {"itemId": "ACCRUAL", "text": "计提待补缴股息红利税并冲减红利收入"},
+            {"itemId": "CONFIRM_RESULT", "text": "托管行向中登公司发送扣收税款确认结果"},
+            {"itemId": "DEDUCT", "text": "按题面批准扣收日期完成实际扣收并结清待补缴余额"}
+          ],
+          "answer": ["DIVIDEND_ISSUED", "LATER_SELL", "TAX_MATCH", "ACCRUAL", "CONFIRM_RESULT", "DEDUCT"],
+          "explanation": "红利发放在前、卖出触发在后，税款数据匹配后先计提确认，再按题面批准扣收日期完成实际扣收。",
+          "hints": ["先找红利与卖出的先后，再区分计提确认和实际扣收两个不同动作。"]
+        },
+        {
+          "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全一笔金额为 1,500 元的正常税款业务的四个科目。借贷方向、金额和资料来源已经给出，你只需要补科目名称。",
+          "ledgerEntries": [
+            {"entryId": "accrual-payable", "direction": "贷", "label": "计提待补缴股息红利税，1,500.00 元", "amount": "1,500.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "accrual-income", "direction": "贷", "label": "冲减投资收益-红利收入，-1,500.00 元", "amount": "-1,500.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "deduction-debit", "direction": "借", "label": "实际扣收结清待补缴股息红利税，1,500.00 元", "amount": "1,500.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "deduction-credit", "direction": "贷", "label": "银行存款减少，1,500.00 元", "amount": "1,500.00 元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["证券清算款-待补缴股息红利税", "投资收益-红利收入", "证券清算款-待补缴股息红利税", "银行存款"],
+          "explanation": "计提凭证方向一致、金额相反；扣收凭证借方结清待补缴，贷方减少银行存款。",
+          "hints": ["先按计提与扣收分成两组，再分别确认借方、贷方科目。"]
+        },
+        {
+          "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "用税款数据、计提凭证、扣收凭证、待补缴台账和银行存款资料完成跨来源复算。数字字段逐格填写，最后选择勾稽结论。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "tax-data-amount", "label": "税款数据已批准税额", "kind": "NUMBER", "formula": "直接读取 = 1,500.00", "placeholder": "输入元"},
+              {"fieldId": "accrual-amount", "label": "计提待补缴股息红利税", "kind": "NUMBER", "formula": "与税款数据一致 = ?", "placeholder": "输入元"},
+              {"fieldId": "deduction-amount", "label": "实际扣收金额", "kind": "NUMBER", "formula": "与计提一致 = ?", "placeholder": "输入元"},
+              {"fieldId": "income-adjust", "label": "投资收益-红利收入冲减金额", "kind": "NUMBER", "formula": "方向一致、金额相反 = ?", "placeholder": "输入元"},
+              {"fieldId": "payable-ending", "label": "扣收后待补缴股息红利税余额", "kind": "NUMBER", "formula": "1,500 - 1,500 = ?", "placeholder": "输入元"},
+              {"fieldId": "cash-ending", "label": "扣收后银行存款余额", "kind": "NUMBER", "formula": "100,000 - 1,500 = ?", "placeholder": "输入元"},
+              {"fieldId": "recon-result", "label": "跨来源勾稽结论", "kind": "SELECT", "formula": "税款数据、账务记录和实际资金扣款应相互一致", "placeholder": "选择勾稽结论", "options": [
+                {"optionId": "BALANCED", "text": "税款、账务与现金扣收勾稽一致，余额归零"},
+                {"optionId": "UNBALANCED", "text": "至少一项金额无法由资料复算或余额未归零"}
+              ]}
+            ]
+          },
+          "answer": ["1500", "1500", "1500", "-1500", "0", "98500", "BALANCED"],
+          "explanation": "税款数据、计提、扣收三处金额一致；红利收入冲减金额相反；扣收后待补缴余额归零且银行存款相应减少。",
+          "hints": ["先核对三处 1,500 元是否一致，再检查余额归零和银行存款公式。"]
+        },
+        {
+          "questionId": "ACC-STOCK-DIVIDEND-TAX-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "请用一句可追溯的正常业务结论，清楚写出关联的历史红利、后续卖出、批准税额、实际扣收和勾稽结论。",
+          "textInput": {
+            "label": "连续业务结论",
+            "placeholder": "例如：关联……红利，……卖出，批准税额……，扣收……，勾稽一致。"
+          },
+          "answer": ["红利", "卖出", "税额", "扣收", "勾稽一致"],
+          "explanation": "表达项评价是否清楚覆盖红利、卖出、税额、扣收和勾稽判断；金额书写格式不应替代业务信息判断。",
+          "hints": ["不要只写‘正确’或只报一个数字，至少让读者能找到红利、卖出、税额、扣收和勾稽结论。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品 B 的组合核算人员",
+        "product": "案例产品 B / 案例股份 D",
+        "date": "2026-02-16 至 2026-07-17",
+        "purpose": "根据一组资料充分、状态正常的连续业务资料，独立完成历史红利与后续卖出的匹配、税款数据读取、计提与实际扣收凭证补全，以及税款、账务和现金勾稽。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "STK-DIV-TAX-CASE-PARAMETERS",
+          "title": "本案业务口径与批准参数",
+          "kind": "PARAMETER",
+          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史税率、期限口径或系统默认值固化为永久规则。",
+          "fields": [
+            {"fieldId": "scope", "label": "业务范围", "value": "普通股票现金红利发放后的股息红利税正常处理；不涉及税率或期限计算"},
+            {"fieldId": "applicability-source", "label": "适用结论来源", "value": "税款确认资料明确标注批准适用补缴（APPROVED_FOR_DEDUCTION），学员直接读取，不做期限或税率推导"},
+            {"fieldId": "tax-source", "label": "税额来源", "value": "股息红利税数据记录直接提供已批准税额，学员只读取与匹配"},
+            {"fieldId": "deduction-timing", "label": "扣收时点", "value": "实际扣收日期以题面确认资料批准为准，本案为 2026-07-17；不把历史材料中的扣收时点固化为永久规则"},
+            {"fieldId": "no-duplicate-rule", "label": "防重复规则", "value": "同一笔税款记录只计提和扣收一次，扣收后待补缴余额归零"},
+            {"fieldId": "boundary", "label": "范围边界", "value": "材料中关于持有期限的表述仅作为历史培训情境背景，本路线不教期限算法、不固化当前政策；材料中特定市场的例外操作说明不构成本案例规则"}
+          ]
+        },
+        {
+          "materialId": "STK-DIVIDEND-RECORD",
+          "title": "历史现金红利记录—案例股份 D",
+          "kind": "STATEMENT",
+          "description": "该证券此前已正常发放并到账的现金红利记录，字段已经完成正常解析和拆分。",
+          "fields": [
+            {"fieldId": "dividend-security", "label": "证券", "value": "案例股份 D"},
+            {"fieldId": "dividend-record-id", "label": "红利记录编号", "value": "DIVIDEND-D-2026-02-16"},
+            {"fieldId": "dividend-reg-date", "label": "权益登记日", "value": "2026-02-13"},
+            {"fieldId": "dividend-pay-date", "label": "红利发放日", "value": "2026-02-16"},
+            {"fieldId": "dividend-holding", "label": "登记日持仓数量", "value": "30,000", "unit": "股"},
+            {"fieldId": "dividend-per-share", "label": "每股现金红利", "value": "0.15", "unit": "元/股"},
+            {"fieldId": "dividend-amount", "label": "红利金额", "value": "4,500.00", "unit": "元"},
+            {"fieldId": "dividend-status", "label": "红利状态", "value": "已正常到账"}
+          ]
+        },
+        {
+          "materialId": "STK-SELL-RECORD",
+          "title": "后续卖出记录—案例股份 D",
+          "kind": "STATEMENT",
+          "description": "红利发放后同一证券的正常卖出记录；本案例只使用其证券、日期和数量字段用于税款匹配。",
+          "fields": [
+            {"fieldId": "sell-security", "label": "证券", "value": "案例股份 D"},
+            {"fieldId": "sell-record-id", "label": "卖出记录编号", "value": "SELL-D-2026-07-15"},
+            {"fieldId": "sell-date", "label": "卖出日期", "value": "2026-07-15"},
+            {"fieldId": "sell-quantity", "label": "卖出数量", "value": "8,000", "unit": "股"},
+            {"fieldId": "pre-sale-holding", "label": "卖出前持仓数量", "value": "30,000", "unit": "股"},
+            {"fieldId": "sell-status", "label": "记录状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "STK-TAX-DATA-RECORD",
+          "title": "股息红利税数据记录—案例股份 D",
+          "kind": "REPORT",
+          "description": "由税务数据解析形成的正常记录，关联字段指向该证券的历史红利和后续卖出，税额为已批准金额。",
+          "fields": [
+            {"fieldId": "tax-security", "label": "证券", "value": "案例股份 D"},
+            {"fieldId": "tax-record-id", "label": "税款记录编号", "value": "TAX-D-2026-07-15"},
+            {"fieldId": "tax-linked-dividend", "label": "关联红利记录", "value": "DIVIDEND-D-2026-02-16"},
+            {"fieldId": "tax-linked-sell", "label": "关联卖出记录", "value": "SELL-D-2026-07-15"},
+            {"fieldId": "tax-amount", "label": "已批准税额", "value": "1,800.00", "unit": "元"},
+            {"fieldId": "tax-status", "label": "记录状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "STK-TAX-CONFIRMATION",
+          "title": "税款扣收确认资料",
+          "kind": "CONFIRMATION",
+          "description": "托管行向中登公司发送扣收税款确认结果的记录，并明确标注批准适用补缴结论与题面批准的实际扣收日期。",
+          "fields": [
+            {"fieldId": "confirm-date", "label": "发送扣收税款确认结果日期", "value": "2026-07-16"},
+            {"fieldId": "confirm-party", "label": "确认结果方向", "value": "托管行向中登公司发送"},
+            {"fieldId": "confirm-applicability", "label": "批准适用补缴结论", "value": "APPROVED_FOR_DEDUCTION"},
+            {"fieldId": "deduction-date", "label": "题面批准实际扣收日期", "value": "2026-07-17"}
+          ]
+        },
+        {
+          "materialId": "STK-ACCRUAL-VOUCHER-TEMPLATE",
+          "title": "计提凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "按材料稳定关系补全计提凭证：方向一致、金额相反。金额字段与税款数据对应。",
+          "fields": [
+            {"fieldId": "accrual-payable-account", "label": "贷方—待补缴股息红利税科目", "value": "待填写"},
+            {"fieldId": "accrual-payable-amount", "label": "贷方—待补缴股息红利税金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "accrual-income-account", "label": "贷方—投资收益-红利收入科目", "value": "待填写"},
+            {"fieldId": "accrual-income-amount", "label": "贷方—投资收益-红利收入金额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "STK-DEDUCTION-VOUCHER-TEMPLATE",
+          "title": "实际扣收凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "按确认资料与批准参数补全扣收凭证：借方结清待补缴，贷方减少银行存款。",
+          "fields": [
+            {"fieldId": "deduction-debit-account", "label": "借方—待补缴股息红利税科目", "value": "待填写"},
+            {"fieldId": "deduction-debit-amount", "label": "借方—待补缴股息红利税金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "deduction-credit-account", "label": "贷方—银行存款科目", "value": "待填写"},
+            {"fieldId": "deduction-credit-amount", "label": "贷方—银行存款金额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "STK-PAYABLE-LEDGER",
+          "title": "待补缴股息红利税台账",
+          "kind": "LEDGER",
+          "description": "记录计提、扣收和期末余额；扣收后余额必须归零，证明同一笔税款只处理一次。",
+          "fields": [
+            {"fieldId": "payable-opening", "label": "期初余额", "value": "0.00", "unit": "元"},
+            {"fieldId": "payable-accrual", "label": "计提增加", "value": "待计算", "unit": "元"},
+            {"fieldId": "payable-deduction", "label": "扣收减少", "value": "待计算", "unit": "元"},
+            {"fieldId": "payable-ending", "label": "期末余额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "STK-CASH-LEDGER",
+          "title": "银行存款台账",
+          "kind": "LEDGER",
+          "description": "实际扣收形成的现金减少；扣收前余额由台账提供。",
+          "fields": [
+            {"fieldId": "cash-opening", "label": "扣收前银行存款余额", "value": "250,000.00", "unit": "元"},
+            {"fieldId": "cash-deduction", "label": "实际扣收减少", "value": "待计算", "unit": "元"},
+            {"fieldId": "cash-ending", "label": "扣收后银行存款余额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "STK-TAX-RECONCILIATION",
+          "title": "税款结果勾稽工作表",
+          "kind": "RECONCILIATION",
+          "description": "将税款数据、账务记录和实际资金扣款放入同一张复核表，判断本组正常业务是否闭合。",
+          "fields": [
+            {"fieldId": "recon-tax-equation", "label": "税额勾稽关系", "value": "税款数据 = 计提金额 = 扣收金额"},
+            {"fieldId": "recon-payable-equation", "label": "台账勾稽关系", "value": "期初 0 + 计提 1,800 - 扣收 1,800 = 期末 0"},
+            {"fieldId": "recon-cash-equation", "label": "现金勾稽关系", "value": "250,000 - 1,800 = 期末银行存款"},
+            {"fieldId": "recon-income-equation", "label": "收益勾稽关系", "value": "投资收益-红利收入冲减 -1,800"},
+            {"fieldId": "recon-conclusion", "label": "勾稽结论", "value": "待填写"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "div-match",
+          "type": "FIELD_MAP",
+          "title": "选择关联的历史红利记录",
+          "instruction": "根据同一证券和红利发放日，从资料包中选择股息红利税数据应关联的历史红利记录。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择关联红利记录",
+            "options": [
+              {"optionId": "DIVIDEND-D-2026-02-16", "text": "DIVIDEND-D-2026-02-16（案例股份 D）"},
+              {"optionId": "DIVIDEND-OTHER", "text": "其他证券的历史红利记录"}
+            ]
+          }
+        },
+        {
+          "workItemId": "sell-match",
+          "type": "FIELD_MAP",
+          "title": "选择关联的后续卖出记录",
+          "instruction": "根据同一证券和卖出日期，选择税款数据应关联的后续卖出记录。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择关联卖出记录",
+            "options": [
+              {"optionId": "SELL-D-2026-07-15", "text": "SELL-D-2026-07-15（案例股份 D）"},
+              {"optionId": "SELL-OTHER", "text": "其他证券的卖出记录"}
+            ]
+          }
+        },
+        {
+          "workItemId": "tax-applicability",
+          "type": "FIELD_MAP",
+          "title": "确认批准适用结论",
+          "instruction": "从税款扣收确认资料读取批准适用补缴结论，不进行期限或税率计算。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择适用结论",
+            "options": [
+              {"optionId": "APPROVED_FOR_DEDUCTION", "text": "批准适用补缴，按数据记录税额处理"},
+              {"optionId": "NOT_APPLICABLE", "text": "不适用，无需处理"}
+            ]
+          }
+        },
+        {
+          "workItemId": "tax-amount",
+          "type": "CALCULATION",
+          "title": "读取已批准税额",
+          "instruction": "从股息红利税数据记录直接读取已批准税额，不做税率计算。",
+          "response": {"kind": "NUMBER", "placeholder": "输入批准税额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "tax-record-status",
+          "type": "FIELD_MAP",
+          "title": "确认税款记录状态",
+          "instruction": "从股息红利税数据记录选择当前记录状态。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择记录状态",
+            "options": [
+              {"optionId": "NORMAL", "text": "正常，可以继续处理"},
+              {"optionId": "PENDING", "text": "待审核，不能继续"}
+            ]
+          }
+        },
+        {
+          "workItemId": "accrual-payable-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写计提凭证贷方待补缴科目",
+          "instruction": "填写计提凭证中确认待补缴股息红利税的贷方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "accrual-payable-amount",
+          "type": "CALCULATION",
+          "title": "填写计提待补缴金额",
+          "instruction": "计提金额应与税款数据批准税额一致，填写计提凭证贷方待补缴金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入计提金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "accrual-income-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写计提凭证贷方红利收入科目",
+          "instruction": "填写计提凭证中冲减红利收入的贷方科目，与待补缴科目同方向。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "accrual-income-amount",
+          "type": "CALCULATION",
+          "title": "填写红利收入冲减金额",
+          "instruction": "按材料稳定关系填写方向一致、金额相反的红利收入冲减金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入冲减金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "confirm-date",
+          "type": "FIELD_MAP",
+          "title": "确认发送扣收税款确认结果日期",
+          "instruction": "从税款扣收确认资料读取托管行向中登公司发送确认结果的日期。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择发送确认结果日期",
+            "options": [
+              {"optionId": "CONFIRM-2026-07-16", "text": "2026-07-16"},
+              {"optionId": "CONFIRM-2026-07-15", "text": "2026-07-15"}
+            ]
+          }
+        },
+        {
+          "workItemId": "deduction-date",
+          "type": "FIELD_MAP",
+          "title": "确认实际扣收日期",
+          "instruction": "从税款扣收确认资料读取题面批准的实际扣收日期。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择实际扣收日期",
+            "options": [
+              {"optionId": "DEDUCT-2026-07-17", "text": "2026-07-17（题面批准扣收日期）"},
+              {"optionId": "DEDUCT-2026-07-16", "text": "2026-07-16（发送确认结果日期）"},
+              {"optionId": "DEDUCT-2026-07-15", "text": "2026-07-15（税款数据生成日期）"}
+            ]
+          }
+        },
+        {
+          "workItemId": "deduction-debit-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写扣收凭证借方待补缴科目",
+          "instruction": "填写实际扣收凭证中借方结清待补缴股息红利税的科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "deduction-credit-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写扣收凭证贷方银行存款科目",
+          "instruction": "填写实际扣收凭证中贷方反映现金减少的科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "deduction-amount",
+          "type": "CALCULATION",
+          "title": "填写实际扣收金额",
+          "instruction": "扣收金额应与计提金额一致，填写扣收凭证金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入扣收金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "payable-ending",
+          "type": "RECONCILIATION",
+          "title": "计算扣收后待补缴余额",
+          "instruction": "用期初 0 元加计提、减扣收，填写待补缴股息红利税期末余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末余额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "cash-ending",
+          "type": "RECONCILIATION",
+          "title": "计算扣收后银行存款余额",
+          "instruction": "用扣收前银行存款 250,000 元减去实际扣收金额，填写期末余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末余额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-result",
+          "type": "RECONCILIATION",
+          "title": "完成跨来源勾稽",
+          "instruction": "税款数据、计提、扣收三处金额一致且待补缴余额归零、银行存款相应减少，选择本次勾稽结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择勾稽结论",
+            "options": [
+              {"optionId": "BALANCED", "text": "税款、账务与现金扣收勾稽一致，余额归零"},
+              {"optionId": "UNBALANCED", "text": "仍有未解释差异或重复处理"}
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录连续业务结论",
+          "instruction": "用一句话写明关联的历史红利、后续卖出、批准税额、实际扣收和勾稽结论。",
+          "response": {"kind": "TEXT", "placeholder": "例如：关联……红利，……卖出，批准税额……，扣收……，勾稽一致。"}
+        }
+      ],
+      "submissionNote": "提交前请按顺序复核红利与卖出匹配、税款记录状态、税额读取、计提凭证、扣收时点、扣收凭证和余额勾稽。提交后将生成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-STOCK-DIVIDEND-TAX-PDF-2024",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（PDF主证据）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.pdf；第 66—68 页",
+      "usage": "红利发放后卖出产生补缴义务的历史培训情境、税款数据来源、计提凭证方向一致金额相反、按题面确认资料批准日期扣收、支付凭证与特定市场人工凭证边界；不教期限算法、不固化当前政策"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-DIVIDEND-TAX-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（OFD同源格式）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.ofd；与 PDF 同源，仅用于格式交叉核对",
+      "usage": "不重复计权；辅助核对股息红利税章节文字、计提与支付凭证页和表格截图页"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-ROUTE-DECISIONS",
+      "title": "股票高保真路线施工计划—路线4",
+      "source": "project_materials/新人陪练案例库/核算案例库股票模块高保真施工计划.md；总规则、路线4、防机械化活动矩阵、子代理检查表",
+      "usage": "股息红利税正常资料包与答案链、四环节固定、基础练习五种认知动作、硬性必达、补学目标与排除范围"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-CASE-PARAMETERS-202608",
+      "title": "本路线题面批准合成参数",
+      "source": "本路线综合实务资料包中的 STK-DIV-TAX-CASE-PARAMETERS（2026.08 版本）",
+      "usage": "仅约束本案直接给出的批准适用结论、批准税额、批准扣收日期和防重复规则，不替代当前业务规则"
+    }
+  ]
+}

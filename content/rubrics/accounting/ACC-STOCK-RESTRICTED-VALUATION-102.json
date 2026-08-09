@@ -1,0 +1,274 @@
+{
+  "routeId": "ACC-STOCK-RESTRICTED-VALUATION-102",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-RV-CONCEPT-OBJECT",
+          "description": "识别流通受限对象、锁定基础字段与台账属性",
+          "weight": 8,
+          "evidenceRequirement": "受限属性、锁定字段来源和台账属性判断正确",
+          "evidenceRules": [
+            {"fieldId": "restricted-flag", "operator": "EQUALS", "expected": "RESTRICTED_YES"},
+            {"fieldId": "lockup-fields", "operator": "EQUALS", "expected": "LOCK_CONFIRMATION"},
+            {"fieldId": "restricted-type", "operator": "EQUALS", "expected": "TYPE_ALIGNED"}
+          ],
+          "remediationTargetId": "R-RV-OBJECT"
+        },
+        {
+          "criterionId": "C-RV-CONCEPT-SOURCE",
+          "description": "理解 S 与 LoMD 只按题面批准快照取值",
+          "weight": 8,
+          "evidenceRequirement": "S 来源和 LoMD 来源选择正确",
+          "evidenceRules": [
+            {"fieldId": "valuation-s-source", "operator": "EQUALS", "expected": "S_CLOSE_PRICE"},
+            {"fieldId": "discount-source", "operator": "EQUALS", "expected": "LOMD_APPROVED"}
+          ],
+          "remediationTargetId": "R-RV-SOURCE"
+        },
+        {
+          "criterionId": "C-RV-CONCEPT-FV",
+          "description": "理解受限估值价不是普通收盘价，必须按批准快照计算",
+          "weight": 9,
+          "evidenceRequirement": "受限估值价与受限市值按批准快照计算正确",
+          "evidenceRules": [
+            {"fieldId": "fv-calculation", "operator": "NUMBER_EQUALS", "expected": 10.07, "tolerance": 0.01},
+            {"fieldId": "market-value", "operator": "NUMBER_EQUALS", "expected": 805600, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-RV-FV"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-RV-PROCESS-CALC",
+          "description": "完成估值增值、当日估增与前一日勾稽的连续计算",
+          "weight": 10,
+          "evidenceRequirement": "估值增值、当日估增和勾稽结论正确",
+          "evidenceRules": [
+            {"fieldId": "appreciation-balance", "operator": "NUMBER_EQUALS", "expected": 165600, "tolerance": 0.01},
+            {"fieldId": "daily-gain", "operator": "NUMBER_EQUALS", "expected": 45600, "tolerance": 0.01},
+            {"fieldId": "prior-day-check", "operator": "EQUALS", "expected": "RV_BALANCED"}
+          ],
+          "remediationTargetId": "R-RV-CALC"
+        },
+        {
+          "criterionId": "C-RV-PROCESS-BOOK",
+          "description": "补全估值增值账簿与转流通成本科目",
+          "weight": 10,
+          "evidenceRequirement": "账簿科目、账簿金额和转流通成本科目正确",
+          "evidenceRules": [
+            {"fieldId": "valuation-book-account", "operator": "CONTAINS_ALL", "expected": ["估值增值"]},
+            {"fieldId": "valuation-book-amount", "operator": "NUMBER_EQUALS", "expected": 45600, "tolerance": 0.01},
+            {"fieldId": "conversion-account-in", "operator": "CONTAINS_ALL", "expected": ["股票", "成本", "流通"]},
+            {"fieldId": "conversion-account-out", "operator": "CONTAINS_ALL", "expected": ["特定对象", "未流通"]}
+          ],
+          "remediationTargetId": "R-RV-LEDGER"
+        },
+        {
+          "criterionId": "C-RV-PROCESS-CONVERSION",
+          "description": "按最新公告完成转流通数量、成本、估值增值结转与连续性复核",
+          "weight": 10,
+          "evidenceRequirement": "转流通依据、结转金额和连续性结论正确",
+          "evidenceRules": [
+            {"fieldId": "announcement-authority", "operator": "EQUALS", "expected": "LATEST_ANNOUNCEMENT"},
+            {"fieldId": "conversion-quantity", "operator": "NUMBER_EQUALS", "expected": 80000, "tolerance": 0.01},
+            {"fieldId": "conversion-cost", "operator": "NUMBER_EQUALS", "expected": 640000, "tolerance": 0.01},
+            {"fieldId": "conversion-valuation-transfer", "operator": "NUMBER_EQUALS", "expected": 165600, "tolerance": 0.01},
+            {"fieldId": "continuity-result", "operator": "EQUALS", "expected": "CONTINUOUS"}
+          ],
+          "remediationTargetId": "R-RV-CONTINUITY"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-RV-RISK-SNAPSHOT",
+          "description": "控制不得直接以普通收盘价替代题面批准受限估值结果的混淆",
+          "weight": 9,
+          "evidenceRequirement": "批准折扣、受限估值价和受限市值同时正确",
+          "evidenceRules": [
+            {"fieldId": "discount-source", "operator": "EQUALS", "expected": "LOMD_APPROVED"},
+            {"fieldId": "fv-calculation", "operator": "NUMBER_EQUALS", "expected": 10.07, "tolerance": 0.01},
+            {"fieldId": "market-value", "operator": "NUMBER_EQUALS", "expected": 805600, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-RV-SOURCE"
+        },
+        {
+          "criterionId": "C-RV-RISK-DATE",
+          "description": "控制转流通日期与最新公告、锁定截止日的核对",
+          "weight": 8,
+          "evidenceRequirement": "转流通日期以最新公告为准且锁定基础字段来源正确",
+          "evidenceRules": [
+            {"fieldId": "announcement-authority", "operator": "EQUALS", "expected": "LATEST_ANNOUNCEMENT"},
+            {"fieldId": "lockup-fields", "operator": "EQUALS", "expected": "LOCK_CONFIRMATION"}
+          ],
+          "remediationTargetId": "R-RV-DATE"
+        },
+        {
+          "criterionId": "C-RV-RISK-CONTINUITY",
+          "description": "控制转流通前后数量、总成本与估值余额的连续性和防重复",
+          "weight": 8,
+          "evidenceRequirement": "转流通后数量、总成本、估值余额与连续性结论正确",
+          "evidenceRules": [
+            {"fieldId": "post-conversion-quantity", "operator": "NUMBER_EQUALS", "expected": 80000, "tolerance": 0.01},
+            {"fieldId": "post-conversion-cost", "operator": "NUMBER_EQUALS", "expected": 640000, "tolerance": 0.01},
+            {"fieldId": "post-conversion-valuation", "operator": "NUMBER_EQUALS", "expected": 165600, "tolerance": 0.01},
+            {"fieldId": "continuity-result", "operator": "EQUALS", "expected": "CONTINUOUS"}
+          ],
+          "remediationTargetId": "R-RV-CONTINUITY"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-RV-EXPR-RESULT",
+          "description": "以简短结论同时表达受限估值价、市值、估值增值、勾稽结论和转流通连续性",
+          "weight": 20,
+          "evidenceRequirement": "结论包含关键业务信息点且连续性结论正确",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["估值价", "市值", "估值增值", "勾稽一致", "转流通"]},
+            {"fieldId": "continuity-result", "operator": "EQUALS", "expected": "CONTINUOUS"}
+          ],
+          "remediationTargetId": "R-RV-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-RV-VALUATION-SNAPSHOT",
+      "description": "题面批准估值快照的受限估值价与受限市值计算必须正确",
+      "evidenceRequirement": "按批准 S、LoMD 完成受限估值价与市值计算，不直接使用普通收盘价",
+      "evidenceRules": [
+        {"fieldId": "valuation-s-source", "operator": "EQUALS", "expected": "S_CLOSE_PRICE"},
+        {"fieldId": "discount-source", "operator": "EQUALS", "expected": "LOMD_APPROVED"},
+        {"fieldId": "fv-calculation", "operator": "NUMBER_EQUALS", "expected": 10.07, "tolerance": 0.01},
+        {"fieldId": "market-value", "operator": "NUMBER_EQUALS", "expected": 805600, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-RV-FV"
+    },
+    {
+      "requirementId": "M-RV-CONVERSION-CONTINUITY",
+      "description": "转流通前后数量、总成本与估值余额必须连续闭合",
+      "evidenceRequirement": "转流通数量、成本、估值增值结转与转流通后结果可复算且连续",
+      "evidenceRules": [
+        {"fieldId": "conversion-quantity", "operator": "NUMBER_EQUALS", "expected": 80000, "tolerance": 0.01},
+        {"fieldId": "conversion-cost", "operator": "NUMBER_EQUALS", "expected": 640000, "tolerance": 0.01},
+        {"fieldId": "conversion-valuation-transfer", "operator": "NUMBER_EQUALS", "expected": 165600, "tolerance": 0.01},
+        {"fieldId": "post-conversion-quantity", "operator": "NUMBER_EQUALS", "expected": 80000, "tolerance": 0.01},
+        {"fieldId": "post-conversion-cost", "operator": "NUMBER_EQUALS", "expected": 640000, "tolerance": 0.01},
+        {"fieldId": "post-conversion-valuation", "operator": "NUMBER_EQUALS", "expected": 165600, "tolerance": 0.01},
+        {"fieldId": "continuity-result", "operator": "EQUALS", "expected": "CONTINUOUS"}
+      ],
+      "remediationTargetId": "R-RV-CONTINUITY"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-RV-OBJECT",
+      "title": "识别受限对象与台账字段",
+      "reason": "受限属性、锁定基础字段或台账属性未从资料正确判断",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "STK-RV-KC-02",
+      "questionId": "ACC-STOCK-RESTRICTED-VALUATION-Q-01"
+    },
+    {
+      "targetId": "R-RV-SOURCE",
+      "title": "区分 S 与 LoMD 来源",
+      "reason": "把普通收盘价直接当作受限估值价，或沿用历史折扣",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "STK-RV-KC-03",
+      "questionId": "ACC-STOCK-RESTRICTED-VALUATION-Q-01"
+    },
+    {
+      "targetId": "R-RV-FV",
+      "title": "复算受限估值价与市值",
+      "reason": "受限估值价或受限市值未按题面批准快照计算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-02",
+      "questionId": "ACC-STOCK-RESTRICTED-VALUATION-Q-02"
+    },
+    {
+      "targetId": "R-RV-CALC",
+      "title": "复算估值增值与当日估增",
+      "reason": "估值增值、当日估增或前一日勾稽关系未闭合",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "ACC-STOCK-RESTRICTED-VALUATION-Q-02"
+    },
+    {
+      "targetId": "R-RV-LEDGER",
+      "title": "补全估值增值账簿与转流通科目",
+      "reason": "估值增值账簿科目/金额或转流通成本科目未形成正确记录",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "ACC-STOCK-RESTRICTED-VALUATION-Q-03"
+    },
+    {
+      "targetId": "R-RV-DATE",
+      "title": "核对最新公告与转流通日期",
+      "reason": "转流通日期未按最新有效公告与锁定截止日核对",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "ACC-STOCK-RESTRICTED-VALUATION-Q-01"
+    },
+    {
+      "targetId": "R-RV-CONTINUITY",
+      "title": "复核转流通数量/成本/估值连续性",
+      "reason": "转流通前后数量、总成本或估值余额未完成连续复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-STOCK-RESTRICTED-VALUATION-Q-04"
+    },
+    {
+      "targetId": "R-RV-EXPRESSION",
+      "title": "形成可追溯受限估值与转流通结论",
+      "reason": "简短结论未清楚覆盖估值价、市值、估值增值、勾稽和转流通连续性",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-STOCK-RESTRICTED-VALUATION-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "restricted-flag": "RESTRICTED_YES",
+      "lockup-fields": "LOCK_CONFIRMATION",
+      "restricted-type": "TYPE_ALIGNED",
+      "valuation-s-source": "S_CLOSE_PRICE",
+      "discount-source": "LOMD_APPROVED",
+      "fv-calculation": 10.07,
+      "market-value": 805600,
+      "appreciation-balance": 165600,
+      "daily-gain": 45600,
+      "prior-day-check": "RV_BALANCED",
+      "valuation-book-account": "估值增值-特定对象发行未流通",
+      "valuation-book-amount": 45600,
+      "announcement-authority": "LATEST_ANNOUNCEMENT",
+      "conversion-quantity": 80000,
+      "conversion-cost": 640000,
+      "conversion-valuation-transfer": 165600,
+      "conversion-account-in": "股票成本-流通",
+      "conversion-account-out": "股票成本-特定对象发行未流通",
+      "post-conversion-quantity": 80000,
+      "post-conversion-cost": 640000,
+      "post-conversion-valuation": 165600,
+      "continuity-result": "CONTINUOUS",
+      "result-note": "案例股份 E 2027-05-19 受限估值价为 10.07 元/股，受限市值 805,600 元，估值增值 165,600 元，前一日市值 760,000 元加当日估增 45,600 元与当日市值勾稽一致；2027-05-20 按最新公告转流通后数量仍为 80,000 股、总成本 640,000 元、估值增值余额 165,600 元，连续闭合。"
+    }
+  }
+}

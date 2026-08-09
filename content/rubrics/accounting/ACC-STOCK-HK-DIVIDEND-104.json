@@ -1,0 +1,287 @@
+{
+  "routeId": "ACC-STOCK-HK-DIVIDEND-104",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-HK-DIV-CONCEPT-SOURCE",
+          "description": "识别最终有效权益信息、币种、登记日与权益状态",
+          "weight": 8,
+          "evidenceRequirement": "处理依据、权益币种、计算基数日期和权益状态判断正确",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-final-info", "operator": "EQUALS", "expected": "FINAL_ANNOUNCEMENT"},
+            {"fieldId": "hkdiv-currency", "operator": "EQUALS", "expected": "HKD"},
+            {"fieldId": "hkdiv-record-date", "operator": "EQUALS", "expected": "DATE_0910"},
+            {"fieldId": "hkdiv-status", "operator": "EQUALS", "expected": "NORMAL"}
+          ],
+          "remediationTargetId": "R-HK-DIV-FIELDS"
+        },
+        {
+          "criterionId": "C-HK-DIV-CONCEPT-DIVIDEND",
+          "description": "理解原币红利以登记日持仓为基数并按每股原币红利计算",
+          "weight": 9,
+          "evidenceRequirement": "登记日持仓、每股原币红利、原币红利与人民币应收按批准口径计算正确",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-record-holding", "operator": "NUMBER_EQUALS", "expected": 90000, "tolerance": 0.01},
+            {"fieldId": "hkdiv-dividend-per-share", "operator": "NUMBER_EQUALS", "expected": 0.16, "tolerance": 0.0001},
+            {"fieldId": "hkdiv-original-dividend", "operator": "NUMBER_EQUALS", "expected": 14400, "tolerance": 0.01},
+            {"fieldId": "hkdiv-rmb-receivable", "operator": "NUMBER_EQUALS", "expected": 13032, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-DIV-DIVIDEND"
+        },
+        {
+          "criterionId": "C-HK-DIV-CONCEPT-RATES",
+          "description": "理解除权日批准汇率仅用于人民币应收，到账以实际人民币入账金额为准",
+          "weight": 8,
+          "evidenceRequirement": "除权日批准汇率正确，人民币应收与实际人民币入账金额分别取数正确",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-ex-rate", "operator": "NUMBER_EQUALS", "expected": 0.905, "tolerance": 0.0001},
+            {"fieldId": "hkdiv-arrival-rmb-source", "operator": "EQUALS", "expected": "STATEMENT_RMB"},
+            {"fieldId": "hkdiv-rmb-receivable", "operator": "NUMBER_EQUALS", "expected": 13032, "tolerance": 0.01},
+            {"fieldId": "hkdiv-rmb-arrival", "operator": "NUMBER_EQUALS", "expected": 13176, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-DIV-RATES"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-HK-DIV-PROCESS-CALC",
+          "description": "完成原币红利与人民币应收的计算，读取人民币实际到账并计算汇兑差额",
+          "weight": 10,
+          "evidenceRequirement": "原币红利与人民币应收按批准口径计算，实际到账取自到账资料，汇差闭合",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-original-dividend", "operator": "NUMBER_EQUALS", "expected": 14400, "tolerance": 0.01},
+            {"fieldId": "hkdiv-rmb-receivable", "operator": "NUMBER_EQUALS", "expected": 13032, "tolerance": 0.01},
+            {"fieldId": "hkdiv-rmb-arrival", "operator": "NUMBER_EQUALS", "expected": 13176, "tolerance": 0.01},
+            {"fieldId": "hkdiv-fx-difference", "operator": "NUMBER_EQUALS", "expected": 144, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-DIV-CONVERT"
+        },
+        {
+          "criterionId": "C-HK-DIV-PROCESS-VOUCHER",
+          "description": "完成除权确认凭证、红利到账凭证与汇差调整的科目和方向",
+          "weight": 10,
+          "evidenceRequirement": "应收、红利收入、银行存款、应收结清、差额科目与差额方向正确",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-receivable-account", "operator": "CONTAINS_ALL", "expected": ["应收", "股利"]},
+            {"fieldId": "hkdiv-income-account", "operator": "CONTAINS_ALL", "expected": ["红利", "收入"]},
+            {"fieldId": "hkdiv-bank-account", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]},
+            {"fieldId": "hkdiv-clearing-account", "operator": "CONTAINS_ALL", "expected": ["应收", "股利"]},
+            {"fieldId": "hkdiv-diff-account", "operator": "CONTAINS_ALL", "expected": ["红利", "收入"]},
+            {"fieldId": "hkdiv-diff-direction", "operator": "EQUALS", "expected": "CREDIT_INCREASE"}
+          ],
+          "remediationTargetId": "R-HK-DIV-VOUCHER"
+        },
+        {
+          "criterionId": "C-HK-DIV-PROCESS-RECON",
+          "description": "完成原币到账核对、应收结清、净红利收入、资金和跨来源勾稽",
+          "weight": 10,
+          "evidenceRequirement": "实际到账原币与原币应收一致，应收结清、净收益、期末资金和勾稽结论正确",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-arrival-original", "operator": "NUMBER_EQUALS", "expected": 14400, "tolerance": 0.01},
+            {"fieldId": "hkdiv-original-match", "operator": "EQUALS", "expected": "MATCHED"},
+            {"fieldId": "hkdiv-receivable-cleared", "operator": "NUMBER_EQUALS", "expected": 13032, "tolerance": 0.01},
+            {"fieldId": "hkdiv-net-income", "operator": "NUMBER_EQUALS", "expected": 13176, "tolerance": 0.01},
+            {"fieldId": "hkdiv-cash-ending", "operator": "NUMBER_EQUALS", "expected": 1513176, "tolerance": 0.01},
+            {"fieldId": "hkdiv-reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-HK-DIV-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-HK-DIV-RISK-SOURCE",
+          "description": "控制以最终有效权益信息、正确币种和登记日持仓为处理基础",
+          "weight": 8,
+          "evidenceRequirement": "处理依据、币种、登记日、状态和登记日持仓均正确",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-final-info", "operator": "EQUALS", "expected": "FINAL_ANNOUNCEMENT"},
+            {"fieldId": "hkdiv-currency", "operator": "EQUALS", "expected": "HKD"},
+            {"fieldId": "hkdiv-record-date", "operator": "EQUALS", "expected": "DATE_0910"},
+            {"fieldId": "hkdiv-status", "operator": "EQUALS", "expected": "NORMAL"},
+            {"fieldId": "hkdiv-record-holding", "operator": "NUMBER_EQUALS", "expected": 90000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-HK-DIV-FIELDS"
+        },
+        {
+          "criterionId": "C-HK-DIV-RISK-RATES",
+          "description": "控制除权日批准汇率误用和到账金额来源/汇差方向风险",
+          "weight": 9,
+          "evidenceRequirement": "除权日批准汇率仅用于人民币应收，到账金额来自到账资料，汇差金额与调整方向正确",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-ex-rate", "operator": "NUMBER_EQUALS", "expected": 0.905, "tolerance": 0.0001},
+            {"fieldId": "hkdiv-arrival-rmb-source", "operator": "EQUALS", "expected": "STATEMENT_RMB"},
+            {"fieldId": "hkdiv-rmb-arrival", "operator": "NUMBER_EQUALS", "expected": 13176, "tolerance": 0.01},
+            {"fieldId": "hkdiv-fx-difference", "operator": "NUMBER_EQUALS", "expected": 144, "tolerance": 0.01},
+            {"fieldId": "hkdiv-diff-direction", "operator": "EQUALS", "expected": "CREDIT_INCREASE"}
+          ],
+          "remediationTargetId": "R-HK-DIV-RATES"
+        },
+        {
+          "criterionId": "C-HK-DIV-RISK-CLOSURE",
+          "description": "控制应收结清、资金与收益闭合及防重复确认风险",
+          "weight": 8,
+          "evidenceRequirement": "原币到账核对、应收结清、净收益、期末资金和勾稽结论均正确",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-original-match", "operator": "EQUALS", "expected": "MATCHED"},
+            {"fieldId": "hkdiv-receivable-cleared", "operator": "NUMBER_EQUALS", "expected": 13032, "tolerance": 0.01},
+            {"fieldId": "hkdiv-cash-ending", "operator": "NUMBER_EQUALS", "expected": 1513176, "tolerance": 0.01},
+            {"fieldId": "hkdiv-net-income", "operator": "NUMBER_EQUALS", "expected": 13176, "tolerance": 0.01},
+            {"fieldId": "hkdiv-reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-HK-DIV-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-HK-DIV-EXPR-RESULT",
+          "description": "以简短结论同时表达持仓、原币红利、人民币应收、实际到账、汇差与勾稽结果",
+          "weight": 20,
+          "evidenceRequirement": "结论包含关键结果并明确勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "hkdiv-result-note", "operator": "CONTAINS_ALL", "expected": ["持仓", "原币红利", "人民币应收", "到账", "汇差", "勾稽一致"]},
+            {"fieldId": "hkdiv-reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-HK-DIV-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-HK-DIV-RECORD-BASE",
+      "description": "必须使用题面最终有效权益信息、登记日持仓和正确币种",
+      "evidenceRequirement": "处理依据、币种、登记日、登记日持仓与原币红利均正确",
+      "evidenceRules": [
+        {"fieldId": "hkdiv-final-info", "operator": "EQUALS", "expected": "FINAL_ANNOUNCEMENT"},
+        {"fieldId": "hkdiv-currency", "operator": "EQUALS", "expected": "HKD"},
+        {"fieldId": "hkdiv-record-date", "operator": "EQUALS", "expected": "DATE_0910"},
+        {"fieldId": "hkdiv-record-holding", "operator": "NUMBER_EQUALS", "expected": 90000, "tolerance": 0.01},
+        {"fieldId": "hkdiv-original-dividend", "operator": "NUMBER_EQUALS", "expected": 14400, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-HK-DIV-FIELDS"
+    },
+    {
+      "requirementId": "M-HK-DIV-CLOSURE",
+      "description": "原币红利、人民币应收、实际到账和汇率差额必须完整闭合",
+      "evidenceRequirement": "原币应收与实际到账一致，人民币应收、实际到账、汇差、应收结清、净收益、资金和勾稽结论均可复算且一致",
+      "evidenceRules": [
+        {"fieldId": "hkdiv-original-dividend", "operator": "NUMBER_EQUALS", "expected": 14400, "tolerance": 0.01},
+        {"fieldId": "hkdiv-rmb-receivable", "operator": "NUMBER_EQUALS", "expected": 13032, "tolerance": 0.01},
+        {"fieldId": "hkdiv-arrival-original", "operator": "NUMBER_EQUALS", "expected": 14400, "tolerance": 0.01},
+        {"fieldId": "hkdiv-original-match", "operator": "EQUALS", "expected": "MATCHED"},
+        {"fieldId": "hkdiv-rmb-arrival", "operator": "NUMBER_EQUALS", "expected": 13176, "tolerance": 0.01},
+        {"fieldId": "hkdiv-fx-difference", "operator": "NUMBER_EQUALS", "expected": 144, "tolerance": 0.01},
+        {"fieldId": "hkdiv-receivable-cleared", "operator": "NUMBER_EQUALS", "expected": 13032, "tolerance": 0.01},
+        {"fieldId": "hkdiv-net-income", "operator": "NUMBER_EQUALS", "expected": 13176, "tolerance": 0.01},
+        {"fieldId": "hkdiv-cash-ending", "operator": "NUMBER_EQUALS", "expected": 1513176, "tolerance": 0.01},
+        {"fieldId": "hkdiv-reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-HK-DIV-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-HK-DIV-FIELDS",
+      "title": "识别最终权益信息、币种、登记日与状态",
+      "reason": "最终有效权益信息、权益币种、登记日或权益状态未从原始资料正确判断",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "HK-DIV-KC-01",
+      "questionId": "ACC-STOCK-HK-DIVIDEND-Q-01"
+    },
+    {
+      "targetId": "R-HK-DIV-DIVIDEND",
+      "title": "复算原币红利与人民币应收",
+      "reason": "原币红利或人民币应收未按登记日持仓、每股原币红利与除权日批准汇率复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-02",
+      "questionId": "ACC-STOCK-HK-DIVIDEND-Q-02"
+    },
+    {
+      "targetId": "R-HK-DIV-RATES",
+      "title": "区分除权日批准汇率与实际人民币入账",
+      "reason": "除权日批准汇率用途、到账金额来源或汇差金额判断错误",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "HK-DIV-KC-02",
+      "questionId": "ACC-STOCK-HK-DIVIDEND-Q-01"
+    },
+    {
+      "targetId": "R-HK-DIV-CONVERT",
+      "title": "复算人民币实际到账与汇兑差额",
+      "reason": "人民币实际到账未按到账资料实际人民币入账金额读取，或汇兑差额未按实际入账减人民币应收复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "ACC-STOCK-HK-DIVIDEND-Q-02"
+    },
+    {
+      "targetId": "R-HK-DIV-VOUCHER",
+      "title": "补全除权与到账凭证科目和差额方向",
+      "reason": "应收股利、红利收入、银行存款、应收结清或汇差调整未形成分列凭证证据",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "ACC-STOCK-HK-DIVIDEND-Q-04"
+    },
+    {
+      "targetId": "R-HK-DIV-RECON",
+      "title": "完成到账核对与资金/收益勾稽",
+      "reason": "原币到账核对、应收结清、净红利收入或期末资金未完成跨来源复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-STOCK-HK-DIVIDEND-Q-05"
+    },
+    {
+      "targetId": "R-HK-DIV-EXPRESSION",
+      "title": "形成双币种可追溯业务结论",
+      "reason": "简短结论未清楚覆盖登记日持仓、原币红利、人民币应收、实际到账、汇差和勾稽判断",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-STOCK-HK-DIVIDEND-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "hkdiv-final-info": "FINAL_ANNOUNCEMENT",
+      "hkdiv-currency": "HKD",
+      "hkdiv-record-date": "DATE_0910",
+      "hkdiv-status": "NORMAL",
+      "hkdiv-record-holding": 90000,
+      "hkdiv-dividend-per-share": 0.16,
+      "hkdiv-original-dividend": 14400,
+      "hkdiv-ex-rate": 0.905,
+      "hkdiv-rmb-receivable": 13032,
+      "hkdiv-receivable-account": "应收股利-金融资产-交易性-股票-港股通",
+      "hkdiv-income-account": "投资收益-金融资产-交易性-股票-港股通红利收入",
+      "hkdiv-arrival-original": 14400,
+      "hkdiv-original-match": "MATCHED",
+      "hkdiv-arrival-rmb-source": "STATEMENT_RMB",
+      "hkdiv-rmb-arrival": 13176,
+      "hkdiv-fx-difference": 144,
+      "hkdiv-bank-account": "银行存款-活期存款",
+      "hkdiv-clearing-account": "应收股利-金融资产-交易性-股票-港股通",
+      "hkdiv-diff-account": "投资收益-金融资产-交易性-股票-港股通红利收入",
+      "hkdiv-diff-direction": "CREDIT_INCREASE",
+      "hkdiv-receivable-cleared": 13032,
+      "hkdiv-cash-ending": 1513176,
+      "hkdiv-net-income": 13176,
+      "hkdiv-reconciliation-result": "BALANCED",
+      "hkdiv-result-note": "登记日持仓 90,000 股，原币红利 14,400.00 港元，人民币应收 13,032.00 元，实际到账人民币 13,176.00 元，汇差 144.00 元调整红利收入，应收结清、资金余额 1,513,176.00 元，勾稽一致。"
+    }
+  }
+}

@@ -27,6 +27,188 @@
       "locator": "discussion_log.md §16、§19—§21、§44.6—§44.8",
       "contentUse": "路线 ACC-STOCK-TRADE-001",
       "reviewNote": "限定首条路线为普通股票正常买卖—费用—移动加权成本—剩余持仓/成本—资金与估值勾稽，不引入异常案例或第二条路线。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-IPO-PDF-2024",
+      "title": "股票业务介绍-2024（网上新股 PDF 主证据）",
+      "locator": "第 29—31 页",
+      "contentUse": "路线 ACC-STOCK-IPO-002",
+      "reviewNote": "仅支持网上新股申请、确认、数量、成本和资金清算链，不外推网下申购。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-IPO-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（网上新股同源 OFD）",
+      "locator": "与 PDF 同名同源 OFD",
+      "contentUse": "路线 ACC-STOCK-IPO-002",
+      "reviewNote": "仅作格式交叉核对，不重复计权。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-IPO-ROUTE-DECISIONS",
+      "title": "网上新股高保真路线决定",
+      "locator": "核算案例库讨论记录与股票模块施工计划",
+      "contentUse": "路线 ACC-STOCK-IPO-002",
+      "reviewNote": "限定申请与确认两阶段及正常资料链，排除网下申购和无材料支持的佣金规则。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-IPO-CASE-PARAMETERS-202608",
+      "title": "网上新股路线题面批准合成参数",
+      "locator": "ACC-STOCK-IPO-002 综合实务资料包，2026.08 版本",
+      "contentUse": "路线 ACC-STOCK-IPO-002",
+      "reviewNote": "仅约束本案时间线、确认成本与资金清算口径。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-EQUITY-PDF-2024",
+      "title": "股票业务介绍-2024（现金分红与送转 PDF 主证据）",
+      "locator": "第 60—63、66—68 页",
+      "contentUse": "路线 ACC-STOCK-EQUITY-003",
+      "reviewNote": "支持登记日持仓、现金分红、送转数量、成本连续和资金/持仓勾稽。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-EQUITY-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（现金分红与送转同源 OFD）",
+      "locator": "与 PDF 同名同源 OFD",
+      "contentUse": "路线 ACC-STOCK-EQUITY-003",
+      "reviewNote": "仅作格式交叉核对，不重复计权。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-EQUITY-ROUTE-DECISIONS",
+      "title": "现金分红与送转高保真路线决定",
+      "locator": "核算案例库讨论记录与股票模块施工计划",
+      "contentUse": "路线 ACC-STOCK-EQUITY-003",
+      "reviewNote": "限定登记日持仓到现金、数量、成本和估值结果的正常连续链。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-EQUITY-CASE-PARAMETERS-202608",
+      "title": "现金分红与送转路线题面批准合成参数",
+      "locator": "ACC-STOCK-EQUITY-003 综合实务资料包，2026.08 版本",
+      "contentUse": "路线 ACC-STOCK-EQUITY-003",
+      "reviewNote": "仅约束本案比例、日期、价格和金额精度。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-DIVIDEND-TAX-PDF-2024",
+      "title": "股票业务介绍-2024（股息红利税 PDF 主证据）",
+      "locator": "第 66—70 页",
+      "contentUse": "路线 ACC-STOCK-DIVIDEND-TAX-004",
+      "reviewNote": "支持历史分红、后续卖出、税务资料和扣税账务的对象匹配，不固化税率。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-DIVIDEND-TAX-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（股息红利税同源 OFD）",
+      "locator": "与 PDF 同名同源 OFD",
+      "contentUse": "路线 ACC-STOCK-DIVIDEND-TAX-004",
+      "reviewNote": "仅作格式交叉核对，不重复计权。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-CASE-PARAMETERS-202608",
+      "title": "股票业务题面批准合成参数",
+      "locator": "股票综合实务资料包，2026.08 版本",
+      "contentUse": "路线 ACC-STOCK-TRADE-001、ACC-STOCK-DIVIDEND-TAX-004、ACC-STOCK-RESTRICTED-VALUATION-102",
+      "reviewNote": "仅约束相应题面的合成日期、金额、精度和计算口径。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-PRIVATE-PDF-2024",
+      "title": "股票业务介绍-2024（非公开发行 PDF 主证据）",
+      "locator": "第 36—43 页",
+      "contentUse": "路线 ACC-STOCK-PRIVATE-ISSUE-101",
+      "reviewNote": "支持申购付款、正式确认、锁定台账、上市流通公告与转流通连续性。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-PRIVATE-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（非公开发行同源 OFD）",
+      "locator": "与 PDF 同名同源 OFD",
+      "contentUse": "路线 ACC-STOCK-PRIVATE-ISSUE-101",
+      "reviewNote": "仅作格式交叉核对，不重复计权。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-PRIVATE-ROUTE-DECISIONS",
+      "title": "非公开发行高保真路线决定",
+      "locator": "核算案例库讨论记录与股票模块施工计划",
+      "contentUse": "路线 ACC-STOCK-PRIVATE-ISSUE-101",
+      "reviewNote": "限定正常申购、确认、锁定和转流通链，不重复普通股票买卖。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-PRIVATE-CASE-PARAMETERS-202608",
+      "title": "非公开发行路线题面批准合成参数",
+      "locator": "ACC-STOCK-PRIVATE-ISSUE-101 综合实务资料包，2026.08 版本",
+      "contentUse": "路线 ACC-STOCK-PRIVATE-ISSUE-101",
+      "reviewNote": "仅约束本案发行价格、数量、公告日期和估值口径。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-RESTRICTED-PDF-2024",
+      "title": "股票业务介绍-2024（受限估值 PDF 主证据）",
+      "locator": "第 44—59 页",
+      "contentUse": "路线 ACC-STOCK-RESTRICTED-VALUATION-102",
+      "reviewNote": "支持限售状态、题面批准估值公式、估值增值与转流通连续性。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-RESTRICTED-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（受限估值同源 OFD）",
+      "locator": "与 PDF 同名同源 OFD",
+      "contentUse": "路线 ACC-STOCK-RESTRICTED-VALUATION-102",
+      "reviewNote": "仅作格式交叉核对，不重复计权。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-ROUTE-PLAN-102",
+      "title": "受限估值高保真路线施工计划",
+      "locator": "股票模块高保真施工计划第 5 条路线",
+      "contentUse": "路线 ACC-STOCK-RESTRICTED-VALUATION-102",
+      "reviewNote": "限定受限估值、估值增值和转流通连续性，历史公式仅作题面快照。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-TRADE-PDF-2024",
+      "title": "股票业务介绍-2024（港股通交易 PDF 主证据）",
+      "locator": "第 85—97 页",
+      "contentUse": "路线 ACC-STOCK-HK-TRADE-103",
+      "reviewNote": "支持原币成交、交易汇率、资金交收、估值汇率和双币种勾稽。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-TRADE-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（港股通交易同源 OFD）",
+      "locator": "与 PDF 同名同源 OFD",
+      "contentUse": "路线 ACC-STOCK-HK-TRADE-103",
+      "reviewNote": "仅作格式交叉核对，不重复计权。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-ROUTE-DECISIONS",
+      "title": "港股通交易高保真路线决定",
+      "locator": "核算案例库讨论记录与股票模块施工计划",
+      "contentUse": "路线 ACC-STOCK-HK-TRADE-103",
+      "reviewNote": "区分交易日确认、资金交收和估值复核，不固化历史 T+N 或汇率来源。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-CASE-PARAMETERS-202608",
+      "title": "港股通交易路线题面批准合成参数",
+      "locator": "ACC-STOCK-HK-TRADE-103 综合实务资料包，2026.08 版本",
+      "contentUse": "路线 ACC-STOCK-HK-TRADE-103",
+      "reviewNote": "仅约束本案汇率、交收批次、费用金额和精度。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-DIVIDEND-PDF-2024",
+      "title": "股票业务介绍-2024（港股通现金分红 PDF 主证据）",
+      "locator": "第 90—97 页",
+      "contentUse": "路线 ACC-STOCK-HK-DIVIDEND-104",
+      "reviewNote": "支持原币应收、人民币应收、实际人民币到账、汇兑差额与账簿勾稽。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-DIVIDEND-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（港股通现金分红同源 OFD）",
+      "locator": "与 PDF 同名同源 OFD",
+      "contentUse": "路线 ACC-STOCK-HK-DIVIDEND-104",
+      "reviewNote": "仅作格式交叉核对，不重复计权。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-DIVIDEND-ROUTE-DECISIONS",
+      "title": "港股通现金分红高保真路线决定",
+      "locator": "核算案例库讨论记录与股票模块施工计划",
+      "contentUse": "路线 ACC-STOCK-HK-DIVIDEND-104",
+      "reviewNote": "限定正常分红与汇兑结果链，排除港股红利税率、供股和权证。"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-DIVIDEND-CASE-PARAMETERS-202608",
+      "title": "港股通现金分红路线题面批准合成参数",
+      "locator": "ACC-STOCK-HK-DIVIDEND-104 综合实务资料包，2026.08 版本",
+      "contentUse": "路线 ACC-STOCK-HK-DIVIDEND-104",
+      "reviewNote": "仅约束本案币种、汇率、到账金额、日期和精度。"
     }
   ]
 }

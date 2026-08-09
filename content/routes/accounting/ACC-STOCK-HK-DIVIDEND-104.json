@@ -1,0 +1,679 @@
+{
+  "routeId": "ACC-STOCK-HK-DIVIDEND-104",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "港股通现金分红与到账汇差",
+  "summary": "沿港股通股票的正常现金分红，完成最终有效权益信息与币种读取、原币红利计算、除权日人民币应收确认、实际人民币到账金额读取、汇兑差额调整和应收/资金/收益勾稽的可复核核算链。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "从最终有效权益公告、港股权益信息记录（hk_tzxx/SZHK_TZXX、CA 管理表）和登记日持仓台账读取权益币种、每股原币红利、登记日、除权日、红利到账日、登记日持仓数量和状态，判断正常港股通现金分红业务",
+    "按原币应收＝登记日持仓 × 每股原币红利计算原币红利，并按除权日批准汇率（题面批准快照）折算人民币应收，在除权日确认应收股利",
+    "按红利到账资料直接提供的实际人民币入账金额确认实际到账（实际到账原币用于对象与币种匹配），计算汇兑差额，到账日结清应收并将差额调整入港股通红利收入科目",
+    "用原币红利、人民币应收、人民币实际到账、汇兑差额、资金台账和红利收入账簿完成跨来源勾稽并形成简短结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "HK-DIV-KC-01",
+          "type": "FLOW",
+          "title": "一笔港股通现金分红怎样从最终权益公告走到到账勾稽",
+          "conclusion": "先以最终有效权益公告和港股权益信息记录确认币种、登记日、除权日与红利到账日，再按登记日持仓计算原币红利，按除权日批准汇率折算人民币应收，到账日按银行/到账资料直接提供的实际人民币入账金额确认实际到账并计算汇兑差额，最后结清应收、调整红利收入并完成资金与账簿勾稽。",
+          "items": [
+            "港股权益信息：通过读取 hk_tzxx（上交所）、SZHK_TZXX（深交所）文件获取，可通过 CA 管理表查询，方法同普通境内股票权益",
+            "港股权益的公告日期与权益实际发生日期间隔一般较长，最终权益日期可能与最初公告日期不一致；本案一律以题面最终有效权益公告与港股权益信息记录为准",
+            "原币红利＝登记日持仓 × 每股原币红利；权益币种（人民币、港币、美元均有可能）先识别，原币非人民币时分红凭证会体现币种与汇率信息",
+            "除权日按除权日批准汇率折算人民币应收并确认应收股利；红利到账日以银行/到账资料直接提供的实际人民币入账金额为准，实际到账原币用于对象与币种匹配",
+            "到账凭证以实际入账金额为准，结清应收，差额调整入股票红利收入科目；原币、人民币应收、实际到账、汇差、资金与账簿必须闭合"
+          ]
+        },
+        {
+          "cardId": "HK-DIV-KC-02",
+          "type": "CATEGORIES",
+          "title": "除权日批准汇率、到账日实际入账金额与差额调整不能互相替代",
+          "conclusion": "除权日确认人民币应收，红利到账日按实际入账金额结清；除权日批准汇率仅用于人民币应收（题面批准快照），红利到账以到账资料直接提供的实际人民币入账金额为准，差额调整入股票红利收入科目。",
+          "items": [
+            "除权日：确认应收股利与红利收入，人民币应收＝原币应收 × 除权日批准汇率（题面批准快照）",
+            "红利到账日：以到账资料直接提供的实际人民币入账金额为准，实际到账原币仅用于对象与币种匹配，不再乘汇率作为金额来源",
+            "汇兑差额＝人民币实际到账－人民币应收；实际到账小于应收时调减红利收入，大于应收时调增红利收入，以实际入账金额为准",
+            "除权日批准汇率仅用于人民币应收（题面批准快照）；红利到账以到账资料实际人民币入账金额为准，不按其他汇率重算，也不能用历史汇率代替",
+            "币种字段先于计算：港股通权益币种可能为人民币、港币或美元，原币非人民币时才产生折算与汇差"
+          ]
+        },
+        {
+          "cardId": "HK-DIV-KC-03",
+          "type": "KEY_POINT",
+          "title": "原币、人民币应收、实际到账与汇差必须形成闭合关系",
+          "conclusion": "原币红利由登记日持仓与每股原币红利形成，人民币应收由原币应收与除权日批准汇率形成，人民币实际到账以到账资料直接提供的实际人民币入账金额为准，汇差使应收结清后净红利收入等于实际到账人民币，且资金台账同步增加。",
+          "items": [
+            "原币应收＝登记日持仓 × 每股原币红利；实际到账原币与原币应收核对一致",
+            "人民币应收＝原币应收 × 除权日批准汇率（题面批准快照）；人民币实际到账＝到账资料直接提供的实际人民币入账金额",
+            "汇兑差额＝人民币实际到账－人民币应收；到账凭证借银行存款（实际到账人民币）、贷应收股利（原确认人民币），差额调整投资收益-港股通红利收入",
+            "应收结清后：净红利收入＝人民币应收＋汇差＝人民币实际到账；资金台账期末余额＝期初余额＋实际到账人民币",
+            "原币勾稽、应收勾稽、资金勾稽和收益勾稽全部复算一致后才可确认业务闭合"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品 A 的组合核算人员",
+        "product": "案例产品 A / 案例港股 A",
+        "date": "2026-08-20 至 2026-09-03",
+        "facts": [
+          "8 月 20 日最终有效权益公告：案例港股 A 每股现金红利 0.2000 港元，权益币种为港元；登记日 8 月 25 日、除权日 8 月 26 日、红利到账日 9 月 3 日；港股权益信息记录（CA 管理表查询）状态正常、最终权益日期与公告一致。",
+          "8 月 25 日登记日持仓 60,000 股；处理前资金台账余额为 2,000,000.00 元。",
+          "8 月 26 日除权日：除权日批准汇率 0.8800 元/港元（人行中间价，题面批准快照）。",
+          "9 月 3 日红利到账资料：实际人民币入账金额 10,440.00 元，实际到账原币 12,000.00 港元（用于对象与币种匹配）；到账状态正常。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取最终有效权益公告与港股权益信息记录（hk_tzxx/SZHK_TZXX、CA 管理表）：权益币种港元、每股现金红利 0.2000 港元、登记日 8 月 25 日、除权日 8 月 26 日、红利到账日 9 月 3 日、状态正常",
+          "reason": "港股权益的公告日期与权益实际发生日期间隔一般较长，最终权益日期可能与最初公告不一致；必须使用最终有效权益信息和正确币种，不能以最初公告代替。"
+        },
+        {
+          "order": 2,
+          "action": "计算原币应收 60,000 × 0.2000 = 12,000.00 港元；按除权日批准汇率折算人民币应收 12,000.00 × 0.8800 = 10,560.00 元；除权日凭证借应收股利 10,560.00 元、贷投资收益-港股通红利收入 10,560.00 元，凭证体现原币 12,000.00 港元与汇率 0.8800",
+          "reason": "原币红利以登记日持仓为基数；原币非人民币时先按原币计算，再按除权日批准汇率（题面批准快照）折算人民币应收并确认应收股利，不把除权日人行中间价写成当前永久来源。"
+        },
+        {
+          "order": 3,
+          "action": "到账日读取红利到账资料：实际人民币入账金额 10,440.00 元（银行到账流水直接提供），实际到账原币 12,000.00 港元与原币应收匹配；汇兑差额 10,440.00 - 10,560.00 = -120.00 元",
+          "reason": "除权与红利到账一般不在同一天，若原币非人民币可能存在汇率差；以实际入账金额为准，人民币实际到账直接取自到账资料，不按其他汇率重算；实际到账原币仅用于对象与币种匹配。"
+        },
+        {
+          "order": 4,
+          "action": "补全 9 月 3 日到账凭证：借银行存款 10,440.00 元、借投资收益-港股通红利收入 120.00 元、贷应收股利 10,560.00 元；应收股利账簿结清，资金台账 2,000,000.00 + 10,440.00 = 2,010,440.00 元",
+          "reason": "到账时按实际入账金额增加资金并按原确认人民币金额结清应收，差额调整入股票红利收入科目（实际到账小于应收时调减收益），不能重复确认收入。"
+        },
+        {
+          "order": 5,
+          "action": "完成跨来源勾稽：原币 12,000.00 港元＝原币应收＝实际到账原币；人民币应收 10,560.00 元、人民币实际到账 10,440.00 元、汇差 -120.00 元；净红利收入 10,560.00 - 120.00 = 10,440.00 元＝实际到账人民币；资金、应收和收益结果闭合并形成简短结论",
+          "reason": "原币勾稽、人民币应收、实际到账、汇差、应收结清、资金台账与净红利收入共同证明链条闭合，任何一项不能由资料复算都要退回复核。"
+        }
+      ],
+      "summary": "读最终权益与币种 → 原币红利与人民币应收 → 实际入账与汇差 → 凭证、账簿与资金 → 跨来源勾稽"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-STOCK-HK-DIVIDEND-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "请把案例港股 C 的权益字段、日期和汇率/到账金额口径分别对应到正确的业务含义。每一行都要从题面材料取证。",
+          "fieldMappings": [
+            {
+              "fieldId": "final-info",
+              "label": "最终有效权益公告（含最终权益日期）",
+              "source": "8 月 20 日公告与港股权益信息记录",
+              "options": [
+                {"optionId": "FINAL_INFO_USE", "text": "作为原币红利、日期字段和币种的处理依据"},
+                {"optionId": "INITIAL_INFO_USE", "text": "以最初公告信息作为处理依据"}
+              ]
+            },
+            {
+              "fieldId": "currency",
+              "label": "权益币种：港元",
+              "source": "最终有效权益公告",
+              "options": [
+                {"optionId": "ORIGINAL_CURRENCY", "text": "先按港元计算原币红利，再按批准汇率折算人民币"},
+                {"optionId": "RMB_DIRECT", "text": "直接按人民币计算每股红利"}
+              ]
+            },
+            {
+              "fieldId": "ex-date",
+              "label": "除权日",
+              "source": "最终有效权益公告",
+              "options": [
+                {"optionId": "EX_DATE_RECOGNIZE", "text": "按除权日批准汇率折算并确认人民币应收"},
+                {"optionId": "ARRIVAL_DATE_RECOGNIZE", "text": "到账日才首次确认人民币应收"}
+              ]
+            },
+            {
+              "fieldId": "arrival-date",
+              "label": "红利到账日",
+              "source": "红利到账资料",
+              "options": [
+                {"optionId": "ARRIVAL_SETTLE", "text": "按到账资料直接提供的实际人民币入账金额结清、调整差额"},
+                {"optionId": "EX_DATE_SETTLE", "text": "按除权日批准汇率直接结清"}
+              ]
+            },
+            {
+              "fieldId": "arrival-evidence",
+              "label": "除权日批准汇率 0.8600 与红利到账资料实际人民币入账金额",
+              "source": "除权日汇率通知与红利到账资料",
+              "options": [
+                {"optionId": "RECORDED_ARRIVAL", "text": "除权日批准汇率仅用于人民币应收，到账以实际人民币入账金额为准"},
+                {"optionId": "RATE_RECOMPUTE", "text": "按到账原币乘以另一日汇率重算人民币到账"}
+              ]
+            }
+          ],
+          "answer": ["FINAL_INFO_USE", "ORIGINAL_CURRENCY", "EX_DATE_RECOGNIZE", "ARRIVAL_SETTLE", "RECORDED_ARRIVAL"],
+          "explanation": "最终有效权益信息是处理依据；币种决定先按原币计算红利；除权日确认人民币应收，到账日按到账资料直接提供的实际人民币入账金额结清并调整差额，不按另一日汇率重算。",
+          "hints": ["先逐行定位字段来源，再把最终权益依据、原币口径、除权确认、到账结清和到账金额来源分开判断。"]
+        },
+        {
+          "questionId": "ACC-STOCK-HK-DIVIDEND-Q-02",
+          "type": "CALCULATION",
+          "prompt": "从 9 月 10 日最终有效权益公告、登记日持仓台账与红利到账资料取数，并按题面批准关系复算四个数字。请填写数字，不要把结果放在选择项里。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "original-dividend", "label": "原币红利", "formula": "登记日持仓 50,000 × 每股原币红利 0.2200 = ?", "placeholder": "输入港元", "unit": "港元", "precision": 2},
+              {"fieldId": "rmb-receivable", "label": "人民币应收", "formula": "11,000.00 × 除权日批准汇率 0.8600 = ?", "placeholder": "输入元", "unit": "元", "precision": 2},
+              {"fieldId": "rmb-arrival", "label": "人民币实际到账", "formula": "红利到账资料直接提供实际人民币入账金额 = ?", "placeholder": "输入元", "unit": "元", "precision": 2},
+              {"fieldId": "fx-difference", "label": "汇兑差额", "formula": "9,350.00 - 9,460.00 = ?", "placeholder": "输入元", "unit": "元", "precision": 2}
+            ]
+          },
+          "answer": ["11000", "9460", "9350", "-110"],
+          "explanation": "原币红利以登记日持仓为基数；人民币应收用原币红利与除权日批准汇率，人民币实际到账直接取自到账资料的实际人民币入账金额，汇兑差额为两者之差。",
+          "hints": ["先填原币红利，再用除权日批准汇率算人民币应收，第三格直接读取到账资料的实际人民币入账金额，最后一格用人民币到账减人民币应收复算；逗号和空格不影响数字识别。"]
+        },
+        {
+          "questionId": "ACC-STOCK-HK-DIVIDEND-Q-03",
+          "type": "ORDERING",
+          "prompt": "请按本案例题面时间线排列一笔港股通现金分红从最终权益公告到到账勾稽的处理顺序。",
+          "items": [
+            {
+              "itemId": "READ_FINAL_INFO",
+              "text": "读取最终有效权益公告与港股权益信息记录，确认币种、登记日、除权日和红利到账日"
+            },
+            {
+              "itemId": "READ_HOLDING",
+              "text": "读取登记日持仓并按每股原币红利计算原币红利"
+            },
+            {
+              "itemId": "CONVERT_RECEIVABLE",
+              "text": "按除权日批准汇率折算人民币应收并确认应收股利"
+            },
+            {
+              "itemId": "CONVERT_ARRIVAL",
+              "text": "读取红利到账资料直接提供的实际人民币入账金额并计算汇差（实际到账原币仅作对象与币种匹配）"
+            },
+            {
+              "itemId": "BOOK_AND_RECON",
+              "text": "补全到账凭证结清应收、调整红利收入并完成资金与账簿勾稽"
+            }
+          ],
+          "answer": ["READ_FINAL_INFO", "READ_HOLDING", "CONVERT_RECEIVABLE", "CONVERT_ARRIVAL", "BOOK_AND_RECON"],
+          "explanation": "本案按题面时间线先确认最终权益信息与币种，再读取登记日持仓计算原币红利，除权日确认人民币应收，到账日折算实际到账并计算汇差，最后结清应收、调整收益并完成勾稽；除权确认与到账结清是不同状态，不能互相替代。",
+          "hints": ["把最终权益读取和到账勾稽放在两端，中间按除权日确认、到账日结清排列。"]
+        },
+        {
+          "questionId": "ACC-STOCK-HK-DIVIDEND-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全案例港股 D 除权确认与红利到账凭证的五个科目。借贷方向、金额和资料来源已经给出，你只需要补科目名称。",
+          "ledgerEntries": [
+            {"entryId": "debit-receivable", "direction": "借", "label": "应收股利，9,460.00 元", "amount": "9,460.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "credit-income", "direction": "贷", "label": "港股通红利收入，9,460.00 元", "amount": "9,460.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "debit-bank", "direction": "借", "label": "银行存款，9,350.00 元", "amount": "9,350.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "debit-diff", "direction": "借", "label": "港股通红利收入（汇差调整），110.00 元", "amount": "110.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "credit-receivable", "direction": "贷", "label": "应收股利，9,460.00 元", "amount": "9,460.00 元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["应收股利-金融资产-交易性-股票-港股通", "投资收益-金融资产-交易性-股票-港股通红利收入", "银行存款-活期存款", "投资收益-金融资产-交易性-股票-港股通红利收入", "应收股利-金融资产-交易性-股票-港股通"],
+          "explanation": "除权日确认应收股利与红利收入；到账日按实际到账金额借银行存款，按原确认人民币金额贷应收股利，实际到账小于应收时借红利收入调减收益，借贷合计相等。",
+          "hints": ["先按除权确认区分应收股利与红利收入，再按到账结清区分银行存款与应收股利，最后把汇差调整放到红利收入科目。"]
+        },
+        {
+          "questionId": "ACC-STOCK-HK-DIVIDEND-Q-05",
+          "type": "RECONCILIATION",
+          "prompt": "用案例港股 E 的应收红利账簿、红利到账资料、资金台账和批准参数完成跨来源复算。数字字段逐格填写，最后选择原币核对与勾稽结论。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "original-match", "label": "原币核对结果", "kind": "SELECT", "formula": "原币应收 7,200.00 港元 与 实际到账原币 7,200.00 港元", "placeholder": "选择原币核对结果", "options": [
+                {"optionId": "MATCHED", "text": "原币应收与实际到账原币一致"},
+                {"optionId": "MISMATCHED", "text": "原币应收与实际到账原币存在差异"}
+              ]},
+              {"fieldId": "ending-cash", "label": "期末资金余额", "kind": "NUMBER", "formula": "600,000.00 + 6,552.00 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "fx-difference", "label": "汇兑差额", "kind": "NUMBER", "formula": "6,552.00 - 6,480.00 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "net-income", "label": "净红利收入", "kind": "NUMBER", "formula": "6,480.00 + 72.00 = ?", "placeholder": "输入元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "result", "label": "跨来源勾稽结论", "kind": "SELECT", "formula": "原币、人民币应收、实际到账、汇差、资金和收益应相互解释", "placeholder": "选择勾稽结论", "options": [
+                {"optionId": "BALANCED", "text": "原币、人民币应收、实际到账、资金和收益勾稽一致"},
+                {"optionId": "UNBALANCED", "text": "至少一项结果无法由资料复算"}
+              ]}
+            ]
+          },
+          "answer": ["MATCHED", "606552", "72", "6552", "BALANCED"],
+          "explanation": "原币应收与实际到账原币一致；期末资金、汇差和净红利收入分别由资金台账、除权日批准汇率和收益关系复算，全部闭合后才能判断勾稽一致。",
+          "hints": ["先核对原币到账一致性，再核对 600,000 + 6,552 的资金公式与 6,480 + 72 的净收益公式，最后判断勾稽结论。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品 B 的组合核算人员",
+        "product": "案例产品 B / 案例港股 H",
+        "date": "2026-09-05 至 2026-09-22",
+        "purpose": "根据一组资料充分、状态正常的港股通现金分红资料，独立完成最终权益信息与币种字段读取、原币红利与人民币应收计算、除权确认凭证、实际到账与汇差计算、到账凭证与应收/资金台账补全，以及原币、人民币、资金和收益结果的跨来源勾稽。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "HK-DIV-CASE-PARAMETERS",
+          "title": "本案计算口径与批准参数",
+          "kind": "PARAMETER",
+          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史日期、汇率、币种口径或账务科目固化为跨版本永久规则。",
+          "fields": [
+            {"fieldId": "scope", "label": "业务范围", "value": "港股通正常现金分红；所有记录状态均为正常"},
+            {"fieldId": "final-info-rule", "label": "权益依据", "value": "以题面最终有效权益公告与港股权益信息记录为准；最初公告日期、历史公告或历史汇率不作为处理依据"},
+            {"fieldId": "currency-rule", "label": "币种口径", "value": "权益币种以公告为准；原币非人民币时先按原币计算红利，再按除权日批准汇率折算人民币应收"},
+            {"fieldId": "receivable-rule", "label": "应收口径", "value": "原币应收＝登记日持仓 × 每股原币红利；人民币应收＝原币应收 × 除权日批准汇率（人行中间价仅为本题题面批准快照，不固化当前汇率来源）"},
+            {"fieldId": "arrival-rule", "label": "到账口径", "value": "人民币实际到账＝红利到账资料直接提供的实际人民币入账金额；实际到账原币仅用于对象与币种匹配，不乘汇率作为金额来源"},
+            {"fieldId": "fx-rule", "label": "汇差口径", "value": "汇兑差额＝实际人民币入账金额－人民币应收；差额调整入投资收益-港股通红利收入科目"},
+            {"fieldId": "account-rule", "label": "本案批准科目", "value": "应收股利-金融资产-交易性-股票-港股通；投资收益-金融资产-交易性-股票-港股通红利收入；银行存款-活期存款"},
+            {"fieldId": "precision-boundary", "label": "本案精度边界", "value": "每股红利与汇率按 4 位小数；金额按 0.01 元/0.01 港元填写；本案中间值均可直接得到"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-FINAL-ANNOUNCEMENT",
+          "title": "9 月 5 日最终有效权益公告",
+          "kind": "STATEMENT",
+          "description": "案例港股 H 现金分红的最终有效权益公告，是权益币种、每股原币红利、登记日、除权日和红利到账日的第一来源。",
+          "fields": [
+            {"fieldId": "announcement-date", "label": "公告日期", "value": "2026-09-05"},
+            {"fieldId": "security", "label": "证券", "value": "案例港股 H"},
+            {"fieldId": "market", "label": "交易市场", "value": "上海港股通"},
+            {"fieldId": "biz-type", "label": "业务类型", "value": "现金分红"},
+            {"fieldId": "currency", "label": "权益币种", "value": "港元"},
+            {"fieldId": "dividend-per-share", "label": "每股现金红利（原币）", "value": "0.1600", "unit": "港元/股"},
+            {"fieldId": "record-date", "label": "登记日", "value": "2026-09-10"},
+            {"fieldId": "ex-date", "label": "除权日", "value": "2026-09-11"},
+            {"fieldId": "arrival-date", "label": "红利到账日", "value": "2026-09-22"},
+            {"fieldId": "status", "label": "公告状态", "value": "最终有效"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-CA-RECORD",
+          "title": "9 月 5 日港股权益信息记录（CA 管理表查询）",
+          "kind": "CONFIRMATION",
+          "description": "通过 hk_tzxx（上交所）文件获取并在 CA 管理表查询的港股权益信息，用于与最终有效权益公告交叉核对币种、日期、每股红利和状态。",
+          "fields": [
+            {"fieldId": "source", "label": "权益信息来源", "value": "hk_tzxx（上交所）"},
+            {"fieldId": "query-channel", "label": "查询渠道", "value": "CA 管理表"},
+            {"fieldId": "security", "label": "证券", "value": "案例港股 H"},
+            {"fieldId": "currency", "label": "权益币种", "value": "港元"},
+            {"fieldId": "dividend-per-share", "label": "每股现金红利", "value": "0.1600", "unit": "港元/股"},
+            {"fieldId": "final-equity-date", "label": "最终权益日期", "value": "2026-09-05"},
+            {"fieldId": "record-date", "label": "登记日", "value": "2026-09-10"},
+            {"fieldId": "ex-date", "label": "除权日", "value": "2026-09-11"},
+            {"fieldId": "arrival-date", "label": "红利到账日", "value": "2026-09-22"},
+            {"fieldId": "status", "label": "权益状态", "value": "正常（最终权益信息已确认）"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-HOLDING-LEDGER",
+          "title": "9 月 10 日登记日持仓台账",
+          "kind": "LEDGER",
+          "description": "案例港股 H 在登记日的持仓台账，是原币红利计算的唯一基数。",
+          "fields": [
+            {"fieldId": "ledger-date", "label": "台账日期", "value": "2026-09-10"},
+            {"fieldId": "security", "label": "证券", "value": "案例港股 H"},
+            {"fieldId": "holding-quantity", "label": "登记日持仓数量", "value": "90,000", "unit": "股"},
+            {"fieldId": "market", "label": "交易市场", "value": "上海港股通"},
+            {"fieldId": "remark", "label": "备注", "value": "登记日收盘后持仓，供权益计算使用"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-EX-RATE-NOTICE",
+          "title": "9 月 11 日除权日汇率通知",
+          "kind": "REPORT",
+          "description": "除权日可查询的批准汇率，用于把原币红利折算为人民币应收；仅为本案例题面批准快照，不把除权日人行中间价固化为当前永久来源。",
+          "fields": [
+            {"fieldId": "rate-date", "label": "汇率日期", "value": "2026-09-11（除权日）"},
+            {"fieldId": "approved-rate", "label": "除权日批准汇率", "value": "0.9050", "unit": "元/港元"},
+            {"fieldId": "rate-source", "label": "汇率来源", "value": "题面批准快照：除权日人行中间价（材料口径，不固化当前来源）"},
+            {"fieldId": "rate-note", "label": "口径备注", "value": "用于除权日人民币应收折算；红利到账以到账资料实际人民币入账金额为准"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-RECEIVABLE-LEDGER",
+          "title": "应收红利账簿（9 月 11 日）",
+          "kind": "LEDGER",
+          "description": "除权日确认应收股利后登记的原币与人民币金额，到账日按原确认人民币金额结清。",
+          "fields": [
+            {"fieldId": "biz-date", "label": "业务日期", "value": "2026-09-11"},
+            {"fieldId": "security", "label": "证券", "value": "案例港股 H"},
+            {"fieldId": "currency", "label": "币种", "value": "港元"},
+            {"fieldId": "original-amount", "label": "原币金额", "value": "待计算", "unit": "港元"},
+            {"fieldId": "exchange-rate", "label": "汇率", "value": "0.9050", "unit": "元/港元"},
+            {"fieldId": "rmb-amount", "label": "人民币金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "status", "label": "状态", "value": "未结清"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-EX-VOUCHER-TEMPLATE",
+          "title": "9 月 11 日除权确认凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "除权日确认应收股利的凭证模板，科目与金额由学员根据公告、登记日持仓和批准参数补全，凭证体现原币与汇率信息。",
+          "fields": [
+            {"fieldId": "voucher-date", "label": "账务日期", "value": "2026-09-11"},
+            {"fieldId": "debit-account", "label": "借方—应收科目", "value": "待填写"},
+            {"fieldId": "debit-amount", "label": "借方金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "credit-account", "label": "贷方—红利收入科目", "value": "待填写"},
+            {"fieldId": "credit-amount", "label": "贷方金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "currency-amount", "label": "凭证原币信息", "value": "14,400.00", "unit": "港元"},
+            {"fieldId": "exchange-rate", "label": "凭证汇率信息", "value": "0.9050", "unit": "元/港元"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-ARRIVAL-STATEMENT",
+          "title": "9 月 22 日红利到账资料",
+          "kind": "STATEMENT",
+          "description": "港股通现金分红实际到账的资金资料，直接提供实际人民币入账金额；实际到账原币用于对象与币种匹配。",
+          "fields": [
+            {"fieldId": "arrival-date", "label": "到账日期", "value": "2026-09-22"},
+            {"fieldId": "biz-type", "label": "业务", "value": "港股通现金分红"},
+            {"fieldId": "security", "label": "证券", "value": "案例港股 H"},
+            {"fieldId": "arrival-original-amount", "label": "实际到账原币", "value": "14,400.00", "unit": "港元"},
+            {"fieldId": "rmb-amount", "label": "人民币到账金额（实际人民币入账金额）", "value": "13,176.00", "unit": "元"},
+            {"fieldId": "status", "label": "到账状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-ARRIVAL-VOUCHER-TEMPLATE",
+          "title": "9 月 22 日红利到账凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "红利到账并结清应收的凭证模板，资金科目、应收结清科目、差额调整科目、差额方向和金额由学员补全。",
+          "fields": [
+            {"fieldId": "voucher-date", "label": "账务日期", "value": "2026-09-22"},
+            {"fieldId": "bank-account", "label": "借方—资金科目", "value": "待填写"},
+            {"fieldId": "bank-amount", "label": "借方—实际到账金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "clearing-account", "label": "贷方—应收结清科目", "value": "待填写"},
+            {"fieldId": "clearing-amount", "label": "贷方—应收结清金额", "value": "待计算", "unit": "元"},
+            {"fieldId": "diff-account", "label": "差额调整科目", "value": "待填写"},
+            {"fieldId": "diff-direction", "label": "差额方向", "value": "待判断"},
+            {"fieldId": "diff-amount", "label": "差额金额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-CASH-LEDGER",
+          "title": "资金台账—红利到账资金变动",
+          "kind": "LEDGER",
+          "description": "用人民币实际到账更新资金台账，应收股利同日按原确认金额结清。",
+          "fields": [
+            {"fieldId": "opening", "label": "期初资金余额", "value": "1,500,000.00", "unit": "元"},
+            {"fieldId": "arrival-movement", "label": "红利到账资金变动", "value": "待计算", "unit": "元"},
+            {"fieldId": "ending", "label": "期末资金余额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "HK-DIV-RECONCILIATION-WORKSHEET",
+          "title": "双币种连续业务结果勾稽工作表",
+          "kind": "RECONCILIATION",
+          "description": "将原币红利、人民币应收、人民币实际到账、汇差、资金和收益结果放入同一张复核表，判断本组正常业务是否闭合。",
+          "fields": [
+            {"fieldId": "original-equation", "label": "原币勾稽关系", "value": "90,000 × 0.1600 = 14,400.00 港元；原币应收＝实际到账原币"},
+            {"fieldId": "rmb-receivable-equation", "label": "人民币应收勾稽关系", "value": "14,400.00 × 0.9050 = 人民币应收"},
+            {"fieldId": "rmb-arrival-equation", "label": "人民币到账勾稽关系", "value": "红利到账资料直接提供实际人民币入账金额 13,176.00 元；实际到账原币 14,400.00 港元仅作对象与币种匹配"},
+            {"fieldId": "fx-equation", "label": "汇差勾稽关系", "value": "人民币实际到账－人民币应收＝汇兑差额"},
+            {"fieldId": "net-income-equation", "label": "收益勾稽关系", "value": "人民币应收＋汇兑差额＝净红利收入＝人民币实际到账"},
+            {"fieldId": "cash-equation", "label": "资金勾稽关系", "value": "1,500,000.00＋人民币实际到账＝期末资金"},
+            {"fieldId": "conclusion", "label": "勾稽结论", "value": "待填写"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "hkdiv-final-info",
+          "type": "FIELD_MAP",
+          "title": "确认权益处理依据",
+          "instruction": "根据 9 月 5 日最终有效权益公告与 CA 管理表查询记录，选择本案现金红利的处理依据。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择权益处理依据",
+            "options": [
+              {"optionId": "FINAL_ANNOUNCEMENT", "text": "最终有效权益公告与港股权益信息记录"},
+              {"optionId": "INITIAL_ANNOUNCEMENT", "text": "最初公告信息"},
+              {"optionId": "ARRIVAL_STATEMENT", "text": "红利到账资料"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hkdiv-currency",
+          "type": "FIELD_MAP",
+          "title": "确认权益币种",
+          "instruction": "从最终有效权益公告选择本案权益的币种，该币种决定先按原币计算红利。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择权益币种",
+            "options": [
+              {"optionId": "HKD", "text": "港元"},
+              {"optionId": "CNY", "text": "人民币"},
+              {"optionId": "USD", "text": "美元"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hkdiv-record-date",
+          "type": "FIELD_MAP",
+          "title": "确认计算基数日期",
+          "instruction": "从最终有效权益公告与港股权益信息记录选择原币红利的计算日期。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择计算基数日期",
+            "options": [
+              {"optionId": "DATE_0905", "text": "2026-09-05 公告日"},
+              {"optionId": "DATE_0910", "text": "2026-09-10 登记日"},
+              {"optionId": "DATE_0911", "text": "2026-09-11 除权日"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hkdiv-status",
+          "type": "FIELD_MAP",
+          "title": "确认权益记录状态",
+          "instruction": "根据港股权益信息记录的权益状态，选择是否可以进入后续正常处理。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择权益状态",
+            "options": [
+              {"optionId": "NORMAL", "text": "正常（最终权益信息已确认）"},
+              {"optionId": "PENDING", "text": "待人工确认，不能继续处理"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hkdiv-record-holding",
+          "type": "CALCULATION",
+          "title": "读取登记日持仓数量",
+          "instruction": "从 9 月 10 日登记日持仓台账读取登记日持仓数量，作为原币红利计算基数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入登记日持仓数量", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "hkdiv-dividend-per-share",
+          "type": "CALCULATION",
+          "title": "填写每股原币红利",
+          "instruction": "从最终有效权益公告与 CA 管理表记录读取每股原币红利，保留 4 位小数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入每股原币红利", "unit": "港元/股", "precision": 4}
+        },
+        {
+          "workItemId": "hkdiv-original-dividend",
+          "type": "CALCULATION",
+          "title": "计算原币红利",
+          "instruction": "按题面批准口径，用登记日持仓 × 每股原币红利计算原币红利。",
+          "response": {"kind": "NUMBER", "placeholder": "输入原币红利", "unit": "港元", "precision": 2}
+        },
+        {
+          "workItemId": "hkdiv-ex-rate",
+          "type": "CALCULATION",
+          "title": "填写除权日批准汇率",
+          "instruction": "从 9 月 11 日除权日汇率通知读取除权日批准汇率，保留 4 位小数；该汇率用于人民币应收折算。",
+          "response": {"kind": "NUMBER", "placeholder": "输入除权日批准汇率", "unit": "元/港元", "precision": 4}
+        },
+        {
+          "workItemId": "hkdiv-rmb-receivable",
+          "type": "CALCULATION",
+          "title": "计算人民币应收",
+          "instruction": "按题面批准口径，用原币红利 × 除权日批准汇率计算人民币应收。",
+          "response": {"kind": "NUMBER", "placeholder": "输入人民币应收", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hkdiv-receivable-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写除权凭证借方科目",
+          "instruction": "按本案批准科目填写 9 月 11 日除权确认凭证借方的应收科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "hkdiv-income-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写除权凭证贷方科目",
+          "instruction": "按本案批准科目填写 9 月 11 日除权确认凭证贷方的港股通红利收入科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "hkdiv-arrival-original",
+          "type": "RECONCILIATION",
+          "title": "读取实际到账原币",
+          "instruction": "从 9 月 22 日红利到账资料读取实际到账原币，并与原币红利核对。",
+          "response": {"kind": "NUMBER", "placeholder": "输入实际到账原币", "unit": "港元", "precision": 2}
+        },
+        {
+          "workItemId": "hkdiv-original-match",
+          "type": "RECONCILIATION",
+          "title": "核对原币应收与实际到账原币",
+          "instruction": "用原币红利与实际到账原币比较，选择核对结果。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择原币核对结果",
+            "options": [
+              {"optionId": "MATCHED", "text": "原币应收与实际到账原币一致"},
+              {"optionId": "MISMATCHED", "text": "原币应收与实际到账原币存在差异"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hkdiv-arrival-rmb-source",
+          "type": "FIELD_MAP",
+          "title": "确认人民币到账金额来源",
+          "instruction": "根据 9 月 22 日红利到账资料，选择本案人民币到账金额的取数方式。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择到账金额来源",
+            "options": [
+              {"optionId": "STATEMENT_RMB", "text": "直接读取到账资料提供的实际人民币入账金额"},
+              {"optionId": "RATE_RECOMPUTE", "text": "按到账原币乘以另一日汇率重算人民币到账"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hkdiv-rmb-arrival",
+          "type": "CALCULATION",
+          "title": "读取人民币实际到账",
+          "instruction": "从 9 月 22 日红利到账资料直接读取实际人民币入账金额，作为到账证据，不按其他汇率重算。",
+          "response": {"kind": "NUMBER", "placeholder": "输入人民币实际到账", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hkdiv-fx-difference",
+          "type": "CALCULATION",
+          "title": "计算汇兑差额",
+          "instruction": "用实际人民币入账金额减人民币应收计算汇兑差额，保留正负号。",
+          "response": {"kind": "NUMBER", "placeholder": "输入汇兑差额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hkdiv-bank-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写到账凭证借方科目",
+          "instruction": "按本案批准科目填写 9 月 22 日红利到账凭证借方的资金科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "hkdiv-clearing-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写到账凭证贷方科目",
+          "instruction": "按本案批准科目填写 9 月 22 日红利到账凭证贷方结清应收的科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "hkdiv-diff-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写汇差调整科目",
+          "instruction": "按本案批准科目填写汇兑差额调整使用的港股通红利收入科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入差额调整科目"}
+        },
+        {
+          "workItemId": "hkdiv-diff-direction",
+          "type": "FIELD_MAP",
+          "title": "判断汇差调整方向",
+          "instruction": "根据本案人民币实际到账与人民币应收的大小关系，选择汇兑差额在到账凭证中的调整方向。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择差额调整方向",
+            "options": [
+              {"optionId": "CREDIT_INCREASE", "text": "贷方（实际到账大于人民币应收，增加红利收入）"},
+              {"optionId": "DEBIT_DECREASE", "text": "借方（实际到账小于人民币应收，减少红利收入）"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hkdiv-receivable-cleared",
+          "type": "RECONCILIATION",
+          "title": "填写应收结清金额",
+          "instruction": "按原确认的人民币应收填写到账凭证贷方结清金额，结清后应收红利账簿状态为已结清。",
+          "response": {"kind": "NUMBER", "placeholder": "输入应收结清金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hkdiv-cash-ending",
+          "type": "RECONCILIATION",
+          "title": "计算期末资金余额",
+          "instruction": "用期初资金 1,500,000.00 元加上人民币实际到账，计算期末资金余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末资金余额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hkdiv-net-income",
+          "type": "RECONCILIATION",
+          "title": "计算净红利收入",
+          "instruction": "用人民币应收加上汇兑差额，验证净红利收入等于人民币实际到账。",
+          "response": {"kind": "NUMBER", "placeholder": "输入净红利收入", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "hkdiv-reconciliation-result",
+          "type": "RECONCILIATION",
+          "title": "完成跨来源勾稽",
+          "instruction": "原币红利、人民币应收、实际到账、汇差、应收结清、资金和净红利收入均可由资料包复算且相互一致，选择本次勾稽结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择勾稽结论",
+            "options": [
+              {"optionId": "BALANCED", "text": "原币、人民币应收、实际到账、资金和收益勾稽一致"},
+              {"optionId": "UNBALANCED", "text": "仍有未解释差异或汇率口径混用"}
+            ]
+          }
+        },
+        {
+          "workItemId": "hkdiv-result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录双币种业务结论",
+          "instruction": "用一句话写明登记日持仓、原币红利、人民币应收、实际到账人民币、汇差调整和勾稽结论。",
+          "response": {"kind": "TEXT", "placeholder": "例如：登记日持仓……，原币红利……，人民币应收……，实际到账人民币……，汇差……，勾稽一致。"}
+        }
+      ],
+      "submissionNote": "提交前请按顺序复核最终权益信息与币种、登记日持仓、原币红利与人民币应收、除权确认凭证、红利到账资料实际人民币入账金额与原币匹配、实际到账与汇差、到账凭证与应收/资金台账、净红利收入和跨来源勾稽。提交后将生成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-STOCK-HK-DIVIDEND-PDF-2024",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（PDF主证据）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.pdf；第 95—97 页",
+      "usage": "港股权益信息获取（hk_tzxx/SZHK_TZXX、CA 管理表）、公告日期与权益实际发生日期间隔、最终权益日期与最初公告不一致、权益币种识别、除权日人行中间价折算、分红凭证体现币种与汇率、除权日凭证、红利到账凭证、到账差异调整入股票红利收入科目"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-DIVIDEND-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（OFD同源格式）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.ofd；与 PDF 同源，仅用于格式交叉核对",
+      "usage": "不重复计权；辅助核对港股通权益业务章节顺序、除权日凭证与红利到账凭证页和 PDF 页级证据"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-DIVIDEND-ROUTE-DECISIONS",
+      "title": "股票高保真路线施工计划—路线 8 决定",
+      "source": "核算案例库股票模块高保真施工计划.md；路线 8、防机械化活动矩阵、子代理检查表与排除范围",
+      "usage": "港股通现金分红与到账汇差范围，最终权益公告/登记日持仓/原币红利/人民币应收/实际到账/汇差答案链，四环节活动组合与排除边界"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-HK-DIVIDEND-CASE-PARAMETERS-202608",
+      "title": "本路线题面批准合成参数",
+      "source": "本路线综合实务资料包中的 HK-DIV-CASE-PARAMETERS（2026.08 版本）",
+      "usage": "仅约束本案直接给出的权益币种、每股原币红利、除权日批准汇率、到账资料实际人民币入账金额、批准科目和精度边界，不替代当前业务规则"
+    }
+  ]
+}

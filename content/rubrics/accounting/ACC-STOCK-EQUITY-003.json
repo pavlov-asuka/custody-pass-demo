@@ -1,0 +1,231 @@
+{
+  "routeId": "ACC-STOCK-EQUITY-003",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-EQU-CONCEPT-FIELDS",
+          "description": "识别权益公告与公司股务处理记录中的权益对象、登记日与确认时点",
+          "weight": 8,
+          "evidenceRequirement": "公告业务类型、登记日和应收确认时点判断正确",
+          "evidenceRules": [
+            {"fieldId": "equity-type", "operator": "EQUALS", "expected": "BOTH"},
+            {"fieldId": "record-date", "operator": "EQUALS", "expected": "DATE_0805"},
+            {"fieldId": "ex-date-recognize", "operator": "EQUALS", "expected": "EX_DATE"}
+          ],
+          "remediationTargetId": "R-EQU-FIELDS"
+        },
+        {
+          "criterionId": "C-EQU-CONCEPT-DIVIDEND",
+          "description": "理解现金红利以登记日持仓为基数且按每股红利计算",
+          "weight": 9,
+          "evidenceRequirement": "现金红利与除权确认金额按登记日持仓计算正确",
+          "evidenceRules": [
+            {"fieldId": "record-date", "operator": "EQUALS", "expected": "DATE_0805"},
+            {"fieldId": "cash-dividend", "operator": "NUMBER_EQUALS", "expected": 42000, "tolerance": 0.01},
+            {"fieldId": "receivable-amount", "operator": "NUMBER_EQUALS", "expected": 42000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-EQU-DIVIDEND"
+        },
+        {
+          "criterionId": "C-EQU-CONCEPT-BONUS",
+          "description": "理解新增股份以登记日持仓为基数且送转不改变股票总成本",
+          "weight": 8,
+          "evidenceRequirement": "新增股份、总成本不变与转增凭证成本影响判断正确",
+          "evidenceRules": [
+            {"fieldId": "bonus-shares", "operator": "NUMBER_EQUALS", "expected": 60000, "tolerance": 0.01},
+            {"fieldId": "total-cost", "operator": "NUMBER_EQUALS", "expected": 1560000, "tolerance": 0.01},
+            {"fieldId": "bonus-voucher-impact", "operator": "EQUALS", "expected": "NO_COST_CHANGE"}
+          ],
+          "remediationTargetId": "R-EQU-BONUS"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-EQU-PROCESS-DIVIDEND",
+          "description": "完成除权确认、红利到账结清和应收/到账核对",
+          "weight": 10,
+          "evidenceRequirement": "除权与到账凭证科目、金额和到账核对均正确",
+          "evidenceRules": [
+            {"fieldId": "receivable-account", "operator": "CONTAINS_ALL", "expected": ["应收", "股利"]},
+            {"fieldId": "dividend-income-account", "operator": "CONTAINS_ALL", "expected": ["红利", "收入"]},
+            {"fieldId": "receivable-amount", "operator": "NUMBER_EQUALS", "expected": 42000, "tolerance": 0.01},
+            {"fieldId": "cash-account", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]},
+            {"fieldId": "receivable-clearing-account", "operator": "CONTAINS_ALL", "expected": ["应收", "股利"]},
+            {"fieldId": "cash-arrival-amount", "operator": "NUMBER_EQUALS", "expected": 42000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-EQU-VOUCHER"
+        },
+        {
+          "criterionId": "C-EQU-PROCESS-BONUS",
+          "description": "完成送转数量、到账核对和送转后数量/成本台账",
+          "weight": 12,
+          "evidenceRequirement": "新增股份、到账数量、送转后数量与成本台账结果正确",
+          "evidenceRules": [
+            {"fieldId": "bonus-shares", "operator": "NUMBER_EQUALS", "expected": 60000, "tolerance": 0.01},
+            {"fieldId": "bonus-arrival-quantity", "operator": "NUMBER_EQUALS", "expected": 60000, "tolerance": 0.01},
+            {"fieldId": "bonus-quantity-match", "operator": "EQUALS", "expected": "MATCHED"},
+            {"fieldId": "total-quantity", "operator": "NUMBER_EQUALS", "expected": 180000, "tolerance": 0.01},
+            {"fieldId": "ending-quantity", "operator": "NUMBER_EQUALS", "expected": 180000, "tolerance": 0.01},
+            {"fieldId": "total-cost", "operator": "NUMBER_EQUALS", "expected": 1560000, "tolerance": 0.01},
+            {"fieldId": "ending-cost", "operator": "NUMBER_EQUALS", "expected": 1560000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-EQU-BONUS"
+        },
+        {
+          "criterionId": "C-EQU-PROCESS-RECON",
+          "description": "用资金台账和估值结果完成跨来源复算",
+          "weight": 8,
+          "evidenceRequirement": "期末资金、市值、估值增值和勾稽结论正确",
+          "evidenceRules": [
+            {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 842000, "tolerance": 0.01},
+            {"fieldId": "ending-fair-value", "operator": "NUMBER_EQUALS", "expected": 1710000, "tolerance": 0.01},
+            {"fieldId": "ending-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 150000, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-EQU-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-EQU-RISK-BASE",
+          "description": "控制权益计算必须使用登记日持仓且状态正常",
+          "weight": 8,
+          "evidenceRequirement": "登记日、状态和按登记日持仓的两项计算均正确",
+          "evidenceRules": [
+            {"fieldId": "record-date", "operator": "EQUALS", "expected": "DATE_0805"},
+            {"fieldId": "record-status", "operator": "EQUALS", "expected": "NORMAL"},
+            {"fieldId": "cash-dividend", "operator": "NUMBER_EQUALS", "expected": 42000, "tolerance": 0.01},
+            {"fieldId": "bonus-shares", "operator": "NUMBER_EQUALS", "expected": 60000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-EQU-FIELDS"
+        },
+        {
+          "criterionId": "C-EQU-RISK-TIMING",
+          "description": "控制除权确认与红利到账时点，防止提前或重复确认",
+          "weight": 8,
+          "evidenceRequirement": "应收确认时点、到账金额与应收/到账核对均正确",
+          "evidenceRules": [
+            {"fieldId": "ex-date-recognize", "operator": "EQUALS", "expected": "EX_DATE"},
+            {"fieldId": "cash-arrival-amount", "operator": "NUMBER_EQUALS", "expected": 42000, "tolerance": 0.01},
+            {"fieldId": "arrival-match", "operator": "EQUALS", "expected": "MATCHED"}
+          ],
+          "remediationTargetId": "R-EQU-TIMING"
+        },
+        {
+          "criterionId": "C-EQU-RISK-RESULT",
+          "description": "控制送转数量、成本连续性和到账结果的风险",
+          "weight": 9,
+          "evidenceRequirement": "到账数量核对、成本不变、期末成本、估值增值和转增凭证影响均正确",
+          "evidenceRules": [
+            {"fieldId": "bonus-quantity-match", "operator": "EQUALS", "expected": "MATCHED"},
+            {"fieldId": "total-cost", "operator": "NUMBER_EQUALS", "expected": 1560000, "tolerance": 0.01},
+            {"fieldId": "ending-cost", "operator": "NUMBER_EQUALS", "expected": 1560000, "tolerance": 0.01},
+            {"fieldId": "ending-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 150000, "tolerance": 0.01},
+            {"fieldId": "bonus-voucher-impact", "operator": "EQUALS", "expected": "NO_COST_CHANGE"}
+          ],
+          "remediationTargetId": "R-EQU-BONUS"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-EQU-EXPR-RESULT",
+          "description": "以简短结论同时表达送转后持仓、成本、红利到账、资金、市值和勾稽结果",
+          "weight": 20,
+          "evidenceRequirement": "结论包含关键结果并明确勾稽一致",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["持仓", "成本", "红利", "到账", "资金", "市值", "勾稽一致"]},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-EQU-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-EQU-RECORD-DATE",
+      "description": "现金红利和新增股份必须使用登记日持仓计算，送转后数量与成本正确",
+      "evidenceRequirement": "登记日、现金红利、新增股份、送转后数量和总成本均正确",
+      "evidenceRules": [
+        {"fieldId": "record-date", "operator": "EQUALS", "expected": "DATE_0805"},
+        {"fieldId": "cash-dividend", "operator": "NUMBER_EQUALS", "expected": 42000, "tolerance": 0.01},
+        {"fieldId": "bonus-shares", "operator": "NUMBER_EQUALS", "expected": 60000, "tolerance": 0.01},
+        {"fieldId": "total-quantity", "operator": "NUMBER_EQUALS", "expected": 180000, "tolerance": 0.01},
+        {"fieldId": "total-cost", "operator": "NUMBER_EQUALS", "expected": 1560000, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-EQU-BONUS"
+    },
+    {
+      "requirementId": "M-EQU-RESULTS-CLOSED",
+      "description": "送转后数量、总成本、应收红利与实际到账必须分别闭合",
+      "evidenceRequirement": "到账数量与新增一致、应收与到账一致，资金、市值和估值增值可复算且勾稽一致",
+      "evidenceRules": [
+        {"fieldId": "bonus-arrival-quantity", "operator": "NUMBER_EQUALS", "expected": 60000, "tolerance": 0.01},
+        {"fieldId": "bonus-quantity-match", "operator": "EQUALS", "expected": "MATCHED"},
+        {"fieldId": "cash-arrival-amount", "operator": "NUMBER_EQUALS", "expected": 42000, "tolerance": 0.01},
+        {"fieldId": "arrival-match", "operator": "EQUALS", "expected": "MATCHED"},
+        {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 842000, "tolerance": 0.01},
+        {"fieldId": "ending-fair-value", "operator": "NUMBER_EQUALS", "expected": 1710000, "tolerance": 0.01},
+        {"fieldId": "ending-valuation-appreciation", "operator": "NUMBER_EQUALS", "expected": 150000, "tolerance": 0.01},
+        {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-EQU-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-EQU-FIELDS", "title": "识别权益公告与登记日持仓字段", "reason": "权益类型、登记日或处理状态未从原始资料正确判断", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "EQU-KC-02", "questionId": "ACC-STOCK-EQUITY-Q-01"},
+    {"targetId": "R-EQU-DIVIDEND", "title": "复算现金红利与应收确认", "reason": "现金红利或除权确认金额未按登记日持仓与每股红利复算", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-02", "questionId": "ACC-STOCK-EQUITY-Q-02"},
+    {"targetId": "R-EQU-BONUS", "title": "复算送转数量与成本连续性", "reason": "新增股份、送转后数量或总成本不变关系未闭合", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-STOCK-EQUITY-Q-02"},
+    {"targetId": "R-EQU-VOUCHER", "title": "补全除权与到账凭证科目", "reason": "应收股利、红利收入、银行存款或应收结清未形成分列凭证证据", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-STOCK-EQUITY-Q-03"},
+    {"targetId": "R-EQU-TIMING", "title": "控制除权确认与红利到账时点", "reason": "把除权确认与到账结清时点混淆或重复确认", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "EQU-KC-02", "questionId": "ACC-STOCK-EQUITY-Q-01"},
+    {"targetId": "R-EQU-RECON", "title": "完成应收到账与资金/持仓/估值勾稽", "reason": "应收与到账、资金、数量、市值或估值增值未完成跨来源复算", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-STOCK-EQUITY-Q-04"},
+    {"targetId": "R-EQU-EXPRESSION", "title": "形成可追溯权益业务结论", "reason": "简短结论未清楚覆盖送转后持仓、成本、红利到账、资金、市值和勾稽判断", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-STOCK-EQUITY-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "equity-type": "BOTH",
+      "record-date": "DATE_0805",
+      "record-status": "NORMAL",
+      "cash-dividend": 42000,
+      "bonus-shares": 60000,
+      "total-quantity": 180000,
+      "total-cost": 1560000,
+      "ex-date-recognize": "EX_DATE",
+      "receivable-account": "应收股利",
+      "dividend-income-account": "红利收入",
+      "receivable-amount": 42000,
+      "cash-arrival-amount": 42000,
+      "arrival-match": "MATCHED",
+      "cash-account": "银行存款",
+      "receivable-clearing-account": "应收股利",
+      "ending-cash": 842000,
+      "bonus-arrival-quantity": 60000,
+      "bonus-quantity-match": "MATCHED",
+      "bonus-voucher-impact": "NO_COST_CHANGE",
+      "ending-quantity": 180000,
+      "ending-cost": 1560000,
+      "ending-fair-value": 1710000,
+      "ending-valuation-appreciation": 150000,
+      "reconciliation-result": "BALANCED",
+      "result-note": "送转后持仓 180,000 股，总成本 1,560,000 元，红利到账 42,000 元，期末资金 842,000 元，期末市值 1,710,000 元，勾稽一致。"
+    }
+  }
+}

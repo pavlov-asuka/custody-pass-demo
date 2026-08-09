@@ -1,0 +1,677 @@
+{
+  "routeId": "ACC-STOCK-PRIVATE-ISSUE-101",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "非公开发行申购、确认与流通",
+  "summary": "沿非公开发行股票的申购付款、正式中签确认、未流通锁定持仓、最新上市流通公告与转流通完成一条可复核的核算链。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "从非公开申购资料读取业务类型、申购数量、发行价格、申购金额、支付日期和记录状态，区分申购付款与正式中签确认",
+    "在申购付款阶段只完成新股清算款与银行存款的资金清算，不确认股票成本与持仓；只在正式中签确认后按确认数量 × 发行价格确认未流通股票成本",
+    "按题面批准的锁定起止日期维护未流通股票锁定台账，并依据最新上市流通公告更新锁定信息并与管理人核对确认",
+    "用未流通台账、最新上市流通公告和流通科目完成转流通数量、成本与估值增值连续勾稽并形成简短结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "PRIVATE-KC-01",
+          "type": "FLOW",
+          "title": "一笔非公开发行股票怎样形成核算结果",
+          "conclusion": "先读非公开申购资料完成申购付款清算，再等正式中签确认；只有确认后才能按确认数量 × 发行价格确认未流通股票成本，维护锁定台账，最后按最新上市流通公告在流通日把未流通成本及估值增值转入流通科目。",
+          "items": [
+            "非公开申购记录：业务类型、申购数量、发行价格、申购金额、支付日期和记录状态",
+            "申购付款：借证券清算款-新股清算款，贷银行存款；不确认股票成本与持仓",
+            "正式中签确认：中签日期、中签数量、发行价格；确认成本 = 确认数量 × 发行价格",
+            "锁定与流通：锁定起止日期按题面批准资料维护；最新上市流通公告确定转流通日期；流通日将未流通成本及估值增值转入流通科目",
+            "结果验证：数量、成本、估值增值与市值必须能互相解释"
+          ]
+        },
+        {
+          "cardId": "PRIVATE-KC-02",
+          "type": "CATEGORIES",
+          "title": "申购付款、正式确认与上市流通公告的字段各自证明什么",
+          "conclusion": "业务类型和日期决定当前状态；申购金额只证明付款清算，中签数量与发行价格只有在正式确认后才形成股票成本，最新上市流通公告确定转流通日期。",
+          "items": [
+            "业务类型“非公开发行股票”+ 支付日期：进入申购付款阶段，只做新股清算款与银行存款清算",
+            "中签日期、中签数量、发行价格（按发行信息反填，不可修改）：正式确认结果，确认成本 = 中签数量 × 发行价格",
+            "锁定成本默认等于发行价格，锁定起止日期与锁定天数按题面批准信息维护",
+            "最新上市流通公告：公告确定的上市流通日期可能与中签公告不同，需更新锁定止日期并与管理人核对确认",
+            "记录状态正常只是继续处理的前提，不能替代阶段判断"
+          ]
+        },
+        {
+          "cardId": "PRIVATE-KC-03",
+          "type": "KEY_POINT",
+          "title": "成本只能在正式确认后形成，转流通保持数量与总成本连续",
+          "conclusion": "申购付款不等于取得股票；确认成本必须由正式中签结果形成；流通日只改变科目状态，数量、总成本与估值增值余额完整转入流通科目。",
+          "items": [
+            "申购付款日：借证券清算款-新股清算款、贷银行存款，不增加股票成本与持仓",
+            "正式确认日：借股票-特定对象发行未流通-成本、贷证券清算款-新股清算款，未流通数量与成本一次形成",
+            "锁定台账：锁定成本 = 发行价格，锁定起止日期按题面批准资料维护；进入流通受限股票估值台账",
+            "流通日：系统自动生成流通凭证，将未流通成本及估值增值转入流通科目，数量与总成本不变",
+            "流通后市值 = 流通数量 × 流通日收盘价 = 流通成本 + 流通估值增值"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品 G 的组合核算人员",
+        "product": "案例产品 G / 案例股份 L",
+        "date": "2026-08-05 至 2026-09-28",
+        "facts": [
+          "8 月 5 日处理前持有案例股份 L 为 0 股，股票成本 0 元，资金台账余额 6,000,000 元。",
+          "8 月 5 日非公开申购记录业务类型为“非公开发行股票”，申购数量 320,000 股，发行价格 12.50 元/股，申购金额 4,000,000 元，支付日期 8 月 5 日，记录状态正常。",
+          "8 月 5 日完成申购付款：借证券清算款-新股清算款 4,000,000 元，贷银行存款 4,000,000 元；资金台账减至 2,000,000 元，不确认股票成本和持仓。",
+          "8 月 12 日取得发行结果确认：中签日期 8 月 12 日，中签数量 320,000 股，发行价格 12.50 元/股（按发行信息反填，不可修改）；确认成本 = 320,000 × 12.50 = 4,000,000 元。",
+          "8 月 12 日完成中签凭证：借股票-特定对象发行未流通-成本 4,000,000 元，贷证券清算款-新股清算款 4,000,000 元；新股清算款结清。锁定起止日期 2026-08-12 至 2027-08-11，锁定成本 12.50 元/股。",
+          "流通日前未流通股票持仓台账：320,000 股，成本 4,000,000 元，估值增值 208,000 元（估值日收盘价 13.15 元/股，市值 4,208,000 元）。",
+          "9 月 20 日取得最新上市流通公告，上市流通日期为 2026-09-28，与中签公告中的上市流通日期不同；按批准处理更新锁定止日期为 2026-09-27 并与管理人核对确认。9 月 28 日流通日系统自动生成流通凭证，将未流通成本 4,000,000 元及估值增值 208,000 元转入流通科目。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取 8 月 5 日非公开申购记录的业务类型、申购数量、发行价格、申购金额、支付日期和记录状态，判断当前处于非公开申购付款阶段",
+          "reason": "业务类型为“非公开发行股票”且仅完成申购维护审核，说明当前只进入申购付款，尚未取得正式中签确认结果。"
+        },
+        {
+          "order": 2,
+          "action": "8 月 5 日完成申购付款凭证：借证券清算款-新股清算款 4,000,000 元，贷银行存款 4,000,000 元；资金台账减至 2,000,000 元，不确认股票成本与持仓",
+          "reason": "材料凭证模板在付款日只清算新股清算款与银行存款；提前确认股票成本会把未取得的股票计入资产并虚增持仓。"
+        },
+        {
+          "order": 3,
+          "action": "8 月 12 日读取发行结果确认记录，按 320,000 股 × 12.50 元/股 = 4,000,000 元确认未流通股票成本，完成中签凭证：借股票-特定对象发行未流通-成本 4,000,000 元，贷证券清算款-新股清算款 4,000,000 元，新股清算款结清",
+          "reason": "中签数量与发行价格来自正式确认结果，发行价格按发行信息反填不可修改；确认成本与付款金额一致时，付款形成的新股清算款余额结清。"
+        },
+        {
+          "order": 4,
+          "action": "按题面批准信息维护锁定台账：锁定成本 12.50 元/股，锁定起止日期 2026-08-12 至 2027-08-11；9 月 20 日收到最新上市流通公告，上市流通日期 2026-09-28 与中签公告不同，更新锁定止日期为 2026-09-27 并与管理人核对确认",
+          "reason": "锁定成本默认为发行价格，锁定起止日期按批准资料维护；最新公告确定的上市流通日期优先于中签公告中的旧日期，更新后需与管理人核对确认。"
+        },
+        {
+          "order": 5,
+          "action": "9 月 28 日流通日复核系统自动生成的流通凭证：借股票-流通-成本 4,000,000 元、借股票-流通-估值增值 208,000 元，贷股票-特定对象发行未流通-成本 4,000,000 元、贷股票-特定对象发行未流通-估值增值 208,000 元；数量 320,000 股、总成本 4,000,000 元不变，市值 4,208,000 元可复算",
+          "reason": "流通凭证只把未流通科目中的成本及估值增值完整转入流通科目，数量与总成本保持连续；流通后市值 = 320,000 × 13.15 = 4,208,000 = 4,000,000 + 208,000，勾稽闭合。"
+        }
+      ],
+      "summary": "读申购付款 → 付款清算不确认成本 → 正式确认成本 → 锁定台账与最新公告 → 转流通连续勾稽"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "请把案例股份 M 的非公开申购记录、正式确认记录、资金台账和最新上市流通公告字段分别对应到正确的业务含义。每一行都要从题面字段取证。",
+          "fieldMappings": [
+            {
+              "fieldId": "apply-biz",
+              "label": "业务类型：非公开发行股票；支付日期：9 月 3 日",
+              "source": "9 月 3 日非公开申购记录",
+              "options": [
+                {"optionId": "SUBSCRIPTION_PAYMENT", "text": "申购付款阶段，等待正式中签确认"},
+                {"optionId": "CONFIRMED_STAGE", "text": "已完成正式中签确认，可确认股票"}
+              ]
+            },
+            {
+              "fieldId": "confirm-biz",
+              "label": "中签日期：9 月 15 日；中签数量：250,000 股；发行价格：8.20 元/股",
+              "source": "9 月 15 日发行结果确认记录",
+              "options": [
+                {"optionId": "CONFIRMED_STAGE", "text": "正式确认结果，按数量 × 发行价格确认未流通成本"},
+                {"optionId": "APPLICATION_ONLY", "text": "仅申购参考，不能形成成本"}
+              ]
+            },
+            {
+              "fieldId": "payment-cash",
+              "label": "9 月 3 日资金变动：-2,050,000.00 元",
+              "source": "9 月 3 日资金台账",
+              "options": [
+                {"optionId": "PAYMENT_CLEARING", "text": "申购付款完成新股清算款与银行存款清算，不确认股票成本"},
+                {"optionId": "COST_CONFIRMATION", "text": "当日已确认股票成本并增加持仓"}
+              ]
+            },
+            {
+              "fieldId": "listing-basis",
+              "label": "上市流通日期：10 月 9 日（最新上市流通公告）",
+              "source": "9 月 20 日最新上市流通公告",
+              "options": [
+                {"optionId": "LATEST_BASIS", "text": "转流通以最新公告确定的上市流通日期为依据，并更新锁定信息核对"},
+                {"optionId": "OLD_BASIS", "text": "以中签公告原流通日期为准，无需核对"}
+              ]
+            }
+          ],
+          "answer": ["SUBSCRIPTION_PAYMENT", "CONFIRMED_STAGE", "PAYMENT_CLEARING", "LATEST_BASIS"],
+          "explanation": "非公开申购记录只说明进入付款阶段；正式确认记录才形成未流通成本；付款日资金变动只证明清算；最新公告确定转流通依据。",
+          "hints": ["先逐行定位字段来源，再把付款阶段、正式确认、资金清算和公告依据分开判断。"]
+        },
+        {
+          "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-02",
+          "type": "ORDERING",
+          "prompt": "请排列一笔非公开发行股票申购、确认与流通的正常处理顺序。",
+          "items": [
+            {"itemId": "APPLY_PAYMENT", "text": "完成非公开申购付款清算"},
+            {"itemId": "WAIT_CONFIRM", "text": "等待正式中签确认"},
+            {"itemId": "CONFIRM_COST", "text": "取得中签确认并按确认数量 × 发行价格确认未流通成本"},
+            {"itemId": "LOCK_LEDGER", "text": "维护锁定起止日期与锁定成本台账"},
+            {"itemId": "TRANSFER_LISTED", "text": "按最新上市流通公告在流通日将未流通成本及估值增值转入流通科目"}
+          ],
+          "answer": ["APPLY_PAYMENT", "WAIT_CONFIRM", "CONFIRM_COST", "LOCK_LEDGER", "TRANSFER_LISTED"],
+          "explanation": "必须先完成付款清算并等待正式确认，确认后才能形成成本与锁定台账，最后才能按最新公告转流通，不能跳过正式确认。",
+          "hints": ["把“付款清算”和“转流通”放在两端，中间必须存在等待、正式确认与锁定台账。"]
+        },
+        {
+          "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-03",
+          "type": "CALCULATION",
+          "prompt": "从 9 月 15 日发行结果确认记录取数，并按正式确认关系复算未流通成本与新股清算款结清结果。请填写五个数字，不要把结果放在选择项里。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "apply-payment-amount", "label": "申购金额（付款清算金额）", "formula": "申购记录申购金额 = 2,050,000", "placeholder": "输入付款金额", "unit": "元"},
+              {"fieldId": "confirm-quantity", "label": "中签数量", "formula": "确认记录中签数量 = 250,000", "placeholder": "输入中签数量", "unit": "股"},
+              {"fieldId": "confirm-issue-price", "label": "发行价格", "formula": "确认记录发行价格 = 8.20", "placeholder": "输入发行价格", "unit": "元/股"},
+              {"fieldId": "confirm-cost", "label": "确认未流通成本", "formula": "250,000 × 8.20 = ?", "placeholder": "输入未流通成本", "unit": "元"},
+              {"fieldId": "clearing-balance", "label": "新股清算款结清余额", "formula": "2,050,000 - 2,050,000 = ?", "placeholder": "输入结清余额", "unit": "元"}
+            ]
+          },
+          "answer": ["2050000", "250000", "8.2", "2050000", "0"],
+          "explanation": "付款金额与确认成本均从原始记录读取；确认成本按 250,000 × 8.20 = 2,050,000 元形成；付款与确认金额一致时新股清算款结清为零。",
+          "hints": ["先填两个来源字段，再按数量 × 发行价计算成本；付款金额与确认成本相同则清算余额为零。"]
+        },
+        {
+          "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全案例股份 N 9 月 3 日申购付款凭证与 9 月 15 日中签确认凭证的四个科目。借贷方向、金额和资料来源已经给出，你只需要补科目名称。",
+          "ledgerEntries": [
+            {"entryId": "payment-debit", "direction": "借", "label": "9 月 3 日付款凭证借方—新股清算款，2,050,000.00 元", "amount": "2,050,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "payment-credit", "direction": "贷", "label": "9 月 3 日付款凭证贷方—银行存款，2,050,000.00 元", "amount": "2,050,000.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "confirm-debit", "direction": "借", "label": "9 月 15 日确认凭证借方—股票-特定对象发行未流通-成本，2,050,000.00 元", "amount": "2,050,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "confirm-credit", "direction": "贷", "label": "9 月 15 日确认凭证贷方—新股清算款，2,050,000.00 元", "amount": "2,050,000.00 元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["证券清算款-新股清算款", "银行存款", "股票-特定对象发行未流通-成本", "证券清算款-新股清算款"],
+          "explanation": "付款凭证完成新股清算款与银行存款清算；确认凭证把股票-特定对象发行未流通-成本与新股清算款配对，两笔清算金额一致时新股清算款结清。",
+          "hints": ["先按日期区分付款凭证与确认凭证，再按借贷方向填写清算款、银行存款和未流通成本科目。"]
+        },
+        {
+          "questionId": "ACC-STOCK-PRIVATE-ISSUE-Q-05",
+          "type": "RECONCILIATION",
+          "prompt": "用案例股份 O 的未流通股票台账、最新上市流通公告和流通日估值资料完成转流通跨来源复算。数字字段逐格填写，最后选择勾稽结论。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "ul-quantity", "label": "流通前未流通数量", "kind": "NUMBER", "formula": "未流通台账数量 = 600,000", "placeholder": "输入股"},
+              {"fieldId": "ul-cost", "label": "流通前未流通成本", "kind": "NUMBER", "formula": "未流通台账成本 = 4,500,000", "placeholder": "输入元"},
+              {"fieldId": "ul-valuation", "label": "流通前未流通估值增值", "kind": "NUMBER", "formula": "未流通台账估值增值 = 390,000", "placeholder": "输入元"},
+              {"fieldId": "fl-quantity", "label": "转流通后数量", "kind": "NUMBER", "formula": "600,000 - 0 = ?", "placeholder": "输入股"},
+              {"fieldId": "fl-cost", "label": "转流通后流通成本", "kind": "NUMBER", "formula": "4,500,000 + 0 = ?", "placeholder": "输入元"},
+              {"fieldId": "fl-valuation", "label": "转流通后流通估值增值", "kind": "NUMBER", "formula": "390,000 + 0 = ?", "placeholder": "输入元"},
+              {"fieldId": "market-value", "label": "流通日股票市值", "kind": "NUMBER", "formula": "600,000 × 8.15 = ?", "placeholder": "输入元"},
+              {"fieldId": "result", "label": "跨来源勾稽结论", "kind": "SELECT", "formula": "数量、成本、估值增值与市值应相互解释", "placeholder": "选择勾稽结论", "options": [
+                {"optionId": "BALANCED", "text": "转流通数量、成本、估值增值与市值勾稽一致"},
+                {"optionId": "UNBALANCED", "text": "至少一项结果无法由资料复算"}
+              ]}
+            ]
+          },
+          "answer": ["600000", "4500000", "390000", "600000", "4500000", "390000", "4890000", "BALANCED"],
+          "explanation": "转流通只改变科目状态：数量、成本和估值增值完整结转；流通日市值按 600,000 × 8.15 = 4,890,000 元复算，等于 4,500,000 + 390,000。",
+          "hints": ["先确认未流通三列余额，再验证转流通后三列不变，最后用市值等于成本加估值增值的关系闭合。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品 D 的组合核算人员",
+        "product": "案例产品 D / 案例股份 K",
+        "date": "2026-10-09 至 2026-11-20",
+        "purpose": "根据一组资料充分、状态正常的非公开发行股票资料，独立完成申购付款与正式确认区分、确认数量 × 发行价格的成本确认、付款/确认凭证与锁定台账补全，以及最新上市流通公告驱动下的转流通数量、成本与估值增值连续勾稽。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "PRIVATE-CASE-PARAMETERS",
+          "title": "本案计算口径与批准参数",
+          "kind": "PARAMETER",
+          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史费率、锁定天数或系统默认值固化为永久规则。",
+          "fields": [
+            {"fieldId": "scope", "label": "业务范围", "value": "普通交易性股票的非公开发行申购、确认与流通；相关记录状态均为正常"},
+            {"fieldId": "timeline", "label": "本案时间线", "value": "2026-10-09 申购付款；2026-10-21 正式中签确认；2026-11-20 按最新公告上市流通"},
+            {"fieldId": "payment-rule", "label": "申购付款处理", "value": "只完成证券清算款-新股清算款与银行存款的资金清算，不确认股票成本，不增加持仓"},
+            {"fieldId": "confirm-cost-rule", "label": "确认成本口径", "value": "正式中签确认数量 × 发行价格；发行价格按发行信息反填，不可修改"},
+            {"fieldId": "lock-rule", "label": "锁定台账口径", "value": "锁定成本默认为发行价格；锁定起止日期按题面批准资料维护；进入流通受限股票估值台账"},
+            {"fieldId": "listing-rule", "label": "转流通口径", "value": "以最新上市流通公告确定的日期转流通；流通日将未流通成本及估值增值完整转入流通科目，数量与总成本不变"},
+            {"fieldId": "precision-boundary", "label": "本案精度边界", "value": "关键金额按 0.01 元填写，数量按整股填写；本案中间值均可直接得到，不检验参数配置"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-APPLY-INFO",
+          "title": "10 月 9 日非公开申购记录",
+          "kind": "INSTRUCTION",
+          "description": "案例产品 D 的非公开发行申购记录。字段已经完成正常解析，业务类型与阶段必须由学员自行读取判断。",
+          "fields": [
+            {"fieldId": "apply-date", "label": "业务日期", "value": "2026-10-09"},
+            {"fieldId": "apply-product", "label": "产品", "value": "案例产品 D"},
+            {"fieldId": "apply-security", "label": "证券", "value": "案例股份 K"},
+            {"fieldId": "apply-biz-type", "label": "业务类型", "value": "非公开发行股票"},
+            {"fieldId": "apply-quantity", "label": "申购数量", "value": "+800,000", "unit": "股"},
+            {"fieldId": "apply-issue-price", "label": "发行价格", "value": "4.20", "unit": "元/股"},
+            {"fieldId": "apply-amount", "label": "申购金额", "value": "3,360,000.00", "unit": "元"},
+            {"fieldId": "apply-payment-date", "label": "支付日期", "value": "2026-10-09"},
+            {"fieldId": "apply-status", "label": "记录状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-PAYMENT-VOUCHER",
+          "title": "10 月 9 日非公开申购付款凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "根据申购记录和批准参数补全科目方向；金额字段由原始记录直接提供。",
+          "fields": [
+            {"fieldId": "payment-debit-account", "label": "借方科目", "value": "待填写"},
+            {"fieldId": "payment-debit-amount", "label": "借方金额", "value": "3,360,000.00", "unit": "元"},
+            {"fieldId": "payment-credit-account", "label": "贷方科目", "value": "待填写"},
+            {"fieldId": "payment-credit-amount", "label": "贷方金额", "value": "3,360,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-CASH-LEDGER",
+          "title": "资金台账—申购付款日资金变动",
+          "kind": "LEDGER",
+          "description": "用申购付款金额更新资金台账，付款阶段不确认股票成本和持仓。",
+          "fields": [
+            {"fieldId": "cash-opening", "label": "期初资金余额", "value": "5,000,000.00", "unit": "元"},
+            {"fieldId": "cash-payment-movement", "label": "10 月 9 日资金变动", "value": "-3,360,000.00", "unit": "元"},
+            {"fieldId": "cash-ending", "label": "期末资金余额", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-CONFIRM-RESULT",
+          "title": "10 月 21 日发行结果确认记录（非公开中签）",
+          "kind": "CONFIRMATION",
+          "description": "同一产品、同一证券的正式中签确认结果，是确认未流通成本和维护锁定台账的唯一字段来源。",
+          "fields": [
+            {"fieldId": "confirm-date", "label": "中签日期", "value": "2026-10-21"},
+            {"fieldId": "confirm-product", "label": "产品", "value": "案例产品 D"},
+            {"fieldId": "confirm-security", "label": "证券", "value": "案例股份 K"},
+            {"fieldId": "confirm-quantity", "label": "中签数量", "value": "+800,000", "unit": "股"},
+            {"fieldId": "confirm-issue-price", "label": "发行价格", "value": "4.20（按发行信息反填，不可修改）", "unit": "元/股"},
+            {"fieldId": "confirm-lock-cost", "label": "锁定成本", "value": "4.20（默认为发行价格）", "unit": "元/股"},
+            {"fieldId": "confirm-lock-start", "label": "锁定起始日期", "value": "2026-10-21"},
+            {"fieldId": "confirm-lock-end", "label": "锁定截止日期", "value": "2027-10-20"},
+            {"fieldId": "confirm-status", "label": "记录状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-CONFIRM-VOUCHER",
+          "title": "10 月 21 日非公开中签确认凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "根据发行结果确认记录补全科目方向；金额与数量字段由原始记录直接提供。",
+          "fields": [
+            {"fieldId": "confirm-debit-account", "label": "借方科目", "value": "待填写"},
+            {"fieldId": "confirm-debit-amount", "label": "借方金额", "value": "3,360,000.00", "unit": "元"},
+            {"fieldId": "confirm-debit-quantity", "label": "借方数量", "value": "800,000", "unit": "股"},
+            {"fieldId": "confirm-credit-account", "label": "贷方科目", "value": "待填写"},
+            {"fieldId": "confirm-credit-amount", "label": "贷方金额", "value": "3,360,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-UNLISTED-LEDGER",
+          "title": "流通日前未流通股票持仓台账",
+          "kind": "LEDGER",
+          "description": "正式确认入账后的未流通持仓台账，作为转流通前的账簿余额。",
+          "fields": [
+            {"fieldId": "ul-quantity", "label": "未流通数量", "value": "800,000", "unit": "股"},
+            {"fieldId": "ul-cost", "label": "未流通成本", "value": "3,360,000.00", "unit": "元"},
+            {"fieldId": "ul-valuation", "label": "未流通估值增值", "value": "240,000.00", "unit": "元"},
+            {"fieldId": "ul-close-price", "label": "估值日收盘价", "value": "4.50", "unit": "元/股"},
+            {"fieldId": "ul-market-value", "label": "未流通市值", "value": "3,600,000.00", "unit": "元"},
+            {"fieldId": "ul-lock-end", "label": "原锁定截止日期", "value": "2027-10-20"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-LISTING-ANNOUNCEMENT",
+          "title": "最新上市流通公告",
+          "kind": "REPORT",
+          "description": "上市公司发布的最新有效上市流通公告，转流通日期以本公告为准；与中签确认资料中的原锁定信息存在差异时按批准处理更新。",
+          "fields": [
+            {"fieldId": "announcement-date", "label": "公告日期", "value": "2026-11-12"},
+            {"fieldId": "announcement-status", "label": "公告状态", "value": "最新有效"},
+            {"fieldId": "listing-date", "label": "上市流通日期", "value": "2026-11-20"},
+            {"fieldId": "listing-diff", "label": "与中签公告差异", "value": "最新公告上市流通日期与中签公告中的上市流通日期存在差异"},
+            {"fieldId": "approved-update", "label": "批准处理", "value": "按最新公告更新锁定截止日期至 2026-11-19，已与管理人核对确认"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-TRANSFER-VOUCHER",
+          "title": "11 月 20 日转流通凭证工作底稿（流通日系统自动生成）",
+          "kind": "VOUCHER",
+          "description": "流通日把未流通科目中的成本及估值增值完整转入流通科目；金额由未流通台账提供，科目由学员补全。",
+          "fields": [
+            {"fieldId": "transfer-debit-cost-account", "label": "借方—流通成本科目", "value": "待填写"},
+            {"fieldId": "transfer-debit-cost-amount", "label": "借方—流通成本金额", "value": "3,360,000.00", "unit": "元"},
+            {"fieldId": "transfer-credit-cost-account", "label": "贷方—未流通成本科目", "value": "待填写"},
+            {"fieldId": "transfer-credit-cost-amount", "label": "贷方—未流通成本金额", "value": "3,360,000.00", "unit": "元"},
+            {"fieldId": "transfer-debit-valuation-account", "label": "借方—流通估值增值科目", "value": "待填写"},
+            {"fieldId": "transfer-debit-valuation-amount", "label": "借方—流通估值增值金额", "value": "240,000.00", "unit": "元"},
+            {"fieldId": "transfer-credit-valuation-account", "label": "贷方—未流通估值增值科目", "value": "待填写"},
+            {"fieldId": "transfer-credit-valuation-amount", "label": "贷方—未流通估值增值金额", "value": "240,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-FL-LEDGER",
+          "title": "转流通后股票持仓台账",
+          "kind": "LEDGER",
+          "description": "流通日后的正常日终持仓台账，用转流通凭证和流通日收盘价补全。",
+          "fields": [
+            {"fieldId": "fl-quantity", "label": "转流通后数量", "value": "待计算", "unit": "股"},
+            {"fieldId": "fl-cost", "label": "转流通后成本", "value": "待计算", "unit": "元"},
+            {"fieldId": "fl-valuation", "label": "转流通后估值增值", "value": "待计算", "unit": "元"},
+            {"fieldId": "fl-close-price", "label": "流通日收盘价", "value": "4.50", "unit": "元/股"},
+            {"fieldId": "fl-market-value", "label": "转流通后市值", "value": "待计算", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "PRIVATE-RECONCILIATION",
+          "title": "转流通结果勾稽工作表",
+          "kind": "RECONCILIATION",
+          "description": "将数量、成本、估值增值和市值放入同一张复核表，判断本组正常业务是否闭合。",
+          "fields": [
+            {"fieldId": "quantity-equation", "label": "数量勾稽关系", "value": "800,000 = 800,000（未流通 → 流通数量不变）"},
+            {"fieldId": "cost-equation", "label": "成本勾稽关系", "value": "3,360,000 = 3,360,000（未流通 → 流通总成本不变）"},
+            {"fieldId": "valuation-equation", "label": "估值增值勾稽关系", "value": "240,000 = 240,000（未流通 → 流通估值增值完整结转）"},
+            {"fieldId": "market-equation", "label": "市值勾稽关系", "value": "800,000 × 4.50 = 3,600,000 = 3,360,000 + 240,000"},
+            {"fieldId": "conclusion", "label": "勾稽结论", "value": "待填写"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "apply-stage",
+          "type": "FIELD_MAP",
+          "title": "判断 10 月 9 日记录阶段",
+          "instruction": "根据 10 月 9 日非公开申购记录的业务类型、支付日期和记录状态，选择当前处于哪个阶段。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择业务阶段",
+            "options": [
+              {"optionId": "SUBSCRIPTION_PAYMENT", "text": "非公开申购付款，等待正式中签确认"},
+              {"optionId": "CONFIRMED", "text": "已完成正式中签确认，可确认股票"},
+              {"optionId": "UNDETERMINED", "text": "无法判断"}
+            ]
+          }
+        },
+        {
+          "workItemId": "payment-rule",
+          "type": "FIELD_MAP",
+          "title": "选择申购付款阶段处理方式",
+          "instruction": "根据本案批准参数，选择 10 月 9 日应进行的账务处理。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择处理方式",
+            "options": [
+              {"optionId": "PAYMENT_ONLY", "text": "只完成新股清算款与银行存款清算，不确认股票成本和持仓"},
+              {"optionId": "PREMATURE_COST", "text": "按申购金额立即确认股票成本并增加持仓"}
+            ]
+          }
+        },
+        {
+          "workItemId": "apply-payment-amount",
+          "type": "CALCULATION",
+          "title": "填写申购付款金额",
+          "instruction": "从 10 月 9 日非公开申购记录读取申购金额，作为付款清算金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入付款金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "payment-debit-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写付款凭证借方科目",
+          "instruction": "填写 10 月 9 日非公开申购付款凭证的借方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "payment-credit-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写付款凭证贷方科目",
+          "instruction": "填写 10 月 9 日非公开申购付款凭证的贷方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "payment-ending-cash",
+          "type": "CALCULATION",
+          "title": "计算付款后资金余额",
+          "instruction": "用期初资金余额 5,000,000 元加上 10 月 9 日资金变动 -3,360,000 元，计算付款后资金余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入资金余额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "payment-position",
+          "type": "CALCULATION",
+          "title": "填写付款日新增持仓",
+          "instruction": "判断 10 月 9 日申购付款阶段应增加的股票持仓数量。",
+          "response": {"kind": "NUMBER", "placeholder": "输入新增持仓", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "confirm-date",
+          "type": "FIELD_MAP",
+          "title": "读取正式中签确认日期",
+          "instruction": "从 10 月 21 日发行结果确认记录选择正式中签确认日期。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择确认日期",
+            "options": [
+              {"optionId": "CONFIRM_DAY_1021", "text": "2026-10-21（正式中签确认日）"},
+              {"optionId": "PAYMENT_DAY_1009", "text": "2026-10-09（申购付款日）"},
+              {"optionId": "ANNOUNCEMENT_DAY_1112", "text": "2026-11-12（最新公告日）"}
+            ]
+          }
+        },
+        {
+          "workItemId": "confirm-quantity",
+          "type": "CALCULATION",
+          "title": "读取中签数量",
+          "instruction": "从 10 月 21 日发行结果确认记录读取正式中签数量。",
+          "response": {"kind": "NUMBER", "placeholder": "输入中签数量", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "confirm-issue-price",
+          "type": "CALCULATION",
+          "title": "读取发行价格",
+          "instruction": "从 10 月 21 日发行结果确认记录读取发行价格（按发行信息反填，不可修改）。",
+          "response": {"kind": "NUMBER", "placeholder": "输入发行价格", "unit": "元/股", "precision": 2}
+        },
+        {
+          "workItemId": "confirm-cost",
+          "type": "CALCULATION",
+          "title": "计算确认未流通成本",
+          "instruction": "按本案批准口径，用正式中签数量 × 发行价格计算应确认的未流通股票成本。",
+          "response": {"kind": "NUMBER", "placeholder": "输入未流通成本", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "confirm-cost-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写中签确认凭证借方科目",
+          "instruction": "填写 10 月 21 日中签确认凭证借方的未流通股票科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "confirm-clearing-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写中签确认凭证贷方科目",
+          "instruction": "填写 10 月 21 日中签确认凭证贷方的新股清算款科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "confirm-timing",
+          "type": "FIELD_MAP",
+          "title": "判断成本确认时点",
+          "instruction": "根据本案时间线和批准参数，选择股票成本首次确认的时点。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择确认时点",
+            "options": [
+              {"optionId": "CONFIRM_DAY", "text": "正式中签确认日（2026-10-21）确认"},
+              {"optionId": "PAYMENT_DAY", "text": "申购付款日（2026-10-09）确认"}
+            ]
+          }
+        },
+        {
+          "workItemId": "lock-maintenance",
+          "type": "FIELD_MAP",
+          "title": "维护锁定台账",
+          "instruction": "根据发行结果确认记录和本案批准参数，选择正确的锁定台账维护口径。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择锁定口径",
+            "options": [
+              {"optionId": "LOCK_BY_ISSUE", "text": "锁定成本 = 发行价格 4.20 元/股；锁定起止日期 = 确认日期起，按题面批准区间 2026-10-21 至 2027-10-20 维护"},
+              {"optionId": "LOCK_WRONG", "text": "锁定成本按申购金额 ÷ 中签数量另行计算；锁定起止日期按最新公告日"}
+            ]
+          }
+        },
+        {
+          "workItemId": "announcement-date",
+          "type": "FIELD_MAP",
+          "title": "读取最新上市流通日期",
+          "instruction": "从 11 月 12 日最新上市流通公告选择转流通应依据的上市流通日期。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择上市流通日期",
+            "options": [
+              {"optionId": "LATEST_1120", "text": "2026-11-20（最新上市流通公告确定）"},
+              {"optionId": "OLD_1021", "text": "2026-10-21（确认日期）"},
+              {"optionId": "LOCK_END_2027", "text": "2027-10-20（原锁定截止日期）"}
+            ]
+          }
+        },
+        {
+          "workItemId": "announcement-update",
+          "type": "FIELD_MAP",
+          "title": "处理公告与中签信息的日期差异",
+          "instruction": "最新公告上市流通日期与中签公告中的上市流通日期存在差异，根据公告的批准处理选择正确做法。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择处理方式",
+            "options": [
+              {"optionId": "UPDATE_BY_LATEST", "text": "按最新公告更新锁定截止日期至 2026-11-19，并与管理人核对确认"},
+              {"optionId": "KEEP_OLD", "text": "沿用原锁定截止日期 2027-10-20，不核对"}
+            ]
+          }
+        },
+        {
+          "workItemId": "clearing-match",
+          "type": "RECONCILIATION",
+          "title": "核对付款与确认同源及清算结清",
+          "instruction": "核对 10 月 9 日付款金额 3,360,000 元与 10 月 21 日确认成本 3,360,000 元是否同源且一致，并判断新股清算款是否结清。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择核对结果",
+            "options": [
+              {"optionId": "MATCHED", "text": "付款金额与确认成本同源且金额一致，新股清算款结清"},
+              {"optionId": "MISMATCHED", "text": "存在来源或金额不一致"}
+            ]
+          }
+        },
+        {
+          "workItemId": "transfer-debit-cost-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写转流通凭证流通成本借方科目",
+          "instruction": "填写 11 月 20 日转流通凭证借方承接未流通成本的流通科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "transfer-credit-cost-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写转流通凭证未流通成本贷方科目",
+          "instruction": "填写 11 月 20 日转流通凭证贷方结转未流通成本的科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "transfer-debit-valuation-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写转流通凭证流通估值增值借方科目",
+          "instruction": "填写 11 月 20 日转流通凭证借方承接未流通估值增值的流通科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "transfer-credit-valuation-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填写转流通凭证未流通估值增值贷方科目",
+          "instruction": "填写 11 月 20 日转流通凭证贷方结转未流通估值增值的科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "fl-quantity",
+          "type": "LEDGER_ENTRY",
+          "title": "填写转流通后持仓数量",
+          "instruction": "根据未流通数量 800,000 股与转流通不改变数量的规则，填写转流通后持仓数量。",
+          "response": {"kind": "NUMBER", "placeholder": "输入持仓数量", "unit": "股", "precision": 0}
+        },
+        {
+          "workItemId": "fl-cost",
+          "type": "LEDGER_ENTRY",
+          "title": "填写转流通后股票成本",
+          "instruction": "根据未流通成本 3,360,000 元完整转入流通科目，填写转流通后股票成本。",
+          "response": {"kind": "NUMBER", "placeholder": "输入股票成本", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "fl-valuation",
+          "type": "LEDGER_ENTRY",
+          "title": "填写转流通后估值增值",
+          "instruction": "根据未流通估值增值 240,000 元完整转入流通科目，填写转流通后估值增值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入估值增值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "market-value",
+          "type": "RECONCILIATION",
+          "title": "计算转流通后股票市值",
+          "instruction": "用转流通后持仓数量 800,000 股 × 流通日收盘价 4.50 元，填写转流通后股票市值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入股票市值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "reconciliation-result",
+          "type": "RECONCILIATION",
+          "title": "完成跨来源勾稽",
+          "instruction": "数量、成本、估值增值与市值关系均可由资料包复算且相互一致，选择本次勾稽结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择勾稽结论",
+            "options": [
+              {"optionId": "BALANCED", "text": "转流通数量、成本、估值增值与市值勾稽一致"},
+              {"optionId": "UNBALANCED", "text": "仍有未解释差异"}
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录连续业务结论",
+          "instruction": "用一句话写明转流通后数量、成本、估值增值、市值和勾稽结论。",
+          "response": {"kind": "TEXT", "placeholder": "例如：转流通后……，成本……，估值增值……，市值……，勾稽……"}
+        }
+      ],
+      "submissionNote": "提交前请按顺序复核业务类型与阶段、申购付款清算、正式中签确认、锁定台账与最新公告、转流通凭证和勾稽关系。提交后将生成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-STOCK-PRIVATE-PDF-2024",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（PDF主证据）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.pdf；第 36—42 页",
+      "usage": "非公开申购资料与审核、申购付款凭证（新股清算款/银行存款）、非公开中签字段与中签凭证（股票-特定对象发行未流通/新股清算款）、锁定栏位说明、最新上市流通公告与转流通凭证"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-PRIVATE-OFD-SAME-SOURCE",
+      "title": "股票业务介绍-2024（基础+进阶）-杨流（OFD同源格式）",
+      "source": "02_基础资产区_股票__股票业务介绍-2024（基础+进阶）-杨流.ofd；与 PDF 同源，仅用于格式交叉核对",
+      "usage": "不重复计权；辅助核对章节顺序、凭证页和 PDF 页级证据"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-PRIVATE-ROUTE-DECISIONS",
+      "title": "股票高保真路线施工计划—路线5",
+      "source": "project_materials/新人陪练案例库/核算案例库股票模块高保真施工计划.md 路线5、活动矩阵、排除项与子代理 checklist",
+      "usage": "非公开发行申购、确认与流通的答案链、四环节活动组合、两项硬性必达、补学目标与排除边界"
+    },
+    {
+      "referenceId": "ACC-REF-STOCK-PRIVATE-CASE-PARAMETERS-202608",
+      "title": "本路线题面批准合成参数",
+      "source": "本路线综合实务资料包中的 PRIVATE-CASE-PARAMETERS（2026.08 版本）",
+      "usage": "仅约束本案直接给出的时间线、付款处理、确认成本口径、锁定台账口径和转流通口径，不替代当前业务规则"
+    }
+  ]
+}
