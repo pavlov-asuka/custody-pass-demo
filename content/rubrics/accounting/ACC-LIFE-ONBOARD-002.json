@@ -1,0 +1,249 @@
+{
+  "routeId": "ACC-LIFE-ONBOARD-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-ONB-CONCEPT-SOURCE",
+          "description": "识别成立日期、到期日期和托管费计提分别由哪份资料支持",
+          "weight": 10,
+          "evidenceRequirement": "三个关键设置的依据选择正确",
+          "evidenceRules": [
+            {"fieldId": "src-establish-date", "operator": "EQUALS", "expected": "ESTABLISHMENT_CONFIRMATION"},
+            {"fieldId": "src-maturity-date", "operator": "EQUALS", "expected": "CONTRACT_SUMMARY"},
+            {"fieldId": "src-custody-fee", "operator": "EQUALS", "expected": "CUSTODY_AGREEMENT"}
+          ],
+          "remediationTargetId": "R-ONB-SOURCE"
+        },
+        {
+          "criterionId": "C-ONB-CONCEPT-PARAMETER",
+          "description": "识别TA结转条件与电子对账关键项以管理人参数确认为依据",
+          "weight": 8,
+          "evidenceRequirement": "TA与电子对账参数依据选择正确",
+          "evidenceRules": [
+            {"fieldId": "src-ta-settlement", "operator": "EQUALS", "expected": "PARAMETER_LETTER"},
+            {"fieldId": "src-e-recon-items", "operator": "EQUALS", "expected": "PARAMETER_LETTER"}
+          ],
+          "remediationTargetId": "R-ONB-SETUP"
+        },
+        {
+          "criterionId": "C-ONB-CONCEPT-NAV",
+          "description": "理解初始单位净值是初始资产净值除以初始份额的计算结果",
+          "weight": 7,
+          "evidenceRequirement": "初始资产、份额和单位净值关系正确",
+          "evidenceRules": [
+            {"fieldId": "calc-initial-assets", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+            {"fieldId": "calc-initial-shares", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+            {"fieldId": "calc-initial-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.0001}
+          ],
+          "remediationTargetId": "R-ONB-NAV"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-ONB-PROCESS-TABLE",
+          "description": "完成参数设置复核表初始资产、份额和单位净值的取数与复算",
+          "weight": 12,
+          "evidenceRequirement": "参数表三个数值字段与成立确认资料和除法关系一致",
+          "evidenceRules": [
+            {"fieldId": "calc-initial-assets", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+            {"fieldId": "calc-initial-shares", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+            {"fieldId": "calc-initial-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.0001}
+          ],
+          "remediationTargetId": "R-ONB-NAV"
+        },
+        {
+          "criterionId": "C-ONB-PROCESS-LEDGER",
+          "description": "完成首日银行存款与实收资本账务并填写账簿余额",
+          "weight": 10,
+          "evidenceRequirement": "首日凭证科目和银行存款余额正确",
+          "evidenceRules": [
+            {"fieldId": "ledger-first-debit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]},
+            {"fieldId": "ledger-first-credit", "operator": "CONTAINS_ALL", "expected": ["实收", "资本"]},
+            {"fieldId": "recon-bank-balance", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-ONB-LEDGER"
+        },
+        {
+          "criterionId": "C-ONB-PROCESS-RECON",
+          "description": "用估值表基金资产净值和电子对账关键项完成首日结果验证",
+          "weight": 8,
+          "evidenceRequirement": "估值表资产净值与电子对账结论一致",
+          "evidenceRules": [
+            {"fieldId": "recon-nav-balance", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+            {"fieldId": "recon-e-recon", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-ONB-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-ONB-RISK-SOURCE",
+          "description": "关键参数不按产品名称或历史模板猜测，全部绑定资料依据",
+          "weight": 9,
+          "evidenceRequirement": "五项参数依据选择全部正确",
+          "evidenceRules": [
+            {"fieldId": "src-establish-date", "operator": "EQUALS", "expected": "ESTABLISHMENT_CONFIRMATION"},
+            {"fieldId": "src-maturity-date", "operator": "EQUALS", "expected": "CONTRACT_SUMMARY"},
+            {"fieldId": "src-custody-fee", "operator": "EQUALS", "expected": "CUSTODY_AGREEMENT"},
+            {"fieldId": "src-ta-settlement", "operator": "EQUALS", "expected": "PARAMETER_LETTER"},
+            {"fieldId": "src-e-recon-items", "operator": "EQUALS", "expected": "PARAMETER_LETTER"}
+          ],
+          "remediationTargetId": "R-ONB-SOURCE"
+        },
+        {
+          "criterionId": "C-ONB-RISK-COMPLETE",
+          "description": "接管必须包含初始净值复算、首日账务与电子对账，不把设置完成视为接管完成",
+          "weight": 8,
+          "evidenceRequirement": "初始净值、首日账务与对账结论完整闭合",
+          "evidenceRules": [
+            {"fieldId": "calc-initial-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.0001},
+            {"fieldId": "ledger-first-debit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]},
+            {"fieldId": "ledger-first-credit", "operator": "CONTAINS_ALL", "expected": ["实收", "资本"]},
+            {"fieldId": "recon-e-recon", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-ONB-LEDGER"
+        },
+        {
+          "criterionId": "C-ONB-RISK-VERIFY",
+          "description": "账簿、估值表与电子对账结果必须互相验证",
+          "weight": 8,
+          "evidenceRequirement": "银行存款、基金资产净值与电子对账结论一致",
+          "evidenceRules": [
+            {"fieldId": "recon-bank-balance", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+            {"fieldId": "recon-nav-balance", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+            {"fieldId": "recon-e-recon", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-ONB-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-ONB-EXPR-RESULT",
+          "description": "简短结论包含初始资产、份额、单位净值、首日账务与对账结论",
+          "weight": 20,
+          "evidenceRequirement": "结论包含初始资产、份额、单位净值、首日账务与电子对账一致判断",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["48000000", "1.0000", "银行存款", "实收资本", "一致"]},
+            {"fieldId": "recon-e-recon", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-ONB-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-ONB-SOURCE",
+      "description": "关键设置必须绑定正确的当前业务依据，不能从产品名称或历史模板猜测",
+      "evidenceRequirement": "成立日期、到期日期、托管费、TA结转和电子对账关键项依据全部正确",
+      "evidenceRules": [
+        {"fieldId": "src-establish-date", "operator": "EQUALS", "expected": "ESTABLISHMENT_CONFIRMATION"},
+        {"fieldId": "src-maturity-date", "operator": "EQUALS", "expected": "CONTRACT_SUMMARY"},
+        {"fieldId": "src-custody-fee", "operator": "EQUALS", "expected": "CUSTODY_AGREEMENT"},
+        {"fieldId": "src-ta-settlement", "operator": "EQUALS", "expected": "PARAMETER_LETTER"},
+        {"fieldId": "src-e-recon-items", "operator": "EQUALS", "expected": "PARAMETER_LETTER"}
+      ],
+      "remediationTargetId": "R-ONB-SOURCE"
+    },
+    {
+      "requirementId": "M-ONB-CLOSE",
+      "description": "初始资产、份额、单位净值、账簿/估值结果和电子对账必须闭合",
+      "evidenceRequirement": "48,000,000 元资产、48,000,000 份份额、单位净值 1.0000 与首日账簿、估值、电子对账一致",
+      "evidenceRules": [
+        {"fieldId": "calc-initial-assets", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+        {"fieldId": "calc-initial-shares", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+        {"fieldId": "calc-initial-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.0001},
+        {"fieldId": "recon-bank-balance", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+        {"fieldId": "recon-nav-balance", "operator": "NUMBER_EQUALS", "expected": 48000000, "tolerance": 0.01},
+        {"fieldId": "recon-e-recon", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-ONB-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-ONB-SOURCE",
+      "title": "核对参数与业务依据",
+      "reason": "关键设置没有绑定正确的合同、协议、成立确认或管理人函件依据",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ACC-ONB-KC-01",
+      "questionId": "ACC-ONB-Q-01"
+    },
+    {
+      "targetId": "R-ONB-SETUP",
+      "title": "理解参数对象与下游影响",
+      "reason": "参数影响凭证、净值、申赎结转或日终核对的关系不清晰",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ACC-ONB-KC-02",
+      "questionId": "ACC-ONB-Q-02"
+    },
+    {
+      "targetId": "R-ONB-NAV",
+      "title": "复算初始单位净值",
+      "reason": "初始资产、份额或单位净值取数/复算不正确",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "ACC-ONB-Q-03"
+    },
+    {
+      "targetId": "R-ONB-LEDGER",
+      "title": "补全首日账务",
+      "reason": "首日银行存款与实收资本科目或账簿余额不正确",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "ACC-ONB-Q-04"
+    },
+    {
+      "targetId": "R-ONB-RECON",
+      "title": "完成首日结果验证",
+      "reason": "账簿、估值表或电子对账结果未完成跨来源勾稽",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-ONB-Q-05"
+    },
+    {
+      "targetId": "R-ONB-EXPRESSION",
+      "title": "形成可追溯接管结论",
+      "reason": "简短结论未覆盖关键数字或电子对账一致判断",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-ONB-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "src-establish-date": "ESTABLISHMENT_CONFIRMATION",
+      "src-maturity-date": "CONTRACT_SUMMARY",
+      "src-custody-fee": "CUSTODY_AGREEMENT",
+      "src-ta-settlement": "PARAMETER_LETTER",
+      "src-e-recon-items": "PARAMETER_LETTER",
+      "calc-initial-assets": 48000000,
+      "calc-initial-shares": 48000000,
+      "calc-initial-nav": 1,
+      "ledger-first-debit": "银行存款",
+      "ledger-first-credit": "实收资本",
+      "recon-bank-balance": 48000000,
+      "recon-nav-balance": 48000000,
+      "recon-e-recon": "BALANCED",
+      "result-note": "初始资产净值48,000,000元，初始份额48,000,000份，单位净值1.0000元，首日借银行存款、贷实收资本48,000,000元，电子对账一致。"
+    }
+  }
+}

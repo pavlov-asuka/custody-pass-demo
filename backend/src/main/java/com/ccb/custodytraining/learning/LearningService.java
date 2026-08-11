@@ -143,12 +143,13 @@ public class LearningService {
 
     public ObjectNode routeOverview(long userId, String routeId) {
         RouteBundle route = catalog.route(routeId);
+        boolean unlocked = routeUnlocked(userId, routeId);
         ObjectNode response = (ObjectNode) catalog.publicRouteMetadata(routeId);
         response.put("rubricVersion", route.rubricVersion());
-        response.put("state", state(userId, routeId).name());
-        response.put("enterable", true);
+        response.put("state", unlocked ? state(userId, routeId).name() : RouteState.LOCKED.name());
+        response.put("enterable", unlocked);
         ArrayNode steps = response.putArray("steps");
-        StepType next = nextStep(userId, route);
+        StepType next = unlocked ? nextStep(userId, route) : null;
         for (StepType type : StepType.values()) {
             ObjectNode step = steps.addObject();
             step.put("stepType", type.name());
@@ -524,6 +525,9 @@ public class LearningService {
     }
 
     private boolean canAccessStep(long userId, RouteBundle route, StepType type) {
+        if (!routeUnlocked(userId, route.routeId())) {
+            return false;
+        }
         if (repository.hasPassed(userId, route.routeId()) || isStepComplete(userId, route, type)) {
             return true;
         }
@@ -765,6 +769,21 @@ public class LearningService {
             }
         }
         return true;
+    }
+
+    private boolean routeUnlocked(long userId, String routeId) {
+        for (JsonNode line : catalog.map().path("lines")) {
+            for (JsonNode region : line.path("regions")) {
+                for (JsonNode module : region.path("modules")) {
+                    for (JsonNode node : module.path("nodes")) {
+                        if (routeId.equals(node.path("routeId").asText())) {
+                            return prerequisitesPassed(userId, line, node);
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private JsonNode findLine(String lineName) {

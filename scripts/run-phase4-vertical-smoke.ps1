@@ -386,8 +386,8 @@ try {
     $nextAfterPass = @($allNodesPass | Where-Object routeId -eq $nextRouteId)[0]
     Assert-True ($firstAfterPass.state -eq 'PASSED') 'first route not PASSED after success'
     Assert-True ($nextAfterPass.locked -eq $false) 'next node still locked after pass'
-    Assert-True ($nextAfterPass.enterable -eq $false) 'BUILDING next node must not be enterable'
-    Assert-True ($nextAfterPass.state -eq 'NOT_STARTED') 'unlocked BUILDING node state mismatch'
+    Assert-True ($nextAfterPass.enterable -eq $true) 'published next node must be enterable'
+    Assert-True ($nextAfterPass.state -eq 'NOT_STARTED') 'unlocked published node state mismatch'
     $evidence['firstStateAfterPass'] = [string]$firstAfterPass.state
     $evidence['nextUnlocked'] = $true
     $evidence['nextEnterable'] = [bool]$nextAfterPass.enterable

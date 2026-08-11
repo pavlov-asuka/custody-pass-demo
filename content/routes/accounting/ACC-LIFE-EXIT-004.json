@@ -1,0 +1,614 @@
+{
+  "routeId": "ACC-LIFE-EXIT-004",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "合同终止、清盘与退出",
+  "summary": "沿同一产品从合同终止、清算期间继续核算、剩余财产与单位净值、一次清算款与管理人垫款、后续资产回收与负债清偿，到余额表/资金调节表/估值表全零后停止核算与退出的完整生命周期链。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "从合同终止资料、清算方案、最后运作日余额表和垫款确认读取清盘字段，区分最后运作日、合同终止日、清算期间与停止核算日",
+    "计算剩余财产、单位净值、一次清算款和管理人垫款，完成垫款到账与清算款支付凭证，复算支付后现金、保留资产与负债",
+    "完成后续资产回收与负债清偿，验证余额表、资金调节表和估值表全零后形成停止核算与退出结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ACC-EXIT-KC-01",
+          "type": "FLOW",
+          "title": "合同终止不等于停止做账",
+          "conclusion": "合同终止只表示产品进入清算阶段；最后运作日后清算期间仍要继续核算，只有余额、调节表和估值表全零并完成退出动作后才能停止核算。",
+          "items": [
+            "最后运作日：终止运作前的最后核算日",
+            "合同终止日：进入清算阶段，核算不停止",
+            "清算期间：继续处理未变现/未收回资产与未支付费用",
+            "停止核算日：三表全零、账户销户并维护核算截止日之后"
+          ]
+        },
+        {
+          "cardId": "ACC-EXIT-KC-02",
+          "type": "CATEGORIES",
+          "title": "一次清算的数量关系",
+          "conclusion": "剩余财产、单位净值、一次清算款和垫款构成一条可复算的金额链；现金不足部分由管理人垫付。",
+          "items": [
+            "剩余财产 = 资产合计 - 负债合计",
+            "单位净值 = 基金资产净值 ÷ 份额",
+            "一次清算款 = 单位净值 × 份额",
+            "管理人垫款 = 一次清算款 - 可用现金"
+          ]
+        },
+        {
+          "cardId": "ACC-EXIT-KC-03",
+          "type": "KEY_POINT",
+          "title": "最终退出证据",
+          "conclusion": "后续资产回收、费用清偿和垫款返还要全部结清，余额表、资金调节表和估值表全零后才能确认停止核算与退出。",
+          "items": [
+            "后续回收：结算备付金解冻、应收利息到账",
+            "负债清偿：支付应付费用、返还管理人垫款",
+            "三表全零：余额表、资金调节表、估值表均为零",
+            "退出动作：完成封账、账户销户并停止参与核算"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品 明溪 的组合核算人员",
+        "product": "案例基金 明溪混合型证券投资基金 / 案例产品 明溪",
+        "date": "2026-10-14 至 2026-11-10",
+        "facts": [
+          "合同终止资料载明：最后运作日 2026-10-14，合同终止日 2026-10-15，采用一次清算。",
+          "最后运作日余额表：银行存款 7,920,000 元、冻结结算备付金 60,000 元、应收利息 20,000 元、应付费用 8,000 元、份额 7,992,000 份、单位净值 1.0000。",
+          "清算方案摘要：管理人垫付现金不足部分，清算期间继续核算，后续回收资产用于清偿费用和返还垫款。",
+          "垫款确认：管理人垫款 72,000 元；清算款支付指令 7,992,000 元，资金流水显示支付 -7,992,000 元，状态正常。",
+          "后续回收资料：结算备付金解冻 60,000 元、应收利息到账 20,000 元；费用支付 8,000 元、垫款返还 72,000 元，状态均正常。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取合同终止资料、清算方案与最后运作日余额表，确认进入清算期间继续核算",
+          "reason": "合同终止只表示进入清算阶段；未变现资产、未收利息和未支付费用仍需继续处理。"
+        },
+        {
+          "order": 2,
+          "action": "计算剩余财产 8,000,000 - 8,000 = 7,992,000 元，单位净值 7,992,000 ÷ 7,992,000 = 1.0000 元，一次清算款 1.0000 × 7,992,000 = 7,992,000 元",
+          "reason": "一次清算款等于归属于持有人的全部剩余财产，由净资产与份额关系复算。"
+        },
+        {
+          "order": 3,
+          "action": "管理人垫款 72,000 元到账（借银行存款、贷其他应付款-应付管理人垫款），支付一次清算款 7,992,000 元（借实收资本、借利润分配、贷银行存款），支付后现金为 0",
+          "reason": "可用现金 7,920,000 元不足支付清算款，差额由管理人垫付；支付后保留非现金资产并形成对应负债，净值为零。"
+        },
+        {
+          "order": 4,
+          "action": "后续结算备付金解冻与应收利息到账共回收 80,000 元，支付应付费用 8,000 元，返还管理人垫款 72,000 元，最终现金为 0",
+          "reason": "回收资金先清偿剩余负债，再返还垫款，最终资产与负债全部结清。"
+        },
+        {
+          "order": 5,
+          "action": "确认余额表、资金调节表和估值表全零，账户完成销户后维护核算截止日并停止核算",
+          "reason": "三表全零和退出动作完成后，停止核算才是正常结论。"
+        }
+      ],
+      "summary": "读终止资料 → 算剩余财产/净值/清算款 → 垫款与支付 → 后续回收与清偿 → 三表清零与停止核算"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-EXIT-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "请把四类清盘事实分别对应到它们表示的核算状态。每一行都从资料字段取证。",
+          "fieldMappings": [
+            {
+              "fieldId": "fm-interest",
+              "label": "应收利息 20,000 元尚未到账",
+              "source": "清算期间后续回收资料",
+              "options": [
+                {"optionId": "CONTINUE_ACCOUNTING", "text": "仍需继续核算"},
+                {"optionId": "CAN_STOP", "text": "具备停止核算条件"}
+              ]
+            },
+            {
+              "fieldId": "fm-fee",
+              "label": "应付费用 8,000 元尚未支付",
+              "source": "清算期间费用资料",
+              "options": [
+                {"optionId": "CONTINUE_ACCOUNTING", "text": "仍需继续核算"},
+                {"optionId": "CAN_STOP", "text": "具备停止核算条件"}
+              ]
+            },
+            {
+              "fieldId": "fm-advance",
+              "label": "管理人垫款 72,000 元尚未返还",
+              "source": "清算期间垫款资料",
+              "options": [
+                {"optionId": "CONTINUE_ACCOUNTING", "text": "仍需继续核算"},
+                {"optionId": "CAN_STOP", "text": "具备停止核算条件"}
+              ]
+            },
+            {
+              "fieldId": "fm-zero",
+              "label": "余额表、资金调节表、估值表全部为零，账户已销户",
+              "source": "清算结束资料",
+              "options": [
+                {"optionId": "CONTINUE_ACCOUNTING", "text": "仍需继续核算"},
+                {"optionId": "CAN_STOP", "text": "具备停止核算条件"}
+              ]
+            }
+          ],
+          "answer": ["CONTINUE_ACCOUNTING", "CONTINUE_ACCOUNTING", "CONTINUE_ACCOUNTING", "CAN_STOP"],
+          "explanation": "未到账利息、未支付费用和未返还垫款都属于未结清事项，需要继续核算；三表全零且账户销户后才具备停止核算条件。",
+          "hints": ["逐行判断是否仍有未结清资产或负债，全部结清后才能停止核算。"]
+        },
+        {
+          "questionId": "ACC-EXIT-Q-02",
+          "type": "ORDERING",
+          "prompt": "请排列合同终止后到停止核算的正常顺序。",
+          "items": [
+            {"itemId": "STATE", "text": "确认合同终止与最后运作日"},
+            {"itemId": "CONTINUE", "text": "清算期间继续核算"},
+            {"itemId": "CALC", "text": "计算剩余财产、单位净值与一次清算款"},
+            {"itemId": "PAY", "text": "管理人垫款并支付一次清算款"},
+            {"itemId": "RECOVER", "text": "后续资产回收与负债清偿"},
+            {"itemId": "ZERO_STOP", "text": "三表全零并停止核算与退出"}
+          ],
+          "answer": ["STATE", "CONTINUE", "CALC", "PAY", "RECOVER", "ZERO_STOP"],
+          "explanation": "先确认终止状态，再继续核算并计算清算款，垫款支付后完成后续回收与清偿，最后三表全零才能停止核算。",
+          "hints": ["清算款计算和支付位于清算期间，三表全零是停止核算的最后条件。"]
+        },
+        {
+          "questionId": "ACC-EXIT-Q-03",
+          "type": "CALCULATION",
+          "prompt": "从案例产品 明溪 的最后运作日余额表与清算方案取数，并按题面关系复算。请填写四个数字，不要把结果放在选择项里。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "calc-net-assets-demo", "label": "剩余财产/基金资产净值", "formula": "8,000,000 - 8,000 = ?", "placeholder": "输入剩余财产", "unit": "元", "precision": 2},
+              {"fieldId": "calc-nav-demo", "label": "单位净值", "formula": "7,992,000 ÷ 7,992,000 = ?（4 位小数）", "placeholder": "输入单位净值", "unit": "元/份", "precision": 4},
+              {"fieldId": "calc-payment-demo", "label": "一次清算款", "formula": "1.0000 × 7,992,000 = ?", "placeholder": "输入一次清算款", "unit": "元", "precision": 2},
+              {"fieldId": "calc-advance-demo", "label": "管理人垫款", "formula": "7,992,000 - 7,920,000 = ?", "placeholder": "输入垫款金额", "unit": "元", "precision": 2}
+            ]
+          },
+          "answer": ["7992000", "1", "7992000", "72000"],
+          "explanation": "剩余财产由资产减负债得到，单位净值由净资产除以份额得到，一次清算款为单位净值乘份额，垫款为清算款减可用现金。",
+          "hints": ["前两项构成单位净值关系，后两项构成清算款与垫款关系，逐格复算。"]
+        },
+        {
+          "questionId": "ACC-EXIT-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全案例产品 明溪 垫款到账与清算款支付两张凭证的科目。借贷方向和金额已经给出，你只需要补科目名称。",
+          "ledgerEntries": [
+            {"entryId": "advance-debit", "direction": "借", "label": "管理人垫款到账", "amount": "72,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "advance-credit", "direction": "贷", "label": "形成应付管理人垫款", "amount": "72,000.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "pay-capital", "direction": "借", "label": "支付清算款—实收资本", "amount": "7,972,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "pay-income", "direction": "借", "label": "支付清算款—利润分配", "amount": "20,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "pay-bank", "direction": "贷", "label": "支付清算款减少银行存款", "amount": "7,992,000.00 元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["银行存款", "其他应付款-应付管理人垫款", "实收资本-实收基金", "利润分配-未分配收益", "银行存款"],
+          "explanation": "垫款到账借银行存款、贷应付管理人垫款；支付清算款借实收资本和利润分配、贷银行存款，金额与一次清算款一致。",
+          "hints": ["垫款是资金流入并形成负债，清算款支付同时冲减实收资本、利润分配和银行存款。"]
+        },
+        {
+          "questionId": "ACC-EXIT-Q-05",
+          "type": "RECONCILIATION",
+          "prompt": "用案例产品 明溪 的清算资料完成现金链与清零复核，最后选择三表与停止核算结论。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "recon-cash-after-demo", "label": "支付清算款后现金", "kind": "NUMBER", "formula": "7,920,000 + 72,000 - 7,992,000 = ? 元", "placeholder": "输入支付后现金", "precision": 2},
+              {"fieldId": "recon-noncash-demo", "label": "支付后保留非现金资产", "kind": "NUMBER", "formula": "60,000 + 20,000 = ? 元", "placeholder": "输入非现金资产", "precision": 2},
+              {"fieldId": "recon-liab-demo", "label": "支付后负债合计", "kind": "NUMBER", "formula": "8,000 + 72,000 = ? 元", "placeholder": "输入负债合计", "precision": 2},
+              {"fieldId": "recon-final-cash-demo", "label": "最终现金余额", "kind": "NUMBER", "formula": "0 + 80,000 - 8,000 - 72,000 = ? 元", "placeholder": "输入最终现金", "precision": 2},
+              {"fieldId": "recon-zero-demo", "label": "三表清零结论", "kind": "SELECT", "formula": "余额表、资金调节表、估值表是否全部为零", "placeholder": "选择清零结论", "options": [
+                {"optionId": "ZERO_ALL", "text": "全部为零"},
+                {"optionId": "NOT_ZERO", "text": "仍有非零余额"}
+              ]},
+              {"fieldId": "recon-stop-demo", "label": "停止核算结论", "kind": "SELECT", "formula": "三表全零且退出动作完成后是否停止核算", "placeholder": "选择停止核算结论", "options": [
+                {"optionId": "CAN_STOP", "text": "可以停止核算并退出"},
+                {"optionId": "CANNOT_STOP", "text": "仍需继续核算"}
+              ]}
+            ]
+          },
+          "answer": ["0", "80000", "80000", "0", "ZERO_ALL", "CAN_STOP"],
+          "explanation": "支付后现金为零、保留资产与负债均为 80,000 元；后续回收清偿后现金归零，三表全零并完成退出动作后可以停止核算。",
+          "hints": ["先复算支付后现金，再核对保留资产与负债，最后判断三表清零和停止核算条件。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品 云岫 的组合核算人员",
+        "product": "案例基金 云岫混合型证券投资基金 / 案例产品 云岫",
+        "date": "2026-11-12 至 2026-12-20",
+        "purpose": "根据合同终止资料、清算方案、最后运作日余额表、垫款确认、清算款支付资料、后续回收与清偿资料，独立完成清盘退出：状态判断、剩余财产/单位净值/一次清算款/垫款计算、垫款与支付凭证、现金链与三表清零勾稽，以及停止核算结论。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "EXIT-CASE-PARAMETERS",
+          "title": "本案计算口径与批准参数",
+          "kind": "PARAMETER",
+          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史费率、菜单、固定时点、历史权限或系统默认值固化为永久规则。",
+          "fields": [
+            {"fieldId": "scope", "label": "业务范围", "value": "普通契约型开放式基金一次清算；无特殊产品参数"},
+            {"fieldId": "net-assets-rule", "label": "剩余财产关系", "value": "资产合计 - 负债合计"},
+            {"fieldId": "nav-rule", "label": "单位净值关系", "value": "基金资产净值 ÷ 份额；展示 4 位小数，判定容差 ±0.00005"},
+            {"fieldId": "payment-rule", "label": "一次清算款关系", "value": "单位净值 × 份额"},
+            {"fieldId": "advance-rule", "label": "管理人垫款关系", "value": "一次清算款 - 可用现金"},
+            {"fieldId": "voucher-rule", "label": "清算凭证口径", "value": "垫款到账：借银行存款、贷其他应付款-应付管理人垫款；支付清算款：借实收资本、借利润分配、贷银行存款"},
+            {"fieldId": "recovery-rule", "label": "后续处理口径", "value": "结算备付金解冻、应收利息到账计入回收；支付应付费用、返还垫款后最终现金为零"},
+            {"fieldId": "stop-rule", "label": "停止核算条件", "value": "余额表、资金调节表、估值表全部为零且账户完成销户"}
+          ]
+        },
+        {
+          "materialId": "EXIT-TERMINATION-DOC",
+          "title": "合同终止资料",
+          "kind": "INSTRUCTION",
+          "description": "基金合同终止与最后运作日的正式资料，状态正常。",
+          "fields": [
+            {"fieldId": "final-day", "label": "最后运作日", "value": "2026-11-12"},
+            {"fieldId": "termination-day", "label": "合同终止日", "value": "2026-11-13"},
+            {"fieldId": "termination-state", "label": "状态", "value": "正常；进入清算阶段，核算不停止"}
+          ]
+        },
+        {
+          "materialId": "EXIT-LIQUIDATION-PLAN",
+          "title": "清算方案摘要",
+          "kind": "INSTRUCTION",
+          "description": "管理人出具的一次清算方案摘要，载明清算方式和垫付安排。",
+          "fields": [
+            {"fieldId": "plan-type", "label": "清算方式", "value": "一次清算"},
+            {"fieldId": "plan-continue", "label": "清算期间核算", "value": "清算期间继续核算，未变现资产与未支付费用后续处理"},
+            {"fieldId": "plan-advance", "label": "垫付安排", "value": "现金不足部分由管理人垫付"}
+          ]
+        },
+        {
+          "materialId": "EXIT-PRE-BALANCE",
+          "title": "最后运作日余额表",
+          "kind": "LEDGER",
+          "description": "最后运作日的余额表，作为剩余财产、单位净值与清算款计算的起点。",
+          "fields": [
+            {"fieldId": "pre-cash", "label": "银行存款", "value": "5,940,000", "unit": "元"},
+            {"fieldId": "pre-frozen", "label": "冻结结算备付金", "value": "50,000", "unit": "元"},
+            {"fieldId": "pre-interest", "label": "应收利息", "value": "15,000", "unit": "元"},
+            {"fieldId": "pre-assets", "label": "资产合计", "value": "待填写"},
+            {"fieldId": "pre-payable", "label": "应付费用", "value": "5,000", "unit": "元"},
+            {"fieldId": "pre-liab", "label": "负债合计", "value": "待填写"},
+            {"fieldId": "pre-capital", "label": "实收资本-实收基金", "value": "5,985,000", "unit": "元"},
+            {"fieldId": "pre-shares", "label": "份额", "value": "6,000,000", "unit": "份"},
+            {"fieldId": "pre-income", "label": "利润分配-未分配收益", "value": "15,000", "unit": "元"},
+            {"fieldId": "pre-net-assets", "label": "基金资产净值", "value": "待填写"},
+            {"fieldId": "pre-nav", "label": "单位净值", "value": "1.0000", "unit": "元/份"}
+          ]
+        },
+        {
+          "materialId": "EXIT-ADVANCE-CONFIRMATION",
+          "title": "管理人垫款确认",
+          "kind": "CONFIRMATION",
+          "description": "管理人就清算款现金缺口出具的垫款确认，状态正常。",
+          "fields": [
+            {"fieldId": "advance-date", "label": "确认日期", "value": "2026-11-14"},
+            {"fieldId": "advance-amount", "label": "垫款金额", "value": "待填写"},
+            {"fieldId": "advance-status", "label": "状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "EXIT-PAYMENT-INSTRUCTION",
+          "title": "一次性清算款支付指令",
+          "kind": "INSTRUCTION",
+          "description": "管理人就一次性清算款支付出具的指令，载明支付意图与金额。",
+          "fields": [
+            {"fieldId": "payment-date", "label": "指令日期", "value": "2026-11-14"},
+            {"fieldId": "payment-amount", "label": "支付金额", "value": "待填写"},
+            {"fieldId": "payment-status", "label": "审核状态", "value": "已审核"}
+          ]
+        },
+        {
+          "materialId": "EXIT-PAYMENT-BANK",
+          "title": "清算款支付资金流水",
+          "kind": "STATEMENT",
+          "description": "清算款实际支付的资金流水，状态正常。",
+          "fields": [
+            {"fieldId": "bank-pay-date", "label": "记账日期", "value": "2026-11-14"},
+            {"fieldId": "bank-pay", "label": "清算款支付", "value": "待填写"},
+            {"fieldId": "bank-pay-status", "label": "状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "EXIT-PAYMENT-VOUCHER",
+          "title": "清算款支付凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "垫款到账与清算款支付两张凭证的科目补全工作底稿；金额按资料链填写。",
+          "fields": [
+            {"fieldId": "voucher-advance-debit", "label": "垫款到账—借方科目", "value": "待填写"},
+            {"fieldId": "voucher-advance-credit", "label": "垫款到账—贷方科目", "value": "待填写"},
+            {"fieldId": "voucher-advance-amount", "label": "垫款金额", "value": "待填写"},
+            {"fieldId": "voucher-pay-capital", "label": "支付清算款—借方实收资本", "value": "待填写"},
+            {"fieldId": "voucher-pay-income", "label": "支付清算款—借方利润分配", "value": "待填写"},
+            {"fieldId": "voucher-pay-credit", "label": "支付清算款—贷方科目", "value": "待填写"},
+            {"fieldId": "voucher-pay-amount", "label": "支付清算款金额", "value": "待填写"}
+          ]
+        },
+        {
+          "materialId": "EXIT-RECOVERY-DOC",
+          "title": "后续回收资料",
+          "kind": "STATEMENT",
+          "description": "清算期间后续回收资料，状态正常。",
+          "fields": [
+            {"fieldId": "recovery-frozen", "label": "结算备付金解冻到账", "value": "50,000", "unit": "元"},
+            {"fieldId": "recovery-interest", "label": "应收利息到账", "value": "15,000", "unit": "元"},
+            {"fieldId": "recovery-status", "label": "状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "EXIT-SETTLEMENT-DOC",
+          "title": "费用支付与垫款返还资料",
+          "kind": "STATEMENT",
+          "description": "清算期间负债清偿资料，状态正常。",
+          "fields": [
+            {"fieldId": "settle-fee", "label": "支付应付费用", "value": "5,000", "unit": "元"},
+            {"fieldId": "settle-advance", "label": "返还管理人垫款", "value": "60,000", "unit": "元"},
+            {"fieldId": "settle-status", "label": "状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "EXIT-FINAL-BALANCE",
+          "title": "最终余额表、资金调节表与估值表局部",
+          "kind": "LEDGER",
+          "description": "全部后续处理完成后的最终状态，需要学员确认全部为零。",
+          "fields": [
+            {"fieldId": "final-cash", "label": "银行存款", "value": "待填写"},
+            {"fieldId": "final-assets", "label": "资产合计", "value": "待填写"},
+            {"fieldId": "final-liab", "label": "负债合计", "value": "待填写"},
+            {"fieldId": "final-net", "label": "基金资产净值", "value": "待填写"},
+            {"fieldId": "final-shares", "label": "份额", "value": "待填写"},
+            {"fieldId": "final-recon", "label": "资金调节表", "value": "待填写"},
+            {"fieldId": "final-valuation", "label": "估值表", "value": "待填写"}
+          ]
+        },
+        {
+          "materialId": "EXIT-CLOSE-RECORD",
+          "title": "停止核算与销户状态记录",
+          "kind": "REPORT",
+          "description": "清盘结束后的状态记录，供学员形成最终结论。",
+          "fields": [
+            {"fieldId": "close-date", "label": "清算结束日", "value": "2026-12-20"},
+            {"fieldId": "close-account", "label": "活期账户状态", "value": "已销户"},
+            {"fieldId": "close-flag", "label": "参与核算标志", "value": "可改为否"},
+            {"fieldId": "close-conclusion", "label": "停止核算结论", "value": "待填写"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "src-state-interest",
+          "type": "FIELD_MAP",
+          "title": "状态判断—应收利息未到账",
+          "instruction": "应收利息 15,000 元尚未到账时，当前应处于什么核算状态？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择核算状态",
+            "options": [
+              {"optionId": "CONTINUE_ACCOUNTING", "text": "仍需继续核算"},
+              {"optionId": "CAN_STOP", "text": "具备停止核算条件"}
+            ]
+          }
+        },
+        {
+          "workItemId": "src-state-fee",
+          "type": "FIELD_MAP",
+          "title": "状态判断—应付费用未支付",
+          "instruction": "应付费用 5,000 元尚未支付时，当前应处于什么核算状态？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择核算状态",
+            "options": [
+              {"optionId": "CONTINUE_ACCOUNTING", "text": "仍需继续核算"},
+              {"optionId": "CAN_STOP", "text": "具备停止核算条件"}
+            ]
+          }
+        },
+        {
+          "workItemId": "src-state-advance",
+          "type": "FIELD_MAP",
+          "title": "状态判断—垫款未返还",
+          "instruction": "管理人垫款 60,000 元尚未返还时，当前应处于什么核算状态？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择核算状态",
+            "options": [
+              {"optionId": "CONTINUE_ACCOUNTING", "text": "仍需继续核算"},
+              {"optionId": "CAN_STOP", "text": "具备停止核算条件"}
+            ]
+          }
+        },
+        {
+          "workItemId": "src-state-final",
+          "type": "FIELD_MAP",
+          "title": "状态判断—三表全零且账户销户",
+          "instruction": "余额表、资金调节表、估值表全部为零且账户已销户时，当前应处于什么核算状态？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择核算状态",
+            "options": [
+              {"optionId": "CONTINUE_ACCOUNTING", "text": "仍需继续核算"},
+              {"optionId": "CAN_STOP", "text": "具备停止核算条件"}
+            ]
+          }
+        },
+        {
+          "workItemId": "calc-assets-total",
+          "type": "CALCULATION",
+          "title": "计算最后运作日资产合计",
+          "instruction": "用银行存款、冻结结算备付金和应收利息计算资产合计。",
+          "response": {"kind": "NUMBER", "placeholder": "输入资产合计", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "calc-net-assets",
+          "type": "CALCULATION",
+          "title": "计算剩余财产/基金资产净值",
+          "instruction": "用资产合计减应付费用计算剩余财产/基金资产净值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入剩余财产", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "calc-nav",
+          "type": "CALCULATION",
+          "title": "计算单位净值",
+          "instruction": "用基金资产净值除以份额 6,000,000 份，按 4 位小数填写单位净值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入单位净值", "unit": "元/份", "precision": 4}
+        },
+        {
+          "workItemId": "calc-liquidation-payment",
+          "type": "CALCULATION",
+          "title": "计算一次清算款",
+          "instruction": "用单位净值乘以份额计算一次清算款。",
+          "response": {"kind": "NUMBER", "placeholder": "输入一次清算款", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "calc-advance",
+          "type": "CALCULATION",
+          "title": "计算管理人垫款",
+          "instruction": "用一次清算款减可用现金 5,940,000 元计算管理人垫款。",
+          "response": {"kind": "NUMBER", "placeholder": "输入垫款金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "ledger-advance-debit",
+          "type": "LEDGER_ENTRY",
+          "title": "垫款到账—借方科目",
+          "instruction": "填写管理人垫款到账凭证的借方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "ledger-advance-credit",
+          "type": "LEDGER_ENTRY",
+          "title": "垫款到账—贷方科目",
+          "instruction": "填写管理人垫款到账形成负债的贷方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "ledger-payment-debit-capital",
+          "type": "LEDGER_ENTRY",
+          "title": "支付清算款—借方实收资本科目",
+          "instruction": "填写支付一次清算款时冲减实收资本的借方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "ledger-payment-debit-income",
+          "type": "LEDGER_ENTRY",
+          "title": "支付清算款—借方利润分配科目",
+          "instruction": "填写支付一次清算款时冲减利润分配的借方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "ledger-payment-credit",
+          "type": "LEDGER_ENTRY",
+          "title": "支付清算款—贷方科目",
+          "instruction": "填写支付一次清算款减少银行存款的贷方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "recon-cash-after-payment",
+          "type": "RECONCILIATION",
+          "title": "复算支付清算款后现金",
+          "instruction": "用期初现金、管理人垫款和清算款支付计算支付后的现金余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入支付后现金", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-noncash-after",
+          "type": "RECONCILIATION",
+          "title": "计算支付后保留非现金资产",
+          "instruction": "用冻结结算备付金与应收利息计算支付后保留的非现金资产。",
+          "response": {"kind": "NUMBER", "placeholder": "输入非现金资产", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-liab-after",
+          "type": "RECONCILIATION",
+          "title": "计算支付后负债合计",
+          "instruction": "用应付费用与应付管理人垫款计算支付后的负债合计。",
+          "response": {"kind": "NUMBER", "placeholder": "输入负债合计", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-net-after",
+          "type": "RECONCILIATION",
+          "title": "计算支付后净资产",
+          "instruction": "用支付后非现金资产减支付后负债合计计算净资产。",
+          "response": {"kind": "NUMBER", "placeholder": "输入净资产", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-recovery",
+          "type": "RECONCILIATION",
+          "title": "计算后续回收金额",
+          "instruction": "用结算备付金解冻与应收利息到账计算后续回收金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入回收金额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-final-cash",
+          "type": "RECONCILIATION",
+          "title": "计算最终现金余额",
+          "instruction": "用支付后现金、后续回收、费用支付和垫款返还计算最终现金余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入最终现金", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-final-zero",
+          "type": "RECONCILIATION",
+          "title": "三表清零结论",
+          "instruction": "最终余额表、资金调节表和估值表全部为零时，选择本次清零结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择清零结论",
+            "options": [
+              {"optionId": "ZERO_ALL", "text": "全部为零"},
+              {"optionId": "NOT_ZERO", "text": "仍有非零余额"}
+            ]
+          }
+        },
+        {
+          "workItemId": "stop-accounting",
+          "type": "RECONCILIATION",
+          "title": "停止核算结论",
+          "instruction": "三表全零、账户销户并完成退出动作后，选择本次停止核算结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择停止核算结论",
+            "options": [
+              {"optionId": "CAN_STOP", "text": "可以停止核算并退出"},
+              {"optionId": "CANNOT_STOP", "text": "仍需继续核算"}
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录清盘退出结论",
+          "instruction": "用一句话写明一次清算款、管理人垫款、后续回收清偿后的最终状态和停止核算结论。",
+          "response": {"kind": "TEXT", "placeholder": "例如：一次清算款……，垫款……，后续回收并清偿后三表全零，可以停止核算并退出。"}
+        }
+      ],
+      "submissionNote": "提交前请按顺序复核生命周期状态、剩余财产与单位净值、一次清算款与垫款、垫款与支付凭证、支付后资产/负债、后续回收与清偿、三表清零与停止核算结论。提交后将生成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-FOUNDATION-LIQUIDATION-2026",
+      "title": "基金清盘操作流程v2",
+      "source": "01_核算基础与生命周期__基金清盘操作流程v2.doc；处理时点：合同终止前、最后运作日、清算期间、清算结束日",
+      "usage": "合同终止不等于停止做账、清算期间继续核算、一次清算/二次清算、垫付款、清算款支付、日后处理与三表清零的稳定关系"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-SETUP-XLSX-2026",
+      "title": "新一代系统资产成立、到期及销户核算设置事项业务操作手册（2026年版）",
+      "source": "01_核算基础与生命周期__中国建设银行托管运营中心上海分中心新一代系统资产成立、到期及销户核算设置事项业务操作手册（2026年版）-新增菜单【估值对账日期配置】.xlsx；工作表：资产到期、销户流程",
+      "usage": "组合到期日期、清算结束日期、核算截止日与参与核算标志的退出关系；历史菜单与固定时点仅作内部证据"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-PLAN-2026",
+      "title": "跨模块核算基础与产品生命周期高保真施工计划",
+      "source": "project_materials/新人陪练案例库/核算案例库跨模块核算基础高保真施工计划.md 路线4",
+      "usage": "冻结答案链、综合实务数字、四环节活动、硬性必达与排除范围"
+    },
+    {
+      "referenceId": "ACC-REF-EXIT-CASE-PARAMETERS-202608",
+      "title": "清盘退出路线题面批准合成参数",
+      "source": "本路线综合实务资料包 EXIT-CASE-PARAMETERS（2026.08 版本）",
+      "usage": "仅约束本案剩余财产/净值/清算款/垫款关系、净值精度与容差、凭证口径和停止核算条件，不替代当前业务规则"
+    }
+  ]
+}

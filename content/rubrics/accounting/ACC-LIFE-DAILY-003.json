@@ -1,0 +1,254 @@
+{
+  "routeId": "ACC-LIFE-DAILY-003",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-DAILY-CONCEPT-SOURCE",
+          "description": "区分利息收入金额来源、费用实际支付证据与计提依据",
+          "weight": 10,
+          "evidenceRequirement": "收入来源、实际支付证据与计提依据选择正确",
+          "evidenceRules": [
+            {"fieldId": "src-interest-amount", "operator": "EQUALS", "expected": "INTEREST_DOC"},
+            {"fieldId": "src-payment-actual", "operator": "EQUALS", "expected": "BANK_STATEMENT"},
+            {"fieldId": "src-accrual-basis", "operator": "EQUALS", "expected": "ACCRUAL_DOC"}
+          ],
+          "remediationTargetId": "R-DAILY-SOURCE"
+        },
+        {
+          "criterionId": "C-DAILY-CONCEPT-ENTRY",
+          "description": "理解利息收入、费用计提与费用支付的凭证方向",
+          "weight": 8,
+          "evidenceRequirement": "三张凭证的借贷科目判断正确",
+          "evidenceRules": [
+            {"fieldId": "ledger-interest-debit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]},
+            {"fieldId": "ledger-interest-credit", "operator": "CONTAINS_ALL", "expected": ["利息", "收入"]},
+            {"fieldId": "ledger-accrual-debit", "operator": "CONTAINS_ALL", "expected": ["费用"]},
+            {"fieldId": "ledger-accrual-credit", "operator": "CONTAINS_ALL", "expected": ["应付"]},
+            {"fieldId": "ledger-payment-debit", "operator": "CONTAINS_ALL", "expected": ["应付"]},
+            {"fieldId": "ledger-payment-credit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]}
+          ],
+          "remediationTargetId": "R-DAILY-LEDGER"
+        },
+        {
+          "criterionId": "C-DAILY-CONCEPT-NAV",
+          "description": "理解单位净值是基金资产净值除以份额的计算结果",
+          "weight": 7,
+          "evidenceRequirement": "单位净值按净资产与份额关系复算正确",
+          "evidenceRules": [
+            {"fieldId": "recon-ending-nav", "operator": "NUMBER_EQUALS", "expected": 0.9987, "tolerance": 0.00005}
+          ],
+          "remediationTargetId": "R-DAILY-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-DAILY-PROCESS-FIELDS",
+          "description": "从结息单、计提依据和资金流水正确读取三项金额",
+          "weight": 8,
+          "evidenceRequirement": "利息收入、计提与实际支付三项取数正确",
+          "evidenceRules": [
+            {"fieldId": "calc-interest", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01},
+            {"fieldId": "calc-accrual", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0.01},
+            {"fieldId": "calc-payment", "operator": "NUMBER_EQUALS", "expected": 8000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-DAILY-FIELDS"
+        },
+        {
+          "criterionId": "C-DAILY-PROCESS-LEDGER",
+          "description": "完成现金、应付费用与当日损益的计算，并补齐凭证科目",
+          "weight": 12,
+          "evidenceRequirement": "现金、应付费用、当日结果和凭证科目闭合",
+          "evidenceRules": [
+            {"fieldId": "calc-ending-cash", "operator": "NUMBER_EQUALS", "expected": 1504000, "tolerance": 0.01},
+            {"fieldId": "calc-ending-payable", "operator": "NUMBER_EQUALS", "expected": 24000, "tolerance": 0.01},
+            {"fieldId": "calc-day-result", "operator": "NUMBER_EQUALS", "expected": 10000, "tolerance": 0.01},
+            {"fieldId": "ledger-accrual-debit", "operator": "CONTAINS_ALL", "expected": ["费用"]},
+            {"fieldId": "ledger-accrual-credit", "operator": "CONTAINS_ALL", "expected": ["应付"]},
+            {"fieldId": "ledger-payment-debit", "operator": "CONTAINS_ALL", "expected": ["应付"]},
+            {"fieldId": "ledger-payment-credit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]}
+          ],
+          "remediationTargetId": "R-DAILY-LEDGER"
+        },
+        {
+          "criterionId": "C-DAILY-PROCESS-RECON",
+          "description": "用净资产、单位净值、资金调节、电子对账与封账检查完成结果验证",
+          "weight": 10,
+          "evidenceRequirement": "净资产、单位净值、对账与封账结论一致",
+          "evidenceRules": [
+            {"fieldId": "recon-ending-assets", "operator": "NUMBER_EQUALS", "expected": 14980000, "tolerance": 0.01},
+            {"fieldId": "recon-ending-nav", "operator": "NUMBER_EQUALS", "expected": 0.9987, "tolerance": 0.00005},
+            {"fieldId": "recon-bank-result", "operator": "EQUALS", "expected": "BALANCED"},
+            {"fieldId": "recon-close", "operator": "EQUALS", "expected": "CLOSE_NORMAL"}
+          ],
+          "remediationTargetId": "R-DAILY-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-DAILY-RISK-EVIDENCE",
+          "description": "实际支付以资金流水为证，计提与收入分别绑定对应资料",
+          "weight": 9,
+          "evidenceRequirement": "三项资料证据选择全部正确",
+          "evidenceRules": [
+            {"fieldId": "src-interest-amount", "operator": "EQUALS", "expected": "INTEREST_DOC"},
+            {"fieldId": "src-payment-actual", "operator": "EQUALS", "expected": "BANK_STATEMENT"},
+            {"fieldId": "src-accrual-basis", "operator": "EQUALS", "expected": "ACCRUAL_DOC"}
+          ],
+          "remediationTargetId": "R-DAILY-SOURCE"
+        },
+        {
+          "criterionId": "C-DAILY-RISK-NORMAL",
+          "description": "按正常日链推进，封账是资料闭合后的正常结论",
+          "weight": 8,
+          "evidenceRequirement": "封账检查表条件全部满足时选择正常封账",
+          "evidenceRules": [
+            {"fieldId": "recon-close", "operator": "EQUALS", "expected": "CLOSE_NORMAL"}
+          ],
+          "remediationTargetId": "R-DAILY-RECON"
+        },
+        {
+          "criterionId": "C-DAILY-RISK-VERIFY",
+          "description": "账簿、估值表、资金调节与电子对账必须互相验证",
+          "weight": 8,
+          "evidenceRequirement": "现金、净资产、单位净值与对账结论一致",
+          "evidenceRules": [
+            {"fieldId": "calc-ending-cash", "operator": "NUMBER_EQUALS", "expected": 1504000, "tolerance": 0.01},
+            {"fieldId": "recon-ending-assets", "operator": "NUMBER_EQUALS", "expected": 14980000, "tolerance": 0.01},
+            {"fieldId": "recon-ending-nav", "operator": "NUMBER_EQUALS", "expected": 0.9987, "tolerance": 0.00005},
+            {"fieldId": "recon-bank-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-DAILY-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-DAILY-EXPR-RESULT",
+          "description": "简短结论包含期末现金、应付费用、净资产、单位净值与封账结论",
+          "weight": 20,
+          "evidenceRequirement": "结论覆盖关键数字和正常封账判断",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["1504000", "24000", "14980000", "0.9987", "封账"]},
+            {"fieldId": "recon-close", "operator": "EQUALS", "expected": "CLOSE_NORMAL"}
+          ],
+          "remediationTargetId": "R-DAILY-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-DAILY-CASH-PAYABLE",
+      "description": "现金、应付费用和当日损益必须按来源完成计算与账务闭合",
+      "evidenceRequirement": "利息、计提、支付取数正确，现金与应付余额、当日结果和凭证科目闭合",
+      "evidenceRules": [
+        {"fieldId": "calc-interest", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01},
+        {"fieldId": "calc-accrual", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0.01},
+        {"fieldId": "calc-payment", "operator": "NUMBER_EQUALS", "expected": 8000, "tolerance": 0.01},
+        {"fieldId": "calc-ending-cash", "operator": "NUMBER_EQUALS", "expected": 1504000, "tolerance": 0.01},
+        {"fieldId": "calc-ending-payable", "operator": "NUMBER_EQUALS", "expected": 24000, "tolerance": 0.01},
+        {"fieldId": "calc-day-result", "operator": "NUMBER_EQUALS", "expected": 10000, "tolerance": 0.01},
+        {"fieldId": "ledger-accrual-debit", "operator": "CONTAINS_ALL", "expected": ["费用"]},
+        {"fieldId": "ledger-accrual-credit", "operator": "CONTAINS_ALL", "expected": ["应付"]},
+        {"fieldId": "ledger-payment-debit", "operator": "CONTAINS_ALL", "expected": ["应付"]},
+        {"fieldId": "ledger-payment-credit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]}
+      ],
+      "remediationTargetId": "R-DAILY-LEDGER"
+    },
+    {
+      "requirementId": "M-DAILY-CLOSE",
+      "description": "账簿、估值表、银行/资金调节和电子对账全部一致后才能形成正常封账结论",
+      "evidenceRequirement": "净资产、单位净值、资金调节/电子对账和封账结论全部闭合",
+      "evidenceRules": [
+        {"fieldId": "recon-ending-assets", "operator": "NUMBER_EQUALS", "expected": 14980000, "tolerance": 0.01},
+        {"fieldId": "recon-ending-nav", "operator": "NUMBER_EQUALS", "expected": 0.9987, "tolerance": 0.00005},
+        {"fieldId": "recon-bank-result", "operator": "EQUALS", "expected": "BALANCED"},
+        {"fieldId": "recon-close", "operator": "EQUALS", "expected": "CLOSE_NORMAL"}
+      ],
+      "remediationTargetId": "R-DAILY-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-DAILY-SOURCE",
+      "title": "区分收入依据、实际支付与计提依据",
+      "reason": "利息收入、实际支付或计提金额没有绑定正确资料",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ACC-DAILY-KC-01",
+      "questionId": "ACC-DAILY-Q-01"
+    },
+    {
+      "targetId": "R-DAILY-FIELDS",
+      "title": "复算收入、计提与支付取数",
+      "reason": "利息收入、计提或实际支付金额取数不正确",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-02",
+      "questionId": "ACC-DAILY-Q-03"
+    },
+    {
+      "targetId": "R-DAILY-LEDGER",
+      "title": "补全凭证与现金/费用台账",
+      "reason": "现金、应付费用、当日结果或凭证科目未闭合",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "ACC-DAILY-Q-04"
+    },
+    {
+      "targetId": "R-DAILY-RECON",
+      "title": "完成净资产、单位净值与对账勾稽",
+      "reason": "净资产、单位净值、资金调节或电子对账未完成跨来源复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-DAILY-Q-05"
+    },
+    {
+      "targetId": "R-DAILY-EXPRESSION",
+      "title": "形成可追溯每日核算结论",
+      "reason": "简短结论未覆盖现金、应付费用、净资产、单位净值或封账判断",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-DAILY-Q-06"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "src-interest-amount": "INTEREST_DOC",
+      "src-payment-actual": "BANK_STATEMENT",
+      "src-accrual-basis": "ACCRUAL_DOC",
+      "calc-interest": 12000,
+      "calc-accrual": 2000,
+      "calc-payment": 8000,
+      "calc-ending-cash": 1504000,
+      "calc-ending-payable": 24000,
+      "calc-day-result": 10000,
+      "ledger-interest-debit": "银行存款",
+      "ledger-interest-credit": "利息收入",
+      "ledger-accrual-debit": "费用",
+      "ledger-accrual-credit": "应付费用",
+      "ledger-payment-debit": "应付费用",
+      "ledger-payment-credit": "银行存款",
+      "recon-ending-assets": 14980000,
+      "recon-ending-nav": 0.9987,
+      "recon-bank-result": "BALANCED",
+      "recon-close": "CLOSE_NORMAL",
+      "result-note": "期末现金1,504,000元，期末应付费用24,000元，期末基金资产净值14,980,000元，单位净值0.9987元，资金调节、电子对账一致，正常封账。"
+    }
+  }
+}

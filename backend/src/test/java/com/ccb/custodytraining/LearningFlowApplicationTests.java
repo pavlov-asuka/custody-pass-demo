@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.UUID;
 
+import com.ccb.custodytraining.learning.FormalContentCatalog;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -73,6 +74,9 @@ class LearningFlowApplicationTests {
     @Autowired
     private JdbcTemplate jdbc;
 
+    @Autowired
+    private FormalContentCatalog catalog;
+
     @BeforeEach
     void cleanLearningData() {
         jdbc.update("DELETE FROM remediation_target");
@@ -107,9 +111,11 @@ class LearningFlowApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].state").value("NOT_STARTED"))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].state").value("LOCKED"))
-                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].contentAvailability").value("BUILDING"))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].contentAvailability").value("PUBLISHED"))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[2].state").value("LOCKED"))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[3].state").value("LOCKED"))
                 .andExpect(jsonPath("$.regions[0].modules[1].nodes[4].pathType").value("ADVANCED"))
-                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(5));
+                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(8));
     }
 
     @Test
@@ -158,6 +164,8 @@ class LearningFlowApplicationTests {
         Session learner = prepared("10000001");
         long roleAttempt = submit(learner, requestId(), PASSING_ANSWER).path("attemptId").asLong();
         assertEquals("PASSED", awaitTerminal(learner, roleAttempt).path("historicalConclusion").asText());
+        passRoute(learner, "ACC-LIFE-ONBOARD-002");
+        passRoute(learner, "ACC-LIFE-DAILY-003");
         stockComplete(learner, "KNOWLEDGE_CARD");
         stockComplete(learner, "DEMONSTRATION");
 
@@ -201,6 +209,35 @@ class LearningFlowApplicationTests {
         JsonNode completed = stockAnswerQuestion(learner, "ACC-STOCK-TRADE-Q-05", List.of(
                 "剩余持仓 18,000 股，剩余成本 168,000 元，期末资金 1,031,860 元，期末市值 198,000 元，资金、持仓、成本和估值勾稽一致。"));
         assertTrue(completed.path("practiceCompleted").asBoolean());
+    }
+
+    @Test
+    void foundationRoutesPassInSequenceAndDailyUnlocksStockAndExit() throws Exception {
+        Session learner = prepared("10000001");
+        mockMvc.perform(get("/api/routes/ACC-LIFE-ONBOARD-002").session(learner.session()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.state").value("LOCKED"))
+                .andExpect(jsonPath("$.enterable").value(false))
+                .andExpect(jsonPath("$.steps[0].accessible").value(false));
+        long roleAttempt = submit(learner, requestId(), PASSING_ANSWER).path("attemptId").asLong();
+        assertEquals("PASSED", awaitTerminal(learner, roleAttempt).path("historicalConclusion").asText());
+
+        assertEquals("PASSED", passRoute(learner, "ACC-LIFE-ONBOARD-002")
+                .path("historicalConclusion").asText());
+        JsonNode afterOnboard = getJson(learner, "/api/lines/ACCOUNTING/map");
+        assertTrue(findNode(afterOnboard, "ACC-LIFE-DAILY-003").path("enterable").asBoolean());
+        assertTrue(!findNode(afterOnboard, "ACC-STOCK-TRADE-001").path("enterable").asBoolean());
+
+        assertEquals("PASSED", passRoute(learner, "ACC-LIFE-DAILY-003")
+                .path("historicalConclusion").asText());
+        JsonNode afterDaily = getJson(learner, "/api/lines/ACCOUNTING/map");
+        assertTrue(findNode(afterDaily, "ACC-LIFE-EXIT-004").path("enterable").asBoolean());
+        assertTrue(findNode(afterDaily, "ACC-STOCK-TRADE-001").path("enterable").asBoolean());
+
+        assertEquals("PASSED", passRoute(learner, "ACC-LIFE-EXIT-004")
+                .path("historicalConclusion").asText());
+        assertEquals("PASSED", findNode(getJson(learner, "/api/lines/ACCOUNTING/map"),
+                "ACC-LIFE-EXIT-004").path("state").asText());
     }
 
     @Test
@@ -315,7 +352,7 @@ class LearningFlowApplicationTests {
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].state").value("PASSED"))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].state").value("NOT_STARTED"))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].locked").value(false))
-                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].enterable").value(false));
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].enterable").value(true));
     }
 
     @Test
@@ -346,7 +383,7 @@ class LearningFlowApplicationTests {
         mockMvc.perform(get("/api/lines/ACCOUNTING/map").session(learner.session()))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].state").value("PASSED"))
                 .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].locked").value(false))
-                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].enterable").value(false));
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].enterable").value(true));
         JsonNode failedHistory = getJson(learner, "/api/training-records/" + failedAttempt);
         JsonNode passedHistory = getJson(learner, "/api/training-records/" + passedAttempt);
         assertEquals("LEARNED_NOT_MASTERED", failedHistory.path("historicalConclusion").asText());
@@ -422,6 +459,92 @@ class LearningFlowApplicationTests {
         answerQuestion(session, "ACC-ROLE-Q-02", List.of("B"));
         answerQuestion(session, "ACC-ROLE-Q-03", List.of("SOURCE", "CALC", "POST", "RECON"));
         return session;
+    }
+
+    private JsonNode passRoute(Session session, String routeId) throws Exception {
+        FormalContentCatalog.RouteBundle bundle = catalog.route(routeId);
+        String contentVersion = bundle.contentVersion();
+        String rubricVersion = bundle.rubricVersion();
+        completeRouteStep(session, routeId, "KNOWLEDGE_CARD", contentVersion);
+        completeRouteStep(session, routeId, "DEMONSTRATION", contentVersion);
+        for (JsonNode question : bundle.content().path("steps").path("BASIC_PRACTICE").path("questions")) {
+            List<String> answer = new java.util.ArrayList<>();
+            for (JsonNode item : question.path("answer")) {
+                answer.add(item.asText());
+            }
+            if ("SHORT_TEXT".equals(question.path("type").asText())) {
+                answer = List.of(String.join("，", answer));
+            }
+            if ("CALCULATION".equals(question.path("type").asText())) {
+                List<String> wrongAnswer = java.util.Collections.nCopies(answer.size(), "0");
+                JsonNode rejected = answerRouteQuestionResult(session, routeId,
+                        question.path("questionId").asText(), contentVersion, wrongAnswer);
+                assertTrue(!rejected.path("correct").asBoolean());
+                assertTrue(!rejected.has("answer"));
+                assertTrue(!rejected.path("explanation").asText().contains(answer.get(0)));
+            }
+            answerRouteQuestion(session, routeId, question.path("questionId").asText(),
+                    contentVersion, answer);
+        }
+        ObjectNode body = objectMapper.createObjectNode();
+        body.put("clientRequestId", requestId());
+        body.put("contentVersion", contentVersion);
+        body.put("rubricVersion", rubricVersion);
+        body.set("answer", bundle.rubric().path("referenceAnswer").deepCopy());
+        MvcResult result = mockMvc.perform(post("/api/routes/" + routeId + "/attempts")
+                        .session(session.session()).with(session.csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content(body.toString()))
+                .andExpect(status().isOk()).andReturn();
+        long attemptId = objectMapper.readTree(result.getResponse().getContentAsString())
+                .path("attemptId").asLong();
+        JsonNode terminal = awaitTerminal(session, attemptId);
+        assertEquals("PASSED", terminal.path("historicalConclusion").asText());
+        return terminal;
+    }
+
+    private void completeRouteStep(Session session, String routeId, String step,
+                                   String contentVersion) throws Exception {
+        mockMvc.perform(post("/api/routes/" + routeId + "/steps/" + step + "/complete")
+                        .session(session.session()).with(session.csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"eventId\":\"" + requestId() + "\","
+                                + "\"contentVersion\":\"" + contentVersion + "\"}"))
+                .andExpect(status().isOk());
+    }
+
+    private void answerRouteQuestion(Session session, String routeId, String questionId,
+                                     String contentVersion, List<String> answer) throws Exception {
+        JsonNode result = answerRouteQuestionResult(session, routeId, questionId, contentVersion, answer);
+        assertTrue(result.path("correct").asBoolean());
+    }
+
+    private JsonNode answerRouteQuestionResult(Session session, String routeId, String questionId,
+                                               String contentVersion, List<String> answer) throws Exception {
+        ObjectNode body = objectMapper.createObjectNode();
+        body.put("requestId", requestId());
+        body.put("contentVersion", contentVersion);
+        body.putArray("answer").addAll(answer.stream()
+                .map(objectMapper.getNodeFactory()::textNode).toList());
+        MvcResult result = mockMvc.perform(post("/api/routes/" + routeId + "/basic-practice/"
+                        + questionId + "/answers")
+                        .session(session.session()).with(session.csrf())
+                        .contentType(MediaType.APPLICATION_JSON).content(body.toString()))
+                .andExpect(status().isOk())
+                .andReturn();
+        return objectMapper.readTree(result.getResponse().getContentAsString());
+    }
+
+    private JsonNode findNode(JsonNode map, String routeId) {
+        for (JsonNode region : map.path("regions")) {
+            for (JsonNode module : region.path("modules")) {
+                for (JsonNode node : module.path("nodes")) {
+                    if (routeId.equals(node.path("routeId").asText())) {
+                        return node;
+                    }
+                }
+            }
+        }
+        throw new IllegalArgumentException("路线节点不存在: " + routeId);
     }
 
     private long submitAndAwaitNotMastered(Session session) throws Exception {

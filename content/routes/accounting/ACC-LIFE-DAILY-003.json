@@ -1,0 +1,611 @@
+{
+  "routeId": "ACC-LIFE-DAILY-003",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "每日核算与结果闭环",
+  "summary": "沿同一业务日的期初余额、利息收入、费用计提与支付、凭证与台账、估值与单位净值、资金调节与电子对账，完成一条可复核的每日核算链并形成正常封账结论。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "从期初余额表、结息单、支付指令、资金流水和费用计提依据读取当日业务字段，区分收入依据、实际支付与计提金额",
+    "完成利息收入、费用计提和费用支付的凭证与现金/费用台账，复算现金余额、应付费用余额与当日损益",
+    "完成估值表与单位净值，用资金调节表、电子对账关键项和封账检查表验证结果，形成正常封账结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ACC-DAILY-KC-01",
+          "type": "FLOW",
+          "title": "日间输入与实际发生",
+          "conclusion": "日间资料先证明“要做什么”和“实际发生什么”，再进入晚间账务；支付指令不等于已支付，结息单与资金流水共同支持收入。",
+          "items": [
+            "期初余额表：现金、投资资产、应付费用和份额",
+            "结息单与资金流水：利息收入的金额来源与实际到账",
+            "支付指令与资金流水：费用支付的意图与实际发生",
+            "费用计提依据：当日应计提的费用金额"
+          ]
+        },
+        {
+          "cardId": "ACC-DAILY-KC-02",
+          "type": "CATEGORIES",
+          "title": "凭证—账簿—估值因果链",
+          "conclusion": "利息收入、费用计提和费用支付分别形成凭证，更新现金与应付台账，最后汇入净资产与单位净值。",
+          "items": [
+            "利息收入凭证：借银行存款、贷利息收入",
+            "费用计提凭证：借费用、贷应付费用",
+            "费用支付凭证：借应付费用、贷银行存款",
+            "期末净资产 = 期末现金 + 投资资产 - 应付费用；单位净值 = 净资产 ÷ 份额"
+          ]
+        },
+        {
+          "cardId": "ACC-DAILY-KC-03",
+          "type": "KEY_POINT",
+          "title": "第二来源与正常封账",
+          "conclusion": "资金调节表、电子对账关键项和封账检查表全部一致后，才能形成正常封账结论；封账是日终正常动作。",
+          "items": [
+            "资金调节表期末余额与账簿现金一致",
+            "电子对账关键项：银行存款、应付费用一致",
+            "估值表基金资产净值与账簿、对账结果互相验证",
+            "封账结论来自资料复算，不来自系统成功或口头确认"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品 松风 的组合核算人员",
+        "product": "案例基金 松风混合型证券投资基金 / 案例产品 松风",
+        "date": "2026-06-17",
+        "facts": [
+          "期初余额表：银行存款 2,000,000 元、投资资产 18,000,000 元、应付费用 40,000 元、份额 20,000,000 份。",
+          "结息单载明当日利息收入 15,000 元，状态正常；当日资金流水显示利息到账 +15,000 元。",
+          "费用计提依据载明当日计提 3,000 元，状态正常。",
+          "费用支付指令载明支付 10,000 元，资金流水显示费用支付 -10,000 元，状态正常。",
+          "日间业务处理清单与晚间数据完成清单均正常，数据已接收并完成拆分。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取期初余额表、结息单、支付指令、资金流水与费用计提依据，确认当日实际发生利息收入 15,000 元、计提 3,000 元、支付 10,000 元",
+          "reason": "先确认金额来源、实际到账/支付与状态，再进入账务处理；支付指令不能替代资金流水证明已支付。"
+        },
+        {
+          "order": 2,
+          "action": "计算期末现金 2,000,000 + 15,000 - 10,000 = 2,005,000 元，期末应付费用 40,000 + 3,000 - 10,000 = 33,000 元，当日净结果 15,000 - 3,000 = 12,000 元",
+          "reason": "现金与应付余额分别按实际到账/支付和计提口径复算，当日结果由收入减计提得到。"
+        },
+        {
+          "order": 3,
+          "action": "完成三张凭证并更新台账：借银行存款 15,000、贷利息收入 15,000；借费用 3,000、贷应付费用 3,000；借应付费用 10,000、贷银行存款 10,000",
+          "reason": "收入、计提与支付分别形成凭证，现金账簿和费用台账随凭证同步更新。"
+        },
+        {
+          "order": 4,
+          "action": "完成晚间估值：期末净资产 2,005,000 + 18,000,000 - 33,000 = 19,972,000 元，单位净值 19,972,000 ÷ 20,000,000 = 0.9986 元",
+          "reason": "估值结果是现金、投资资产与负债的连续关系，单位净值按题面精度复算。"
+        },
+        {
+          "order": 5,
+          "action": "用资金调节表、电子对账关键项和封账检查表核对，确认期末现金、应付费用、净资产与净值一致后正常封账",
+          "reason": "第二来源验证闭合后，正常封账是当日核算的结论，不是异常处理。"
+        }
+      ],
+      "summary": "读资料定发生 → 计算现金/应付/结果 → 凭证与台账 → 估值与净值 → 勾稽与正常封账"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-DAILY-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "请把四类日间/晚间资料分别对应到它们证明的业务含义。每一行都从资料字段取证。",
+          "fieldMappings": [
+            {
+              "fieldId": "fm-interest-source",
+              "label": "结息单：业务日期当日利息收入 15,000 元",
+              "source": "日间收入资料",
+              "options": [
+                {"optionId": "AMOUNT_SOURCE", "text": "利息收入的金额来源"},
+                {"optionId": "ACTUAL_RECEIPT", "text": "利息实际到账记录"}
+              ]
+            },
+            {
+              "fieldId": "fm-payment-evidence",
+              "label": "资金流水：当日费用支出 -10,000 元",
+              "source": "日间资金资料",
+              "options": [
+                {"optionId": "ACTUAL_PAYMENT", "text": "费用已经实际支付"},
+                {"optionId": "PAYMENT_INTENT", "text": "费用支付意图"}
+              ]
+            },
+            {
+              "fieldId": "fm-accrual",
+              "label": "费用计提依据：按本案口径计提 3,000 元",
+              "source": "日间费用资料",
+              "options": [
+                {"optionId": "ACCRUAL_AMOUNT", "text": "当日应计提的费用金额"},
+                {"optionId": "PAYMENT_AMOUNT", "text": "当日实际支付的费用金额"}
+              ]
+            },
+            {
+              "fieldId": "fm-evening-data",
+              "label": "晚间数据完成清单：交易、行情、TA 数据均已完成拆分",
+              "source": "晚间数据资料",
+              "options": [
+                {"optionId": "DATA_READY", "text": "数据已可用，可进入晚间账务"},
+                {"optionId": "DATA_RECEIVED", "text": "仅文件已收到，尚未拆分"}
+              ]
+            }
+          ],
+          "answer": ["AMOUNT_SOURCE", "ACTUAL_PAYMENT", "ACCRUAL_AMOUNT", "DATA_READY"],
+          "explanation": "结息单证明收入金额，资金流水证明实际支付，计提依据证明计提金额，数据完成清单证明数据已可用。",
+          "hints": ["逐行先定位资料字段，再区分金额来源、实际发生与处理状态。"]
+        },
+        {
+          "questionId": "ACC-DAILY-Q-03",
+          "type": "CALCULATION",
+          "prompt": "从案例产品 秋水 的日间资料取数，并按题面关系复算现金、应付费用与当日结果。请填写六个数字，不要把结果放在选择项里。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "calc-interest-amount", "label": "当日利息收入", "formula": "结息单 = 15,000.00", "placeholder": "输入利息收入", "unit": "元", "precision": 2},
+              {"fieldId": "calc-accrual-amount", "label": "当日费用计提", "formula": "费用计提依据 = 3,000.00", "placeholder": "输入费用计提", "unit": "元", "precision": 2},
+              {"fieldId": "calc-payment-amount", "label": "当日实际支付费用", "formula": "资金流水实际支付 = 10,000.00", "placeholder": "输入实际支付", "unit": "元", "precision": 2},
+              {"fieldId": "calc-ending-cash", "label": "期末现金余额", "formula": "2,000,000 + 15,000 - 10,000 = ?", "placeholder": "输入期末现金", "unit": "元", "precision": 2},
+              {"fieldId": "calc-ending-payable", "label": "期末应付费用余额", "formula": "40,000 + 3,000 - 10,000 = ?", "placeholder": "输入期末应付费用", "unit": "元", "precision": 2},
+              {"fieldId": "calc-day-result", "label": "当日净结果", "formula": "15,000 - 3,000 = ?", "placeholder": "输入当日净结果", "unit": "元", "precision": 2}
+            ]
+          },
+          "answer": ["15000", "3000", "10000", "2005000", "33000", "12000"],
+          "explanation": "前三个数字直接取数，期末现金和应付费用按题面加减关系复算，当日净结果为收入减计提。",
+          "hints": ["先填三个来源字段，再分别按现金与应付费用公式计算；逗号和空格不影响数字识别。"]
+        },
+        {
+          "questionId": "ACC-DAILY-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全案例产品 秋水 三张凭证的科目。借贷方向和金额已经给出，你只需要补科目名称。",
+          "ledgerEntries": [
+            {"entryId": "interest-debit", "direction": "借", "label": "利息收入到账", "amount": "15,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "interest-credit", "direction": "贷", "label": "利息收入确认", "amount": "15,000.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "accrual-debit", "direction": "借", "label": "费用计提", "amount": "3,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "accrual-credit", "direction": "贷", "label": "计提形成应付费用", "amount": "3,000.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "payment-debit", "direction": "借", "label": "费用支付冲减应付", "amount": "10,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "payment-credit", "direction": "贷", "label": "费用支付减少银行存款", "amount": "10,000.00 元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["银行存款", "利息收入", "费用", "应付费用", "应付费用", "银行存款"],
+          "explanation": "利息收入借银行存款贷利息收入；计提借费用贷应付费用；支付借应付费用贷银行存款。",
+          "hints": ["按收入和费用方向逐行判断，不要把计提与支付合并成一行。"]
+        },
+        {
+          "questionId": "ACC-DAILY-Q-05",
+          "type": "RECONCILIATION",
+          "prompt": "用案例产品 松风 的期初余额、日间资料和估值资料完成跨来源复算，最后选择勾稽与封账结论。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "recon-ending-cash", "label": "期末现金余额", "kind": "NUMBER", "formula": "2,000,000 + 15,000 - 10,000 = ? 元", "placeholder": "输入期末现金", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "recon-ending-payable", "label": "期末应付费用", "kind": "NUMBER", "formula": "40,000 + 3,000 - 10,000 = ? 元", "placeholder": "输入期末应付费用", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "recon-ending-assets", "label": "期末基金资产净值", "kind": "NUMBER", "formula": "2,005,000 + 18,000,000 - 33,000 = ? 元", "placeholder": "输入期末净资产", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "recon-ending-nav", "label": "期末单位净值", "kind": "NUMBER", "formula": "19,972,000 ÷ 20,000,000 = ? 元/份（4 位小数）", "placeholder": "输入单位净值", "precision": 4, "tolerance": 0.00005},
+              {"fieldId": "recon-bank-result", "label": "资金调节与电子对账结论", "kind": "SELECT", "formula": "资金调节表、银行对账单、账簿与电子对账关键项一致", "placeholder": "选择对账结论", "options": [
+                {"optionId": "BALANCED", "text": "一致"},
+                {"optionId": "UNBALANCED", "text": "仍有未解释差异"}
+              ]},
+              {"fieldId": "recon-close-result", "label": "正常封账结论", "kind": "SELECT", "formula": "资金调节结平、账簿与估值一致、电子对账一致", "placeholder": "选择封账结论", "options": [
+                {"optionId": "CLOSE_NORMAL", "text": "可以正常封账"},
+                {"optionId": "HOLD_REVIEW", "text": "暂缓封账并保留待办"}
+              ]}
+            ]
+          },
+          "answer": ["2005000", "33000", "19972000", "0.9986", "BALANCED", "CLOSE_NORMAL"],
+          "explanation": "现金、应付、净资产、单位净值均可由资料复算；对账与封账检查全部一致后正常封账。",
+          "hints": ["先复算现金与应付，再算净资产和单位净值，最后判断对账与封账结论。"]
+        },
+        {
+          "questionId": "ACC-DAILY-Q-06",
+          "type": "SHORT_TEXT",
+          "prompt": "请用一句可追溯的正常业务结论，清楚写出期末现金、期末应付费用、期末净资产、单位净值和封账结论。",
+          "textInput": {
+            "label": "每日核算结论",
+            "placeholder": "例如：期末现金……，期末应付费用……，期末净资产……，单位净值……，可以正常封账。"
+          },
+          "answer": ["期末现金", "期末应付费用", "期末净资产", "单位净值", "封账"],
+          "explanation": "表达项评价的是是否清楚覆盖五个业务信息点；金额的千分位、空格和常见书写格式不应替代业务信息判断。",
+          "hints": ["不要只写‘正确’或只报一个数字，至少让读者能找到现金、应付费用、净资产、单位净值和封账结论。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品 清和 的组合核算人员",
+        "product": "案例基金 清和混合型证券投资基金 / 案例产品 清和",
+        "date": "2026-08-19",
+        "purpose": "根据一组资料充分、状态正常的日间与晚间资料，独立完成字段读取、收入/费用计算、凭证与台账、估值与单位净值、资金调节与电子对账，以及正常封账结论。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "DAILY-CASE-PARAMETERS",
+          "title": "本案计算口径与批准参数",
+          "kind": "PARAMETER",
+          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史费率、菜单、固定时点或系统默认值固化为永久规则。",
+          "fields": [
+            {"fieldId": "scope", "label": "业务范围", "value": "普通契约型开放式基金每日核算；无特殊产品参数"},
+            {"fieldId": "interest-rule", "label": "利息收入口径", "value": "按结息单金额入账：借银行存款、贷利息收入"},
+            {"fieldId": "accrual-rule", "label": "费用计提口径", "value": "按计提依据入账：借费用、贷应付费用"},
+            {"fieldId": "payment-rule", "label": "费用支付口径", "value": "按资金流水实际支付入账：借应付费用、贷银行存款"},
+            {"fieldId": "cash-rule", "label": "现金余额关系", "value": "期初现金 + 利息收入 - 实际支付 = 期末现金"},
+            {"fieldId": "payable-rule", "label": "应付费用余额关系", "value": "期初应付 + 计提 - 实际支付 = 期末应付"},
+            {"fieldId": "nav-rule", "label": "单位净值关系", "value": "期末基金资产净值 ÷ 期末份额"},
+            {"fieldId": "nav-precision", "label": "净值精度与容差", "value": "展示 4 位小数，判定容差 ±0.00005"},
+            {"fieldId": "recon-items", "label": "电子对账关键项", "value": "银行存款、应付费用"},
+            {"fieldId": "close-rule", "label": "封账条件", "value": "资金调节表结平、账簿与估值一致、电子对账一致后正常封账"}
+          ]
+        },
+        {
+          "materialId": "DAILY-OPENING-BALANCE",
+          "title": "期初余额表",
+          "kind": "LEDGER",
+          "description": "案例产品 清和 当日处理前的期初余额，作为现金、负债与净资产计算的起点。",
+          "fields": [
+            {"fieldId": "opening-cash", "label": "银行存款", "value": "1,500,000", "unit": "元"},
+            {"fieldId": "opening-investment", "label": "投资资产", "value": "13,500,000", "unit": "元"},
+            {"fieldId": "opening-payable", "label": "应付费用", "value": "30,000", "unit": "元"},
+            {"fieldId": "opening-shares", "label": "份额", "value": "15,000,000", "unit": "份"},
+            {"fieldId": "opening-net-assets", "label": "期初基金资产净值", "value": "14,970,000", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "DAILY-INTEREST-DOC",
+          "title": "结息单",
+          "kind": "STATEMENT",
+          "description": "当日活期存款利息收入结息单，载明利息收入金额，状态正常。",
+          "fields": [
+            {"fieldId": "interest-date", "label": "业务日期", "value": "2026-08-19"},
+            {"fieldId": "interest-product", "label": "产品", "value": "案例产品 清和"},
+            {"fieldId": "interest-amount", "label": "利息收入", "value": "12,000", "unit": "元"},
+            {"fieldId": "interest-status", "label": "状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "DAILY-PAYMENT-INSTRUCTION",
+          "title": "费用支付指令",
+          "kind": "INSTRUCTION",
+          "description": "管理人就当日费用支付出具的指令，载明支付意图与金额。",
+          "fields": [
+            {"fieldId": "payment-date", "label": "指令日期", "value": "2026-08-19"},
+            {"fieldId": "payment-product", "label": "产品", "value": "案例产品 清和"},
+            {"fieldId": "payment-amount", "label": "支付金额", "value": "8,000", "unit": "元"},
+            {"fieldId": "payment-status", "label": "审核状态", "value": "已审核"}
+          ]
+        },
+        {
+          "materialId": "DAILY-BANK-STATEMENT",
+          "title": "当日资金流水",
+          "kind": "STATEMENT",
+          "description": "托管账户当日资金变动记录，状态正常。",
+          "fields": [
+            {"fieldId": "bank-date", "label": "记账日期", "value": "2026-08-19"},
+            {"fieldId": "bank-interest", "label": "利息收入到账", "value": "+12,000", "unit": "元"},
+            {"fieldId": "bank-payment", "label": "费用支付", "value": "-8,000", "unit": "元"},
+            {"fieldId": "bank-status", "label": "状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "DAILY-FEE-ACCRUAL-DOC",
+          "title": "费用计提依据",
+          "kind": "INSTRUCTION",
+          "description": "管理人就当日费用计提出具的确认，载明计提金额，状态正常。",
+          "fields": [
+            {"fieldId": "accrual-date", "label": "业务日期", "value": "2026-08-19"},
+            {"fieldId": "accrual-product", "label": "产品", "value": "案例产品 清和"},
+            {"fieldId": "accrual-amount", "label": "费用计提", "value": "2,000", "unit": "元"},
+            {"fieldId": "accrual-status", "label": "状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "DAILY-DAYTIME-LIST",
+          "title": "日间业务处理清单",
+          "kind": "REPORT",
+          "description": "日间待办处理情况，全部为正常完成状态。",
+          "fields": [
+            {"fieldId": "daytime-interest", "label": "利息到账核对", "value": "已完成"},
+            {"fieldId": "daytime-payment", "label": "费用支付指令审核", "value": "已完成"},
+            {"fieldId": "daytime-accrual", "label": "费用计提资料核对", "value": "已完成"},
+            {"fieldId": "daytime-status", "label": "日间处理状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "DAILY-EVENING-DATA-LIST",
+          "title": "晚间数据完成清单",
+          "kind": "REPORT",
+          "description": "晚间账务所需数据均已接收并完成拆分，状态正常。",
+          "fields": [
+            {"fieldId": "evening-trade", "label": "交易数据", "value": "已接收并完成拆分"},
+            {"fieldId": "evening-market", "label": "行情数据", "value": "已接收并完成拆分"},
+            {"fieldId": "evening-ta", "label": "TA 数据", "value": "已接收并完成拆分"},
+            {"fieldId": "evening-status", "label": "晚间数据状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "DAILY-VOUCHER-TEMPLATE",
+          "title": "凭证工作底稿",
+          "kind": "VOUCHER",
+          "description": "利息收入、费用计提与费用支付三张凭证的科目补全工作底稿。",
+          "fields": [
+            {"fieldId": "voucher-interest-debit", "label": "利息收入—借方科目", "value": "待填写"},
+            {"fieldId": "voucher-interest-credit", "label": "利息收入—贷方科目", "value": "待填写"},
+            {"fieldId": "voucher-interest-amount", "label": "利息收入金额", "value": "12,000.00", "unit": "元"},
+            {"fieldId": "voucher-accrual-debit", "label": "费用计提—借方科目", "value": "待填写"},
+            {"fieldId": "voucher-accrual-credit", "label": "费用计提—贷方科目", "value": "待填写"},
+            {"fieldId": "voucher-accrual-amount", "label": "费用计提金额", "value": "2,000.00", "unit": "元"},
+            {"fieldId": "voucher-payment-debit", "label": "费用支付—借方科目", "value": "待填写"},
+            {"fieldId": "voucher-payment-credit", "label": "费用支付—贷方科目", "value": "待填写"},
+            {"fieldId": "voucher-payment-amount", "label": "费用支付金额", "value": "8,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "DAILY-FEE-CASH-LEDGER",
+          "title": "费用台账与现金账簿",
+          "kind": "LEDGER",
+          "description": "当日处理前后的费用台账与现金账簿，部分余额需要学员补全。",
+          "fields": [
+            {"fieldId": "fee-opening", "label": "应付费用期初", "value": "30,000", "unit": "元"},
+            {"fieldId": "fee-accrual", "label": "费用计提", "value": "2,000", "unit": "元"},
+            {"fieldId": "fee-payment", "label": "费用支付", "value": "8,000", "unit": "元"},
+            {"fieldId": "fee-ending", "label": "应付费用期末", "value": "待填写"},
+            {"fieldId": "cash-opening", "label": "现金期初", "value": "1,500,000", "unit": "元"},
+            {"fieldId": "cash-interest", "label": "利息收入到账", "value": "+12,000", "unit": "元"},
+            {"fieldId": "cash-payment", "label": "费用支付", "value": "-8,000", "unit": "元"},
+            {"fieldId": "cash-ending", "label": "现金期末", "value": "待填写"}
+          ]
+        },
+        {
+          "materialId": "DAILY-VALUATION",
+          "title": "当日估值表局部",
+          "kind": "VALUATION",
+          "description": "当日估值表局部，需要学员根据账簿与资料补全。",
+          "fields": [
+            {"fieldId": "valuation-date", "label": "估值日期", "value": "2026-08-19"},
+            {"fieldId": "valuation-cash", "label": "银行存款", "value": "待填写"},
+            {"fieldId": "valuation-investment", "label": "投资资产", "value": "13,500,000", "unit": "元"},
+            {"fieldId": "valuation-payable", "label": "应付费用", "value": "待填写"},
+            {"fieldId": "valuation-net-assets", "label": "基金资产净值", "value": "待填写"},
+            {"fieldId": "valuation-shares", "label": "份额", "value": "15,000,000", "unit": "份"},
+            {"fieldId": "valuation-nav", "label": "单位净值", "value": "待填写"}
+          ]
+        },
+        {
+          "materialId": "DAILY-BANK-RECON",
+          "title": "资金调节表与电子对账结果",
+          "kind": "RECONCILIATION",
+          "description": "当日资金调节表与电子对账关键项结果，期末余额需要学员补全并形成结论。",
+          "fields": [
+            {"fieldId": "recon-opening", "label": "期初余额", "value": "1,500,000", "unit": "元"},
+            {"fieldId": "recon-interest", "label": "利息收入到账", "value": "+12,000", "unit": "元"},
+            {"fieldId": "recon-payment", "label": "费用支付", "value": "-8,000", "unit": "元"},
+            {"fieldId": "recon-ending", "label": "调节后期末余额", "value": "待填写"},
+            {"fieldId": "recon-bank-statement", "label": "银行对账单期末余额", "value": "1,504,000", "unit": "元"},
+            {"fieldId": "recon-items", "label": "电子对账关键项", "value": "银行存款、应付费用"}
+          ]
+        },
+        {
+          "materialId": "DAILY-CLOSE-CHECK",
+          "title": "封账检查表",
+          "kind": "REPORT",
+          "description": "日终封账检查表，全部检查项为已完成状态，封账结论需要学员形成。",
+          "fields": [
+            {"fieldId": "close-recon", "label": "资金调节结平", "value": "是"},
+            {"fieldId": "close-book-valuation", "label": "账簿与估值一致", "value": "是"},
+            {"fieldId": "close-e-recon", "label": "电子对账一致", "value": "是"},
+            {"fieldId": "close-conclusion", "label": "封账结论", "value": "待填写"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "src-interest-amount",
+          "type": "FIELD_MAP",
+          "title": "利息收入金额来源",
+          "instruction": "哪份资料载明当日利息收入 12,000 元的金额？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择收入金额来源",
+            "options": [
+              {"optionId": "INTEREST_DOC", "text": "结息单"},
+              {"optionId": "BANK_STATEMENT", "text": "资金流水"},
+              {"optionId": "ACCRUAL_DOC", "text": "费用计提依据"}
+            ]
+          }
+        },
+        {
+          "workItemId": "src-payment-actual",
+          "type": "FIELD_MAP",
+          "title": "费用实际支付证据",
+          "instruction": "哪份资料最直接证明 8,000 元费用已经实际支付？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择实际支付证据",
+            "options": [
+              {"optionId": "PAYMENT_INSTRUCTION", "text": "费用支付指令"},
+              {"optionId": "BANK_STATEMENT", "text": "资金流水"},
+              {"optionId": "FEE_LEDGER", "text": "费用台账"}
+            ]
+          }
+        },
+        {
+          "workItemId": "src-accrual-basis",
+          "type": "FIELD_MAP",
+          "title": "费用计提依据",
+          "instruction": "哪份资料支持当日费用计提 2,000 元？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择计提依据",
+            "options": [
+              {"optionId": "ACCRUAL_DOC", "text": "费用计提依据"},
+              {"optionId": "PAYMENT_INSTRUCTION", "text": "费用支付指令"},
+              {"optionId": "BANK_STATEMENT", "text": "资金流水"}
+            ]
+          }
+        },
+        {
+          "workItemId": "calc-interest",
+          "type": "CALCULATION",
+          "title": "读取当日利息收入",
+          "instruction": "从结息单读取当日利息收入金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入利息收入", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "calc-accrual",
+          "type": "CALCULATION",
+          "title": "读取当日费用计提",
+          "instruction": "从费用计提依据读取当日计提金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入费用计提", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "calc-payment",
+          "type": "CALCULATION",
+          "title": "读取当日实际支付费用",
+          "instruction": "从资金流水读取当日实际支付的费用金额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入实际支付", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "calc-ending-cash",
+          "type": "CALCULATION",
+          "title": "计算期末现金余额",
+          "instruction": "用期初现金 1,500,000 元、利息收入 12,000 元和实际支付 8,000 元计算期末现金。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末现金", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "calc-ending-payable",
+          "type": "CALCULATION",
+          "title": "计算期末应付费用",
+          "instruction": "用期初应付 30,000 元、计提 2,000 元和实际支付 8,000 元计算期末应付费用。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末应付费用", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "calc-day-result",
+          "type": "CALCULATION",
+          "title": "计算当日净结果",
+          "instruction": "用当日利息收入减当日费用计提计算当日净结果。",
+          "response": {"kind": "NUMBER", "placeholder": "输入当日净结果", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "ledger-interest-debit",
+          "type": "LEDGER_ENTRY",
+          "title": "利息收入凭证—借方科目",
+          "instruction": "填写利息收入到账凭证的借方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "ledger-interest-credit",
+          "type": "LEDGER_ENTRY",
+          "title": "利息收入凭证—贷方科目",
+          "instruction": "填写利息收入确认凭证的贷方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "ledger-accrual-debit",
+          "type": "LEDGER_ENTRY",
+          "title": "费用计提凭证—借方科目",
+          "instruction": "填写费用计提凭证的借方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "ledger-accrual-credit",
+          "type": "LEDGER_ENTRY",
+          "title": "费用计提凭证—贷方科目",
+          "instruction": "填写费用计提形成应付费用的贷方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "ledger-payment-debit",
+          "type": "LEDGER_ENTRY",
+          "title": "费用支付凭证—借方科目",
+          "instruction": "填写费用支付冲减应付费用的借方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "ledger-payment-credit",
+          "type": "LEDGER_ENTRY",
+          "title": "费用支付凭证—贷方科目",
+          "instruction": "填写费用支付减少银行存款的贷方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "recon-ending-assets",
+          "type": "RECONCILIATION",
+          "title": "计算期末基金资产净值",
+          "instruction": "用期末现金、投资资产 13,500,000 元和期末应付费用计算期末基金资产净值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末基金资产净值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-ending-nav",
+          "type": "RECONCILIATION",
+          "title": "计算期末单位净值",
+          "instruction": "用期末基金资产净值除以份额 15,000,000 份，按 4 位小数填写单位净值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入单位净值", "unit": "元/份", "precision": 4}
+        },
+        {
+          "workItemId": "recon-bank-result",
+          "type": "RECONCILIATION",
+          "title": "资金调节与电子对账结论",
+          "instruction": "资金调节表期末余额、银行对账单、账簿现金与电子对账关键项一致时，选择本次对账结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择对账结论",
+            "options": [
+              {"optionId": "BALANCED", "text": "一致"},
+              {"optionId": "UNBALANCED", "text": "仍有未解释差异"}
+            ]
+          }
+        },
+        {
+          "workItemId": "recon-close",
+          "type": "RECONCILIATION",
+          "title": "正常封账结论",
+          "instruction": "封账检查表显示资金调节结平、账簿与估值一致、电子对账一致，选择正常日终结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择封账结论",
+            "options": [
+              {"optionId": "CLOSE_NORMAL", "text": "可以正常封账"},
+              {"optionId": "HOLD_REVIEW", "text": "暂缓封账并保留待办"}
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录每日核算结论",
+          "instruction": "用一句话写明期末现金、期末应付费用、期末基金资产净值、单位净值和封账结论。",
+          "response": {"kind": "TEXT", "placeholder": "例如：期末现金……，应付费用……，净资产……，单位净值……，正常封账。"}
+        }
+      ],
+      "submissionNote": "提交前请按顺序复核资料依据、收入/费用计算、凭证与台账、估值与单位净值、资金调节与电子对账、封账结论。提交后将生成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-FOUNDATION-FLOW-2026",
+      "title": "公募基金核算业务流程（2026年5月第9次修订）",
+      "source": "01_核算基础与生命周期__公募基金核算业务流程.doc；第二章日间业务、晚间业务、对账、封账",
+      "usage": "日间指令与维护、资金调节/应收匹配、晚间数据、调度、凭证、估值、电子对账、持仓核对与封账的正常关系"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-SETUP-XLSX-2026",
+      "title": "新一代系统资产成立、到期及销户核算设置事项业务操作手册（2026年版）",
+      "source": "01_核算基础与生命周期__中国建设银行托管运营中心上海分中心新一代系统资产成立、到期及销户核算设置事项业务操作手册（2026年版）-新增菜单【估值对账日期配置】.xlsx；工作表：电子对账设置关键项（模板）、修订摘要",
+      "usage": "电子对账关键项与估值对账日期只支持“设置影响结果”的关系，不训练菜单"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-PLAN-2026",
+      "title": "跨模块核算基础与产品生命周期高保真施工计划",
+      "source": "project_materials/新人陪练案例库/核算案例库跨模块核算基础高保真施工计划.md 路线3",
+      "usage": "冻结答案链、综合实务数字、四环节活动、硬性必达与排除范围"
+    },
+    {
+      "referenceId": "ACC-REF-DAILY-CASE-PARAMETERS-202608",
+      "title": "每日核算路线题面批准合成参数",
+      "source": "本路线综合实务资料包 DAILY-CASE-PARAMETERS（2026.08 版本）",
+      "usage": "仅约束本案收入/计提/支付口径、净值精度与容差、电子对账关键项和封账条件，不替代当前业务规则"
+    }
+  ]
+}

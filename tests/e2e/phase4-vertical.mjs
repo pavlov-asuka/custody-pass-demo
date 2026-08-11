@@ -369,7 +369,7 @@ async function run() {
   });
   const nodes = mapAfter.regions?.[0]?.modules?.[0]?.nodes || [];
   check('API 首节点 PASSED', nodes[0]?.state === 'PASSED', nodes[0]?.state);
-  check('API 下一节点解锁且不可进入', nodes[1]?.locked === false && nodes[1]?.enterable === false,
+  check('API 下一节点解锁且可进入', nodes[1]?.locked === false && nodes[1]?.enterable === true,
     JSON.stringify({ locked: nodes[1]?.locked, enterable: nodes[1]?.enterable, state: nodes[1]?.state }));
 
   await openRecords(page);

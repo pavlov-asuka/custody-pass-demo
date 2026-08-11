@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.2",
+  "version": "2026.08.3",
   "lines": [
     {
       "line": "CLEARING",
@@ -50,7 +50,29 @@
                   "order": 2,
                   "position": "LEFT",
                   "prerequisiteNodeIds": ["ACC-NODE-ROLE-001"],
-                  "contentAvailability": "BUILDING"
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-DAILY-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-LIFE-DAILY-003",
+                  "title": "每日核算与结果闭环",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-ONBOARD-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-EXIT-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-LIFE-EXIT-004",
+                  "title": "合同终止、清盘与退出",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "LEFT",
+                  "prerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+                  "contentAvailability": "PUBLISHED"
                 }
               ]
             },
@@ -67,7 +89,7 @@
                   "pathType": "REQUIRED",
                   "order": 1,
                   "position": "CENTER",
-                  "prerequisiteNodeIds": ["ACC-NODE-ROLE-001"],
+                  "prerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
                   "contentAvailability": "PUBLISHED"
                 },
                 {

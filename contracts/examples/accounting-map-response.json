@@ -1,7 +1,7 @@
 {
   "line": "ACCOUNTING",
   "name": "核算学习世界",
-  "mapVersion": "2026.08.2",
+  "mapVersion": "2026.08.3",
   "regions": [{
     "regionId": "ACC-REGION-LIFECYCLE",
     "name": "核算基础与产品生命周期",
@@ -10,10 +10,12 @@
       "name": "岗位基础",
       "nodes": [
         {"nodeId": "ACC-NODE-ROLE-001", "routeId": "ACC-LIFE-ROLE-001", "title": "站上核算岗", "state": "NOT_STARTED", "locked": false, "contentAvailability": "PUBLISHED", "enterable": true, "completedSteps": 0, "totalSteps": 4},
-        {"nodeId": "ACC-NODE-ONBOARD-002", "routeId": "ACC-LIFE-ONBOARD-002", "title": "接管一只新产品", "state": "LOCKED", "locked": true, "contentAvailability": "BUILDING", "enterable": false, "completedSteps": 0, "totalSteps": 4}
+        {"nodeId": "ACC-NODE-ONBOARD-002", "routeId": "ACC-LIFE-ONBOARD-002", "title": "接管一只新产品", "state": "LOCKED", "locked": true, "contentAvailability": "PUBLISHED", "enterable": false, "completedSteps": 0, "totalSteps": 4},
+        {"nodeId": "ACC-NODE-DAILY-003", "routeId": "ACC-LIFE-DAILY-003", "title": "每日核算与结果闭环", "state": "LOCKED", "locked": true, "contentAvailability": "PUBLISHED", "enterable": false, "completedSteps": 0, "totalSteps": 4},
+        {"nodeId": "ACC-NODE-EXIT-004", "routeId": "ACC-LIFE-EXIT-004", "title": "合同终止、清盘与退出", "state": "LOCKED", "locked": true, "contentAvailability": "PUBLISHED", "enterable": false, "completedSteps": 0, "totalSteps": 4}
       ]
     }]
   }],
   "recommendedNodeId": "ACC-NODE-ROLE-001",
-  "progress": {"passedRequiredRoutes": 0, "publishedRequiredRoutes": 5, "percent": 0}
+  "progress": {"passedRequiredRoutes": 0, "publishedRequiredRoutes": 8, "percent": 0}
 }

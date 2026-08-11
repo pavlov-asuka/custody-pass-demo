@@ -1,0 +1,95 @@
+{
+  "releaseId": "ACCOUNTING_2026.08.3",
+  "releasedAt": "2026-08-09T00:00:00+08:00",
+  "map": {
+    "id": "CUSTODY_LEARNING_MAP",
+    "version": "2026.08.3",
+    "path": "maps/custody-learning-map.json"
+  },
+  "routes": [
+    {
+      "routeId": "ACC-LIFE-ROLE-001",
+      "contentVersion": "2.0.0",
+      "rubricVersion": "2.0.0",
+      "contentPath": "routes/accounting/ACC-LIFE-ROLE-001.json",
+      "rubricPath": "rubrics/accounting/ACC-LIFE-ROLE-001.json"
+    },
+    {
+      "routeId": "ACC-LIFE-ONBOARD-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-LIFE-ONBOARD-002.json",
+      "rubricPath": "rubrics/accounting/ACC-LIFE-ONBOARD-002.json"
+    },
+    {
+      "routeId": "ACC-LIFE-DAILY-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-LIFE-DAILY-003.json",
+      "rubricPath": "rubrics/accounting/ACC-LIFE-DAILY-003.json"
+    },
+    {
+      "routeId": "ACC-LIFE-EXIT-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-LIFE-EXIT-004.json",
+      "rubricPath": "rubrics/accounting/ACC-LIFE-EXIT-004.json"
+    },
+    {
+      "routeId": "ACC-STOCK-TRADE-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-TRADE-001.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-TRADE-001.json"
+    },
+    {
+      "routeId": "ACC-STOCK-IPO-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-IPO-002.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-IPO-002.json"
+    },
+    {
+      "routeId": "ACC-STOCK-EQUITY-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-EQUITY-003.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-EQUITY-003.json"
+    },
+    {
+      "routeId": "ACC-STOCK-DIVIDEND-TAX-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-DIVIDEND-TAX-004.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-DIVIDEND-TAX-004.json"
+    },
+    {
+      "routeId": "ACC-STOCK-PRIVATE-ISSUE-101",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-PRIVATE-ISSUE-101.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-PRIVATE-ISSUE-101.json"
+    },
+    {
+      "routeId": "ACC-STOCK-RESTRICTED-VALUATION-102",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-RESTRICTED-VALUATION-102.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-RESTRICTED-VALUATION-102.json"
+    },
+    {
+      "routeId": "ACC-STOCK-HK-TRADE-103",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-HK-TRADE-103.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-HK-TRADE-103.json"
+    },
+    {
+      "routeId": "ACC-STOCK-HK-DIVIDEND-104",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-HK-DIVIDEND-104.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-HK-DIVIDEND-104.json"
+    }
+  ]
+}

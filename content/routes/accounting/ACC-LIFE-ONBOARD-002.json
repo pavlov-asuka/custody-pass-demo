@@ -1,0 +1,529 @@
+{
+  "routeId": "ACC-LIFE-ONBOARD-002",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "接管一只新产品",
+  "summary": "从基金合同摘要、托管协议摘要、成立确认资料和管理人参数确认函出发，完成新产品接管的关键设置、初始单位净值复算和首日账簿—估值—电子对账闭合。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "从基金合同摘要、托管协议摘要、成立确认资料和管理人参数确认函读取接管所需字段，并判断每个关键设置的业务依据",
+    "按本案批准参数补全参数设置复核表，理解基础信息、费用/估值、TA/结算与电子对账参数对后续凭证、净值和日终核对的影响",
+    "复算初始单位净值，完成首日银行存款与实收资本账务，并验证估值表与电子对账结果闭合"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ACC-ONB-KC-01",
+          "type": "FLOW",
+          "title": "接管新产品的依据链",
+          "conclusion": "新产品接管的每个关键设置都要先找到当前业务依据，再完成设置、审核和首日验证；产品名称和历史模板不能替代资料。",
+          "items": [
+            "合同与托管协议：产品基本信息与费用安排",
+            "成立确认资料：实际成立日、初始资产与份额",
+            "管理人参数确认函：估值精度、TA结转与电子对账关键项",
+            "设置→审核→首日核算→对账验证"
+          ]
+        },
+        {
+          "cardId": "ACC-ONB-KC-02",
+          "type": "CATEGORIES",
+          "title": "参数对象与下游影响",
+          "conclusion": "基础信息决定产品状态，费用与估值参数决定凭证和净值，TA/结算与电子对账参数决定申赎结转和日终核对。",
+          "items": [
+            "基础信息：成立日、到期日、产品类型，影响生命周期状态",
+            "费用与估值：费用计提、估值精度、估值对账日期，影响凭证、净值和对账",
+            "TA与结算：申购/赎回结转条件，影响资金与份额处理",
+            "电子对账：关键项设置，影响日终核对结果"
+          ]
+        },
+        {
+          "cardId": "ACC-ONB-KC-03",
+          "type": "KEY_POINT",
+          "title": "首日结果验证",
+          "conclusion": "首日资产全部为银行存款时，银行存款、实收资本与基金资产净值应相等，电子对账关键项一致后才能形成正常接管结论。",
+          "items": [
+            "初始单位净值 = 初始资产净值 ÷ 初始份额",
+            "首日账务：借银行存款、贷实收资本，金额等于初始资产净值",
+            "估值表资产净值与账簿、电子对账关键项相互验证",
+            "对账结论来自资料复算，不来自系统成功或口头确认"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品 晨光 的组合核算人员",
+        "product": "案例基金 晨光混合型证券投资基金 / 案例产品 晨光",
+        "date": "2026-03-10",
+        "facts": [
+          "基金合同摘要载明：契约型开放式，合同期限 2026-03-10 至 2029-03-09。",
+          "成立确认资料载明：2026-03-10 成立，初始资产净值 60,000,000 元，初始份额 60,000,000 份，认购利息结转份额为 0 份。",
+          "托管协议摘要载明：托管费按日计提、按月支付，本案不涉及费率数值。",
+          "管理人参数确认函载明：单位净值保留 4 位小数，申购/赎回结转 T+2，电子对账关键项为银行存款、实收资本。",
+          "2026-03-10 首日活期存款账户收到认购资金 60,000,000 元，记录状态正常。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取基金合同摘要与成立确认资料，确定成立日期、合同期限、初始资产净值和初始份额",
+          "reason": "关键字段必须来自合同或成立确认，不能从产品名称或历史模板猜测。"
+        },
+        {
+          "order": 2,
+          "action": "按托管协议与管理人参数确认函核对托管费计提、估值精度、TA结转条件和电子对账关键项",
+          "reason": "这些参数分别影响后续凭证、净值、申赎结转和日终核对。"
+        },
+        {
+          "order": 3,
+          "action": "复算初始单位净值：60,000,000 ÷ 60,000,000 = 1.0000 元",
+          "reason": "初始净值是资产与份额关系的计算结果，不是直接背诵的固定值。"
+        },
+        {
+          "order": 4,
+          "action": "完成首日账务：借银行存款 60,000,000 元、贷实收资本 60,000,000 元，并更新首日估值表",
+          "reason": "成立资金与实收资本同步形成，估值表基金资产净值为 60,000,000 元。"
+        },
+        {
+          "order": 5,
+          "action": "用电子对账关键项核对银行存款与实收资本，确认账簿、估值表和对账结果一致",
+          "reason": "首日结果闭合后才能形成正常接管结论。"
+        }
+      ],
+      "summary": "读资料定依据 → 核对参数 → 复算初始净值 → 首日账务与估值 → 电子对账验证"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-ONB-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "请把四类接管资料分别对应到它们支持的参数设置。每一行都从资料字段取证。",
+          "fieldMappings": [
+            {
+              "fieldId": "fm-establish",
+              "label": "组合成立日期（实际成立日）",
+              "source": "2026-04-15 成立；初始资产净值 24,000,000 元；初始份额 24,000,000 份；认购利息结转份额为 0 份",
+              "options": [
+                {"optionId": "CONTRACT_SUMMARY", "text": "基金合同摘要"},
+                {"optionId": "ESTABLISHMENT_CONFIRMATION", "text": "成立确认资料"},
+                {"optionId": "PARAMETER_LETTER", "text": "管理人参数确认函"}
+              ]
+            },
+            {
+              "fieldId": "fm-maturity",
+              "label": "组合到期日期（合同期限）",
+              "source": "契约型开放式；合同期限 2026-04-15 至 2029-04-14",
+              "options": [
+                {"optionId": "CONTRACT_SUMMARY", "text": "基金合同摘要"},
+                {"optionId": "CUSTODY_AGREEMENT", "text": "托管协议摘要"},
+                {"optionId": "PARAMETER_LETTER", "text": "管理人参数确认函"}
+              ]
+            },
+            {
+              "fieldId": "fm-custody-fee",
+              "label": "托管费计提安排",
+              "source": "托管费按日计提、按月支付，本案不涉及费率数值",
+              "options": [
+                {"optionId": "CUSTODY_AGREEMENT", "text": "托管协议摘要"},
+                {"optionId": "ESTABLISHMENT_CONFIRMATION", "text": "成立确认资料"},
+                {"optionId": "PARAMETER_LETTER", "text": "管理人参数确认函"}
+              ]
+            },
+            {
+              "fieldId": "fm-ta-recon",
+              "label": "TA结转条件与电子对账关键项",
+              "source": "申购结转 T+2、赎回结转 T+2；电子对账关键项为银行存款、实收资本；单位净值保留 4 位小数",
+              "options": [
+                {"optionId": "PARAMETER_LETTER", "text": "管理人参数确认函"},
+                {"optionId": "CONTRACT_SUMMARY", "text": "基金合同摘要"},
+                {"optionId": "ESTABLISHMENT_CONFIRMATION", "text": "成立确认资料"}
+              ]
+            }
+          ],
+          "answer": ["ESTABLISHMENT_CONFIRMATION", "CONTRACT_SUMMARY", "CUSTODY_AGREEMENT", "PARAMETER_LETTER"],
+          "explanation": "实际成立日以成立确认为准，合同期限以合同摘要为准，托管费安排以托管协议为准，TA与电子对账参数以管理人参数确认为准。",
+          "hints": ["先定位每份资料中明确写出的字段，再判断该设置应由哪份资料支持。"]
+        },
+        {
+          "questionId": "ACC-ONB-Q-02",
+          "type": "ORDERING",
+          "prompt": "请排列新产品接管后进入日常核算前的正常顺序。",
+          "items": [
+            {"itemId": "SOURCE", "text": "核对合同、托管协议、成立确认等资料"},
+            {"itemId": "SETUP", "text": "完成参数设置"},
+            {"itemId": "REVIEW", "text": "按权限完成审核"},
+            {"itemId": "FIRST_DAY", "text": "完成首日账务与估值表"},
+            {"itemId": "ERECON", "text": "完成电子对账并形成结论"}
+          ],
+          "answer": ["SOURCE", "SETUP", "REVIEW", "FIRST_DAY", "ERECON"],
+          "explanation": "先建立依据，再设置和审核，最后用首日账务、估值表与电子对账验证接管结果。",
+          "hints": ["审核完成是进入首日核算的前提，电子对账是形成结论的最后一步。"]
+        },
+        {
+          "questionId": "ACC-ONB-Q-03",
+          "type": "CALCULATION",
+          "prompt": "案例基金 春风 成立确认资料载明：初始资产净值 24,000,000 元、初始份额 24,000,000 份。请填写三个数字，不要把结果放在选择项里。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "calc-assets", "label": "初始资产净值", "formula": "成立确认资料 = 24,000,000.00", "placeholder": "输入初始资产净值", "unit": "元", "precision": 2},
+              {"fieldId": "calc-shares", "label": "初始份额", "formula": "成立确认资料 = 24,000,000", "placeholder": "输入初始份额", "unit": "份", "precision": 0},
+              {"fieldId": "calc-nav", "label": "初始单位净值", "formula": "24,000,000 ÷ 24,000,000 = ?", "placeholder": "输入初始单位净值", "unit": "元/份", "precision": 4}
+            ]
+          },
+          "answer": ["24000000", "24000000", "1"],
+          "explanation": "初始资产与份额直接读取成立确认资料，初始单位净值按资产净值除以份额复算为 1.0000 元。",
+          "hints": ["前两格直接取数，最后一格用前两格相除；结果按 4 位小数精度填写。"]
+        },
+        {
+          "questionId": "ACC-ONB-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全案例基金 春风 首日账务的两行科目。借贷方向、金额已经给出，你只需要补科目名称。",
+          "ledgerEntries": [
+            {"entryId": "debit-bank", "direction": "借", "label": "首日认购资金入账", "amount": "24,000,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "credit-capital", "direction": "贷", "label": "首日实收资本入账", "amount": "24,000,000.00 元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["银行存款", "实收资本"],
+          "explanation": "首日认购资金入账时，借记银行存款、贷记实收资本，金额等于初始资产净值。",
+          "hints": ["资金增加在借方，实收资本增加在贷方。"]
+        },
+        {
+          "questionId": "ACC-ONB-Q-05",
+          "type": "RECONCILIATION",
+          "prompt": "用首日银行到账资料、首日账簿和估值表完成跨来源复核，最后选择勾稽结论。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "bank-balance", "label": "首日账簿银行存款余额", "kind": "NUMBER", "formula": "到账金额 = 24,000,000.00 元", "placeholder": "输入银行存款余额", "precision": 2},
+              {"fieldId": "nav-balance", "label": "首日估值表基金资产净值", "kind": "NUMBER", "formula": "初始资产净值 = 24,000,000.00 元", "placeholder": "输入基金资产净值", "precision": 2},
+              {"fieldId": "e-recon-conclusion", "label": "电子对账结论", "kind": "SELECT", "formula": "银行存款与实收资本关键项应一致", "placeholder": "选择对账结论", "options": [
+                {"optionId": "BALANCED", "text": "一致"},
+                {"optionId": "UNBALANCED", "text": "不一致"}
+              ]}
+            ]
+          },
+          "answer": ["24000000", "24000000", "BALANCED"],
+          "explanation": "首日银行存款、实收资本和基金资产净值均为 24,000,000 元，电子对账关键项一致。",
+          "hints": ["分别从银行到账资料、账簿和估值表取数，最后再判断对账结论。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品 晚风 的组合核算人员",
+        "product": "案例基金 晚风混合型证券投资基金 / 案例产品 晚风",
+        "date": "2026-08-18",
+        "purpose": "根据合同摘要、托管协议摘要、成立确认资料、管理人参数确认函、首日银行到账资料、账簿、估值表和电子对账结果，独立完成新产品接管：来源映射、参数表补全、初始单位净值复算和首日结果闭合。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "ONB-CASE-PARAMETERS",
+          "title": "本案计算口径与批准参数",
+          "kind": "PARAMETER",
+          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史费率、菜单、固定时点或系统默认值固化为永久规则。",
+          "fields": [
+            {"fieldId": "scope", "label": "业务范围", "value": "普通契约型开放式基金；无 ETF、FOF、货币基金、券结等特殊产品参数"},
+            {"fieldId": "precision", "label": "估值精度", "value": "单位净值保留 4 位小数（0.0001）"},
+            {"fieldId": "ta-settlement", "label": "TA结转条件", "value": "申购结转 T+2、赎回结转 T+2（本案快照）"},
+            {"fieldId": "e-recon-items", "label": "电子对账关键项", "value": "银行存款、实收资本"},
+            {"fieldId": "first-day-rule", "label": "首日账务关系", "value": "借 银行存款 / 贷 实收资本，金额等于初始资产净值"},
+            {"fieldId": "nav-rule", "label": "初始单位净值关系", "value": "初始资产净值 ÷ 初始份额"},
+            {"fieldId": "boundary", "label": "本案边界", "value": "本案不计算费用金额，不涉及具体费率、菜单路径和历史时点"}
+          ]
+        },
+        {
+          "materialId": "ONB-CONTRACT",
+          "title": "基金合同摘要",
+          "kind": "INSTRUCTION",
+          "description": "案例基金 晚风混合型证券投资基金 的脱敏基金合同摘要，提供产品基本信息与合同期限。",
+          "fields": [
+            {"fieldId": "product", "label": "产品名称", "value": "案例基金 晚风混合型证券投资基金"},
+            {"fieldId": "fund-type", "label": "基金类型", "value": "契约型开放式"},
+            {"fieldId": "contract-start", "label": "合同生效条件", "value": "募集期满且满足合同约定的成立条件"},
+            {"fieldId": "contract-period", "label": "合同期限", "value": "2026-08-18 至 2029-08-17"},
+            {"fieldId": "fee-rule", "label": "费用安排", "value": "管理费、托管费、销售服务费按合同约定计提与支付；本案不涉及费率数值"}
+          ]
+        },
+        {
+          "materialId": "ONB-CUSTODY-AGREEMENT",
+          "title": "托管协议摘要",
+          "kind": "INSTRUCTION",
+          "description": "托管协议中与接管设置直接相关的费用与对账安排。",
+          "fields": [
+            {"fieldId": "custody-fee", "label": "托管费安排", "value": "按日计提、按月支付；以合同与托管协议为准"},
+            {"fieldId": "custody-duty", "label": "托管人职责", "value": "办理资产保管、资金清算与复核净值"},
+            {"fieldId": "e-recon-basis", "label": "对账安排", "value": "按约定完成电子对账关键项核对"}
+          ]
+        },
+        {
+          "materialId": "ONB-ESTABLISHMENT",
+          "title": "成立确认资料",
+          "kind": "CONFIRMATION",
+          "description": "基金成立当日的正式确认资料，载明实际成立日、初始资产净值与初始份额。",
+          "fields": [
+            {"fieldId": "establish-date", "label": "成立日期", "value": "2026-08-18"},
+            {"fieldId": "initial-assets", "label": "初始资产净值", "value": "48,000,000", "unit": "元"},
+            {"fieldId": "initial-shares", "label": "初始份额", "value": "48,000,000", "unit": "份"},
+            {"fieldId": "interest-roll", "label": "认购利息结转", "value": "本案认购利息结转份额为 0 份（快照）"}
+          ]
+        },
+        {
+          "materialId": "ONB-PARAMETER-LETTER",
+          "title": "管理人参数确认函",
+          "kind": "CONFIRMATION",
+          "description": "管理人就估值精度、TA结转条件和电子对账关键项出具的确认函。",
+          "fields": [
+            {"fieldId": "valuation-precision", "label": "估值精度", "value": "单位净值保留 4 位小数"},
+            {"fieldId": "ta-settlement", "label": "申购/赎回结转", "value": "申购 T+2、赎回 T+2"},
+            {"fieldId": "recon-items", "label": "电子对账关键项", "value": "银行存款、实收资本"},
+            {"fieldId": "recon-schedule", "label": "估值对账日期", "value": "按每个交易日对账"}
+          ]
+        },
+        {
+          "materialId": "ONB-PARAMETER-TABLE",
+          "title": "参数设置复核表",
+          "kind": "PARAMETER",
+          "description": "接管设置复核表；部分单元格已由资料填写，初始资产、份额与单位净值三格需要学员补全。",
+          "fields": [
+            {"fieldId": "establish-date", "label": "组合成立日期", "value": "2026-08-18（来源：成立确认资料）"},
+            {"fieldId": "maturity-date", "label": "组合到期日期", "value": "2029-08-17（来源：基金合同摘要）"},
+            {"fieldId": "fee-maintenance", "label": "费用计提维护", "value": "托管费按日计提、按月支付（来源：托管协议摘要）"},
+            {"fieldId": "ta-settlement", "label": "基金TA结转条件", "value": "申购 T+2、赎回 T+2（来源：管理人参数确认函）"},
+            {"fieldId": "valuation-precision", "label": "估值精度", "value": "单位净值保留 4 位小数（来源：管理人参数确认函）"},
+            {"fieldId": "e-recon-items", "label": "电子对账关键项", "value": "银行存款、实收资本（来源：管理人参数确认函）"},
+            {"fieldId": "initial-assets", "label": "初始资产净值", "value": "待填写"},
+            {"fieldId": "initial-shares", "label": "初始份额", "value": "待填写"},
+            {"fieldId": "initial-nav", "label": "初始单位净值", "value": "待填写"}
+          ]
+        },
+        {
+          "materialId": "ONB-BANK-STATEMENT",
+          "title": "首日银行到账资料",
+          "kind": "STATEMENT",
+          "description": "基金成立当日活期存款账户收到的认购资金记录。",
+          "fields": [
+            {"fieldId": "bank-date", "label": "到账日期", "value": "2026-08-18"},
+            {"fieldId": "bank-amount", "label": "认购资金到账", "value": "48,000,000", "unit": "元"},
+            {"fieldId": "bank-status", "label": "记录状态", "value": "正常"}
+          ]
+        },
+        {
+          "materialId": "ONB-FIRST-DAY-LEDGER",
+          "title": "首日账簿局部",
+          "kind": "LEDGER",
+          "description": "首日账务处理后的账簿局部，银行存款与实收资本两行需要学员补全。",
+          "fields": [
+            {"fieldId": "bank-balance", "label": "银行存款", "value": "待填写"},
+            {"fieldId": "paid-in-capital", "label": "实收资本", "value": "待填写"},
+            {"fieldId": "current-profit", "label": "本期利润", "value": "0.00 元"}
+          ]
+        },
+        {
+          "materialId": "ONB-VALUATION",
+          "title": "首日估值表局部",
+          "kind": "VALUATION",
+          "description": "成立当日估值表局部，基金资产净值与单位净值需要学员补全。",
+          "fields": [
+            {"fieldId": "valuation-date", "label": "估值日期", "value": "2026-08-18"},
+            {"fieldId": "total-assets", "label": "基金资产净值", "value": "待填写"},
+            {"fieldId": "shares", "label": "基金份额", "value": "48,000,000", "unit": "份"},
+            {"fieldId": "nav", "label": "单位净值", "value": "待填写"},
+            {"fieldId": "note", "label": "备注", "value": "首日无投资持仓，全部资产为银行存款"}
+          ]
+        },
+        {
+          "materialId": "ONB-ERECON",
+          "title": "电子对账结果",
+          "kind": "RECONCILIATION",
+          "description": "成立当日电子对账关键项结果，账簿金额与对方金额需要学员核对后形成结论。",
+          "fields": [
+            {"fieldId": "recon-date", "label": "对账日期", "value": "2026-08-18"},
+            {"fieldId": "bank-counter", "label": "银行存款对方金额", "value": "48,000,000", "unit": "元"},
+            {"fieldId": "capital-counter", "label": "实收资本对方金额", "value": "48,000,000", "unit": "元"},
+            {"fieldId": "bank-book", "label": "银行存款账簿金额", "value": "待填写"},
+            {"fieldId": "capital-book", "label": "实收资本账簿金额", "value": "待填写"},
+            {"fieldId": "conclusion", "label": "对账结论", "value": "待填写"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "src-establish-date",
+          "type": "FIELD_MAP",
+          "title": "参数设置复核表—组合成立日期依据",
+          "instruction": "参数设置复核表中的“组合成立日期”应绑定哪份资料？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择成立日期依据",
+            "options": [
+              {"optionId": "CONTRACT_SUMMARY", "text": "基金合同摘要"},
+              {"optionId": "CUSTODY_AGREEMENT", "text": "托管协议摘要"},
+              {"optionId": "ESTABLISHMENT_CONFIRMATION", "text": "成立确认资料"},
+              {"optionId": "PARAMETER_LETTER", "text": "管理人参数确认函"}
+            ]
+          }
+        },
+        {
+          "workItemId": "src-maturity-date",
+          "type": "FIELD_MAP",
+          "title": "参数设置复核表—组合到期日期依据",
+          "instruction": "参数设置复核表中的“组合到期日期”应绑定哪份资料？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择到期日期依据",
+            "options": [
+              {"optionId": "CONTRACT_SUMMARY", "text": "基金合同摘要"},
+              {"optionId": "CUSTODY_AGREEMENT", "text": "托管协议摘要"},
+              {"optionId": "ESTABLISHMENT_CONFIRMATION", "text": "成立确认资料"},
+              {"optionId": "PARAMETER_LETTER", "text": "管理人参数确认函"}
+            ]
+          }
+        },
+        {
+          "workItemId": "src-custody-fee",
+          "type": "FIELD_MAP",
+          "title": "参数设置复核表—托管费计提依据",
+          "instruction": "参数设置复核表中的“费用计提维护—托管费”应绑定哪份资料？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择托管费计提依据",
+            "options": [
+              {"optionId": "CONTRACT_SUMMARY", "text": "基金合同摘要"},
+              {"optionId": "CUSTODY_AGREEMENT", "text": "托管协议摘要"},
+              {"optionId": "ESTABLISHMENT_CONFIRMATION", "text": "成立确认资料"},
+              {"optionId": "PARAMETER_LETTER", "text": "管理人参数确认函"}
+            ]
+          }
+        },
+        {
+          "workItemId": "src-ta-settlement",
+          "type": "FIELD_MAP",
+          "title": "参数设置复核表—TA结转条件依据",
+          "instruction": "参数设置复核表中的“基金TA结转条件”应绑定哪份资料？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择TA结转条件依据",
+            "options": [
+              {"optionId": "CONTRACT_SUMMARY", "text": "基金合同摘要"},
+              {"optionId": "CUSTODY_AGREEMENT", "text": "托管协议摘要"},
+              {"optionId": "ESTABLISHMENT_CONFIRMATION", "text": "成立确认资料"},
+              {"optionId": "PARAMETER_LETTER", "text": "管理人参数确认函"}
+            ]
+          }
+        },
+        {
+          "workItemId": "src-e-recon-items",
+          "type": "FIELD_MAP",
+          "title": "参数设置复核表—电子对账关键项依据",
+          "instruction": "参数设置复核表中的“电子对账关键项”应绑定哪份资料？",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择电子对账关键项依据",
+            "options": [
+              {"optionId": "CONTRACT_SUMMARY", "text": "基金合同摘要"},
+              {"optionId": "CUSTODY_AGREEMENT", "text": "托管协议摘要"},
+              {"optionId": "ESTABLISHMENT_CONFIRMATION", "text": "成立确认资料"},
+              {"optionId": "PARAMETER_LETTER", "text": "管理人参数确认函"}
+            ]
+          }
+        },
+        {
+          "workItemId": "calc-initial-assets",
+          "type": "CALCULATION",
+          "title": "补全参数表—初始资产净值",
+          "instruction": "从成立确认资料读取初始资产净值，填入参数设置复核表。",
+          "response": {"kind": "NUMBER", "placeholder": "输入初始资产净值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "calc-initial-shares",
+          "type": "CALCULATION",
+          "title": "补全参数表—初始份额",
+          "instruction": "从成立确认资料读取初始份额，填入参数设置复核表。",
+          "response": {"kind": "NUMBER", "placeholder": "输入初始份额", "unit": "份", "precision": 0}
+        },
+        {
+          "workItemId": "calc-initial-nav",
+          "type": "CALCULATION",
+          "title": "补全参数表—初始单位净值",
+          "instruction": "用初始资产净值除以初始份额复算初始单位净值，按本案精度 4 位小数填写。",
+          "response": {"kind": "NUMBER", "placeholder": "输入初始单位净值", "unit": "元/份", "precision": 4}
+        },
+        {
+          "workItemId": "ledger-first-debit",
+          "type": "LEDGER_ENTRY",
+          "title": "首日账务—借方科目",
+          "instruction": "填写首日认购资金入账的借方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入借方科目"}
+        },
+        {
+          "workItemId": "ledger-first-credit",
+          "type": "LEDGER_ENTRY",
+          "title": "首日账务—贷方科目",
+          "instruction": "填写首日认购资金入账的贷方科目。",
+          "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
+        },
+        {
+          "workItemId": "recon-bank-balance",
+          "type": "RECONCILIATION",
+          "title": "首日账簿—银行存款余额",
+          "instruction": "根据首日银行到账资料填写首日账簿银行存款余额。",
+          "response": {"kind": "NUMBER", "placeholder": "输入银行存款余额", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-nav-balance",
+          "type": "RECONCILIATION",
+          "title": "首日估值表—基金资产净值",
+          "instruction": "根据首日账簿与成立确认资料填写首日估值表基金资产净值。",
+          "response": {"kind": "NUMBER", "placeholder": "输入基金资产净值", "unit": "元", "precision": 2}
+        },
+        {
+          "workItemId": "recon-e-recon",
+          "type": "RECONCILIATION",
+          "title": "电子对账—关键项结论",
+          "instruction": "银行存款与实收资本的账簿金额和对方金额一致时，选择本次电子对账结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择对账结论",
+            "options": [
+              {"optionId": "BALANCED", "text": "一致"},
+              {"optionId": "UNBALANCED", "text": "不一致"}
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "记录接管结论",
+          "instruction": "用一句话写明初始资产净值、初始份额、初始单位净值、首日账务与电子对账结论。",
+          "response": {"kind": "TEXT", "placeholder": "例如：初始资产净值……，份额……，单位净值……，首日账务……，电子对账一致。"}
+        }
+      ],
+      "submissionNote": "提交前请按顺序复核资料依据、参数表、初始净值复算、首日账务、估值表与电子对账结论。提交后将生成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ACC-REF-FOUNDATION-FLOW-2026",
+      "title": "公募基金核算业务流程（2026年5月第9次修订）",
+      "source": "01_核算基础与生命周期__公募基金核算业务流程.doc；第一章核算岗岗位职责、第二章不定期—参数维护与新组合初始设置",
+      "usage": "接管新产品时参数必须绑定合同、托管协议、管理人函件等依据；设置、审核、首日核算与对账的关系"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-SETUP-XLSX-2026",
+      "title": "新一代系统资产成立、到期及销户核算设置事项业务操作手册（2026年版）",
+      "source": "01_核算基础与生命周期__中国建设银行托管运营中心上海分中心新一代系统资产成立、到期及销户核算设置事项业务操作手册（2026年版）-新增菜单【估值对账日期配置】.xlsx；工作表：新资产成立参数设置、电子对账设置关键项（模板）、修订摘要",
+      "usage": "成立日期/到期日期/初始单位净值、费用计提、估值对账日期、电子对账关键项与审核关系；历史菜单与固定时点仅作内部证据"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-PLAN-2026",
+      "title": "跨模块核算基础与产品生命周期高保真施工计划",
+      "source": "project_materials/新人陪练案例库/核算案例库跨模块核算基础高保真施工计划.md 路线2",
+      "usage": "冻结答案链、综合实务资料包、四环节活动、硬性必达与排除范围"
+    },
+    {
+      "referenceId": "ACC-REF-ONBOARD-CASE-PARAMETERS-202608",
+      "title": "接管新产品路线题面批准合成参数",
+      "source": "本路线综合实务资料包 ONB-CASE-PARAMETERS（2026.08 版本）",
+      "usage": "仅约束本案初始资产/份额、精度、TA结转、电子对账关键项与首日账务口径，不替代当前业务规则"
+    }
+  ]
+}

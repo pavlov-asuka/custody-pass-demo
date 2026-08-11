@@ -1,0 +1,263 @@
+{
+  "routeId": "ACC-LIFE-EXIT-004",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-EXIT-CONCEPT-STATE",
+          "description": "区分仍需继续核算与具备停止核算条件的生命周期状态",
+          "weight": 10,
+          "evidenceRequirement": "四类清盘事实的核算状态判断正确",
+          "evidenceRules": [
+            {"fieldId": "src-state-interest", "operator": "EQUALS", "expected": "CONTINUE_ACCOUNTING"},
+            {"fieldId": "src-state-fee", "operator": "EQUALS", "expected": "CONTINUE_ACCOUNTING"},
+            {"fieldId": "src-state-advance", "operator": "EQUALS", "expected": "CONTINUE_ACCOUNTING"},
+            {"fieldId": "src-state-final", "operator": "EQUALS", "expected": "CAN_STOP"}
+          ],
+          "remediationTargetId": "R-EXIT-STATE"
+        },
+        {
+          "criterionId": "C-EXIT-CONCEPT-RELATION",
+          "description": "理解剩余财产、单位净值、一次清算款与垫款的数量关系",
+          "weight": 8,
+          "evidenceRequirement": "净资产、单位净值、清算款与垫款计算正确",
+          "evidenceRules": [
+            {"fieldId": "calc-net-assets", "operator": "NUMBER_EQUALS", "expected": 6000000, "tolerance": 0.01},
+            {"fieldId": "calc-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.00005},
+            {"fieldId": "calc-liquidation-payment", "operator": "NUMBER_EQUALS", "expected": 6000000, "tolerance": 0.01},
+            {"fieldId": "calc-advance", "operator": "NUMBER_EQUALS", "expected": 60000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-EXIT-CALC"
+        },
+        {
+          "criterionId": "C-EXIT-CONCEPT-FINAL",
+          "description": "理解三表全零与退出动作完成后才能停止核算",
+          "weight": 7,
+          "evidenceRequirement": "三表清零与停止核算结论正确",
+          "evidenceRules": [
+            {"fieldId": "recon-final-zero", "operator": "EQUALS", "expected": "ZERO_ALL"},
+            {"fieldId": "stop-accounting", "operator": "EQUALS", "expected": "CAN_STOP"}
+          ],
+          "remediationTargetId": "R-EXIT-CLOSE"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "C-EXIT-PROCESS-CALC",
+          "description": "完成资产合计、剩余财产、单位净值、一次清算款和垫款的取数与复算",
+          "weight": 10,
+          "evidenceRequirement": "五项金额按资料与题面关系复算正确",
+          "evidenceRules": [
+            {"fieldId": "calc-assets-total", "operator": "NUMBER_EQUALS", "expected": 6005000, "tolerance": 0.01},
+            {"fieldId": "calc-net-assets", "operator": "NUMBER_EQUALS", "expected": 6000000, "tolerance": 0.01},
+            {"fieldId": "calc-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.00005},
+            {"fieldId": "calc-liquidation-payment", "operator": "NUMBER_EQUALS", "expected": 6000000, "tolerance": 0.01},
+            {"fieldId": "calc-advance", "operator": "NUMBER_EQUALS", "expected": 60000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-EXIT-CALC"
+        },
+        {
+          "criterionId": "C-EXIT-PROCESS-LEDGER",
+          "description": "完成垫款到账与清算款支付凭证科目补全",
+          "weight": 10,
+          "evidenceRequirement": "两张凭证五个科目方向正确",
+          "evidenceRules": [
+            {"fieldId": "ledger-advance-debit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]},
+            {"fieldId": "ledger-advance-credit", "operator": "CONTAINS_ALL", "expected": ["应付", "垫款"]},
+            {"fieldId": "ledger-payment-debit-capital", "operator": "CONTAINS_ALL", "expected": ["实收", "资本"]},
+            {"fieldId": "ledger-payment-debit-income", "operator": "CONTAINS_ALL", "expected": ["利润", "分配"]},
+            {"fieldId": "ledger-payment-credit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]}
+          ],
+          "remediationTargetId": "R-EXIT-LEDGER"
+        },
+        {
+          "criterionId": "C-EXIT-PROCESS-RECON",
+          "description": "完成支付后资产/负债、后续回收、最终现金与三表清零勾稽",
+          "weight": 10,
+          "evidenceRequirement": "现金链与余额关系全部可复算且闭合",
+          "evidenceRules": [
+            {"fieldId": "recon-cash-after-payment", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "recon-noncash-after", "operator": "NUMBER_EQUALS", "expected": 65000, "tolerance": 0.01},
+            {"fieldId": "recon-liab-after", "operator": "NUMBER_EQUALS", "expected": 65000, "tolerance": 0.01},
+            {"fieldId": "recon-net-after", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "recon-recovery", "operator": "NUMBER_EQUALS", "expected": 65000, "tolerance": 0.01},
+            {"fieldId": "recon-final-cash", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-EXIT-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-EXIT-RISK-STATE",
+          "description": "不在应收利息、费用或垫款未结清时提前停止核算",
+          "weight": 9,
+          "evidenceRequirement": "四类事实的状态判断全部正确",
+          "evidenceRules": [
+            {"fieldId": "src-state-interest", "operator": "EQUALS", "expected": "CONTINUE_ACCOUNTING"},
+            {"fieldId": "src-state-fee", "operator": "EQUALS", "expected": "CONTINUE_ACCOUNTING"},
+            {"fieldId": "src-state-advance", "operator": "EQUALS", "expected": "CONTINUE_ACCOUNTING"},
+            {"fieldId": "src-state-final", "operator": "EQUALS", "expected": "CAN_STOP"}
+          ],
+          "remediationTargetId": "R-EXIT-STATE"
+        },
+        {
+          "criterionId": "C-EXIT-RISK-COMPLETE",
+          "description": "垫款到账与清算款支付凭证必须完整、方向正确",
+          "weight": 8,
+          "evidenceRequirement": "垫款与支付凭证科目完整",
+          "evidenceRules": [
+            {"fieldId": "ledger-advance-debit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]},
+            {"fieldId": "ledger-advance-credit", "operator": "CONTAINS_ALL", "expected": ["应付", "垫款"]},
+            {"fieldId": "ledger-payment-debit-capital", "operator": "CONTAINS_ALL", "expected": ["实收", "资本"]},
+            {"fieldId": "ledger-payment-credit", "operator": "CONTAINS_ALL", "expected": ["银行", "存款"]}
+          ],
+          "remediationTargetId": "R-EXIT-LEDGER"
+        },
+        {
+          "criterionId": "C-EXIT-RISK-ZERO",
+          "description": "只有资产和负债全部结清、三表全零后才能停止核算",
+          "weight": 8,
+          "evidenceRequirement": "最终现金、三表清零与停止核算结论一致",
+          "evidenceRules": [
+            {"fieldId": "recon-final-cash", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "recon-final-zero", "operator": "EQUALS", "expected": "ZERO_ALL"},
+            {"fieldId": "stop-accounting", "operator": "EQUALS", "expected": "CAN_STOP"}
+          ],
+          "remediationTargetId": "R-EXIT-CLOSE"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "C-EXIT-EXPR-RESULT",
+          "description": "简短结论包含一次清算款、垫款、三表全零与停止核算判断",
+          "weight": 20,
+          "evidenceRequirement": "结论覆盖关键数字和停止核算判断",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["6000000", "60000", "零", "停止核算"]},
+            {"fieldId": "stop-accounting", "operator": "EQUALS", "expected": "CAN_STOP"}
+          ],
+          "remediationTargetId": "R-EXIT-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-EXIT-CALC",
+      "description": "剩余财产、单位净值、一次清算款和垫款必须计算正确且清算款与份额关系闭合",
+      "evidenceRequirement": "净资产、单位净值、清算款与垫款全部可复算",
+      "evidenceRules": [
+        {"fieldId": "calc-net-assets", "operator": "NUMBER_EQUALS", "expected": 6000000, "tolerance": 0.01},
+        {"fieldId": "calc-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.00005},
+        {"fieldId": "calc-liquidation-payment", "operator": "NUMBER_EQUALS", "expected": 6000000, "tolerance": 0.01},
+        {"fieldId": "calc-advance", "operator": "NUMBER_EQUALS", "expected": 60000, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-EXIT-CALC"
+    },
+    {
+      "requirementId": "M-EXIT-ZERO",
+      "description": "只有后续资产和负债全部结清、余额表/资金调节表/估值表全零后才能确认停止核算",
+      "evidenceRequirement": "最终现金为零、三表全零且停止核算结论成立",
+      "evidenceRules": [
+        {"fieldId": "recon-final-cash", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "recon-final-zero", "operator": "EQUALS", "expected": "ZERO_ALL"},
+        {"fieldId": "stop-accounting", "operator": "EQUALS", "expected": "CAN_STOP"}
+      ],
+      "remediationTargetId": "R-EXIT-CLOSE"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-EXIT-STATE",
+      "title": "区分生命周期核算状态",
+      "reason": "未结清事项存在时提前判断停止核算，或三表全零后仍不能确认退出",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ACC-EXIT-KC-01",
+      "questionId": "ACC-EXIT-Q-01"
+    },
+    {
+      "targetId": "R-EXIT-CALC",
+      "title": "复算剩余财产、单位净值、清算款与垫款",
+      "reason": "资产/负债、净值、清算款或垫款取数/复算不正确",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-02",
+      "questionId": "ACC-EXIT-Q-03"
+    },
+    {
+      "targetId": "R-EXIT-LEDGER",
+      "title": "补全垫款与清算款支付凭证",
+      "reason": "垫款到账或清算款支付科目不完整、方向不正确",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "ACC-EXIT-Q-04"
+    },
+    {
+      "targetId": "R-EXIT-RECON",
+      "title": "完成现金链与三表勾稽",
+      "reason": "支付后现金、保留资产/负债、后续回收或最终现金未完成复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "ACC-EXIT-Q-05"
+    },
+    {
+      "targetId": "R-EXIT-CLOSE",
+      "title": "确认三表全零与停止核算条件",
+      "reason": "三表清零或停止核算条件判断不准确",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-EXIT-Q-05"
+    },
+    {
+      "targetId": "R-EXIT-EXPRESSION",
+      "title": "形成可追溯清盘退出结论",
+      "reason": "简短结论未覆盖清算款、垫款、三表清零或停止核算判断",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-EXIT-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "src-state-interest": "CONTINUE_ACCOUNTING",
+      "src-state-fee": "CONTINUE_ACCOUNTING",
+      "src-state-advance": "CONTINUE_ACCOUNTING",
+      "src-state-final": "CAN_STOP",
+      "calc-assets-total": 6005000,
+      "calc-net-assets": 6000000,
+      "calc-nav": 1,
+      "calc-liquidation-payment": 6000000,
+      "calc-advance": 60000,
+      "ledger-advance-debit": "银行存款",
+      "ledger-advance-credit": "其他应付款-应付管理人垫款",
+      "ledger-payment-debit-capital": "实收资本-实收基金",
+      "ledger-payment-debit-income": "利润分配-未分配收益",
+      "ledger-payment-credit": "银行存款",
+      "recon-cash-after-payment": 0,
+      "recon-noncash-after": 65000,
+      "recon-liab-after": 65000,
+      "recon-net-after": 0,
+      "recon-recovery": 65000,
+      "recon-final-cash": 0,
+      "recon-final-zero": "ZERO_ALL",
+      "stop-accounting": "CAN_STOP",
+      "result-note": "一次清算款6,000,000元，管理人垫款60,000元，支付后保留非现金资产65,000元，后续回收并清偿后余额表、资金调节表、估值表全部为零，可以停止核算并退出。"
+    }
+  }
+}

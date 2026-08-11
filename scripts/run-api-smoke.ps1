@@ -187,8 +187,8 @@ try {
     $allNodes = @($mapAfter.regions | ForEach-Object modules |
         ForEach-Object nodes | ForEach-Object { $_ })
     $nextNode = @($allNodes | Where-Object routeId -eq 'ACC-LIFE-ONBOARD-002')[0]
-    if ($nextNode.locked -or $nextNode.enterable) {
-        throw 'next BUILDING node should be unlocked for display but not enterable'
+    if ($nextNode.locked -or -not $nextNode.enterable) {
+        throw 'next published node should be unlocked and enterable'
     }
     $records = Invoke-JsonApi -Method GET `
         -Path '/api/training-records?page=0&size=10&line=ACCOUNTING&conclusion=PASSED'

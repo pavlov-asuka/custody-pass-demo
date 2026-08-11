@@ -209,6 +209,55 @@
       "locator": "ACC-STOCK-HK-DIVIDEND-104 综合实务资料包，2026.08 版本",
       "contentUse": "路线 ACC-STOCK-HK-DIVIDEND-104",
       "reviewNote": "仅约束本案币种、汇率、到账金额、日期和精度。"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-FLOW-2026",
+      "title": "公募基金核算业务流程（2026年5月第9次修订）",
+      "locator": "产品接管、日间业务、晚间账务、估值、对账与封账章节",
+      "contentUse": "路线 ACC-LIFE-ONBOARD-002、ACC-LIFE-DAILY-003",
+      "reviewNote": "仅抽象设置依据、正常日间—晚间核算、凭证台账、估值对账与结果验证关系；历史菜单、时点和内部信息不进入题面。"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-LIQUIDATION-2026",
+      "title": "基金清盘操作流程v2",
+      "locator": "合同终止前、最后运作日、清算期间、一次清算、日后处理与清算结束日",
+      "contentUse": "路线 ACC-LIFE-EXIT-004",
+      "reviewNote": "支持合同终止后继续核算、剩余财产与清算款、垫款、后续回收清偿和三表清零；不固化历史权限和复杂清盘算法。"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-SETUP-XLSX-2026",
+      "title": "资产成立、到期及销户核算设置事项业务操作手册（2026年版）",
+      "locator": "新资产成立参数设置、资产到期销户流程、电子对账设置关键项",
+      "contentUse": "路线 ACC-LIFE-ONBOARD-002、ACC-LIFE-DAILY-003、ACC-LIFE-EXIT-004",
+      "reviewNote": "用于参数依据、首日结果、对账关键项和退出状态关系；历史菜单、默认值和内部操作路径不进入题面。"
+    },
+    {
+      "referenceId": "ACC-REF-FOUNDATION-PLAN-2026",
+      "title": "跨模块核算基础高保真施工计划",
+      "locator": "核算案例库跨模块核算基础高保真施工计划",
+      "contentUse": "路线 ACC-LIFE-ONBOARD-002、ACC-LIFE-DAILY-003、ACC-LIFE-EXIT-004",
+      "reviewNote": "冻结三条高保真业务链、正常综合实务、数值关系、教学边界和股票前置调整。"
+    },
+    {
+      "referenceId": "ACC-REF-ONBOARD-CASE-PARAMETERS-202608",
+      "title": "接管新产品路线题面批准合成参数",
+      "locator": "ACC-LIFE-ONBOARD-002 综合实务资料包，2026.08 版本",
+      "contentUse": "路线 ACC-LIFE-ONBOARD-002",
+      "reviewNote": "仅约束本案成立依据、初始余额、份额、净值精度和对账关系。"
+    },
+    {
+      "referenceId": "ACC-REF-DAILY-CASE-PARAMETERS-202608",
+      "title": "每日核算路线题面批准合成参数",
+      "locator": "ACC-LIFE-DAILY-003 综合实务资料包，2026.08 版本",
+      "contentUse": "路线 ACC-LIFE-DAILY-003",
+      "reviewNote": "仅约束本案利息收入、费用计提与支付、现金应付余额、净值精度和对账封账关系。"
+    },
+    {
+      "referenceId": "ACC-REF-EXIT-CASE-PARAMETERS-202608",
+      "title": "清盘退出路线题面批准合成参数",
+      "locator": "ACC-LIFE-EXIT-004 综合实务资料包，2026.08 版本",
+      "contentUse": "路线 ACC-LIFE-EXIT-004",
+      "reviewNote": "仅约束本案剩余财产、清算款、垫款、后续回收清偿、净值精度与三表清零关系。"
     }
   ]
 }
