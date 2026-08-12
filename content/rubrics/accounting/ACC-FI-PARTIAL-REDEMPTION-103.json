@@ -1,0 +1,90 @@
+{
+  "routeId": "ACC-FI-PARTIAL-REDEMPTION-103",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FIPR-METHOD", "description": "按公告识别减少数量并区分票面单位", "weight": 13, "evidenceRequirement": "公告方式与本金单位正确", "evidenceRules": [{"fieldId": "method", "operator": "EQUALS", "expected": "REDUCE_QUANTITY"}, {"fieldId": "cash", "operator": "NUMBER_EQUALS", "expected": 200000, "tolerance": 0.01}], "remediationTargetId": "R-FIPR-METHOD"},
+        {"criterionId": "C-FIPR-ACCRUAL-SOURCE", "description": "读取本案例批准计息来源和变量，不把快照泛化为永久规则", "weight": 12, "evidenceRequirement": "来源、年利息、日数口径和已过天数均从批准资料读取", "evidenceRules": [{"fieldId": "accrual-source", "operator": "EQUALS", "expected": "APPROVED_CASE"}, {"fieldId": "accrual-rate", "operator": "NUMBER_EQUALS", "expected": 3.65, "tolerance": 0.01}, {"fieldId": "accrual-day-count", "operator": "EQUALS", "expected": "ACTUAL_365"}, {"fieldId": "accrual-day", "operator": "NUMBER_EQUALS", "expected": 91, "tolerance": 0}], "remediationTargetId": "R-FIPR-ACCRUAL-SOURCE"}
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {"criterionId": "C-FIPR-BALANCE", "description": "完成本金及余额结转", "weight": 13, "evidenceRequirement": "成本和估值增值按比例结转，剩余账簿连续", "evidenceRules": [{"fieldId": "cost", "operator": "NUMBER_EQUALS", "expected": 192000, "tolerance": 0.01}, {"fieldId": "valuation", "operator": "NUMBER_EQUALS", "expected": 8000, "tolerance": 0.01}, {"fieldId": "remaining-cost", "operator": "NUMBER_EQUALS", "expected": 768000, "tolerance": 0.01}, {"fieldId": "remaining-valuation", "operator": "NUMBER_EQUALS", "expected": 32000, "tolerance": 0.01}, {"fieldId": "cost-account", "operator": "CONTAINS_ALL", "expected": ["债券", "成本"]}], "remediationTargetId": "R-FIPR-LEDGER"},
+        {"criterionId": "C-FIPR-RECON", "description": "形成兑付后票面总额并完成重新计息数值链", "weight": 17, "evidenceRequirement": "票面总额、每百元应计利息、合计应计利息和计息台账闭合", "evidenceRules": [{"fieldId": "remaining-quantity", "operator": "NUMBER_EQUALS", "expected": 8000, "tolerance": 0}, {"fieldId": "post-face-total", "operator": "NUMBER_EQUALS", "expected": 800000, "tolerance": 0}, {"fieldId": "accrual-per100", "operator": "NUMBER_EQUALS", "expected": 0.91, "tolerance": 0.01}, {"fieldId": "accrual-total", "operator": "NUMBER_EQUALS", "expected": 7280, "tolerance": 0.01}, {"fieldId": "accrual-ledger-total", "operator": "NUMBER_EQUALS", "expected": 7280, "tolerance": 0.01}, {"fieldId": "result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FIPR-RECON"}
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FIPR-RISK", "description": "控制公告方式误判、单位错用和只标状态不复算", "weight": 25, "evidenceRequirement": "减少数量后按批准变量重新计算并与台账勾稽", "evidenceRules": [{"fieldId": "method", "operator": "EQUALS", "expected": "REDUCE_QUANTITY"}, {"fieldId": "post-face-total", "operator": "NUMBER_EQUALS", "expected": 800000, "tolerance": 0}, {"fieldId": "accrual-per100", "operator": "NUMBER_EQUALS", "expected": 0.91, "tolerance": 0.01}, {"fieldId": "accrual-total", "operator": "NUMBER_EQUALS", "expected": 7280, "tolerance": 0.01}, {"fieldId": "accrual-ledger-total", "operator": "NUMBER_EQUALS", "expected": 7280, "tolerance": 0.01}, {"fieldId": "accrual-status", "operator": "EQUALS", "expected": "REGENERATED"}], "remediationTargetId": "R-FIPR-ACCRUAL"}
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {"criterionId": "C-FIPR-EXPR", "description": "形成可追溯兑付与重新计息结论", "weight": 20, "evidenceRequirement": "结论覆盖方式、金额、票面总额、计息公式、台账和边界", "evidenceRules": [{"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["减少数量", "200,000", "8,000", "800,000", "0.91", "7,280", "台账", "批准快照"]}], "remediationTargetId": "R-FIPR-EXPRESSION"}
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-FIPR-METHOD",
+      "description": "必须按公告识别减少数量并完成本金、成本和估值增值链",
+      "evidenceRequirement": "方式、金额和剩余余额正确",
+      "evidenceRules": [{"fieldId": "method", "operator": "EQUALS", "expected": "REDUCE_QUANTITY"}, {"fieldId": "cash", "operator": "NUMBER_EQUALS", "expected": 200000, "tolerance": 0.01}, {"fieldId": "cost", "operator": "NUMBER_EQUALS", "expected": 192000, "tolerance": 0.01}, {"fieldId": "valuation", "operator": "NUMBER_EQUALS", "expected": 8000, "tolerance": 0.01}, {"fieldId": "remaining-quantity", "operator": "NUMBER_EQUALS", "expected": 8000, "tolerance": 0}, {"fieldId": "remaining-cost", "operator": "NUMBER_EQUALS", "expected": 768000, "tolerance": 0.01}, {"fieldId": "remaining-valuation", "operator": "NUMBER_EQUALS", "expected": 32000, "tolerance": 0.01}],
+      "remediationTargetId": "R-FIPR-METHOD"
+    },
+    {
+      "requirementId": "M-FIPR-ACCRUAL",
+      "description": "减少数量后必须读取批准计息变量，形成票面总额、每百元和合计应计利息，并与台账闭合",
+      "evidenceRequirement": "不能只填重新生成状态；数值链和状态均正确",
+      "evidenceRules": [{"fieldId": "accrual-source", "operator": "EQUALS", "expected": "APPROVED_CASE"}, {"fieldId": "accrual-rate", "operator": "NUMBER_EQUALS", "expected": 3.65, "tolerance": 0.01}, {"fieldId": "accrual-day-count", "operator": "EQUALS", "expected": "ACTUAL_365"}, {"fieldId": "accrual-day", "operator": "NUMBER_EQUALS", "expected": 91, "tolerance": 0}, {"fieldId": "accrual-quantity", "operator": "NUMBER_EQUALS", "expected": 8000, "tolerance": 0}, {"fieldId": "post-face-total", "operator": "NUMBER_EQUALS", "expected": 800000, "tolerance": 0}, {"fieldId": "accrual-per100", "operator": "NUMBER_EQUALS", "expected": 0.91, "tolerance": 0.01}, {"fieldId": "accrual-total", "operator": "NUMBER_EQUALS", "expected": 7280, "tolerance": 0.01}, {"fieldId": "accrual-ledger-total", "operator": "NUMBER_EQUALS", "expected": 7280, "tolerance": 0.01}, {"fieldId": "accrual-status", "operator": "EQUALS", "expected": "REGENERATED"}],
+      "remediationTargetId": "R-FIPR-ACCRUAL"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-FIPR-METHOD", "title": "读取部分兑付公告", "reason": "把减数量误判为减面值或没有按数量结转", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-PR-KC-01", "questionId": "ACC-FI-PARTIAL-REDEMPTION-Q-01"},
+    {"targetId": "R-FIPR-AMOUNT", "title": "计算实付本金", "reason": "数量与面值单位错误", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-PR-KC-02", "questionId": "ACC-FI-PARTIAL-REDEMPTION-Q-02"},
+    {"targetId": "R-FIPR-LEDGER", "title": "完成余额凭证", "reason": "成本、估值增值或科目对象错误", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-FI-PARTIAL-REDEMPTION-Q-03"},
+    {"targetId": "R-FIPR-RECON", "title": "复核剩余台账", "reason": "兑付后余额或计息结果不连续", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-FI-PARTIAL-REDEMPTION-Q-04"},
+    {"targetId": "R-FIPR-ACCRUAL-SOURCE", "title": "读取计息批准快照", "reason": "把案例批准变量误当作未提供的通用规则", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-PR-KC-03", "questionId": "ACC-FI-PARTIAL-REDEMPTION-Q-04"},
+    {"targetId": "R-FIPR-ACCRUAL", "title": "按剩余票面总额重新计息", "reason": "只填重新生成状态、漏读变量或省略票面总额÷100", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-PR-KC-03", "questionId": "ACC-FI-PARTIAL-REDEMPTION-Q-04"},
+    {"targetId": "R-FIPR-EXPRESSION", "title": "形成兑付结论", "reason": "遗漏公告、余额、数值计息结果或批准快照边界", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-FI-PARTIAL-REDEMPTION-Q-04"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "method": "REDUCE_QUANTITY",
+      "cash": 200000,
+      "cost": 192000,
+      "valuation": 8000,
+      "remaining-quantity": 8000,
+      "remaining-cost": 768000,
+      "remaining-valuation": 32000,
+      "cash-account": "银行存款/清算款",
+      "cost-account": "债券投资-成本",
+      "valuation-account": "债券投资-估值增值",
+      "income-account": "投资收益",
+      "accrual-source": "APPROVED_CASE",
+      "accrual-rate": 3.65,
+      "accrual-day-count": "ACTUAL_365",
+      "accrual-day": 91,
+      "post-face-total": 800000,
+      "accrual-per100": 0.91,
+      "accrual-total": 7280,
+      "accrual-ledger-total": 7280,
+      "accrual-quantity": 8000,
+      "accrual-status": "REGENERATED",
+      "result": "BALANCED",
+      "result-note": "公告明确减少数量，实付本金 200,000 元；剩余 8,000 张形成票面总额 800,000 元；本案例批准快照为 3.65%、实际天数/365、91 天，每百元应计利息 0.91 元，合计应计利息 7,280.00 元，已与兑付后计息台账勾稽并按新数量重新生成。"
+    }
+  }
+}

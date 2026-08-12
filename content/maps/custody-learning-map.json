@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.3",
+  "version": "2026.08.4",
   "lines": [
     {
       "line": "CLEARING",
@@ -167,6 +167,112 @@
                   "order": 8,
                   "position": "RIGHT",
                   "prerequisiteNodeIds": ["ACC-NODE-STOCK-HK-TRADE-103", "ACC-NODE-STOCK-EQUITY-003"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "ACC-MODULE-FIXED-INCOME",
+              "name": "固定收益核算业务",
+              "order": 3,
+              "nodes": [
+                {
+                  "nodeId": "ACC-NODE-FI-TRADE-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FI-TRADE-001",
+                  "title": "债券买卖、净价全价与成本闭环",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FI-ACCRUAL-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FI-ACCRUAL-002",
+                  "title": "识别计息口径并完成日常计提",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FI-TRADE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FI-CASHFLOW-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FI-CASHFLOW-003",
+                  "title": "债券派息与到期兑付闭环",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FI-ACCRUAL-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FI-VALUATION-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FI-VALUATION-004",
+                  "title": "固定收益基础估值与估值表复算",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FI-CASHFLOW-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FI-DISTRIBUTION-101",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FI-DISTRIBUTION-101",
+                  "title": "债券分销维护、利息分摊与费用闭环",
+                  "pathType": "ADVANCED",
+                  "order": 5,
+                  "position": "LEFT",
+                  "prerequisiteNodeIds": ["ACC-NODE-FI-TRADE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FI-SUBSCRIPTION-102",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FI-SUBSCRIPTION-102",
+                  "title": "债券申购申请、确认与清算闭环",
+                  "pathType": "ADVANCED",
+                  "order": 6,
+                  "position": "RIGHT",
+                  "prerequisiteNodeIds": ["ACC-NODE-FI-TRADE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FI-PARTIAL-REDEMPTION-103",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FI-PARTIAL-REDEMPTION-103",
+                  "title": "债券部分兑付：公告口径、余额结转与重新计息",
+                  "pathType": "ADVANCED",
+                  "order": 7,
+                  "position": "LEFT",
+                  "prerequisiteNodeIds": ["ACC-NODE-FI-ACCRUAL-002", "ACC-NODE-FI-CASHFLOW-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FI-PUTBACK-104",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FI-PUTBACK-104",
+                  "title": "债券回售申请、行权到账与未行权估值",
+                  "pathType": "ADVANCED",
+                  "order": 8,
+                  "position": "RIGHT",
+                  "prerequisiteNodeIds": ["ACC-NODE-FI-CASHFLOW-003", "ACC-NODE-FI-VALUATION-004"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FI-MIGRATION-105",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FI-MIGRATION-105",
+                  "title": "债券转托管与流通状态迁移",
+                  "pathType": "ADVANCED",
+                  "order": 9,
+                  "position": "LEFT",
+                  "prerequisiteNodeIds": ["ACC-NODE-FI-TRADE-001", "ACC-NODE-FI-VALUATION-004"],
                   "contentAvailability": "PUBLISHED"
                 }
               ]

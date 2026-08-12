@@ -258,6 +258,27 @@
       "locator": "ACC-LIFE-EXIT-004 综合实务资料包，2026.08 版本",
       "contentUse": "路线 ACC-LIFE-EXIT-004",
       "reviewNote": "仅约束本案剩余财产、清算款、垫款、后续回收清偿、净值精度与三表清零关系。"
+    },
+    {
+      "referenceId": "ACC-REF-FI-PPTX-2025",
+      "title": "固定收益介绍-2025新员工培训",
+      "locator": "第 6、8—12、16—22、25—40、43—80 页及第 12、25、38—39 页嵌入流程/公式对象",
+      "contentUse": "路线 ACC-FI-TRADE-001、ACC-FI-ACCRUAL-002、ACC-FI-CASHFLOW-003、ACC-FI-VALUATION-004、ACC-FI-DISTRIBUTION-101、ACC-FI-SUBSCRIPTION-102、ACC-FI-PARTIAL-REDEMPTION-103、ACC-FI-PUTBACK-104、ACC-FI-MIGRATION-105",
+      "reviewNote": "支持债券交易、计息、现金流、估值及五类进阶正常业务链。历史菜单、机构清单、税率、费率、日历和系统参数不固化为永久规则。"
+    },
+    {
+      "referenceId": "ACC-REF-FI-ROUTE-DECISIONS-202608",
+      "title": "固定收益高保真路线施工与验收决定",
+      "locator": "核算案例库讨论记录、阶段 5 教学有效性复核与固定收益施工计划",
+      "contentUse": "固定收益模块全部 9 条路线",
+      "reviewNote": "冻结 4 条 REQUIRED 主链和 5 条非阻挡 ADVANCED 支线，不设阶段闸门；排除债转股/债换股、摊余成本减值、违约债券及存款回购。"
+    },
+    {
+      "referenceId": "ACC-REF-FI-CASE-PARAMETERS-202608",
+      "title": "固定收益路线题面批准合成参数",
+      "locator": "9 条固定收益路线各自综合实务资料包与 evidence.md，2026.08 版本",
+      "contentUse": "固定收益模块全部 9 条路线",
+      "reviewNote": "仅约束各案例明确给出的价格、利率、计息日历、数量、金额、精度、容差、费用和处理口径，不外推为现行统一制度。"
     }
   ]
 }

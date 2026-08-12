@@ -1,0 +1,118 @@
+{
+  "routeId": "ACC-FI-PUTBACK-104",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FIPB-STATE", "description": "区分申请、撤销、最终有效、行权和未行权并建立数量链", "weight": 15, "evidenceRequirement": "状态与申请/撤销/最终数量关系正确", "evidenceRules": [{"fieldId": "application-state", "operator": "EQUALS", "expected": "APPLICATION"}, {"fieldId": "application-quantity", "operator": "NUMBER_EQUALS", "expected": 3500, "tolerance": 0}, {"fieldId": "cancel-state", "operator": "EQUALS", "expected": "CANCELLED"}, {"fieldId": "cancelled-quantity", "operator": "NUMBER_EQUALS", "expected": 500, "tolerance": 0}, {"fieldId": "final-eligible-quantity", "operator": "NUMBER_EQUALS", "expected": 3000, "tolerance": 0}, {"fieldId": "exercise-quantity", "operator": "NUMBER_EQUALS", "expected": 1000, "tolerance": 0}, {"fieldId": "unexercised-quantity", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0}], "remediationTargetId": "R-FIPB-STATE"},
+        {"criterionId": "C-FIPB-PRICE", "description": "理解行权价与未行权估值价的对象、单位和批准来源", "weight": 10, "evidenceRequirement": "价格均按每百元票面读取，来源不被替换", "evidenceRules": [{"fieldId": "exercise-price-source", "operator": "EQUALS", "expected": "APPROVED_EXERCISE_PRICE"}, {"fieldId": "exercise-price", "operator": "NUMBER_EQUALS", "expected": 101.2, "tolerance": 0.01}, {"fieldId": "unexercised-price-source", "operator": "EQUALS", "expected": "APPROVED_LONG_PRICE"}, {"fieldId": "unexercised-price", "operator": "NUMBER_EQUALS", "expected": 98.6, "tolerance": 0.01}], "remediationTargetId": "R-FIPB-VALUATION"}
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {"criterionId": "C-FIPB-CALC", "description": "完成行权比例、票面总额、清算金额和三项账簿结转", "weight": 15, "evidenceRequirement": "行权数值链可独立复算", "evidenceRules": [{"fieldId": "pre-quantity", "operator": "NUMBER_EQUALS", "expected": 3000, "tolerance": 0}, {"fieldId": "pre-cost", "operator": "NUMBER_EQUALS", "expected": 280800, "tolerance": 0.01}, {"fieldId": "pre-valuation", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01}, {"fieldId": "pre-interest", "operator": "NUMBER_EQUALS", "expected": 3000, "tolerance": 0.01}, {"fieldId": "exercise-ratio", "operator": "NUMBER_EQUALS", "expected": 0.333333, "tolerance": 0.000001}, {"fieldId": "exercise-face-total", "operator": "NUMBER_EQUALS", "expected": 100000, "tolerance": 0}, {"fieldId": "exercise-principal", "operator": "NUMBER_EQUALS", "expected": 101200, "tolerance": 0.01}, {"fieldId": "exercise-interest", "operator": "NUMBER_EQUALS", "expected": 1000, "tolerance": 0.01}, {"fieldId": "exercise-settlement", "operator": "NUMBER_EQUALS", "expected": 102200, "tolerance": 0.01}, {"fieldId": "exercise-cost", "operator": "NUMBER_EQUALS", "expected": 93600, "tolerance": 0.01}, {"fieldId": "exercise-valuation", "operator": "NUMBER_EQUALS", "expected": 4000, "tolerance": 0.01}, {"fieldId": "exercise-accrued", "operator": "NUMBER_EQUALS", "expected": 1000, "tolerance": 0.01}], "remediationTargetId": "R-FIPB-AMOUNT"},
+        {"criterionId": "C-FIPB-VOUCHER", "description": "完成行权日完整借贷凭证与到账日冲销", "weight": 15, "evidenceRequirement": "行权日和到账日的对象、方向、金额与合计闭合", "evidenceRules": [{"fieldId": "exercise-clearing-account", "operator": "CONTAINS_ALL", "expected": ["证券", "清算款"]}, {"fieldId": "exercise-clearing-debit", "operator": "NUMBER_EQUALS", "expected": 102200, "tolerance": 0.01}, {"fieldId": "exercise-fv-change", "operator": "NUMBER_EQUALS", "expected": 4000, "tolerance": 0.01}, {"fieldId": "exercise-income", "operator": "NUMBER_EQUALS", "expected": 7600, "tolerance": 0.01}, {"fieldId": "exercise-fv-account", "operator": "CONTAINS_ALL", "expected": ["公允价值", "变动", "损益"]}, {"fieldId": "exercise-cost-account", "operator": "CONTAINS_ALL", "expected": ["债券", "成本"]}, {"fieldId": "exercise-valuation-account", "operator": "CONTAINS_ALL", "expected": ["债券", "估值增值"]}, {"fieldId": "exercise-interest-account", "operator": "CONTAINS_ALL", "expected": ["应计", "利息"]}, {"fieldId": "exercise-income-account", "operator": "CONTAINS_ALL", "expected": ["投资", "收益"]}, {"fieldId": "exercise-voucher-debit-total", "operator": "NUMBER_EQUALS", "expected": 106200, "tolerance": 0.01}, {"fieldId": "exercise-voucher-credit-total", "operator": "NUMBER_EQUALS", "expected": 106200, "tolerance": 0.01}, {"fieldId": "exercise-voucher-result", "operator": "EQUALS", "expected": "BALANCED"}, {"fieldId": "arrival-bank-debit", "operator": "NUMBER_EQUALS", "expected": 102200, "tolerance": 0.01}, {"fieldId": "arrival-clearing-credit", "operator": "NUMBER_EQUALS", "expected": 102200, "tolerance": 0.01}, {"fieldId": "arrival-bank-account", "operator": "CONTAINS_ALL", "expected": ["银行存款"]}, {"fieldId": "arrival-clearing-account", "operator": "CONTAINS_ALL", "expected": ["证券清算款"]}, {"fieldId": "arrival-amount", "operator": "NUMBER_EQUALS", "expected": 102200, "tolerance": 0.01}], "remediationTargetId": "R-FIPB-ARRIVAL"}
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FIPB-RISK", "description": "控制申请提前行权、剩余账簿断裂和未行权估值单位错误", "weight": 25, "evidenceRequirement": "未行权数量、三项余额、价格桥与结果一致", "evidenceRules": [{"fieldId": "unexercised-state", "operator": "EQUALS", "expected": "NOT_EXERCISED"}, {"fieldId": "remaining-quantity", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0}, {"fieldId": "remaining-face-total", "operator": "NUMBER_EQUALS", "expected": 200000, "tolerance": 0}, {"fieldId": "remaining-cost", "operator": "NUMBER_EQUALS", "expected": 187200, "tolerance": 0.01}, {"fieldId": "remaining-valuation", "operator": "NUMBER_EQUALS", "expected": 8000, "tolerance": 0.01}, {"fieldId": "remaining-interest", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0.01}, {"fieldId": "unexercised-valuation-amount", "operator": "NUMBER_EQUALS", "expected": 197200, "tolerance": 0.01}, {"fieldId": "remaining-book-value", "operator": "NUMBER_EQUALS", "expected": 197200, "tolerance": 0.01}, {"fieldId": "valuation-reconciliation", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FIPB-VALUATION"}
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {"criterionId": "C-FIPB-EXPR", "description": "形成可追溯完整回售结论", "weight": 20, "evidenceRequirement": "结论覆盖数量链、行权比例、凭证、到账和未行权估值", "evidenceRules": [{"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["3,500", "500", "3,000", "1,000", "2,000", "1/3", "102,200", "187,200", "98.60", "197,200", "勾稽"]}], "remediationTargetId": "R-FIPB-EXPRESSION"}
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-FIPB-STATE",
+      "description": "必须建立申请、撤销、最终有效、行权和未行权数量链，并算出行权比例",
+      "evidenceRequirement": "3,500−500=3,000，且 3,000=1,000+2,000；行权比例为 1/3",
+      "evidenceRules": [{"fieldId": "application-state", "operator": "EQUALS", "expected": "APPLICATION"}, {"fieldId": "application-quantity", "operator": "NUMBER_EQUALS", "expected": 3500, "tolerance": 0}, {"fieldId": "cancel-state", "operator": "EQUALS", "expected": "CANCELLED"}, {"fieldId": "cancelled-quantity", "operator": "NUMBER_EQUALS", "expected": 500, "tolerance": 0}, {"fieldId": "final-eligible-quantity", "operator": "NUMBER_EQUALS", "expected": 3000, "tolerance": 0}, {"fieldId": "exercise-quantity", "operator": "NUMBER_EQUALS", "expected": 1000, "tolerance": 0}, {"fieldId": "unexercised-quantity", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0}, {"fieldId": "exercise-ratio", "operator": "NUMBER_EQUALS", "expected": 0.333333, "tolerance": 0.000001}],
+      "remediationTargetId": "R-FIPB-STATE"
+    },
+    {
+      "requirementId": "M-FIPB-CLOSURE",
+      "description": "必须闭合行权日完整凭证、到账日冲销、未行权三项账簿与批准价格桥",
+      "evidenceRequirement": "行权、到账和未行权估值的结构化结果全部正确",
+      "evidenceRules": [{"fieldId": "exercise-cost", "operator": "NUMBER_EQUALS", "expected": 93600, "tolerance": 0.01}, {"fieldId": "exercise-valuation", "operator": "NUMBER_EQUALS", "expected": 4000, "tolerance": 0.01}, {"fieldId": "exercise-accrued", "operator": "NUMBER_EQUALS", "expected": 1000, "tolerance": 0.01}, {"fieldId": "exercise-settlement", "operator": "NUMBER_EQUALS", "expected": 102200, "tolerance": 0.01}, {"fieldId": "exercise-voucher-debit-total", "operator": "NUMBER_EQUALS", "expected": 106200, "tolerance": 0.01}, {"fieldId": "exercise-voucher-credit-total", "operator": "NUMBER_EQUALS", "expected": 106200, "tolerance": 0.01}, {"fieldId": "exercise-voucher-result", "operator": "EQUALS", "expected": "BALANCED"}, {"fieldId": "arrival-amount", "operator": "NUMBER_EQUALS", "expected": 102200, "tolerance": 0.01}, {"fieldId": "remaining-cost", "operator": "NUMBER_EQUALS", "expected": 187200, "tolerance": 0.01}, {"fieldId": "remaining-valuation", "operator": "NUMBER_EQUALS", "expected": 8000, "tolerance": 0.01}, {"fieldId": "remaining-interest", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0.01}, {"fieldId": "unexercised-price", "operator": "NUMBER_EQUALS", "expected": 98.6, "tolerance": 0.01}, {"fieldId": "remaining-face-total", "operator": "NUMBER_EQUALS", "expected": 200000, "tolerance": 0}, {"fieldId": "unexercised-valuation-amount", "operator": "NUMBER_EQUALS", "expected": 197200, "tolerance": 0.01}, {"fieldId": "remaining-book-value", "operator": "NUMBER_EQUALS", "expected": 197200, "tolerance": 0.01}, {"fieldId": "valuation-reconciliation", "operator": "EQUALS", "expected": "BALANCED"}, {"fieldId": "result", "operator": "EQUALS", "expected": "BALANCED"}],
+      "remediationTargetId": "R-FIPB-ARRIVAL"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-FIPB-STATE", "title": "建立回售数量链", "reason": "把申请、撤销、最终有效、行权或未行权状态混同，或漏掉数量关系", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-PB-KC-01", "questionId": "ACC-FI-PUTBACK-Q-01"},
+    {"targetId": "R-FIPB-AMOUNT", "title": "计算行权比例与清算金额", "reason": "价格单位、票面总额、比例或应计利息错误", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-PB-KC-02", "questionId": "ACC-FI-PUTBACK-Q-02"},
+    {"targetId": "R-FIPB-ARRIVAL", "title": "完成行权与到账凭证", "reason": "行权日凭证不平衡或到账日未冲销证券清算款", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-FI-PUTBACK-Q-04"},
+    {"targetId": "R-FIPB-VALUATION", "title": "复核未行权估值桥", "reason": "未行权数量、价格单位、票面总额或剩余三项账簿不一致", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-PB-KC-03", "questionId": "ACC-FI-PUTBACK-Q-05"},
+    {"targetId": "R-FIPB-RISK", "title": "控制状态与余额连续性", "reason": "申请提前行权或行权后剩余账簿断裂", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-02", "questionId": "ACC-FI-PUTBACK-Q-03"},
+    {"targetId": "R-FIPB-EXPRESSION", "title": "形成完整回售结论", "reason": "遗漏数量链、行权凭证、到账或未行权估值勾稽", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-FI-PUTBACK-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "application-state": "APPLICATION",
+      "application-quantity": 3500,
+      "cancel-state": "CANCELLED",
+      "cancelled-quantity": 500,
+      "final-eligible-quantity": 3000,
+      "exercise-state": "EXERCISED",
+      "exercise-quantity": 1000,
+      "unexercised-state": "NOT_EXERCISED",
+      "unexercised-quantity": 2000,
+      "pre-quantity": 3000,
+      "pre-cost": 280800,
+      "pre-valuation": 12000,
+      "pre-interest": 3000,
+      "exercise-ratio": 0.333333,
+      "exercise-face-total": 100000,
+      "exercise-price-source": "APPROVED_EXERCISE_PRICE",
+      "exercise-price": 101.2,
+      "exercise-principal": 101200,
+      "exercise-interest": 1000,
+      "exercise-settlement": 102200,
+      "exercise-cost": 93600,
+      "exercise-valuation": 4000,
+      "exercise-accrued": 1000,
+      "exercise-fv-change": 4000,
+      "exercise-income": 7600,
+      "exercise-clearing-account": "证券清算款",
+      "exercise-clearing-debit": 102200,
+      "exercise-fv-account": "公允价值变动损益",
+      "exercise-cost-account": "债券投资-成本",
+      "exercise-valuation-account": "债券投资-估值增值",
+      "exercise-interest-account": "应计利息",
+      "exercise-income-account": "投资收益",
+      "exercise-voucher-debit-total": 106200,
+      "exercise-voucher-credit-total": 106200,
+      "exercise-voucher-result": "BALANCED",
+      "arrival-bank-debit": 102200,
+      "arrival-clearing-credit": 102200,
+      "arrival-bank-account": "银行存款",
+      "arrival-clearing-account": "证券清算款",
+      "arrival-amount": 102200,
+      "remaining-quantity": 2000,
+      "remaining-face-total": 200000,
+      "remaining-cost": 187200,
+      "remaining-valuation": 8000,
+      "remaining-interest": 2000,
+      "unexercised-price-source": "APPROVED_LONG_PRICE",
+      "unexercised-price": 98.6,
+      "unexercised-valuation-amount": 197200,
+      "remaining-book-value": 197200,
+      "valuation-reconciliation": "BALANCED",
+      "result": "BALANCED",
+      "result-note": "申请记录 3,500 张，撤销 500 张，最终有效 3,000 张；其中 1,000 张按 1/3 行权、2,000 张未行权。行权日成本结转 93,600 元、估值增值结转 4,000 元、应计利息结转 1,000 元，清算金额 102,200 元，完整凭证借贷合计 106,200 元并闭合；到账日 102,200 元借银行存款、贷证券清算款冲销。未行权 2,000 张形成 200,000 元票面总额，按批准长待偿期价格 98.60 元/每百元票面计算估值金额 197,200 元，等于剩余成本 187,200+估值增值 8,000+应计利息 2,000，勾稽一致。"
+    }
+  }
+}

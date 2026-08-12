@@ -1,0 +1,352 @@
+{
+  "routeId": "ACC-FI-PUTBACK-104",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "债券回售申请、行权到账与未行权估值",
+  "summary": "区分回售申请、撤销、行权、到账和未行权估值状态，完成正常回售数量、账簿、凭证和估值勾稽。",
+  "estimatedMinutes": 50,
+  "objectives": [
+    "建立申请、撤销、最终有效、行权和未行权的数量链",
+    "按行权比例结转行权部分成本、估值增值和应计利息",
+    "完成行权日清算款凭证与到账日冲销凭证",
+    "用批准长待偿期每百元价格和票面总额复核未行权估值"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "FI-PB-KC-01",
+          "type": "CATEGORIES",
+          "title": "申请、撤销、行权和未行权是不同状态",
+          "conclusion": "回售申请、撤销和最终行权必须按数量和状态分别读取；本案例批准快照用最终有效数量连接行权和未行权。",
+          "items": [
+            "申请记录来自回售管理资料，不等于行权或到账",
+            "本案例申请记录合计 3,500 张，其中 500 张撤销，最终有效数量 3,000 张",
+            "最终有效数量=最终行权 1,000 张+未行权 2,000 张",
+            "行权比例=最终行权数量÷行权前最终有效持仓数量"
+          ]
+        },
+        {
+          "cardId": "FI-PB-KC-02",
+          "type": "FLOW",
+          "title": "行权日结转与到账日冲销分开",
+          "conclusion": "行权日先确认证券清算款和行权部分账簿结转，到账日再用实际到账金额冲销清算款。",
+          "items": [
+            "行权本金=回售价格×行权票面总额÷100",
+            "行权清算金额=行权本金+行权部分应计利息",
+            "行权部分成本、估值增值和应计利息按批准行权比例结转",
+            "行权日与到账日的借贷凭证都必须分别借贷闭合"
+          ]
+        },
+        {
+          "cardId": "FI-PB-KC-03",
+          "type": "KEY_POINT",
+          "title": "未行权价格要和票面总额、账簿一起复核",
+          "conclusion": "登记期截止后未行权债券按本案例批准的长待偿期每百元价格计算估值金额，再与剩余成本、估值增值和应计利息按批准关系勾稽。",
+          "items": [
+            "先读取未行权数量和每张面值，形成未行权票面总额",
+            "估值金额=批准长待偿期每百元价格×未行权票面总额÷100",
+            "本案例批准勾稽关系：估值金额=剩余成本+剩余估值增值+剩余应计利息",
+            "价格对象、单位和来源必须保留；不自行补造价格源、税费或通用规则"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品甲的组合核算人员",
+        "product": "案例产品甲 / 案例债券甲",
+        "date": "2026-08-29 至 2026-09-02",
+        "facts": [
+          "本案例批准状态快照：申请记录合计 3,500 张，其中一笔 500 张申请撤销；最终有效回售登记数量为 3,000 张。",
+          "最终有效数量中 1,000 张行权、2,000 张未行权；行权前最终有效持仓账簿为成本 280,800 元、估值增值 12,000 元、应计利息 3,000 元。",
+          "回售价格 101.20 元/每百元票面，每张面值 100 元；行权部分应计利息 1,000 元，实际到账 102,200 元。",
+          "另有 2,000 张未行权，批准资料要求使用长待偿期估值价格 98.60 元/每百元票面。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "建立数量链：申请记录 3,500 张−撤销 500 张=最终有效 3,000 张；最终有效数量=行权 1,000 张+未行权 2,000 张；行权比例=1,000÷3,000=1/3",
+          "reason": "申请、撤销、最终有效、行权和未行权必须用数量关系连接，不能以状态文字替代数量。"
+        },
+        {
+          "order": 2,
+          "action": "读取行权前账簿：3,000 张、成本 280,800 元、估值增值 12,000 元、应计利息 3,000 元；按 1/3 结转行权部分成本 93,600 元、估值增值 4,000 元、应计利息 1,000 元，剩余 2,000 张账簿为成本 187,200 元、估值增值 8,000 元、应计利息 2,000 元",
+          "reason": "行权比例必须同时作用于三项行权前账簿余额，剩余余额要保持连续。"
+        },
+        {
+          "order": 3,
+          "action": "形成行权票面总额=1,000 张×100 元/张=100,000 元；回售本金=101.20 元/每百元票面×100,000 元÷100=101,200 元；行权清算金额=101,200+1,000=102,200 元。行权日凭证：借证券清算款 102,200 元、借公允价值变动损益 4,000 元；贷债券投资-成本 93,600 元、贷债券投资-估值增值 4,000 元、贷应计利息 1,000 元、贷投资收益 7,600 元，借贷合计均为 106,200 元",
+          "reason": "价格是每百元票面价格；行权日清算款、三项结转、公允价值变动损益和投资收益轧差必须形成完整借贷凭证。"
+        },
+        {
+          "order": 4,
+          "action": "到账日按实际到账 102,200 元借银行存款、贷证券清算款 102,200 元；行权日证券清算款借方 102,200 元与到账日贷方 102,200 元冲清算款",
+          "reason": "到账日才确认银行存款并冲销清算款，不能把行权日清算款直接当作银行到账。"
+        },
+        {
+          "order": 5,
+          "action": "复核未行权：2,000 张×100 元/张=200,000 元票面总额；98.60 元/每百元票面×200,000 元÷100=197,200 元估值金额；按批准关系，剩余成本 187,200+估值增值 8,000+应计利息 2,000=197,200 元，估值金额与账簿一致",
+          "reason": "未行权价格必须与对象、单位、票面总额和三项剩余账簿共同复核；98.60 只适用于本案例批准快照。"
+        }
+      ],
+      "summary": "建立数量链→按比例结转三项账簿→计算每百元价格清算款并闭合行权日凭证→到账日冲清算款→用长待偿期价格复核未行权账簿"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-FI-PUTBACK-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "从本案例批准状态资料建立申请、撤销、最终有效、行权和未行权数量链。",
+          "fieldMappings": [
+            {"fieldId": "application-status", "label": "申请记录", "source": "回售申请与最终状态记录", "options": [{"optionId": "APPLICATION", "text": "申请记录，不等于到账"}, {"optionId": "ARRIVED", "text": "已到账"}]},
+            {"fieldId": "application-quantity", "label": "申请记录合计", "source": "回售申请与最终状态记录", "options": [{"optionId": "3500", "text": "3,500 张"}, {"optionId": "3000", "text": "3,000 张"}]},
+            {"fieldId": "cancel-status", "label": "撤销记录", "source": "回售申请与最终状态记录", "options": [{"optionId": "CANCELLED", "text": "500 张撤销"}, {"optionId": "ACTIVE", "text": "500 张仍有效"}]},
+            {"fieldId": "final-eligible-quantity", "label": "最终有效数量", "source": "回售申请与最终状态记录", "options": [{"optionId": "3000", "text": "3,000 张"}, {"optionId": "2500", "text": "2,500 张"}]},
+            {"fieldId": "exercise-quantity", "label": "最终行权数量", "source": "回售申请与最终状态记录", "options": [{"optionId": "1000", "text": "1,000 张"}, {"optionId": "2000", "text": "2,000 张"}]},
+            {"fieldId": "unexercised-quantity", "label": "未行权数量", "source": "回售申请与最终状态记录", "options": [{"optionId": "2000", "text": "2,000 张"}, {"optionId": "1000", "text": "1,000 张"}]}
+          ],
+          "answer": ["APPLICATION", "3500", "CANCELLED", "3000", "1000", "2000"],
+          "explanation": "3,500 张申请记录扣除 500 张撤销后形成 3,000 张最终有效数量，再分为 1,000 张行权和 2,000 张未行权。",
+          "hints": ["先处理撤销数量，再检查最终有效数量能否拆成行权和未行权。"]
+        },
+        {
+          "questionId": "ACC-FI-PUTBACK-Q-02",
+          "type": "CALCULATION",
+          "prompt": "按每百元价格和批准行权比例计算票面、回售本金、清算金额和行权比例。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "face-total", "label": "行权票面总额", "formula": "1,000 张×100 元/张", "placeholder": "输入金额", "unit": "元", "precision": 0, "tolerance": 0},
+              {"fieldId": "principal", "label": "回售本金", "formula": "101.20 元/每百元票面×100,000 元÷100", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "settlement", "label": "行权清算金额", "formula": "101,200+1,000", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "exercise-ratio", "label": "行权比例", "formula": "1,000÷3,000", "placeholder": "输入比例", "unit": "比例", "precision": 6, "tolerance": 0.000001}
+            ]
+          },
+          "answer": ["100000", "101200", "102200", "0.333333"],
+          "explanation": "票面总额 100,000 元；本金 101,200 元；清算金额 102,200 元；行权比例为 1/3，按 6 位小数录入 0.333333。",
+          "hints": ["价格单位是每百元票面；比例分母是最终有效行权前的 3,000 张。"]
+        },
+        {
+          "questionId": "ACC-FI-PUTBACK-Q-03",
+          "type": "ORDERING",
+          "prompt": "排列申请、行权、到账和未行权估值的正常处理顺序。",
+          "items": [
+            {"itemId": "STATUS", "text": "读取申请、撤销和最终状态数量"},
+            {"itemId": "EXERCISE", "text": "按最终行权数量在行权日结转账簿并确认清算款"},
+            {"itemId": "ARRIVE", "text": "到账日借银行存款、贷证券清算款"},
+            {"itemId": "VALUATION", "text": "对未行权数量按批准长待偿期价格复核估值"}
+          ],
+          "answer": ["STATUS", "EXERCISE", "ARRIVE", "VALUATION"],
+          "explanation": "状态先确定数量，行权日确认清算款，到账日冲销清算款，未行权再按批准价格估值。",
+          "hints": ["到账不发生在申请时；未行权估值使用最终状态后的剩余数量。"]
+        },
+        {
+          "questionId": "ACC-FI-PUTBACK-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全本案例批准的行权日完整借贷凭证。",
+          "ledgerEntries": [
+            {"entryId": "clearing-debit", "direction": "借", "label": "证券清算款 102,200 元", "amount": "102,200.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "fv-debit", "direction": "借", "label": "公允价值变动损益 4,000 元", "amount": "4,000.00 元", "placeholder": "输入借方科目"},
+            {"entryId": "cost-credit", "direction": "贷", "label": "债券投资-成本 93,600 元", "amount": "93,600.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "valuation-credit", "direction": "贷", "label": "债券投资-估值增值 4,000 元", "amount": "4,000.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "interest-credit", "direction": "贷", "label": "应计利息 1,000 元", "amount": "1,000.00 元", "placeholder": "输入贷方科目"},
+            {"entryId": "income-credit", "direction": "贷", "label": "投资收益 7,600 元", "amount": "7,600.00 元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["证券清算款", "公允价值变动损益", "债券投资-成本", "债券投资-估值增值", "应计利息", "投资收益"],
+          "explanation": "行权日借方合计 106,200 元，贷方合计 106,200 元；证券清算款本身为行权应收金额 102,200 元。",
+          "hints": ["先按 1/3 结转三项账簿，再用清算金额和估值增值的批准关系完成轧差。"]
+        },
+        {
+          "questionId": "ACC-FI-PUTBACK-Q-05",
+          "type": "RECONCILIATION",
+          "prompt": "核对到账、未行权余额和长待偿期估值金额。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "arrival", "label": "到账金额", "kind": "NUMBER", "formula": "102,200", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "remaining-quantity", "label": "未行权数量", "kind": "NUMBER", "formula": "3,000−1,000", "placeholder": "输入张数", "precision": 0, "tolerance": 0},
+              {"fieldId": "remaining-face-total", "label": "未行权票面总额", "kind": "NUMBER", "formula": "2,000 张×100 元/张", "placeholder": "输入金额", "precision": 0, "tolerance": 0},
+              {"fieldId": "remaining-cost", "label": "剩余成本", "kind": "NUMBER", "formula": "280,800−93,600", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "remaining-valuation", "label": "剩余估值增值", "kind": "NUMBER", "formula": "12,000−4,000", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "remaining-interest", "label": "剩余应计利息", "kind": "NUMBER", "formula": "3,000−1,000", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "unexercised-price", "label": "未行权长待偿期价格", "kind": "NUMBER", "formula": "读取批准估值资料", "placeholder": "输入价格", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "unexercised-valuation-amount", "label": "未行权估值金额", "kind": "NUMBER", "formula": "98.60×200,000÷100", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "remaining-book-value", "label": "剩余三项账簿合计", "kind": "NUMBER", "formula": "187,200+8,000+2,000", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "result", "label": "回售闭环", "kind": "SELECT", "formula": "到账、剩余三项账簿与估值金额是否一致", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "闭合"}, {"optionId": "BROKEN", "text": "不闭合"}]}
+            ]
+          },
+          "answer": ["102200", "2000", "200000", "187200", "8000", "2000", "98.60", "197200", "197200", "BALANCED"],
+          "explanation": "到账 102,200 元；未行权 2,000 张，票面总额 200,000 元；98.60 元/每百元票面计算估值金额 197,200 元，等于剩余成本 187,200+估值增值 8,000+应计利息 2,000。",
+          "hints": ["未行权估值必须保留每百元价格单位，并先形成票面总额再除以 100。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品乙的组合核算人员",
+        "product": "案例产品乙 / 案例债券乙",
+        "date": "2026-08-29 至 2026-09-02",
+        "purpose": "依据正常回售资料完成申请/撤销/最终数量链、行权比例、三项账簿结转、行权日完整凭证、到账冲销和未行权估值复核。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "FI-PB-PARAM",
+          "title": "本案例批准回售价格与单位",
+          "kind": "PARAMETER",
+          "description": "仅约束本案价格对象、单位、面值、行权部分应计利息和金额精度。",
+          "fields": [
+            {"fieldId": "face", "label": "每张面值", "value": "100", "unit": "元/张"},
+            {"fieldId": "exercise-price", "label": "行权回售价格", "value": "101.20", "unit": "元/每百元票面"},
+            {"fieldId": "exercise-price-source", "label": "行权价格来源", "value": "本案例批准行权回售价格快照"},
+            {"fieldId": "exercise-interest", "label": "行权部分应计利息", "value": "1,000.00", "unit": "元"},
+            {"fieldId": "precision", "label": "精度与容差", "value": "金额 2 位小数；价格 2 位小数；数量 0；金额容差 0.01"}
+          ]
+        },
+        {
+          "materialId": "FI-PB-STATUS",
+          "title": "回售申请、撤销与最终数量记录",
+          "kind": "CONFIRMATION",
+          "description": "本案例批准状态快照明确申请记录、撤销数量、最终有效数量及行权/未行权拆分。",
+          "fields": [
+            {"fieldId": "application-status", "label": "申请状态", "value": "正常申请记录，不等于到账"},
+            {"fieldId": "application-quantity", "label": "申请记录合计", "value": "3,500", "unit": "张"},
+            {"fieldId": "cancelled-quantity", "label": "已撤销数量", "value": "500", "unit": "张"},
+            {"fieldId": "final-eligible-quantity", "label": "最终有效回售登记数量", "value": "3,000", "unit": "张"},
+            {"fieldId": "exercise-quantity", "label": "最终行权数量", "value": "1,000", "unit": "张"},
+            {"fieldId": "unexercised-quantity", "label": "最终未行权数量", "value": "2,000", "unit": "张"}
+          ]
+        },
+        {
+          "materialId": "FI-PB-PRE-LEDGER",
+          "title": "行权前最终有效持仓账簿",
+          "kind": "LEDGER",
+          "description": "行权前最终有效持仓 3,000 张的三项账簿余额；这些是本案例批准快照，用于按行权比例结转。",
+          "fields": [
+            {"fieldId": "pre-quantity", "label": "行权前最终有效持仓", "value": "3,000", "unit": "张"},
+            {"fieldId": "pre-cost", "label": "行权前成本", "value": "280,800.00", "unit": "元"},
+            {"fieldId": "pre-valuation", "label": "行权前估值增值", "value": "12,000.00", "unit": "元"},
+            {"fieldId": "pre-interest", "label": "行权前应计利息", "value": "3,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "FI-PB-EXERCISE",
+          "title": "行权日清算与批准凭证快照",
+          "kind": "VOUCHER",
+          "description": "本案例批准快照提供行权比例、行权部分三项结转、清算款、公允价值变动损益和投资收益轧差；用于完成借贷闭合。",
+          "fields": [
+            {"fieldId": "exercise-ratio", "label": "行权比例", "value": "1/3"},
+            {"fieldId": "exercise-face-total", "label": "行权票面总额", "value": "100,000", "unit": "元"},
+            {"fieldId": "principal", "label": "回售本金", "value": "101,200.00", "unit": "元"},
+            {"fieldId": "exercise-interest", "label": "行权部分应计利息", "value": "1,000.00", "unit": "元"},
+            {"fieldId": "settlement", "label": "行权清算金额", "value": "102,200.00", "unit": "元"},
+            {"fieldId": "exercise-cost", "label": "行权部分结转成本", "value": "93,600.00", "unit": "元"},
+            {"fieldId": "exercise-valuation", "label": "行权部分结转估值增值", "value": "4,000.00", "unit": "元"},
+            {"fieldId": "exercise-accrued", "label": "行权部分结转应计利息", "value": "1,000.00", "unit": "元"},
+            {"fieldId": "exercise-fv-change", "label": "公允价值变动损益借方", "value": "4,000.00", "unit": "元"},
+            {"fieldId": "exercise-income", "label": "投资收益贷方轧差", "value": "7,600.00", "unit": "元"},
+            {"fieldId": "debit-total", "label": "行权日凭证借方合计", "value": "106,200.00", "unit": "元"},
+            {"fieldId": "credit-total", "label": "行权日凭证贷方合计", "value": "106,200.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "FI-PB-ARRIVAL",
+          "title": "资金到账资料",
+          "kind": "STATEMENT",
+          "description": "到账日按本案例批准实收金额冲销证券清算款。",
+          "fields": [
+            {"fieldId": "arrival-date", "label": "到账日", "value": "2026-09-02"},
+            {"fieldId": "actual-arrival", "label": "实际到账", "value": "102,200.00", "unit": "元"},
+            {"fieldId": "arrival-bank-direction", "label": "到账借方", "value": "银行存款"},
+            {"fieldId": "arrival-clearing-direction", "label": "清算冲销贷方", "value": "证券清算款"}
+          ]
+        },
+        {
+          "materialId": "FI-PB-VALUATION",
+          "title": "未行权长待偿期估值资料",
+          "kind": "VALUATION",
+          "description": "登记期截止后未行权持仓的批准估值快照；价格对象是长待偿期每百元票面价格，来源只限本案例资料。",
+          "fields": [
+            {"fieldId": "price-source", "label": "价格来源", "value": "本案例批准长待偿期估值快照"},
+            {"fieldId": "unexercised-price", "label": "长待偿期估值价格", "value": "98.60", "unit": "元/每百元票面"},
+            {"fieldId": "valuation-date", "label": "估值日", "value": "2026-09-02"},
+            {"fieldId": "price-scope", "label": "价格适用边界", "value": "只适用于本案例题面快照，不推导其他价格源规则"}
+          ]
+        },
+        {
+          "materialId": "FI-PB-RELATION",
+          "title": "本案例批准未行权估值勾稽关系",
+          "kind": "RECONCILIATION",
+          "description": "本案例明确用价格×票面总额÷100计算未行权估值金额，并与剩余成本、估值增值和应计利息合计勾稽；这是题面批准关系，不扩展为通用估值政策。",
+          "fields": [
+            {"fieldId": "valuation-formula", "label": "估值金额公式", "value": "98.60 元/每百元票面×未行权票面总额÷100"},
+            {"fieldId": "book-relation", "label": "账簿勾稽关系", "value": "未行权估值金额=剩余成本+剩余估值增值+剩余应计利息"},
+            {"fieldId": "remaining-cost", "label": "剩余成本", "value": "187,200.00", "unit": "元"},
+            {"fieldId": "remaining-valuation", "label": "剩余估值增值", "value": "8,000.00", "unit": "元"},
+            {"fieldId": "remaining-interest", "label": "剩余应计利息", "value": "2,000.00", "unit": "元"},
+            {"fieldId": "remaining-book-value", "label": "三项账簿合计", "value": "197,200.00", "unit": "元"},
+            {"fieldId": "precision", "label": "精度与容差", "value": "金额 2 位小数；价格 2 位小数；金额容差 0.01"}
+          ]
+        }
+      ],
+      "workItems": [
+        {"workItemId": "application-state", "type": "FIELD_MAP", "title": "申请状态", "instruction": "识别申请记录，不能将其视为到账。", "response": {"kind": "SELECT", "placeholder": "选择状态", "options": [{"optionId": "APPLICATION", "text": "正常申请记录"}, {"optionId": "ARRIVED", "text": "已到账"}]}},
+        {"workItemId": "application-quantity", "type": "CALCULATION", "title": "申请记录数量", "instruction": "读取申请记录合计数量。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
+        {"workItemId": "cancel-state", "type": "FIELD_MAP", "title": "撤销状态", "instruction": "识别已撤销申请。", "response": {"kind": "SELECT", "placeholder": "选择状态", "options": [{"optionId": "CANCELLED", "text": "500 张撤销"}, {"optionId": "ACTIVE", "text": "仍有效"}]}},
+        {"workItemId": "cancelled-quantity", "type": "CALCULATION", "title": "撤销数量", "instruction": "读取本案例批准撤销数量。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
+        {"workItemId": "final-eligible-quantity", "type": "RECONCILIATION", "title": "最终有效数量", "instruction": "用申请数量减撤销数量。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
+        {"workItemId": "exercise-state", "type": "FIELD_MAP", "title": "最终行权状态", "instruction": "识别最终行权记录。", "response": {"kind": "SELECT", "placeholder": "选择状态", "options": [{"optionId": "EXERCISED", "text": "已行权"}, {"optionId": "NOT_EXERCISED", "text": "未行权"}]}},
+        {"workItemId": "exercise-quantity", "type": "CALCULATION", "title": "最终行权数量", "instruction": "读取最终行权数量。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
+        {"workItemId": "unexercised-state", "type": "FIELD_MAP", "title": "未行权状态", "instruction": "识别最终未行权持仓。", "response": {"kind": "SELECT", "placeholder": "选择状态", "options": [{"optionId": "NOT_EXERCISED", "text": "未行权"}, {"optionId": "EXERCISED", "text": "已行权"}]}},
+        {"workItemId": "unexercised-quantity", "type": "CALCULATION", "title": "未行权数量", "instruction": "读取最终未行权数量。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
+        {"workItemId": "pre-quantity", "type": "RECONCILIATION", "title": "行权前最终有效持仓", "instruction": "核对行权前最终有效持仓数量。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
+        {"workItemId": "pre-cost", "type": "RECONCILIATION", "title": "行权前成本", "instruction": "读取行权前成本账簿。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "pre-valuation", "type": "RECONCILIATION", "title": "行权前估值增值", "instruction": "读取行权前估值增值账簿。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "pre-interest", "type": "RECONCILIATION", "title": "行权前应计利息", "instruction": "读取行权前应计利息账簿。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-ratio", "type": "CALCULATION", "title": "行权比例", "instruction": "用最终行权数量÷行权前最终有效持仓数量计算，保留 6 位小数。", "response": {"kind": "NUMBER", "placeholder": "输入比例", "unit": "比例", "precision": 6}},
+        {"workItemId": "exercise-face-total", "type": "CALCULATION", "title": "行权票面总额", "instruction": "按行权张数和每张面值形成票面总额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 0}},
+        {"workItemId": "exercise-price-source", "type": "FIELD_MAP", "title": "行权价格来源", "instruction": "读取行权价格的批准来源，不自行补造价格源。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_EXERCISE_PRICE", "text": "本案例批准行权回售价格快照"}, {"optionId": "UNPROVIDED_SOURCE", "text": "材料未提供的其他价格源"}]}},
+        {"workItemId": "exercise-price", "type": "CALCULATION", "title": "行权回售价格", "instruction": "读取本案例批准的行权回售价格及单位。", "response": {"kind": "NUMBER", "placeholder": "输入价格", "unit": "元/每百元票面", "precision": 2}},
+        {"workItemId": "exercise-principal", "type": "CALCULATION", "title": "行权回售本金", "instruction": "按每百元价格×行权票面总额÷100计算。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-interest", "type": "CALCULATION", "title": "行权部分应计利息", "instruction": "读取本案例批准的行权部分应计利息。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-settlement", "type": "CALCULATION", "title": "行权清算金额", "instruction": "回售本金加行权部分应计利息。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-cost", "type": "CALCULATION", "title": "行权部分结转成本", "instruction": "行权前成本×行权比例。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-valuation", "type": "CALCULATION", "title": "行权部分结转估值增值", "instruction": "行权前估值增值×行权比例。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-accrued", "type": "CALCULATION", "title": "行权部分结转应计利息", "instruction": "行权前应计利息×行权比例，并与行权清算中的应计利息核对。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-fv-change", "type": "CALCULATION", "title": "公允价值变动损益", "instruction": "按本案例批准凭证以与估值增值相反方向记录。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-income", "type": "CALCULATION", "title": "投资收益轧差", "instruction": "按本案例批准完整凭证的借贷平衡计算轧差。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-clearing-account", "type": "LEDGER_ENTRY", "title": "行权日清算款借方科目", "instruction": "填写行权日借方清算款科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "exercise-clearing-debit", "type": "LEDGER_ENTRY", "title": "行权日证券清算款借方", "instruction": "填写行权日清算款借方金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-fv-account", "type": "LEDGER_ENTRY", "title": "公允价值变动损益借方科目", "instruction": "填写完整行权凭证中的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "exercise-cost-account", "type": "LEDGER_ENTRY", "title": "行权成本贷方科目", "instruction": "填写行权部分成本贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "exercise-valuation-account", "type": "LEDGER_ENTRY", "title": "行权估值增值贷方科目", "instruction": "填写行权部分估值增值贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "exercise-interest-account", "type": "LEDGER_ENTRY", "title": "行权应计利息贷方科目", "instruction": "填写行权部分应计利息贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "exercise-income-account", "type": "LEDGER_ENTRY", "title": "行权投资收益贷方科目", "instruction": "填写本案例批准投资收益轧差科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "exercise-voucher-debit-total", "type": "RECONCILIATION", "title": "行权凭证借方合计", "instruction": "核对清算款借方与公允价值变动损益借方合计。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-voucher-credit-total", "type": "RECONCILIATION", "title": "行权凭证贷方合计", "instruction": "核对成本、估值增值、应计利息和投资收益贷方合计。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "exercise-voucher-result", "type": "RECONCILIATION", "title": "行权日凭证闭合", "instruction": "判断行权日完整借贷凭证是否平衡。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "借贷闭合"}, {"optionId": "BROKEN", "text": "借贷不闭合"}]}},
+        {"workItemId": "arrival-bank-debit", "type": "LEDGER_ENTRY", "title": "到账日银行存款借方", "instruction": "填写到账日实际到账借方金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "arrival-clearing-credit", "type": "LEDGER_ENTRY", "title": "到账日证券清算款贷方", "instruction": "填写到账日冲销清算款贷方金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "arrival-bank-account", "type": "LEDGER_ENTRY", "title": "到账借方科目", "instruction": "填写到账日借方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "arrival-clearing-account", "type": "LEDGER_ENTRY", "title": "到账贷方科目", "instruction": "填写到账日冲销清算款贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "arrival-amount", "type": "RECONCILIATION", "title": "实际到账金额", "instruction": "核对到账日实际到账与行权清算金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "remaining-quantity", "type": "RECONCILIATION", "title": "未行权剩余数量", "instruction": "核对最终有效数量减最终行权数量。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
+        {"workItemId": "remaining-face-total", "type": "CALCULATION", "title": "未行权票面总额", "instruction": "按未行权张数和每张面值形成票面总额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 0}},
+        {"workItemId": "remaining-cost", "type": "RECONCILIATION", "title": "未行权剩余成本", "instruction": "行权前成本减行权部分结转成本。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "remaining-valuation", "type": "RECONCILIATION", "title": "未行权剩余估值增值", "instruction": "行权前估值增值减行权部分结转估值增值。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "remaining-interest", "type": "RECONCILIATION", "title": "未行权剩余应计利息", "instruction": "行权前应计利息减行权部分结转应计利息。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "unexercised-price-source", "type": "FIELD_MAP", "title": "未行权价格来源", "instruction": "读取批准估值资料的价格对象与来源。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_LONG_PRICE", "text": "本案例批准长待偿期估值快照"}, {"optionId": "UNPROVIDED_SOURCE", "text": "材料未提供的其他价格源"}]}},
+        {"workItemId": "unexercised-price", "type": "CALCULATION", "title": "未行权长待偿期价格", "instruction": "读取 98.60 元/每百元票面及其单位。", "response": {"kind": "NUMBER", "placeholder": "输入价格", "unit": "元/每百元票面", "precision": 2}},
+        {"workItemId": "unexercised-valuation-amount", "type": "CALCULATION", "title": "未行权估值金额", "instruction": "按批准长待偿期每百元价格×未行权票面总额÷100计算。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "remaining-book-value", "type": "CALCULATION", "title": "未行权三项账簿合计", "instruction": "剩余成本+剩余估值增值+剩余应计利息。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "valuation-reconciliation", "type": "RECONCILIATION", "title": "未行权估值勾稽", "instruction": "核对估值金额与三项剩余账簿是否按批准关系一致。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "估值与账簿一致"}, {"optionId": "BROKEN", "text": "存在差异"}]}},
+        {"workItemId": "result", "type": "RECONCILIATION", "title": "回售结果", "instruction": "核对状态、数量、凭证、到账和未行权估值。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "闭合"}, {"optionId": "BROKEN", "text": "不闭合"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "回售结论", "instruction": "说明申请/撤销/最终数量链、行权比例、三项结转、行权凭证、到账冲销和未行权估值勾稽。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
+      ],
+      "submissionNote": "所有数值、价格、数量关系和借贷方向为本案例批准快照；提交前按状态数量链、行权比例、三项账簿、行权日凭证、到账日冲销和未行权价格×票面总额÷100顺序复核。不得补造税费、价格源或通用估值规则。"
+    }
+  },
+  "references": [
+    {"referenceId": "ACC-REF-FI-PPT-2025", "title": "固定收益业务介绍（基础）", "source": "固定收益培训 PPTX 第 32—34、54、59 页", "usage": "回售申请、撤销、行权日与到账日凭证、未行权长待偿期估值处理。"},
+    {"referenceId": "ACC-REF-FI-CASE-PARAMETERS-202608", "title": "本案例批准回售参数与关系", "source": "ACC-FI-PUTBACK-104 综合实务资料包，2026.08 版本", "usage": "仅约束本案数量链、账簿余额、价格对象与单位、借贷快照、精度和未行权勾稽关系。"}
+  ]
+}

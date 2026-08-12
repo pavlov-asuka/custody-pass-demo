@@ -1,0 +1,33 @@
+{
+  "routeId":"ACC-FI-VALUATION-004","rubricVersion":"1.0.0","totalScore":100,"passScore":75,
+  "dimensions":[
+    {"dimension":"CONCEPT","maxScore":25,"criteria":[
+      {"criterionId":"C-FIV-CONCEPT-SCOPE","description":"确认价格桥只适用于题面明确的估值对象","weight":10,"evidenceRequirement":"对象和第三方净价来源正确","evidenceRules":[{"fieldId":"object-scope","operator":"EQUALS","expected":"IB_LISTED_OPTION_FREE"},{"fieldId":"third-clean-source","operator":"EQUALS","expected":"THIRD_CLEAN_PER100"}],"remediationTargetId":"R-FIV-OBJECT"},
+      {"criterionId":"C-FIV-CONCEPT-BRIDGE","description":"区分第三方净价/全价、税后利息和基金估值净价","weight":15,"evidenceRequirement":"两个桥接价格正确","evidenceRules":[{"fieldId":"third-full-price","operator":"NUMBER_EQUALS","expected":100.8,"tolerance":0.01},{"fieldId":"fund-clean-price","operator":"NUMBER_EQUALS","expected":98.9,"tolerance":0.01}],"remediationTargetId":"R-FIV-BRIDGE"}
+    ]},
+    {"dimension":"PROCESS","maxScore":30,"criteria":[
+      {"criterionId":"C-FIV-PROCESS-AMOUNT","description":"完成票面总额、净价金额和估值增值计算","weight":12,"evidenceRequirement":"三个金额正确", "evidenceRules":[{"fieldId":"face-total","operator":"NUMBER_EQUALS","expected":800000,"tolerance":0},{"fieldId":"fund-clean-amount","operator":"NUMBER_EQUALS","expected":791200,"tolerance":0.01},{"fieldId":"valuation-change","operator":"NUMBER_EQUALS","expected":3200,"tolerance":0.01}],"remediationTargetId":"R-FIV-AMOUNT"},
+      {"criterionId":"C-FIV-PROCESS-VOUCHER","description":"补全估值增值凭证","weight":6,"evidenceRequirement":"借贷科目正确","evidenceRules":[{"fieldId":"valuation-debit","operator":"CONTAINS_ALL","expected":["债券", "估值增值"]},{"fieldId":"valuation-credit","operator":"CONTAINS_ALL","expected":["公允价值变动损益", "债券"]}],"remediationTargetId":"R-FIV-VOUCHER"},
+      {"criterionId":"C-FIV-PROCESS-RECON","description":"用账簿和价格两条路径复算全价金额","weight":12,"evidenceRequirement":"两条全价金额和结论一致","evidenceRules":[{"fieldId":"full-amount-by-book","operator":"NUMBER_EQUALS","expected":806400,"tolerance":0.01},{"fieldId":"full-amount-by-price","operator":"NUMBER_EQUALS","expected":806400,"tolerance":0.01},{"fieldId":"reconciliation-result","operator":"EQUALS","expected":"BALANCED"}],"remediationTargetId":"R-FIV-RECON"}
+    ]},
+    {"dimension":"RISK","maxScore":25,"criteria":[
+      {"criterionId":"C-FIV-RISK-SOURCE","description":"控制价格对象、单位或来源混用","weight":9,"evidenceRequirement":"对象和每百元第三方净价正确","evidenceRules":[{"fieldId":"object-scope","operator":"EQUALS","expected":"IB_LISTED_OPTION_FREE"},{"fieldId":"third-clean-source","operator":"EQUALS","expected":"THIRD_CLEAN_PER100"}],"remediationTargetId":"R-FIV-OBJECT"},
+      {"criterionId":"C-FIV-RISK-BRIDGE","description":"控制把本案价格桥泛化或方向用反","weight":8,"evidenceRequirement":"第三方全价和基金净价正确","evidenceRules":[{"fieldId":"third-full-price","operator":"NUMBER_EQUALS","expected":100.8,"tolerance":0.01},{"fieldId":"fund-clean-price","operator":"NUMBER_EQUALS","expected":98.9,"tolerance":0.01}],"remediationTargetId":"R-FIV-BRIDGE"},
+      {"criterionId":"C-FIV-RISK-RESULT","description":"控制估值净价金额、账簿利息和全价结果不一致","weight":8,"evidenceRequirement":"净价金额和两条全价路径闭合","evidenceRules":[{"fieldId":"fund-clean-amount","operator":"NUMBER_EQUALS","expected":791200,"tolerance":0.01},{"fieldId":"full-amount-by-book","operator":"NUMBER_EQUALS","expected":806400,"tolerance":0.01},{"fieldId":"reconciliation-result","operator":"EQUALS","expected":"BALANCED"}],"remediationTargetId":"R-FIV-RECON"}
+    ]},
+    {"dimension":"EXPRESSION","maxScore":20,"criteria":[{"criterionId":"C-FIV-EXPR","description":"形成包含对象、来源、价格和勾稽的简短结论","weight":20,"evidenceRequirement":"结论覆盖批准来源、基金估值净价、估值增值和全价金额","evidenceRules":[{"fieldId":"result-note","operator":"CONTAINS_ALL","expected":["第三方估值摘录","98.90","3,200","806,400","勾稽一致"]}],"remediationTargetId":"R-FIV-EXPRESSION"}]}
+  ],
+  "mandatoryRequirements":[
+    {"requirementId":"M-FIV-OBJECT-BRIDGE","description":"估值对象、价格字段来源和本案价格桥必须正确","evidenceRequirement":"对象、来源和两个桥接价格正确","evidenceRules":[{"fieldId":"object-scope","operator":"EQUALS","expected":"IB_LISTED_OPTION_FREE"},{"fieldId":"third-clean-source","operator":"EQUALS","expected":"THIRD_CLEAN_PER100"},{"fieldId":"third-full-price","operator":"NUMBER_EQUALS","expected":100.8,"tolerance":0.01},{"fieldId":"fund-clean-price","operator":"NUMBER_EQUALS","expected":98.9,"tolerance":0.01}],"remediationTargetId":"R-FIV-BRIDGE"},
+    {"requirementId":"M-FIV-VALUATION-RECON","description":"基金估值净价金额、成本、估值增值、账簿利息和全价金额必须闭合","evidenceRequirement":"估值表和两条全价路径一致","evidenceRules":[{"fieldId":"face-total","operator":"NUMBER_EQUALS","expected":800000,"tolerance":0},{"fieldId":"fund-clean-amount","operator":"NUMBER_EQUALS","expected":791200,"tolerance":0.01},{"fieldId":"valuation-change","operator":"NUMBER_EQUALS","expected":3200,"tolerance":0.01},{"fieldId":"full-amount-by-book","operator":"NUMBER_EQUALS","expected":806400,"tolerance":0.01},{"fieldId":"full-amount-by-price","operator":"NUMBER_EQUALS","expected":806400,"tolerance":0.01},{"fieldId":"reconciliation-result","operator":"EQUALS","expected":"BALANCED"}],"remediationTargetId":"R-FIV-RECON"}
+  ],
+  "remediationTargets":[
+    {"targetId":"R-FIV-OBJECT","title":"识别估值对象和价格来源","reason":"市场、上市/含权状态、估值日或第三方净价对象错误","materialStep":"KNOWLEDGE_CARD","materialItemId":"FI-VAL-KC-01","questionId":"ACC-FI-VALUATION-Q-01"},
+    {"targetId":"R-FIV-BRIDGE","title":"复算本案例价格桥","reason":"第三方净价/全价、税前/税后利息或基金净价方向错误","materialStep":"KNOWLEDGE_CARD","materialItemId":"FI-VAL-KC-02","questionId":"ACC-FI-VALUATION-Q-02"},
+    {"targetId":"R-FIV-AMOUNT","title":"复算估值净价金额和增值","reason":"票面总额、每百元单位或成本比较错误","materialStep":"DEMONSTRATION","materialItemId":"DEMONSTRATION-STEP-04","questionId":"ACC-FI-VALUATION-Q-03"},
+    {"targetId":"R-FIV-VOUCHER","title":"补全估值凭证","reason":"估值增值或公允价值变动损益科目方向错误","materialStep":"DEMONSTRATION","materialItemId":"DEMONSTRATION-STEP-04","questionId":"ACC-FI-VALUATION-Q-04"},
+    {"targetId":"R-FIV-RECON","title":"完成全价双路径勾稽","reason":"净价金额、账簿应计利息或第三方全价金额未闭合","materialStep":"KNOWLEDGE_CARD","materialItemId":"FI-VAL-KC-03","questionId":"ACC-FI-VALUATION-Q-05"},
+    {"targetId":"R-FIV-EXPRESSION","title":"形成可追溯估值结论","reason":"短结论遗漏价格来源、基金净价、估值增值或全价勾稽","materialStep":"DEMONSTRATION","materialItemId":"DEMONSTRATION-STEP-05","questionId":"ACC-FI-VALUATION-Q-05"}
+  ],
+  "referenceAnswer":{"responses":{"object-scope":"IB_LISTED_OPTION_FREE","third-clean-source":"THIRD_CLEAN_PER100","third-full-price":100.8,"fund-clean-price":98.9,"face-total":800000,"fund-clean-amount":791200,"valuation-change":3200,"valuation-debit":"债券投资-估值增值","valuation-credit":"公允价值变动损益-债券价值变动","full-amount-by-book":806400,"full-amount-by-price":806400,"reconciliation-result":"BALANCED","result-note":"案例债券乙按本案批准的第三方估值摘录计算基金估值净价 98.90 元/每百元票面，估值增值 3,200 元，两条路径的全价金额均为 806,400 元，勾稽一致。"}}
+}

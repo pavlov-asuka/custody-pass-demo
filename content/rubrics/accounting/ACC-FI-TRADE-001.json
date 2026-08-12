@@ -1,0 +1,61 @@
+{
+  "routeId": "ACC-FI-TRADE-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FIT-CONCEPT-UNIT", "description": "理解每百元报价、票面总额和交易金额的单位关系", "weight": 13, "evidenceRequirement": "价格单位和票面总额均正确", "evidenceRules": [{"fieldId": "buy-price-unit", "operator": "EQUALS", "expected": "PER_100_CLEAN"}, {"fieldId": "buy-face-total", "operator": "NUMBER_EQUALS", "expected": 500000, "tolerance": 0}], "remediationTargetId": "R-FIT-UNIT"},
+        {"criterionId": "C-FIT-CONCEPT-BALANCE", "description": "区分成交金额与已给账簿余额的比例结转", "weight": 12, "evidenceRequirement": "卖出比例和结转对象正确", "evidenceRules": [{"fieldId": "sale-ratio", "operator": "NUMBER_EQUALS", "expected": 0.4, "tolerance": 0.0001}, {"fieldId": "sell-cost-transfer", "operator": "NUMBER_EQUALS", "expected": 584800, "tolerance": 0.01}], "remediationTargetId": "R-FIT-RATIO"}
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {"criterionId": "C-FIT-PROCESS-BUY", "description": "完成买入净价、利息、全价结算和凭证", "weight": 12, "evidenceRequirement": "金额链和三个凭证科目闭合", "evidenceRules": [{"fieldId": "buy-clean-amount", "operator": "NUMBER_EQUALS", "expected": 492000, "tolerance": 0.01}, {"fieldId": "buy-accrued-amount", "operator": "NUMBER_EQUALS", "expected": 6000, "tolerance": 0.01}, {"fieldId": "buy-full-settlement", "operator": "NUMBER_EQUALS", "expected": 498000, "tolerance": 0.01}, {"fieldId": "buy-cost-account", "operator": "CONTAINS_ALL", "expected": ["债券", "成本"]}, {"fieldId": "buy-interest-account", "operator": "CONTAINS_ALL", "expected": ["应计利息"]}, {"fieldId": "buy-clearing-account", "operator": "CONTAINS_ALL", "expected": ["证券清算款"]}], "remediationTargetId": "R-FIT-SETTLEMENT"},
+        {"criterionId": "C-FIT-PROCESS-TRANSFER", "description": "按批准比例结转三项账簿余额", "weight": 10, "evidenceRequirement": "成本、估值增值和应计利息结转正确", "evidenceRules": [{"fieldId": "sell-cost-transfer", "operator": "NUMBER_EQUALS", "expected": 584800, "tolerance": 0.01}, {"fieldId": "sell-valuation-transfer", "operator": "NUMBER_EQUALS", "expected": 9600, "tolerance": 0.01}, {"fieldId": "sell-interest-transfer", "operator": "NUMBER_EQUALS", "expected": 5600, "tolerance": 0.01}], "remediationTargetId": "R-FIT-RATIO"},
+        {"criterionId": "C-FIT-PROCESS-RECON", "description": "完成剩余证券、账簿和资金勾稽", "weight": 8, "evidenceRequirement": "剩余数量、余额、资金和勾稽结论一致", "evidenceRules": [{"fieldId": "remaining-quantity", "operator": "NUMBER_EQUALS", "expected": 9000, "tolerance": 0}, {"fieldId": "remaining-cost", "operator": "NUMBER_EQUALS", "expected": 877200, "tolerance": 0.01}, {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 2108000, "tolerance": 0.01}, {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FIT-RECON"}
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FIT-RISK-UNIT", "description": "控制每百元报价和票面总额的单位错误", "weight": 9, "evidenceRequirement": "单位与金额换算同时正确", "evidenceRules": [{"fieldId": "buy-price-unit", "operator": "EQUALS", "expected": "PER_100_CLEAN"}, {"fieldId": "buy-face-total", "operator": "NUMBER_EQUALS", "expected": 500000, "tolerance": 0}], "remediationTargetId": "R-FIT-UNIT"},
+        {"criterionId": "C-FIT-RISK-SEPARATION", "description": "控制净价金额、应计利息和全价结算混淆", "weight": 8, "evidenceRequirement": "三项金额和凭证科目分离", "evidenceRules": [{"fieldId": "buy-clean-amount", "operator": "NUMBER_EQUALS", "expected": 492000, "tolerance": 0.01}, {"fieldId": "buy-accrued-amount", "operator": "NUMBER_EQUALS", "expected": 6000, "tolerance": 0.01}, {"fieldId": "buy-full-settlement", "operator": "NUMBER_EQUALS", "expected": 498000, "tolerance": 0.01}], "remediationTargetId": "R-FIT-SETTLEMENT"},
+        {"criterionId": "C-FIT-RISK-CONTINUITY", "description": "控制卖出后数量和账簿余额连续性", "weight": 8, "evidenceRequirement": "三项剩余余额和勾稽结论正确", "evidenceRules": [{"fieldId": "remaining-valuation", "operator": "NUMBER_EQUALS", "expected": 14400, "tolerance": 0.01}, {"fieldId": "remaining-interest", "operator": "NUMBER_EQUALS", "expected": 8400, "tolerance": 0.01}, {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FIT-RECON"}
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {"criterionId": "C-FIT-EXPR", "description": "形成包含关键结算和剩余结果的可追溯结论", "weight": 20, "evidenceRequirement": "结论包含全价结算、剩余张数、成本、资金和勾稽", "evidenceRules": [{"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["498,000", "9,000", "877,200", "2,108,000", "勾稽一致"]}], "remediationTargetId": "R-FIT-EXPRESSION"}
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FIT-PRICE-SETTLEMENT", "description": "每百元净价、应计利息、票面总额和全价结算关系必须正确", "evidenceRequirement": "单位和四项金额闭合", "evidenceRules": [{"fieldId": "buy-price-unit", "operator": "EQUALS", "expected": "PER_100_CLEAN"}, {"fieldId": "buy-face-total", "operator": "NUMBER_EQUALS", "expected": 500000, "tolerance": 0}, {"fieldId": "buy-clean-amount", "operator": "NUMBER_EQUALS", "expected": 492000, "tolerance": 0.01}, {"fieldId": "buy-accrued-amount", "operator": "NUMBER_EQUALS", "expected": 6000, "tolerance": 0.01}, {"fieldId": "buy-full-settlement", "operator": "NUMBER_EQUALS", "expected": 498000, "tolerance": 0.01}], "remediationTargetId": "R-FIT-SETTLEMENT"},
+    {"requirementId": "M-FIT-REMAINING", "description": "卖出比例结转后的证券、成本、估值增值、应计利息和资金必须闭合", "evidenceRequirement": "所有剩余结果可独立复算", "evidenceRules": [{"fieldId": "sale-ratio", "operator": "NUMBER_EQUALS", "expected": 0.4, "tolerance": 0.0001}, {"fieldId": "remaining-quantity", "operator": "NUMBER_EQUALS", "expected": 9000, "tolerance": 0}, {"fieldId": "remaining-cost", "operator": "NUMBER_EQUALS", "expected": 877200, "tolerance": 0.01}, {"fieldId": "remaining-valuation", "operator": "NUMBER_EQUALS", "expected": 14400, "tolerance": 0.01}, {"fieldId": "remaining-interest", "operator": "NUMBER_EQUALS", "expected": 8400, "tolerance": 0.01}, {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 2108000, "tolerance": 0.01}, {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FIT-RECON"}
+  ],
+  "remediationTargets": [
+    {"targetId": "R-FIT-UNIT", "title": "辨清每百元报价与票面总额", "reason": "价格单位、张数、每张面值或票面总额对应错误", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-TRADE-KC-01", "questionId": "ACC-FI-TRADE-Q-01"},
+    {"targetId": "R-FIT-SETTLEMENT", "title": "复算净价到全价结算", "reason": "净价金额、应计利息或全价结算金额计算错误", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-02", "questionId": "ACC-FI-TRADE-Q-02"},
+    {"targetId": "R-FIT-LEDGER", "title": "补全买入凭证", "reason": "成本、应计利息或证券清算款科目方向错误", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-FI-TRADE-Q-03"},
+    {"targetId": "R-FIT-RATIO", "title": "复算卖出比例结转", "reason": "将成交金额当作历史成本或比例结转计算错误", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-TRADE-KC-03", "questionId": "ACC-FI-TRADE-Q-04"},
+    {"targetId": "R-FIT-RECON", "title": "核对剩余证券、账簿和资金", "reason": "剩余数量、成本、估值增值、应计利息或资金未闭合", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-FI-TRADE-Q-04"},
+    {"targetId": "R-FIT-EXPRESSION", "title": "形成可追溯交易结论", "reason": "短结论遗漏关键结算、剩余余额或勾稽结果", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-FI-TRADE-Q-05"}
+  ],
+  "referenceAnswer": {"responses": {
+    "buy-price-unit": "PER_100_CLEAN", "buy-face-total": 500000, "buy-clean-amount": 492000, "buy-accrued-amount": 6000, "buy-full-settlement": 498000,
+    "buy-cost-account": "债券投资-成本", "buy-interest-account": "应计利息", "buy-clearing-account": "证券清算款",
+    "sale-ratio": 0.4, "sell-cost-transfer": 584800, "sell-valuation-transfer": 9600, "sell-interest-transfer": 5600,
+    "remaining-quantity": 9000, "remaining-cost": 877200, "remaining-valuation": 14400, "remaining-interest": 8400,
+    "ending-cash": 2108000, "reconciliation-result": "BALANCED",
+    "result-note": "买入全价结算 498,000 元；卖出后剩余 9,000 张、成本 877,200 元，期末资金 2,108,000 元，证券、账簿和资金勾稽一致。"
+  }}
+}

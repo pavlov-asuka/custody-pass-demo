@@ -1,0 +1,45 @@
+{
+  "routeId": "ACC-FI-ACCRUAL-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {"dimension": "CONCEPT", "maxScore": 25, "criteria": [
+      {"criterionId": "C-FIA-CONCEPT-SOURCE", "description": "从本案例批准参数和日历确定计息口径", "weight": 10, "evidenceRequirement": "计息来源选择正确", "evidenceRules": [{"fieldId": "method-source", "operator": "EQUALS", "expected": "APPROVED_CASE"}], "remediationTargetId": "R-FIA-SOURCE"},
+      {"criterionId": "C-FIA-CONCEPT-FORMULA", "description": "理解百元含息、票面总额和合计应计的单位关系", "weight": 15, "evidenceRequirement": "第 90 天三个计算结果正确", "evidenceRules": [{"fieldId": "day90-per100", "operator": "NUMBER_EQUALS", "expected": 0.9, "tolerance": 0.01}, {"fieldId": "day90-face-total", "operator": "NUMBER_EQUALS", "expected": 200000, "tolerance": 0}, {"fieldId": "day90-total", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01}], "remediationTargetId": "R-FIA-FORMULA"}
+    ]},
+    {"dimension": "PROCESS", "maxScore": 30, "criteria": [
+      {"criterionId": "C-FIA-PROCESS-DAY90", "description": "完成交易日先交易后计息的倒轧", "weight": 12, "evidenceRequirement": "计提前余额、实际计提和期末余额正确", "evidenceRules": [{"fieldId": "day90-prebalance", "operator": "NUMBER_EQUALS", "expected": 1790, "tolerance": 0.01}, {"fieldId": "day90-accrual", "operator": "NUMBER_EQUALS", "expected": 10, "tolerance": 0.01}, {"fieldId": "day90-ending", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01}], "remediationTargetId": "R-FIA-DAY90"},
+      {"criterionId": "C-FIA-PROCESS-VOUCHER", "description": "补全正常日常计息凭证", "weight": 6, "evidenceRequirement": "借贷科目正确", "evidenceRules": [{"fieldId": "accrual-debit", "operator": "CONTAINS_ALL", "expected": ["应计利息"]}, {"fieldId": "accrual-credit", "operator": "CONTAINS_ALL", "expected": ["债券", "利息收入"]}], "remediationTargetId": "R-FIA-VOUCHER"},
+      {"criterionId": "C-FIA-PROCESS-DAY91", "description": "完成无交易次日的连续计息", "weight": 8, "evidenceRequirement": "第 91 天百元含息、合计应计和实际计提正确", "evidenceRules": [{"fieldId": "day91-per100", "operator": "NUMBER_EQUALS", "expected": 0.91, "tolerance": 0.01}, {"fieldId": "day91-total", "operator": "NUMBER_EQUALS", "expected": 1820, "tolerance": 0.01}, {"fieldId": "day91-accrual", "operator": "NUMBER_EQUALS", "expected": 20, "tolerance": 0.01}], "remediationTargetId": "R-FIA-DAY91"},
+      {"criterionId": "C-FIA-PROCESS-RECON", "description": "验证两日账户余额连续", "weight": 4, "evidenceRequirement": "第 91 天期末余额及勾稽结论正确", "evidenceRules": [{"fieldId": "day91-ending", "operator": "NUMBER_EQUALS", "expected": 1820, "tolerance": 0.01}, {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FIA-RECON"}
+    ]},
+    {"dimension": "RISK", "maxScore": 25, "criteria": [
+      {"criterionId": "C-FIA-RISK-SOURCE", "description": "控制历史口径替代题面批准参数的风险", "weight": 7, "evidenceRequirement": "来源选择为本案例参数和日历", "evidenceRules": [{"fieldId": "method-source", "operator": "EQUALS", "expected": "APPROVED_CASE"}], "remediationTargetId": "R-FIA-SOURCE"},
+      {"criterionId": "C-FIA-RISK-DUPLICATE", "description": "控制交易包含利息被重复计提", "weight": 10, "evidenceRequirement": "交易后计提前余额和倒轧金额正确", "evidenceRules": [{"fieldId": "day90-prebalance", "operator": "NUMBER_EQUALS", "expected": 1790, "tolerance": 0.01}, {"fieldId": "day90-accrual", "operator": "NUMBER_EQUALS", "expected": 10, "tolerance": 0.01}], "remediationTargetId": "R-FIA-DAY90"},
+      {"criterionId": "C-FIA-RISK-CONTINUITY", "description": "控制日历变化、持仓和期末余额不连续", "weight": 8, "evidenceRequirement": "第 91 天目标和期末余额一致", "evidenceRules": [{"fieldId": "day91-total", "operator": "NUMBER_EQUALS", "expected": 1820, "tolerance": 0.01}, {"fieldId": "day91-ending", "operator": "NUMBER_EQUALS", "expected": 1820, "tolerance": 0.01}, {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FIA-RECON"}
+    ]},
+    {"dimension": "EXPRESSION", "maxScore": 20, "criteria": [
+      {"criterionId": "C-FIA-EXPR", "description": "形成包含两日倒轧结果的简短结论", "weight": 20, "evidenceRequirement": "结论覆盖交易后倒轧、第 90 天和第 91 天余额", "evidenceRules": [{"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["1,790", "10", "1,800", "20", "1,820", "勾稽一致"]}], "remediationTargetId": "R-FIA-EXPRESSION"}
+    ]}
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FIA-FORMULA", "description": "题面计息口径、单位和百元含息计算必须正确", "evidenceRequirement": "来源、第 90 天百元含息、票面总额和合计应计正确", "evidenceRules": [{"fieldId": "method-source", "operator": "EQUALS", "expected": "APPROVED_CASE"}, {"fieldId": "day90-per100", "operator": "NUMBER_EQUALS", "expected": 0.9, "tolerance": 0.01}, {"fieldId": "day90-face-total", "operator": "NUMBER_EQUALS", "expected": 200000, "tolerance": 0}, {"fieldId": "day90-total", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01}], "remediationTargetId": "R-FIA-FORMULA"},
+    {"requirementId": "M-FIA-ROLLFORWARD", "description": "交易后倒轧和连续两日期末余额必须闭合", "evidenceRequirement": "两日计提前、实际计提和期末余额全部正确", "evidenceRules": [{"fieldId": "day90-prebalance", "operator": "NUMBER_EQUALS", "expected": 1790, "tolerance": 0.01}, {"fieldId": "day90-accrual", "operator": "NUMBER_EQUALS", "expected": 10, "tolerance": 0.01}, {"fieldId": "day90-ending", "operator": "NUMBER_EQUALS", "expected": 1800, "tolerance": 0.01}, {"fieldId": "day91-accrual", "operator": "NUMBER_EQUALS", "expected": 20, "tolerance": 0.01}, {"fieldId": "day91-ending", "operator": "NUMBER_EQUALS", "expected": 1820, "tolerance": 0.01}, {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FIA-RECON"}
+  ],
+  "remediationTargets": [
+    {"targetId": "R-FIA-SOURCE", "title": "定位本案例计息口径", "reason": "使用了历史默认值或未从参数卡和日历取数", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-ACCRUAL-KC-01", "questionId": "ACC-FI-ACCRUAL-Q-01"},
+    {"targetId": "R-FIA-FORMULA", "title": "复算百元含息与票面总额", "reason": "计息变量、单位、日数或金额换算错误", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-ACCRUAL-KC-02", "questionId": "ACC-FI-ACCRUAL-Q-02"},
+    {"targetId": "R-FIA-DAY90", "title": "完成交易日倒轧", "reason": "未先计入交易凭证包含的利息或重复计提", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-ACCRUAL-KC-03", "questionId": "ACC-FI-ACCRUAL-Q-03"},
+    {"targetId": "R-FIA-VOUCHER", "title": "补全日常计息凭证", "reason": "应计利息和债券利息收入的借贷方向错误", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-FI-ACCRUAL-Q-04"},
+    {"targetId": "R-FIA-DAY91", "title": "复算次日连续计息", "reason": "日期变化后的百元含息、合计应计或实际计提错误", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-FI-ACCRUAL-Q-05"},
+    {"targetId": "R-FIA-RECON", "title": "核对两日应计利息余额", "reason": "期末账户余额未与每日目标应计金额闭合", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-FI-ACCRUAL-Q-03"},
+    {"targetId": "R-FIA-EXPRESSION", "title": "形成连续计息结论", "reason": "短结论遗漏计提前余额、实际计提或两日期末余额", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-FI-ACCRUAL-Q-05"}
+  ],
+  "referenceAnswer": {"responses": {
+    "method-source": "APPROVED_CASE", "day90-per100": 0.9, "day90-face-total": 200000, "day90-total": 1800,
+    "day90-prebalance": 1790, "day90-accrual": 10, "accrual-debit": "应计利息", "accrual-credit": "债券利息收入", "day90-ending": 1800,
+    "day91-per100": 0.91, "day91-total": 1820, "day91-accrual": 20, "day91-ending": 1820, "reconciliation-result": "BALANCED",
+    "result-note": "第 90 天交易后计提前余额 1,790 元，倒轧计提 10 元后余额 1,800 元；第 91 天无交易，计提 20 元后余额 1,820 元，两日勾稽一致。"
+  }}
+}

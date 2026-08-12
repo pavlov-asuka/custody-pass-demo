@@ -1,0 +1,36 @@
+{
+  "routeId": "ACC-FI-DISTRIBUTION-101",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {"dimension": "CONCEPT", "maxScore": 25, "criteria": [
+      {"criterionId": "C-FID-CONCEPT-RECORD", "description": "识别银行间 DVP 分销记录的对象和正常状态", "weight": 12, "evidenceRequirement": "平台、DVP 和有效状态正确", "evidenceRules": [{"fieldId": "platform-state", "operator": "EQUALS", "expected": "INTERBANK_DVP_VALID"}], "remediationTargetId": "R-FID-RECORD"},
+      {"criterionId": "C-FID-CONCEPT-ALLOCATION", "description": "理解冲减成本方式下百元利息与成本拆分", "weight": 13, "evidenceRequirement": "分摊方式、票面总额和成本基础正确", "evidenceRules": [{"fieldId": "interest-method", "operator": "EQUALS", "expected": "COST_REDUCTION"}, {"fieldId": "face-total", "operator": "NUMBER_EQUALS", "expected": 500000, "tolerance": 0}, {"fieldId": "interest-amount", "operator": "NUMBER_EQUALS", "expected": 4000, "tolerance": 0.01}], "remediationTargetId": "R-FID-ALLOCATION"}
+    ]},
+    {"dimension": "PROCESS", "maxScore": 30, "criteria": [
+      {"criterionId": "C-FID-PROCESS-COST", "description": "完成成本、利息和结算凭证", "weight": 12, "evidenceRequirement": "金额链和三个科目闭合", "evidenceRules": [{"fieldId": "cost-amount", "operator": "NUMBER_EQUALS", "expected": 496000, "tolerance": 0.01}, {"fieldId": "settlement-check", "operator": "NUMBER_EQUALS", "expected": 500000, "tolerance": 0.01}, {"fieldId": "cost-account", "operator": "CONTAINS_ALL", "expected": ["债券", "成本"]}, {"fieldId": "interest-account", "operator": "CONTAINS_ALL", "expected": ["应计利息"]}, {"fieldId": "settlement-account", "operator": "CONTAINS_ALL", "expected": ["银行存款"]}], "remediationTargetId": "R-FID-COST"},
+      {"criterionId": "C-FID-PROCESS-FEE", "description": "分开处理服务费和手续费返还", "weight": 10, "evidenceRequirement": "费用和返还对象、金额及方式正确", "evidenceRules": [{"fieldId": "service-fee-amount", "operator": "NUMBER_EQUALS", "expected": 50, "tolerance": 0.01}, {"fieldId": "service-fee-account", "operator": "CONTAINS_ALL", "expected": ["交易费用", "应付"]}, {"fieldId": "fee-return-method", "operator": "EQUALS", "expected": "INCOME"}, {"fieldId": "fee-return-accounts", "operator": "CONTAINS_ALL", "expected": ["其他应收款", "其他收入"]}], "remediationTargetId": "R-FID-FEE"},
+      {"criterionId": "C-FID-PROCESS-RECON", "description": "完成分销结果勾稽", "weight": 8, "evidenceRequirement": "结算、费用和返还资料一致", "evidenceRules": [{"fieldId": "settlement-check", "operator": "NUMBER_EQUALS", "expected": 500000, "tolerance": 0.01}, {"fieldId": "result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FID-RECON"}
+    ]},
+    {"dimension": "RISK", "maxScore": 25, "criteria": [
+      {"criterionId": "C-FID-RISK-STATUS", "description": "控制把分销记录状态当成可自行修改的操作", "weight": 8, "evidenceRequirement": "只按资料识别正常有效记录", "evidenceRules": [{"fieldId": "platform-state", "operator": "EQUALS", "expected": "INTERBANK_DVP_VALID"}], "remediationTargetId": "R-FID-RECORD"},
+      {"criterionId": "C-FID-RISK-MIX", "description": "控制把百元利息、成本和结算金额混为一项", "weight": 9, "evidenceRequirement": "三项金额和单位分离", "evidenceRules": [{"fieldId": "interest-amount", "operator": "NUMBER_EQUALS", "expected": 4000, "tolerance": 0.01}, {"fieldId": "cost-amount", "operator": "NUMBER_EQUALS", "expected": 496000, "tolerance": 0.01}, {"fieldId": "settlement-check", "operator": "NUMBER_EQUALS", "expected": 500000, "tolerance": 0.01}], "remediationTargetId": "R-FID-ALLOCATION"},
+      {"criterionId": "C-FID-RISK-FEE", "description": "控制服务费返还误冲债券成本", "weight": 8, "evidenceRequirement": "返还方式和科目对象正确", "evidenceRules": [{"fieldId": "fee-return-method", "operator": "EQUALS", "expected": "INCOME"}, {"fieldId": "fee-return-accounts", "operator": "CONTAINS_ALL", "expected": ["其他收入"]}], "remediationTargetId": "R-FID-FEE"}
+    ]},
+    {"dimension": "EXPRESSION", "maxScore": 20, "criteria": [{"criterionId": "C-FID-EXPR", "description": "形成包含分销、成本、费用和返还的可追溯结论", "weight": 20, "evidenceRequirement": "结论覆盖 DVP、成本、利息、结算和返还", "evidenceRules": [{"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["DVP", "496,000", "4,000", "500,000", "300", "勾稽一致"]}], "remediationTargetId": "R-FID-EXPRESSION"}]}
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FID-ALLOCATION", "description": "冲减成本方式下每百元利息、债券成本和结算金额必须闭合", "evidenceRequirement": "方式、单位和金额链正确", "evidenceRules": [{"fieldId": "interest-method", "operator": "EQUALS", "expected": "COST_REDUCTION"}, {"fieldId": "interest-amount", "operator": "NUMBER_EQUALS", "expected": 4000, "tolerance": 0.01}, {"fieldId": "cost-amount", "operator": "NUMBER_EQUALS", "expected": 496000, "tolerance": 0.01}, {"fieldId": "settlement-check", "operator": "NUMBER_EQUALS", "expected": 500000, "tolerance": 0.01}], "remediationTargetId": "R-FID-ALLOCATION"},
+    {"requirementId": "M-FID-FEE-RETURN", "description": "服务费和手续费返还必须按资料对象分别处理", "evidenceRequirement": "费用凭证、返还方式和返还科目正确", "evidenceRules": [{"fieldId": "service-fee-amount", "operator": "NUMBER_EQUALS", "expected": 50, "tolerance": 0.01}, {"fieldId": "service-fee-account", "operator": "CONTAINS_ALL", "expected": ["交易费用", "应付"]}, {"fieldId": "fee-return-method", "operator": "EQUALS", "expected": "INCOME"}, {"fieldId": "fee-return-accounts", "operator": "CONTAINS_ALL", "expected": ["其他应收款", "其他收入"]}], "remediationTargetId": "R-FID-FEE"}
+  ],
+  "remediationTargets": [
+    {"targetId": "R-FID-RECORD", "title": "识别分销记录和 DVP 状态", "reason": "平台、结算方式或记录状态读取错误", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-DIST-KC-01", "questionId": "ACC-FI-DISTRIBUTION-Q-01"},
+    {"targetId": "R-FID-ALLOCATION", "title": "复算利息与成本拆分", "reason": "百元单位、分摊方式、利息或成本计算错误", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-DIST-KC-02", "questionId": "ACC-FI-DISTRIBUTION-Q-02"},
+    {"targetId": "R-FID-COST", "title": "补全分销成本凭证", "reason": "成本、应计利息或结算科目方向错误", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-FI-DISTRIBUTION-Q-03"},
+    {"targetId": "R-FID-FEE", "title": "分离服务费与手续费返还", "reason": "费用、返还方式或返还科目对象混淆", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FI-DIST-KC-03", "questionId": "ACC-FI-DISTRIBUTION-Q-04"},
+    {"targetId": "R-FID-RECON", "title": "完成分销金额勾稽", "reason": "结算、数量或费用资料未闭合", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-FI-DISTRIBUTION-Q-05"},
+    {"targetId": "R-FID-EXPRESSION", "title": "形成分销结论", "reason": "短结论遗漏关键金额或返还处理", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-FI-DISTRIBUTION-Q-05"}
+  ],
+  "referenceAnswer": {"responses": {"platform-state": "INTERBANK_DVP_VALID", "face-total": 500000, "interest-method": "COST_REDUCTION", "interest-amount": 4000, "cost-amount": 496000, "settlement-check": 500000, "cost-account": "债券投资-成本", "interest-account": "应计利息", "settlement-account": "银行存款/备付金", "service-fee-amount": 50, "service-fee-account": "交易费用-结算费；应付交易费用-结算费", "fee-return-method": "INCOME", "fee-return-accounts": "其他应收款-手续费返还；其他收入-手续费返还", "result": "BALANCED", "result-note": "本案银行间 DVP 分销有效，冲减成本方式确认成本 496,000 元、应计利息 4,000 元，合计结算 500,000 元；服务费 50 元单列，手续费返还 300 元计入当期损益，勾稽一致。"}}
+}
