@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.5",
+  "version": "2026.08.6",
   "lines": [
     {
       "line": "CLEARING",
@@ -324,6 +324,68 @@
                   "order": 4,
                   "position": "CENTER",
                   "prerequisiteNodeIds": ["ACC-NODE-FUT-SETTLEMENT-003"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "ACC-MODULE-VALUATION-DISCLOSURE",
+              "name": "估值对账与信息披露",
+              "order": 5,
+              "nodes": [
+                {
+                  "nodeId": "ACC-NODE-ED-WORKPAPER-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-ED-WORKPAPER-001",
+                  "title": "年报/中报任务口径与 3.1/3.2 计算底稿",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-ED-STATEMENTS-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-ED-STATEMENTS-002",
+                  "title": "财务主表与净资产跨表闭环",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-ED-WORKPAPER-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-ED-PORTFOLIO-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-ED-PORTFOLIO-003",
+                  "title": "投资组合、投资收益与披露附注勾稽",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-ED-STATEMENTS-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-ED-QUARTERLY-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-ED-QUARTERLY-004",
+                  "title": "季度报告 3.1/3.2 与指定字段复核",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-ED-PORTFOLIO-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-ED-UPDATES-005",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-ED-UPDATES-005",
+                  "title": "更新招募与产品资料概要版本、截止日和数值复核",
+                  "pathType": "REQUIRED",
+                  "order": 5,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-ED-QUARTERLY-004"],
                   "contentAvailability": "PUBLISHED"
                 }
               ]

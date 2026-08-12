@@ -1,0 +1,661 @@
+{
+  "routeId": "ACC-ED-UPDATES-005",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-EDU-VERSION",
+          "description": "理解当前稿、上一稿和批准变更公告的身份与差异角色。",
+          "weight": 8,
+          "evidenceRequirement": "当前稿为 2026 第 2 次更新，上一稿为 2025 第 1 次更新，公告为 2026-05-10 批次。",
+          "evidenceRules": [
+            {
+              "fieldId": "current-draft-id",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "2026-第2次更新"
+              ]
+            },
+            {
+              "fieldId": "previous-draft-id",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "2025-第1次更新"
+              ]
+            },
+            {
+              "fieldId": "announcement-id",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "2026-05-10"
+              ]
+            }
+          ],
+          "remediationTargetId": "R-EDU-VERSION"
+        },
+        {
+          "criterionId": "C-EDU-CUTOFF",
+          "description": "理解内容、财务和业绩截止日分层及其顺序。",
+          "weight": 9,
+          "evidenceRequirement": "内容截止日 2026-07-10，财务/业绩截止日 2026-06-30，顺序 ORDER_OK。",
+          "evidenceRules": [
+            {
+              "fieldId": "content-cutoff",
+              "operator": "EQUALS",
+              "expected": "2026-07-10"
+            },
+            {
+              "fieldId": "financial-cutoff",
+              "operator": "EQUALS",
+              "expected": "2026-06-30"
+            },
+            {
+              "fieldId": "performance-cutoff",
+              "operator": "EQUALS",
+              "expected": "2026-06-30"
+            },
+            {
+              "fieldId": "cutoff-order",
+              "operator": "EQUALS",
+              "expected": "ORDER_OK"
+            }
+          ],
+          "remediationTargetId": "R-EDU-CUTOFF"
+        },
+        {
+          "criterionId": "C-EDU-NUMBER-FEE",
+          "description": "理解最新报告单位净值和综合运作费率/期间费用的计算关系。",
+          "weight": 8,
+          "evidenceRequirement": "最新单位净值 1.050000，综合费率 1.20%，批准参数下期间费用 359,013.70 元。",
+          "evidenceRules": [
+            {
+              "fieldId": "latest-report-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.05,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "comprehensive-fee-rate",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.2,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "estimated-period-fee",
+              "operator": "NUMBER_EQUALS",
+              "expected": 359013.70,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "rate-difference",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.25,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDU-FEE"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-EDU-SOURCE",
+          "description": "从批准托管人来源和最新季报读取当前托管人、报告期间、净资产、份额和本期利润。",
+          "weight": 7,
+          "evidenceRequirement": "当前托管人为案例托管人乙，最新报告为 2026Q2，净资产 126,000,000、份额 120,000,000、本期利润 4,600,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "current-custodian",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "案例托管人乙"
+              ]
+            },
+            {
+              "fieldId": "latest-report-period",
+              "operator": "EQUALS",
+              "expected": "2026Q2"
+            },
+            {
+              "fieldId": "latest-report-net-assets",
+              "operator": "NUMBER_EQUALS",
+              "expected": 126000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "latest-report-units",
+              "operator": "NUMBER_EQUALS",
+              "expected": 120000000,
+              "tolerance": 0
+            },
+            {
+              "fieldId": "latest-report-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 4600000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDU-SOURCE"
+        },
+        {
+          "criterionId": "P-EDU-VERSION-DIFF",
+          "description": "定位托管人、管理费率、托管费率的已公告差异并保留基金代码未变结论。",
+          "weight": 8,
+          "evidenceRequirement": "三项变化均由公告支持，基金主代码未变。",
+          "evidenceRules": [
+            {
+              "fieldId": "version-diff-custodian",
+              "operator": "EQUALS",
+              "expected": "CHANGED_AND_SUPPORTED"
+            },
+            {
+              "fieldId": "version-diff-management-rate",
+              "operator": "EQUALS",
+              "expected": "CHANGED_AND_SUPPORTED"
+            },
+            {
+              "fieldId": "version-diff-custody-rate",
+              "operator": "EQUALS",
+              "expected": "CHANGED_AND_SUPPORTED"
+            },
+            {
+              "fieldId": "unchanged-fund-code",
+              "operator": "EQUALS",
+              "expected": "UNCHANGED_MATCHED"
+            }
+          ],
+          "remediationTargetId": "R-EDU-VERSION"
+        },
+        {
+          "criterionId": "P-EDU-CALC",
+          "description": "独立复算最新报告单位净值、综合费率和批准参数下期间费用。",
+          "weight": 10,
+          "evidenceRequirement": "126,000,000 ÷ 120,000,000 = 1.050000；0.80%+0.15%+0.20%+0.05%=1.20%；期间费用 359,013.70。",
+          "evidenceRules": [
+            {
+              "fieldId": "latest-report-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.05,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "management-rate-current",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.8,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "custody-rate-current",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.15,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "sales-rate-current",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.2,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "other-rate-current",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.05,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "comprehensive-fee-rate",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.2,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "average-asset-base",
+              "operator": "NUMBER_EQUALS",
+              "expected": 120000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "period-days",
+              "operator": "NUMBER_EQUALS",
+              "expected": 91,
+              "tolerance": 0
+            },
+            {
+              "fieldId": "estimated-period-fee",
+              "operator": "NUMBER_EQUALS",
+              "expected": 359013.70,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDU-FEE"
+        },
+        {
+          "criterionId": "P-EDU-ATTACHMENT",
+          "description": "完成局部对比底稿并将当前稿、上一稿、公告、最新报告和托管人来源纳入附件范围。",
+          "weight": 5,
+          "evidenceRequirement": "附件集合完整，五类核心对象和复核意见均填入底稿，跨来源状态 MATCHED。",
+          "evidenceRules": [
+            {
+              "fieldId": "attachment-scope",
+              "operator": "EQUALS",
+              "expected": "COMPLETE_APPROVED_SET"
+            },
+            {
+              "fieldId": "attachment-current-draft",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "CASE-CURRENT-招募",
+                "CASE-CURRENT-产品资料概要"
+              ]
+            },
+            {
+              "fieldId": "attachment-previous-draft",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "CASE-PREV-招募",
+                "CASE-PREV-产品资料概要"
+              ]
+            },
+            {
+              "fieldId": "attachment-announcement",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "CASE-ANN"
+              ]
+            },
+            {
+              "fieldId": "attachment-latest-report",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "CASE-LATEST-季度报告"
+              ]
+            },
+            {
+              "fieldId": "attachment-custodian-source",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "CASE-CUSTODIAN-BULLETIN",
+                "CASE-REVIEW-OPINION"
+              ]
+            },
+            {
+              "fieldId": "cross-source-status",
+              "operator": "EQUALS",
+              "expected": "MATCHED"
+            }
+          ],
+          "remediationTargetId": "R-EDU-ATTACHMENT"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "K-EDU-CUTOFF-SOURCE",
+          "description": "不混用内容、财务和业绩截止日，也不使用未在截止日前公开的报告。",
+          "weight": 8,
+          "evidenceRequirement": "三类截止日顺序正确，最新报告期间为 2026Q2，跨来源状态闭合。",
+          "evidenceRules": [
+            {
+              "fieldId": "cutoff-order",
+              "operator": "EQUALS",
+              "expected": "ORDER_OK"
+            },
+            {
+              "fieldId": "latest-report-period",
+              "operator": "EQUALS",
+              "expected": "2026Q2"
+            },
+            {
+              "fieldId": "performance-cutoff",
+              "operator": "EQUALS",
+              "expected": "2026-06-30"
+            },
+            {
+              "fieldId": "cross-source-status",
+              "operator": "EQUALS",
+              "expected": "MATCHED"
+            }
+          ],
+          "remediationTargetId": "R-EDU-CUTOFF"
+        },
+        {
+          "criterionId": "K-EDU-RATE-PARAMETER",
+          "description": "不把当前稿费率、平均资产、天数和日计数分母固化成永久规则。",
+          "weight": 9,
+          "evidenceRequirement": "费率与费用按本案例批准参数计算，并保留当前/上一稿差异。",
+          "evidenceRules": [
+            {
+              "fieldId": "management-rate-current",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.8,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "comprehensive-fee-rate",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.2,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "average-asset-base",
+              "operator": "NUMBER_EQUALS",
+              "expected": 120000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "period-days",
+              "operator": "NUMBER_EQUALS",
+              "expected": 91,
+              "tolerance": 0
+            },
+            {
+              "fieldId": "estimated-period-fee",
+              "operator": "NUMBER_EQUALS",
+              "expected": 359013.70,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "rate-difference",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.25,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDU-FEE"
+        },
+        {
+          "criterionId": "K-EDU-ATTACHMENT-BOUNDARY",
+          "description": "不把文件名年份、空白登记簿或未列示附件当作当前复核依据。",
+          "weight": 8,
+          "evidenceRequirement": "当前/上一稿/公告和批准附件集完整，且结论只针对列示附件。",
+          "evidenceRules": [
+            {
+              "fieldId": "current-draft-id",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "CASE-CURRENT-招募"
+              ]
+            },
+            {
+              "fieldId": "previous-draft-id",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "CASE-PREV-招募"
+              ]
+            },
+            {
+              "fieldId": "announcement-id",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "CASE-ANN"
+              ]
+            },
+            {
+              "fieldId": "attachment-scope",
+              "operator": "EQUALS",
+              "expected": "COMPLETE_APPROVED_SET"
+            },
+            {
+              "fieldId": "cross-source-status",
+              "operator": "EQUALS",
+              "expected": "MATCHED"
+            }
+          ],
+          "remediationTargetId": "R-EDU-ATTACHMENT"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-EDU-CONCLUSION",
+          "description": "用短结论报告版本差异、三类截止日、托管人、最新报告数字、费率/费用和附件范围。",
+          "weight": 20,
+          "evidenceRequirement": "结论包含当前/上一稿/公告、日期关系、单位净值 1.050000、综合费率 1.20%、期间费用 359,013.70 和附件闭合。",
+          "evidenceRules": [
+            {
+              "fieldId": "result-note",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "当前稿",
+                "上一稿",
+                "公告",
+                "内容截止日",
+                "财务截止日",
+                "业绩截止日",
+                "1.050000",
+                "1.20%",
+                "359,013.70",
+                "附件",
+                "一致"
+              ]
+            }
+          ],
+          "remediationTargetId": "R-EDU-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-EDU-VERSION-CUTOFF",
+      "description": "必须完成当前稿/上一稿/公告识别、差异定位和三类截止日勾稽。",
+      "evidenceRequirement": "三类版本对象正确，托管人/两项费率差异由公告支持，基金代码未变，内容 ≥ 财务 ≥ 业绩。",
+      "evidenceRules": [
+        {
+          "fieldId": "current-draft-id",
+          "operator": "CONTAINS_ALL",
+          "expected": [
+            "CASE-CURRENT-招募",
+            "2026-第2次更新"
+          ]
+        },
+        {
+          "fieldId": "previous-draft-id",
+          "operator": "CONTAINS_ALL",
+          "expected": [
+            "CASE-PREV-招募",
+            "2025-第1次更新"
+          ]
+        },
+        {
+          "fieldId": "announcement-id",
+          "operator": "CONTAINS_ALL",
+          "expected": [
+            "CASE-ANN-托管人及费率变更-2026-05-10"
+          ]
+        },
+        {
+          "fieldId": "version-diff-custodian",
+          "operator": "EQUALS",
+          "expected": "CHANGED_AND_SUPPORTED"
+        },
+        {
+          "fieldId": "version-diff-management-rate",
+          "operator": "EQUALS",
+          "expected": "CHANGED_AND_SUPPORTED"
+        },
+        {
+          "fieldId": "version-diff-custody-rate",
+          "operator": "EQUALS",
+          "expected": "CHANGED_AND_SUPPORTED"
+        },
+        {
+          "fieldId": "unchanged-fund-code",
+          "operator": "EQUALS",
+          "expected": "UNCHANGED_MATCHED"
+        },
+        {
+          "fieldId": "cutoff-order",
+          "operator": "EQUALS",
+          "expected": "ORDER_OK"
+        }
+      ],
+      "remediationTargetId": "R-EDU-VERSION"
+    },
+    {
+      "requirementId": "M-EDU-NUMERICAL-FEE",
+      "description": "必须独立复算一项最新报告数字和一项综合费率/期间费用，并完成跨来源闭合。",
+      "evidenceRequirement": "最新单位净值 1.050000、综合费率 1.20%、期间费用 359,013.70，当前托管人和附件状态均闭合。",
+      "evidenceRules": [
+        {
+          "fieldId": "latest-report-net-assets",
+          "operator": "NUMBER_EQUALS",
+          "expected": 126000000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "latest-report-units",
+          "operator": "NUMBER_EQUALS",
+          "expected": 120000000,
+          "tolerance": 0
+        },
+        {
+          "fieldId": "latest-report-nav",
+          "operator": "NUMBER_EQUALS",
+          "expected": 1.05,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "comprehensive-fee-rate",
+          "operator": "NUMBER_EQUALS",
+          "expected": 1.2,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "estimated-period-fee",
+          "operator": "NUMBER_EQUALS",
+          "expected": 359013.70,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "current-custodian",
+          "operator": "CONTAINS_ALL",
+          "expected": [
+            "案例托管人乙"
+          ]
+        },
+        {
+          "fieldId": "attachment-scope",
+          "operator": "EQUALS",
+          "expected": "COMPLETE_APPROVED_SET"
+        },
+        {
+          "fieldId": "cross-source-status",
+          "operator": "EQUALS",
+          "expected": "MATCHED"
+        }
+      ],
+      "remediationTargetId": "R-EDU-FEE"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-EDU-VERSION",
+      "title": "重新建立三类版本身份和差异链",
+      "reason": "当前稿、上一稿、变更公告或实际差异字段识别错误。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-UPDATES-KC-01",
+      "questionId": "ACC-ED-UPDATES-Q-01"
+    },
+    {
+      "targetId": "R-EDU-CUTOFF",
+      "title": "重建三类截止日和来源顺序",
+      "reason": "内容、财务、业绩截止日混用，或最新报告不满足公开时间/来源条件。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-UPDATES-KC-02",
+      "questionId": "ACC-ED-UPDATES-Q-03"
+    },
+    {
+      "targetId": "R-EDU-SOURCE",
+      "title": "补做最新报告和托管人取数",
+      "reason": "托管人、报告期间、净资产、份额或本期利润取错来源。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "2",
+      "questionId": "ACC-ED-UPDATES-Q-01"
+    },
+    {
+      "targetId": "R-EDU-FEE",
+      "title": "补做费率和期间费用复算",
+      "reason": "当前/上一稿费率、综合费率、批准资产基数或期间费用计算错误。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "4",
+      "questionId": "ACC-ED-UPDATES-Q-02"
+    },
+    {
+      "targetId": "R-EDU-ATTACHMENT",
+      "title": "补全附件范围和局部对比底稿",
+      "reason": "当前稿、上一稿、公告、最新报告、托管人来源或复核意见未完整列示。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "5",
+      "questionId": "ACC-ED-UPDATES-Q-04"
+    },
+    {
+      "targetId": "R-EDU-CROSS-SOURCE",
+      "title": "重建跨来源勾稽",
+      "reason": "公告、截止日、托管人、最新报告、费率和附件之间存在未解释差异。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-UPDATES-KC-03",
+      "questionId": "ACC-ED-UPDATES-Q-03"
+    },
+    {
+      "targetId": "R-EDU-CONCLUSION",
+      "title": "补全可追溯更新复核结论",
+      "reason": "结论遗漏版本、日期、数字、费率/费用或附件范围。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "5",
+      "questionId": "ACC-ED-UPDATES-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "current-draft-id": "CASE-CURRENT-招募-2026-第2次更新.docx；CASE-CURRENT-产品资料概要-2026-第2次更新.docx",
+      "previous-draft-id": "CASE-PREV-招募-2025-第1次更新.docx；CASE-PREV-产品资料概要-2025-第1次更新.docx",
+      "announcement-id": "CASE-ANN-托管人及费率变更-2026-05-10.pdf",
+      "version-diff-custodian": "CHANGED_AND_SUPPORTED",
+      "version-diff-management-rate": "CHANGED_AND_SUPPORTED",
+      "version-diff-custody-rate": "CHANGED_AND_SUPPORTED",
+      "unchanged-fund-code": "UNCHANGED_MATCHED",
+      "content-cutoff": "2026-07-10",
+      "financial-cutoff": "2026-06-30",
+      "performance-cutoff": "2026-06-30",
+      "cutoff-order": "ORDER_OK",
+      "current-custodian": "案例托管人乙（脱敏）",
+      "latest-report-period": "2026Q2",
+      "latest-report-net-assets": 126000000,
+      "latest-report-units": 120000000,
+      "latest-report-nav": 1.05,
+      "latest-report-profit": 4600000,
+      "management-rate-current": 0.8,
+      "custody-rate-current": 0.15,
+      "sales-rate-current": 0.2,
+      "other-rate-current": 0.05,
+      "comprehensive-fee-rate": 1.2,
+      "average-asset-base": 120000000,
+      "period-days": 91,
+      "estimated-period-fee": 359013.70,
+      "rate-difference": 0.25,
+      "attachment-scope": "COMPLETE_APPROVED_SET",
+      "attachment-current-draft": "CASE-CURRENT-招募-2026-第2次更新.docx；CASE-CURRENT-产品资料概要-2026-第2次更新.docx",
+      "attachment-previous-draft": "CASE-PREV-招募-2025-第1次更新.docx；CASE-PREV-产品资料概要-2025-第1次更新.docx",
+      "attachment-announcement": "CASE-ANN-托管人及费率变更-2026-05-10.pdf",
+      "attachment-latest-report": "CASE-LATEST-季度报告-2026Q2.docx",
+      "attachment-custodian-source": "CASE-CUSTODIAN-BULLETIN-2026-07-15.pdf；CASE-REVIEW-OPINION-2026-07-15.docx",
+      "cross-source-status": "MATCHED",
+      "result-note": "当前稿与上一稿已由 2026-05-10 公告支持差异；内容截止日 2026-07-10、财务截止日 2026-06-30、业绩截止日 2026-06-30 顺序一致；当前托管人为案例托管人乙；最新报告单位净值 1.050000；当前综合运作费率 1.20%，批准参数下期间费用 359,013.70；当前稿、上一稿、公告、最新报告、托管人来源和复核意见附件完整且跨来源一致。"
+    }
+  }
+}

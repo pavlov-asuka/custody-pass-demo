@@ -1,0 +1,493 @@
+{
+  "routeId": "ACC-ED-PORTFOLIO-003",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-EDP-SOURCE",
+          "description": "理解投资收益必须回到交易明细、凭证和估值表原始字段。",
+          "weight": 10,
+          "evidenceRequirement": "股票、基金和债券来源分别为对应凭证/交易字段。",
+          "evidenceRules": [
+            {
+              "fieldId": "investment-income-account",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "投资收益"
+              ]
+            },
+            {
+              "fieldId": "fair-value-account",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "公允价值"
+              ]
+            }
+          ],
+          "remediationTargetId": "R-EDP-SOURCE"
+        },
+        {
+          "criterionId": "C-EDP-INCOME",
+          "description": "理解股票、基金、债券收益的扣减字段不同，且要回到投资收益合计。",
+          "weight": 8,
+          "evidenceRequirement": "股票 2,500,000、基金 800,000、债券 200,000，合计 3,500,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "stock-income",
+              "operator": "NUMBER_EQUALS",
+              "expected": 2500000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "fund-income",
+              "operator": "NUMBER_EQUALS",
+              "expected": 800000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "bond-income",
+              "operator": "NUMBER_EQUALS",
+              "expected": 200000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "investment-income-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 3500000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDP-INCOME"
+        },
+        {
+          "criterionId": "C-EDP-RATIO",
+          "description": "理解组合比例的分子、分母和合计均要按同一截止日重算。",
+          "weight": 7,
+          "evidenceRequirement": "股票、基金、固定收益和组合合计比例分别按 111,200,000 分母计算。",
+          "evidenceRules": [
+            {
+              "fieldId": "portfolio-stock-ratio",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.44964,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "portfolio-fund-ratio",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.179856,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "portfolio-fixed-ratio",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.276978,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "portfolio-total-ratio",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.906475,
+              "tolerance": 0.000001
+            }
+          ],
+          "remediationTargetId": "R-EDP-PORTFOLIO"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-EDP-STOCK",
+          "description": "从股票数量、单价、成本和费用复算成交价款与股票投资收益。",
+          "weight": 8,
+          "evidenceRequirement": "股票 A/B 成交价款、成本、费用和收益形成连续链。",
+          "evidenceRules": [
+            {
+              "fieldId": "stock-row-a-proceeds",
+              "operator": "NUMBER_EQUALS",
+              "expected": 9600000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "stock-row-b-proceeds",
+              "operator": "NUMBER_EQUALS",
+              "expected": 3000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "stock-sale-proceeds",
+              "operator": "NUMBER_EQUALS",
+              "expected": 12600000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "stock-income",
+              "operator": "NUMBER_EQUALS",
+              "expected": 2500000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDP-STOCK"
+        },
+        {
+          "criterionId": "P-EDP-FUND-BOND",
+          "description": "独立复算基金、债券收益并保留增值税、应计利息和费用字段。",
+          "weight": 8,
+          "evidenceRequirement": "基金 800,000、债券 200,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "fund-income",
+              "operator": "NUMBER_EQUALS",
+              "expected": 800000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "bond-income",
+              "operator": "NUMBER_EQUALS",
+              "expected": 200000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDP-INCOME"
+        },
+        {
+          "criterionId": "P-EDP-VALUATION",
+          "description": "从成本、应计项目和公允价值变动复算三类期末公允价值及组合合计。",
+          "weight": 8,
+          "evidenceRequirement": "股票 50,000,000、基金 20,000,000、债券 30,800,000，组合 100,800,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "stock-fair-value",
+              "operator": "NUMBER_EQUALS",
+              "expected": 50000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "fund-fair-value",
+              "operator": "NUMBER_EQUALS",
+              "expected": 20000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "bond-fair-value",
+              "operator": "NUMBER_EQUALS",
+              "expected": 30800000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "valuation-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 100800000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDP-VALUATION"
+        },
+        {
+          "criterionId": "P-EDP-RECON",
+          "description": "把投资收益、公允价值、比例和主表字段完成跨来源勾稽。",
+          "weight": 6,
+          "evidenceRequirement": "投资收益和公允价值主表栏正确，状态 BALANCED。",
+          "evidenceRules": [
+            {
+              "fieldId": "investment-income-account",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "投资收益"
+              ]
+            },
+            {
+              "fieldId": "fair-value-account",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "公允价值"
+              ]
+            },
+            {
+              "fieldId": "statement-recon",
+              "operator": "EQUALS",
+              "expected": "BALANCED"
+            }
+          ],
+          "remediationTargetId": "R-EDP-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "K-EDP-ROUNDED-RATIO",
+          "description": "不把已舍入分项比例相加当作组合合计比例。",
+          "weight": 10,
+          "evidenceRequirement": "组合合计比例按 100,800,000 ÷ 111,200,000 重算为 0.906475。",
+          "evidenceRules": [
+            {
+              "fieldId": "portfolio-total-ratio",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.906475,
+              "tolerance": 0.000001
+            }
+          ],
+          "remediationTargetId": "R-EDP-PORTFOLIO"
+        },
+        {
+          "criterionId": "K-EDP-ACCRUAL-FEE",
+          "description": "不遗漏基金增值税、债券应计利息或各类交易费用。",
+          "weight": 8,
+          "evidenceRequirement": "基金、债券收益按完整扣减链复算。",
+          "evidenceRules": [
+            {
+              "fieldId": "fund-income",
+              "operator": "NUMBER_EQUALS",
+              "expected": 800000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "bond-income",
+              "operator": "NUMBER_EQUALS",
+              "expected": 200000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "investment-income-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 3500000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDP-INCOME"
+        },
+        {
+          "criterionId": "K-EDP-CROSS-SOURCE",
+          "description": "不以附注单一合计替代原始交易和估值来源。",
+          "weight": 7,
+          "evidenceRequirement": "交易收益、估值合计、比例合计和主表状态同时存在。",
+          "evidenceRules": [
+            {
+              "fieldId": "investment-income-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 3500000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "valuation-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 100800000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "statement-recon",
+              "operator": "EQUALS",
+              "expected": "BALANCED"
+            }
+          ],
+          "remediationTargetId": "R-EDP-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-EDP-CONCLUSION",
+          "description": "用简短文字报告收益链、估值链、比例分母/合计和主表勾稽状态。",
+          "weight": 20,
+          "evidenceRequirement": "结论含三类收益、3,500,000、100,800,000、0.906475、分子/分母和 BALANCED。",
+          "evidenceRules": [
+            {
+              "fieldId": "result-note",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "2,500,000",
+                "800,000",
+                "200,000",
+                "3,500,000",
+                "100,800,000",
+                "0.906475",
+                "分子",
+                "分母",
+                "BALANCED"
+              ]
+            }
+          ],
+          "remediationTargetId": "R-EDP-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-EDP-INCOME-CHAIN",
+      "description": "必须完成至少一条原始交易收益复算，并将股票、基金、债券收益合计回到主表投资收益。",
+      "evidenceRequirement": "股票 2,500,000、基金 800,000、债券 200,000，合计 3,500,000，主表状态 BALANCED。",
+      "evidenceRules": [
+        {
+          "fieldId": "stock-income",
+          "operator": "NUMBER_EQUALS",
+          "expected": 2500000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "fund-income",
+          "operator": "NUMBER_EQUALS",
+          "expected": 800000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "bond-income",
+          "operator": "NUMBER_EQUALS",
+          "expected": 200000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "investment-income-total",
+          "operator": "NUMBER_EQUALS",
+          "expected": 3500000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "statement-recon",
+          "operator": "EQUALS",
+          "expected": "BALANCED"
+        }
+      ],
+      "remediationTargetId": "R-EDP-INCOME"
+    },
+    {
+      "requirementId": "M-EDP-PORTFOLIO-CLOSE",
+      "description": "必须完成期末公允价值合计、按分子/分母重算的分项/合计比例和附注/主表闭合。",
+      "evidenceRequirement": "组合公允价值 100,800,000；股票、基金、固定收益和组合比例正确，合计比例 0.906475，状态 BALANCED。",
+      "evidenceRules": [
+        {
+          "fieldId": "valuation-total",
+          "operator": "NUMBER_EQUALS",
+          "expected": 100800000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "portfolio-stock-ratio",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.44964,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "portfolio-fund-ratio",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.179856,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "portfolio-fixed-ratio",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.276978,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "portfolio-total-ratio",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.906475,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "statement-recon",
+          "operator": "EQUALS",
+          "expected": "BALANCED"
+        }
+      ],
+      "remediationTargetId": "R-EDP-PORTFOLIO"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-EDP-SOURCE",
+      "title": "重建交易/估值来源链",
+      "reason": "收益或组合字段没有回到原始交易明细、凭证和估值表。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-PORTFOLIO-KC-01",
+      "questionId": "ACC-ED-PORTFOLIO-Q-01"
+    },
+    {
+      "targetId": "R-EDP-STOCK",
+      "title": "补做股票成交与收益复算",
+      "reason": "数量、单价、成交价款、成本或费用链错误。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "2",
+      "questionId": "ACC-ED-PORTFOLIO-Q-02"
+    },
+    {
+      "targetId": "R-EDP-INCOME",
+      "title": "补做三类投资收益闭合",
+      "reason": "基金税费、债券应计利息或收益合计错误。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "3",
+      "questionId": "ACC-ED-PORTFOLIO-Q-02"
+    },
+    {
+      "targetId": "R-EDP-VALUATION",
+      "title": "补做期末估值合计",
+      "reason": "成本、应计项目或公允价值变动未正确回到期末公允价值。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "4",
+      "questionId": "ACC-ED-PORTFOLIO-Q-03"
+    },
+    {
+      "targetId": "R-EDP-PORTFOLIO",
+      "title": "重建分子/分母比例链",
+      "reason": "分母错误、精度错误或把已舍入比例相加为合计。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-PORTFOLIO-KC-03",
+      "questionId": "ACC-ED-PORTFOLIO-Q-04"
+    },
+    {
+      "targetId": "R-EDP-RECON",
+      "title": "补做附注与主表勾稽",
+      "reason": "投资收益、估值、比例或主表栏位没有共同闭合。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-PORTFOLIO-KC-02",
+      "questionId": "ACC-ED-PORTFOLIO-Q-03"
+    },
+    {
+      "targetId": "R-EDP-CONCLUSION",
+      "title": "补全投资组合结论",
+      "reason": "结论遗漏收益、组合价值、比例分母/合计或主表状态。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "5",
+      "questionId": "ACC-ED-PORTFOLIO-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "stock-row-a-proceeds": 9600000,
+      "stock-row-b-proceeds": 3000000,
+      "stock-sale-proceeds": 12600000,
+      "stock-sale-cost": 10000000,
+      "stock-fee": 100000,
+      "stock-income": 2500000,
+      "fund-income": 800000,
+      "bond-income": 200000,
+      "investment-income-total": 3500000,
+      "stock-fair-value": 50000000,
+      "fund-fair-value": 20000000,
+      "bond-fair-value": 30800000,
+      "valuation-total": 100800000,
+      "portfolio-stock-ratio": 0.44964,
+      "portfolio-fund-ratio": 0.179856,
+      "portfolio-fixed-ratio": 0.276978,
+      "portfolio-total-ratio": 0.906475,
+      "investment-income-account": "利润表—投资收益",
+      "fair-value-account": "利润表—公允价值变动损益",
+      "statement-recon": "BALANCED",
+      "result-note": "股票投资收益 2,500,000.00、基金投资收益 800,000.00、债券投资收益 200,000.00，合计 3,500,000.00；股票/基金/固定收益期末公允价值合计 100,800,000.00；各比例均按分子除以总资产分母重算，组合合计比例 0.906475，未加总已舍入分项比例；附注、估值和主表 BALANCED。"
+    }
+  }
+}

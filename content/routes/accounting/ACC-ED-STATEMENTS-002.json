@@ -1,0 +1,806 @@
+{
+  "routeId": "ACC-ED-STATEMENTS-002",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "财务主表与净资产跨表闭环",
+  "summary": "沿用已锁定的年报/中报任务口径，读取账簿、估值表、资产负债表、利润表和净资产变动表，完成资产、负债、利润及期末净资产的连续计算和跨表闭合。",
+  "estimatedMinutes": 60,
+  "objectives": [
+    "从账簿和估值结果读取资产、负债、收入、费用及净资产变动字段，建立来源到主表的对应",
+    "分别复算资产总额、负债总额、收入/费用合计和本期利润，不把字段映射当作闭环",
+    "用资产负债表、利润表和净资产变动表共同验证期末净资产，并形成正常业务结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ED-STATEMENTS-KC-01",
+          "type": "FLOW",
+          "title": "先把账簿和估值结果送入主表",
+          "conclusion": "资产负债表和利润表的每个合计都必须能回到账簿或估值资料的分项，主表之间使用同一报告期间和期末口径。",
+          "items": [
+            "确认账簿、估值表和三张主表属于同一产品、期间和截止日",
+            "资产负债表先做资产、负债和净资产分项",
+            "利润表分别取收入和费用，不把利润直接当作输入",
+            "净资产变动表读取期初、申购/赎回、分红和本期利润"
+          ]
+        },
+        {
+          "cardId": "ED-STATEMENTS-KC-02",
+          "type": "CATEGORIES",
+          "title": "主表合计要有独立算式",
+          "conclusion": "资产总额、负债总额、收入总额、费用总额和本期利润各自复算后，才能进入跨表勾稽。",
+          "items": [
+            "资产总额 = 现金 + 交易性资产 + 其他资产",
+            "负债总额 = 管理人报酬应付 + 托管费应付 + 清算款应付 + 其他负债",
+            "本期利润 = 收入总额 - 费用总额",
+            "资产总额 - 负债总额 = 期末净资产"
+          ]
+        },
+        {
+          "cardId": "ED-STATEMENTS-KC-03",
+          "type": "KEY_POINT",
+          "title": "净资产闭环必须跨三张表",
+          "conclusion": "期末净资产既要等于资产负债表资产减负债，也要等于期初净资产加申购/赎回、分红和本期利润的变动链。",
+          "items": [
+            "期初净资产与净资产变动表同期间",
+            "申购、赎回和分红保留正负方向",
+            "期末实收基金和未分配利润仍要回到期末净资产",
+            "某一张表平衡不能替代另外两张表的勾稽"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "远岚基金的主表复核人员",
+        "product": "远岚基金（示范合成产品）",
+        "date": "2026-06-30",
+        "purpose": "用不同于综合实务的正常数据，从账簿/估值到三张财务主表完成期末净资产闭环。",
+        "facts": [
+          "资产分项为现金 2,400,000.00、估值资产 31,000,000.00、其他资产 600,000.00，负债合计 400,000.00。",
+          "收入合计 2,200,000.00，费用合计 400,000.00，本期利润 1,800,000.00。",
+          "期初净资产 31,000,000.00，净申购 800,000.00，无赎回/分红，期末净资产 33,600,000.00。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "确认账簿、估值表、资产负债表、利润表和净资产变动表均为远岚基金 2026-06-30 口径",
+          "reason": "跨表计算的前提是对象、期间和截止日一致。"
+        },
+        {
+          "order": 2,
+          "action": "复算资产总额 2,400,000 + 31,000,000 + 600,000 = 34,000,000，减负债 400,000 得净资产 33,600,000",
+          "reason": "资产负债表不能只读期末净资产字段，必须做资产和负债两边的算式。"
+        },
+        {
+          "order": 3,
+          "action": "复算利润 2,200,000 - 400,000 = 1,800,000",
+          "reason": "利润表收入、费用合计要能回到本期利润。"
+        },
+        {
+          "order": 4,
+          "action": "复算净资产变动 31,000,000 + 800,000 + 1,800,000 = 33,600,000，并填入期末实收基金 31,800,000、未分配利润 1,800,000",
+          "reason": "净资产变动表同时承接资金变动和利润结果，不能只做主表字段复制。"
+        },
+        {
+          "order": 5,
+          "action": "确认资产负债表、利润表和净资产变动表的期末净资产均为 33,600,000，记录 BALANCED",
+          "reason": "正常结论由资产、负债、利润和净资产变动四条数字链共同支持。"
+        }
+      ],
+      "summary": "锁定同期间资料 → 复算资产/负债 → 复算收入/费用/利润 → 复算净资产变动和表内局部 → 三表闭合"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-ED-STATEMENTS-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把主表字段映射到可核对的账簿或估值来源。",
+          "fieldMappings": [
+            {
+              "fieldId": "cash-source",
+              "label": "资产负债表现金",
+              "source": "主表/账簿",
+              "options": [
+                {
+                  "optionId": "CASH_LEDGER",
+                  "text": "现金/银行存款账簿"
+                },
+                {
+                  "optionId": "INCOME_STATEMENT",
+                  "text": "利润表本期利润"
+                }
+              ]
+            },
+            {
+              "fieldId": "trading-assets-source",
+              "label": "交易性资产",
+              "source": "主表/估值表",
+              "options": [
+                {
+                  "optionId": "VALUATION_SHEET",
+                  "text": "估值表期末资产"
+                },
+                {
+                  "optionId": "NET_ASSET_CHANGE",
+                  "text": "净资产变动表期初余额"
+                }
+              ]
+            },
+            {
+              "fieldId": "profit-source",
+              "label": "本期利润",
+              "source": "利润表/账簿",
+              "options": [
+                {
+                  "optionId": "INCOME_STATEMENT",
+                  "text": "收入总额减费用总额"
+                },
+                {
+                  "optionId": "BALANCE_SHEET",
+                  "text": "资产总额减负债总额"
+                }
+              ]
+            }
+          ],
+          "answer": [
+            "CASH_LEDGER",
+            "VALUATION_SHEET",
+            "INCOME_STATEMENT"
+          ],
+          "explanation": "现金、估值资产和利润分别回到对应资料来源，主表之间只做勾稽，不互相伪造来源。",
+          "hints": [
+            "先问这个字段能否由来源分项复算。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-STATEMENTS-Q-02",
+          "type": "CALCULATION",
+          "prompt": "复算远岚基金示范的资产负债表和利润表。",
+          "calculation": {
+            "fields": [
+              {
+                "fieldId": "asset-total",
+                "label": "资产总额",
+                "formula": "2,400,000 + 31,000,000 + 600,000",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "statement-net-assets",
+                "label": "资产减负债的净资产",
+                "formula": "34,000,000 - 400,000",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "profit-total",
+                "label": "本期利润",
+                "formula": "2,200,000 - 400,000",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              }
+            ]
+          },
+          "answer": [
+            "34000000",
+            "33600000",
+            "1800000"
+          ],
+          "explanation": "资产总额、资产减负债的净资产和利润必须分别计算。",
+          "hints": [
+            "不要直接把示范中写出的净资产当作资产负债表计算结果。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-STATEMENTS-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把净资产变动表期末局部填入对应账簿/表格栏。",
+          "ledgerEntries": [
+            {
+              "entryId": "contributed-fund",
+              "direction": "期末余额",
+              "label": "实收基金 31,800,000.00 元",
+              "amount": "31,800,000.00 元",
+              "placeholder": "输入表格栏"
+            },
+            {
+              "entryId": "undistributed-profit",
+              "direction": "期末余额",
+              "label": "未分配利润 1,800,000.00 元",
+              "amount": "1,800,000.00 元",
+              "placeholder": "输入表格栏"
+            }
+          ],
+          "answer": [
+            "净资产变动表—实收基金",
+            "净资产变动表—未分配利润"
+          ],
+          "explanation": "局部填表仍要让实收基金和未分配利润合计回到期末净资产。",
+          "hints": [
+            "填对象栏，不要把两项合成一个没有来源的净资产数。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-STATEMENTS-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "完成资产负债表、利润表和净资产变动表勾稽。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "asset-balance-diff",
+                "label": "资产总额 - 负债 - 期末净资产",
+                "kind": "NUMBER",
+                "formula": "34,000,000 - 400,000 - 33,600,000",
+                "placeholder": "输入差额",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "profit-diff",
+                "label": "收入 - 费用 - 本期利润",
+                "kind": "NUMBER",
+                "formula": "2,200,000 - 400,000 - 1,800,000",
+                "placeholder": "输入差额",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "rollforward-diff",
+                "label": "期初净资产 + 申购 + 利润 - 期末净资产",
+                "kind": "NUMBER",
+                "formula": "31,000,000 + 800,000 + 1,800,000 - 33,600,000",
+                "placeholder": "输入差额",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "closure-status",
+                "label": "三表闭合状态",
+                "kind": "SELECT",
+                "formula": "资产负债表、利润表、净资产变动表期末结果一致",
+                "placeholder": "选择状态",
+                "options": [
+                  {
+                    "optionId": "BALANCED",
+                    "text": "闭合"
+                  },
+                  {
+                    "optionId": "UNBALANCED",
+                    "text": "未闭合"
+                  }
+                ]
+              }
+            ]
+          },
+          "answer": [
+            "0",
+            "0",
+            "0",
+            "BALANCED"
+          ],
+          "explanation": "三条差额分别为零，且期末净资产从资产负债表和净资产变动表两条路径得到同一结果。",
+          "hints": [
+            "主表平衡要分别保留三条差额。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-STATEMENTS-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话说明为什么主表复核不能只做字段映射。",
+          "textInput": {
+            "label": "跨表闭环结论",
+            "placeholder": "写出资产、利润和净资产变动至少两条计算链"
+          },
+          "answer": [
+            "资产",
+            "负债",
+            "利润",
+            "净资产",
+            "跨表",
+            "闭合"
+          ],
+          "explanation": "字段映射只是取数起点，必须用资产减负债、收入减费用和净资产变动链完成闭环。",
+          "hints": [
+            "至少写出一个资产链和一个净资产变动链。"
+          ]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "和宁基金的财务主表复核人员",
+        "product": "和宁基金（脱敏合成产品）",
+        "date": "2026-06-30",
+        "purpose": "从同一正常中报资料包的账簿、估值表和三张主表复算期末净资产，并完成跨表闭合。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "EDS-CASE-OPENING-LEDGER",
+          "title": "期初净资产与资金变动台账",
+          "kind": "LEDGER",
+          "description": "提供净资产变动表的期初和期间资金变动字段。",
+          "fields": [
+            {
+              "fieldId": "beginning-net-assets",
+              "label": "期初净资产",
+              "value": "100000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "beginning-contributed-fund",
+              "label": "期初实收基金",
+              "value": "100000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "subscription",
+              "label": "净申购",
+              "value": "4000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "redemption",
+              "label": "赎回",
+              "value": "0.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "distribution",
+              "label": "分红",
+              "value": "0.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDS-CASE-VALUATION",
+          "title": "期末估值表与资产账簿",
+          "kind": "VALUATION",
+          "description": "资产分项和期末估值结果均已完整提供。",
+          "fields": [
+            {
+              "fieldId": "cash",
+              "label": "现金及银行存款",
+              "value": "8600000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "trading-assets",
+              "label": "交易性资产",
+              "value": "100800000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "other-assets",
+              "label": "其他资产",
+              "value": "1800000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "asset-total",
+              "label": "资产总额（待复算）",
+              "value": "111200000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDS-CASE-BALANCE",
+          "title": "资产负债表",
+          "kind": "STATEMENT",
+          "description": "负债、实收基金、未分配利润和期末净资产完整且平衡。",
+          "fields": [
+            {
+              "fieldId": "management-payable",
+              "label": "管理人报酬应付",
+              "value": "450000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "custody-payable",
+              "label": "托管费应付",
+              "value": "120000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "clearing-payable",
+              "label": "清算款应付",
+              "value": "500000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "other-liabilities",
+              "label": "其他负债",
+              "value": "130000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "liability-total",
+              "label": "负债总额（待复算）",
+              "value": "1200000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "contributed-fund",
+              "label": "实收基金",
+              "value": "104000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "undistributed-profit",
+              "label": "未分配利润",
+              "value": "6000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "ending-net-assets",
+              "label": "期末净资产",
+              "value": "110000000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDS-CASE-INCOME",
+          "title": "利润表",
+          "kind": "STATEMENT",
+          "description": "收入、费用和本期利润分项完整，需独立复算合计。",
+          "fields": [
+            {
+              "fieldId": "interest-income",
+              "label": "利息收入",
+              "value": "1000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "investment-income",
+              "label": "投资收益",
+              "value": "3500000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fair-value-change",
+              "label": "公允价值变动损益",
+              "value": "2200000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "other-income",
+              "label": "其他收入",
+              "value": "300000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "income-total",
+              "label": "收入总额（待复算）",
+              "value": "7000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "management-fee",
+              "label": "管理费",
+              "value": "600000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "custody-fee",
+              "label": "托管费",
+              "value": "100000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "sales-service-fee",
+              "label": "销售服务费",
+              "value": "100000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "other-expense",
+              "label": "其他费用",
+              "value": "200000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "expense-total",
+              "label": "费用总额（待复算）",
+              "value": "1000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "profit-total",
+              "label": "本期利润",
+              "value": "6000000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDS-CASE-NET-CHANGE",
+          "title": "净资产变动表",
+          "kind": "REPORT",
+          "description": "期初净资产、申购/赎回、分红、本期利润和期末净资产形成完整变动链。",
+          "fields": [
+            {
+              "fieldId": "beginning-net-assets",
+              "label": "期初净资产",
+              "value": "100000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "subscription",
+              "label": "净申购",
+              "value": "4000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "redemption",
+              "label": "赎回",
+              "value": "0.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "distribution",
+              "label": "分红",
+              "value": "0.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "profit-total",
+              "label": "本期利润",
+              "value": "6000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "ending-net-assets",
+              "label": "期末净资产",
+              "value": "110000000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDS-CASE-RECON",
+          "title": "主表跨来源勾稽表",
+          "kind": "RECONCILIATION",
+          "description": "要求学习者独立填入资产、负债、利润和净资产变动差额；资料状态为正常完整。",
+          "fields": [
+            {
+              "fieldId": "balance-sheet-check",
+              "label": "资产 - 负债 - 净资产",
+              "value": "待复算"
+            },
+            {
+              "fieldId": "income-statement-check",
+              "label": "收入 - 费用 - 利润",
+              "value": "待复算"
+            },
+            {
+              "fieldId": "net-asset-rollforward-check",
+              "label": "期初 + 资金变动 + 利润 - 期末",
+              "value": "待复算"
+            },
+            {
+              "fieldId": "source-status",
+              "label": "资料状态",
+              "value": "正常完整"
+            }
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "asset-source",
+          "type": "FIELD_MAP",
+          "title": "确认资产取数来源",
+          "instruction": "选择现金、交易性资产和其他资产应回到的资料对象。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "VALUATION_LEDGER",
+                "text": "估值表与资产账簿"
+              },
+              {
+                "optionId": "INCOME_STATEMENT",
+                "text": "利润表收入/费用"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "asset-total",
+          "type": "CALCULATION",
+          "title": "复算资产总额",
+          "instruction": "8,600,000 + 100,800,000 + 1,800,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "liability-total",
+          "type": "CALCULATION",
+          "title": "复算负债总额",
+          "instruction": "450,000 + 120,000 + 500,000 + 130,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "statement-net-assets",
+          "type": "RECONCILIATION",
+          "title": "由资产负债表复算期末净资产",
+          "instruction": "用资产总额 111,200,000 减负债总额 1,200,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "income-total",
+          "type": "CALCULATION",
+          "title": "复算收入总额",
+          "instruction": "1,000,000 + 3,500,000 + 2,200,000 + 300,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "expense-total",
+          "type": "CALCULATION",
+          "title": "复算费用总额",
+          "instruction": "600,000 + 100,000 + 100,000 + 200,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "profit-total",
+          "type": "RECONCILIATION",
+          "title": "复算本期利润",
+          "instruction": "用收入总额 7,000,000 减费用总额 1,000,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "opening-net-assets",
+          "type": "FIELD_MAP",
+          "title": "读取期初净资产",
+          "instruction": "从净资产变动表和期初台账读取期初净资产。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "subscription-change",
+          "type": "CALCULATION",
+          "title": "复算期间资金变动",
+          "instruction": "净申购 4,000,000 - 赎回 0 - 分红 0。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "net-assets-rollforward",
+          "type": "RECONCILIATION",
+          "title": "复算净资产变动链",
+          "instruction": "100,000,000 + 4,000,000 + 6,000,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "ending-contributed-fund",
+          "type": "LEDGER_ENTRY",
+          "title": "填入期末实收基金",
+          "instruction": "把资产负债表期末实收基金填入净资产变动表局部。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "ending-undistributed-profit",
+          "type": "LEDGER_ENTRY",
+          "title": "填入期末未分配利润",
+          "instruction": "把资产负债表期末未分配利润填入净资产变动表局部。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "statement-closure",
+          "type": "RECONCILIATION",
+          "title": "确认三表闭合",
+          "instruction": "资产负债表、利润表和净资产变动表的期末结果均一致时选择 BALANCED。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "BALANCED",
+                "text": "三表闭合"
+              },
+              {
+                "optionId": "UNBALANCED",
+                "text": "存在差额"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "形成主表复核结论",
+          "instruction": "简短报告资产总额、负债总额、利润、期末净资产和净资产变动链。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入对象或结论"
+          }
+        }
+      ],
+      "submissionNote": "本案例资料完整且业务正常。请从账簿/估值表取数，分别复算资产、负债、收入、费用和利润，再用资产负债表与净资产变动表闭合期末净资产；不得只做字段映射。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ED-STATEMENTS-ANNUAL-DOCX",
+      "title": "年报和中报计算流程-更新版20250220",
+      "source": "project_materials/新人陪练案例库/核算/03_估值对账与信息披露__年报和中报计算流程-更新版20250220.docx",
+      "usage": "P0130-P0202 与 T04-T06 支持资产负债表、利润表、净资产变动表的字段关系和期末净资产计算；P0178-P0202 支持主表公式及跨表关系。"
+    },
+    {
+      "referenceId": "ED-STATEMENTS-OLD-DOC",
+      "title": "年报半年报复核事项及要求",
+      "source": "project_materials/新人陪练案例库/核算/03_估值对账与信息披露__年报半年报复核事项及要求.doc",
+      "usage": "P0005-P0024 支持正常复核的资料核对和底稿原则；老式 DOC 版式和页码未可靠恢复，不使用伪造页码。"
+    },
+    {
+      "referenceId": "ED-STATEMENTS-IMAGE-EVIDENCE",
+      "title": "历史主表截图证据",
+      "source": "annual-interim DOCX media/image8.png and related media objects",
+      "usage": "仅支持主表/比较表对象关系和视觉核对背景；截图金额不直接复制到本路线综合答案。"
+    }
+  ]
+}

@@ -1,0 +1,454 @@
+{
+  "routeId": "ACC-ED-STATEMENTS-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-EDS-SOURCE",
+          "description": "理解账簿/估值表是主表分项的来源，主表合计要由分项复算。",
+          "weight": 10,
+          "evidenceRequirement": "资产取数来源选择估值表与资产账簿。",
+          "evidenceRules": [
+            {
+              "fieldId": "asset-source",
+              "operator": "EQUALS",
+              "expected": "VALUATION_LEDGER"
+            }
+          ],
+          "remediationTargetId": "R-EDS-SOURCE"
+        },
+        {
+          "criterionId": "C-EDS-STATEMENT",
+          "description": "理解资产、负债、收入、费用和本期利润的主表关系。",
+          "weight": 8,
+          "evidenceRequirement": "资产总额 111,200,000、负债总额 1,200,000、收入 7,000,000、费用 1,000,000、利润 6,000,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "asset-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 111200000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "liability-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1200000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "income-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 7000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "expense-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "profit-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 6000000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDS-STATEMENTS"
+        },
+        {
+          "criterionId": "C-EDS-NET-ASSET",
+          "description": "理解期末净资产既受资产负债表平衡约束，也受净资产变动链约束。",
+          "weight": 7,
+          "evidenceRequirement": "期末净资产 110,000,000，期末实收基金 104,000,000，未分配利润 6,000,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "statement-net-assets",
+              "operator": "NUMBER_EQUALS",
+              "expected": 110000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "net-assets-rollforward",
+              "operator": "NUMBER_EQUALS",
+              "expected": 110000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "ending-contributed-fund",
+              "operator": "NUMBER_EQUALS",
+              "expected": 104000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "ending-undistributed-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 6000000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDS-NET-ASSETS"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-EDS-ASSET",
+          "description": "从估值表/账簿分项复算资产总额和负债总额。",
+          "weight": 8,
+          "evidenceRequirement": "资产和负债分项合计均正确。",
+          "evidenceRules": [
+            {
+              "fieldId": "asset-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 111200000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "liability-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1200000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDS-STATEMENTS"
+        },
+        {
+          "criterionId": "P-EDS-INCOME",
+          "description": "从利润表分项复算收入、费用和本期利润。",
+          "weight": 8,
+          "evidenceRequirement": "收入、费用和利润分别计算，不直接抄利润。",
+          "evidenceRules": [
+            {
+              "fieldId": "income-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 7000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "expense-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "profit-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 6000000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDS-PROFIT"
+        },
+        {
+          "criterionId": "P-EDS-ROLLFORWARD",
+          "description": "用期初净资产、资金变动和利润完成净资产变动链。",
+          "weight": 8,
+          "evidenceRequirement": "100,000,000 + 4,000,000 + 6,000,000 = 110,000,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "opening-net-assets",
+              "operator": "NUMBER_EQUALS",
+              "expected": 100000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "subscription-change",
+              "operator": "NUMBER_EQUALS",
+              "expected": 4000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "net-assets-rollforward",
+              "operator": "NUMBER_EQUALS",
+              "expected": 110000000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDS-NET-ASSETS"
+        },
+        {
+          "criterionId": "P-EDS-LEDGER",
+          "description": "把期末实收基金和未分配利润填入净资产变动表局部并回到净资产。",
+          "weight": 6,
+          "evidenceRequirement": "实收基金 104,000,000、未分配利润 6,000,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "ending-contributed-fund",
+              "operator": "NUMBER_EQUALS",
+              "expected": 104000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "ending-undistributed-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 6000000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDS-LEDGER"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "K-EDS-TOTALS",
+          "description": "不遗漏负债分项或直接采用未经复算的合计。",
+          "weight": 10,
+          "evidenceRequirement": "负债总额由四个负债分项复算为 1,200,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "liability-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1200000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDS-STATEMENTS"
+        },
+        {
+          "criterionId": "K-EDS-CROSS-TABLE",
+          "description": "不以单张主表平衡替代三表跨表勾稽。",
+          "weight": 8,
+          "evidenceRequirement": "资产负债表、利润表和净资产变动表均形成闭合结果。",
+          "evidenceRules": [
+            {
+              "fieldId": "statement-net-assets",
+              "operator": "NUMBER_EQUALS",
+              "expected": 110000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "profit-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 6000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "net-assets-rollforward",
+              "operator": "NUMBER_EQUALS",
+              "expected": 110000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "statement-closure",
+              "operator": "EQUALS",
+              "expected": "BALANCED"
+            }
+          ],
+          "remediationTargetId": "R-EDS-NET-ASSETS"
+        },
+        {
+          "criterionId": "K-EDS-PERIOD",
+          "description": "不混用期初、期末或其他期间金额。",
+          "weight": 7,
+          "evidenceRequirement": "期初净资产 100,000,000 与期末净资产 110,000,000 在同一变动链内。",
+          "evidenceRules": [
+            {
+              "fieldId": "opening-net-assets",
+              "operator": "NUMBER_EQUALS",
+              "expected": 100000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "ending-contributed-fund",
+              "operator": "NUMBER_EQUALS",
+              "expected": 104000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "statement-closure",
+              "operator": "EQUALS",
+              "expected": "BALANCED"
+            }
+          ],
+          "remediationTargetId": "R-EDS-NET-ASSETS"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-EDS-CONCLUSION",
+          "description": "用简短文字报告资产、负债、利润、期末净资产及净资产变动链的闭合状态。",
+          "weight": 20,
+          "evidenceRequirement": "结论含 111,200,000、1,200,000、6,000,000、110,000,000、4,000,000 和跨表闭合。",
+          "evidenceRules": [
+            {
+              "fieldId": "result-note",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "111,200,000",
+                "1,200,000",
+                "6,000,000",
+                "110,000,000",
+                "4,000,000",
+                "跨表",
+                "闭合"
+              ]
+            }
+          ],
+          "remediationTargetId": "R-EDS-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-EDS-STATEMENT-CLOSE",
+      "description": "必须完成资产负债表和利润表的完整计算并闭合期末净资产。",
+      "evidenceRequirement": "资产 111,200,000、负债 1,200,000、净资产 110,000,000、利润 6,000,000，三表状态 BALANCED。",
+      "evidenceRules": [
+        {
+          "fieldId": "asset-total",
+          "operator": "NUMBER_EQUALS",
+          "expected": 111200000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "liability-total",
+          "operator": "NUMBER_EQUALS",
+          "expected": 1200000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "statement-net-assets",
+          "operator": "NUMBER_EQUALS",
+          "expected": 110000000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "profit-total",
+          "operator": "NUMBER_EQUALS",
+          "expected": 6000000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "statement-closure",
+          "operator": "EQUALS",
+          "expected": "BALANCED"
+        }
+      ],
+      "remediationTargetId": "R-EDS-STATEMENTS"
+    },
+    {
+      "requirementId": "M-EDS-NET-ASSET-ROLLFORWARD",
+      "description": "必须完成期初净资产、资金变动、本期利润和期末实收基金/未分配利润的闭环。",
+      "evidenceRequirement": "100,000,000 + 4,000,000 + 6,000,000 = 110,000,000，实收基金和未分配利润合计同为 110,000,000。",
+      "evidenceRules": [
+        {
+          "fieldId": "opening-net-assets",
+          "operator": "NUMBER_EQUALS",
+          "expected": 100000000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "subscription-change",
+          "operator": "NUMBER_EQUALS",
+          "expected": 4000000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "net-assets-rollforward",
+          "operator": "NUMBER_EQUALS",
+          "expected": 110000000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "ending-contributed-fund",
+          "operator": "NUMBER_EQUALS",
+          "expected": 104000000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "ending-undistributed-profit",
+          "operator": "NUMBER_EQUALS",
+          "expected": 6000000,
+          "tolerance": 0.01
+        }
+      ],
+      "remediationTargetId": "R-EDS-NET-ASSETS"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-EDS-SOURCE",
+      "title": "重新建立主表来源对应",
+      "reason": "资产、估值或利润字段没有回到正确的账簿/估值/利润表来源。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-STATEMENTS-KC-01",
+      "questionId": "ACC-ED-STATEMENTS-Q-01"
+    },
+    {
+      "targetId": "R-EDS-STATEMENTS",
+      "title": "补做资产负债表计算",
+      "reason": "资产或负债分项没有正确合计，或者只抄了期末净资产。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "2",
+      "questionId": "ACC-ED-STATEMENTS-Q-02"
+    },
+    {
+      "targetId": "R-EDS-PROFIT",
+      "title": "补做利润表计算",
+      "reason": "收入、费用和本期利润没有独立复算。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "3",
+      "questionId": "ACC-ED-STATEMENTS-Q-02"
+    },
+    {
+      "targetId": "R-EDS-NET-ASSETS",
+      "title": "重建净资产变动闭环",
+      "reason": "期初、资金变动、本期利润或期末净资产没有跨表闭合。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-STATEMENTS-KC-03",
+      "questionId": "ACC-ED-STATEMENTS-Q-04"
+    },
+    {
+      "targetId": "R-EDS-LEDGER",
+      "title": "补做主表局部填充",
+      "reason": "期末实收基金和未分配利润没有填入对应表格栏或无法回到净资产。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "4",
+      "questionId": "ACC-ED-STATEMENTS-Q-03"
+    },
+    {
+      "targetId": "R-EDS-CONCLUSION",
+      "title": "补全跨表复核结论",
+      "reason": "结论遗漏关键合计、净资产变动链或闭合状态。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "5",
+      "questionId": "ACC-ED-STATEMENTS-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "asset-source": "VALUATION_LEDGER",
+      "asset-total": 111200000,
+      "liability-total": 1200000,
+      "statement-net-assets": 110000000,
+      "income-total": 7000000,
+      "expense-total": 1000000,
+      "profit-total": 6000000,
+      "opening-net-assets": 100000000,
+      "subscription-change": 4000000,
+      "net-assets-rollforward": 110000000,
+      "ending-contributed-fund": 104000000,
+      "ending-undistributed-profit": 6000000,
+      "statement-closure": "BALANCED",
+      "result-note": "资产总额 111,200,000.00 减负债总额 1,200,000.00 得期末净资产 110,000,000.00；收入 7,000,000.00 减费用 1,000,000.00 得本期利润 6,000,000.00；期初净资产 100,000,000.00 加净申购 4,000,000.00 加利润 6,000,000.00 得期末 110,000,000.00，实收基金和未分配利润共同支持跨表闭合。"
+    }
+  }
+}

@@ -1,0 +1,836 @@
+{
+  "routeId": "ACC-ED-WORKPAPER-001",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "年报/中报任务口径与 3.1/3.2 计算底稿",
+  "summary": "在批准的年报/中报资料快照内，先锁定报告类型、期间、截止日、版本和来源，再完成 3.1 取数、3.2 净值表现计算与复算，并形成可追溯的正常工作底稿。",
+  "estimatedMinutes": 55,
+  "objectives": [
+    "从任务说明、报告资料和版本快照读取报告类型、期间、截止日及来源，不把历史模板字段当成永久规则",
+    "拆分本期利润的已实现与未实现部分，复算可供分配份额利润和净值增长率，并保留公式与精度",
+    "用利润、份额、净值表现和来源状态形成简短可追溯结论，明确标准差公式的证据边界"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ED-WORKPAPER-KC-01",
+          "type": "FLOW",
+          "title": "先锁定任务口径和来源快照",
+          "conclusion": "报告类型、报告期间、财务截止日、净值表现期间、模板/XBRL 版本和来源状态必须先一致，之后的数字才可进入同一张复核底稿。",
+          "items": [
+            "确认年报或中报以及本期起止日",
+            "分别记录财务截止日和净值表现截止日",
+            "记录本案例批准的模板、XBRL 字段和来源快照",
+            "不把历史时点、字段名或审批话术泛化为永久规则"
+          ]
+        },
+        {
+          "cardId": "ED-WORKPAPER-KC-02",
+          "type": "CATEGORIES",
+          "title": "3.1 先拆利润再取分配口径",
+          "conclusion": "本期利润总额要能由已实现和未实现部分重算；可供分配额、累计未分配利润和份额必须分别取数。",
+          "items": [
+            "已实现利润与公允价值变动形成的未实现部分分开读取",
+            "本期利润等于两部分合计并与利润表结果勾稽",
+            "可供分配额按本案例批准口径取已实现可分配部分与期末未分配利润的较小值",
+            "份额单位和金额单位不能混用"
+          ]
+        },
+        {
+          "cardId": "ED-WORKPAPER-KC-03",
+          "type": "KEY_POINT",
+          "title": "3.2 净值表现要复算并保留证据边界",
+          "conclusion": "期末单位净值和净值增长率必须从期末净资产、期末份额和批准的期初基准复算；周边文字不足以构成标准差正式公式时，不得补造。",
+          "items": [
+            "期末单位净值 = 期末净资产 ÷ 期末份额",
+            "无分红、拆分时，净值增长率 = 期末净值 ÷ 期初净值 - 1",
+            "结果按案例批准精度记录，并保留未舍入计算链",
+            "标准差仅在完整对象和公式证据可恢复时才进入正式答案"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "晴川基金的年报/中报复核人员",
+        "product": "晴川基金（示范合成产品）",
+        "date": "2026-06-30",
+        "purpose": "用一组与综合实务不同的正常资料完成任务控制、3.1 利润取数和 3.2 净值表现底稿。",
+        "facts": [
+          "本案例为中报，期间为 2026-01-01 至 2026-06-30，期末份额 51,000,000 份。",
+          "已实现利润 1,200,000.00 元，未实现利润 800,000.00 元，本期利润 2,000,000.00 元。",
+          "期末净资产 53,000,000.00 元，期末单位净值 1.039215686275，期初单位净值 1.000000。",
+          "本案例期末可供分配额 1,500,000.00 元，无分红、拆分；结果保留 6 位小数。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "在任务控制卡记录中报、2026-01-01 至 2026-06-30、财务和表现截止日 2026-06-30 以及 APPROVED_SNAPSHOT 来源状态",
+          "reason": "先锁定对象和期间，避免把前期或其他版本数字带入底稿。"
+        },
+        {
+          "order": 2,
+          "action": "计算已实现利润 1,200,000 + 未实现利润 800,000 = 本期利润 2,000,000 元",
+          "reason": "利润拆分必须能由两个来源分项复算并与本期利润合计闭合。"
+        },
+        {
+          "order": 3,
+          "action": "计算可供分配份额利润 1,500,000 ÷ 51,000,000 = 0.0294117647，按 6 位小数记录 0.029412",
+          "reason": "分配额和期末份额是不同字段，不能直接抄报表显示结果。"
+        },
+        {
+          "order": 4,
+          "action": "计算净值增长率 1.039215686275 ÷ 1.000000 - 1 = 0.039215686275，按 6 位小数记录 0.039216",
+          "reason": "无分红和拆分时才可以按本案例批准基准直接复算增长率。"
+        },
+        {
+          "order": 5,
+          "action": "在底稿结论中列出利润拆分、分配份额利润和净值增长率，并把标准差标记为 EXCLUDED_BY_EVIDENCE",
+          "reason": "结论必须同时说明算得出的结果和没有充分对象证据的边界。"
+        }
+      ],
+      "summary": "锁定任务口径 → 3.1 利润拆分 → 分配份额利润复算 → 3.2 净值增长率复算 → 形成带证据边界的底稿结论"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-ED-WORKPAPER-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把任务说明字段映射到本次中报复核控制卡。",
+          "fieldMappings": [
+            {
+              "fieldId": "report-type",
+              "label": "报告类型：中报",
+              "source": "任务说明",
+              "options": [
+                {
+                  "optionId": "SEMI_ANNUAL",
+                  "text": "中报"
+                },
+                {
+                  "optionId": "ANNUAL",
+                  "text": "年报"
+                }
+              ]
+            },
+            {
+              "fieldId": "financial-cutoff",
+              "label": "财务截止日：2026-06-30",
+              "source": "报告封面/任务卡",
+              "options": [
+                {
+                  "optionId": "PERIOD_END_2026_06_30",
+                  "text": "2026-06-30"
+                },
+                {
+                  "optionId": "PRIOR_PERIOD",
+                  "text": "前期截止日"
+                }
+              ]
+            },
+            {
+              "fieldId": "source-snapshot",
+              "label": "本案例允许的来源版本",
+              "source": "批准快照",
+              "options": [
+                {
+                  "optionId": "APPROVED_SNAPSHOT",
+                  "text": "CASE-ED-B1-XBRL-01"
+                },
+                {
+                  "optionId": "HISTORICAL_DEFAULT",
+                  "text": "沿用历史默认版本"
+                }
+              ]
+            }
+          ],
+          "answer": [
+            "SEMI_ANNUAL",
+            "PERIOD_END_2026_06_30",
+            "APPROVED_SNAPSHOT"
+          ],
+          "explanation": "报告类型、期末日期和批准来源状态均必须先固定，历史默认版本不能替代本案例批准快照。",
+          "hints": [
+            "先看任务范围和批准快照，再读数字。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-WORKPAPER-Q-02",
+          "type": "CALCULATION",
+          "prompt": "根据已实现、未实现和净值字段完成 3.1/3.2 复算。",
+          "calculation": {
+            "fields": [
+              {
+                "fieldId": "realized-profit",
+                "label": "已实现利润",
+                "formula": "6,000,000 - 2,200,000",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "profit-total",
+                "label": "本期利润",
+                "formula": "3,800,000 + 2,200,000",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "nav-growth",
+                "label": "净值增长率",
+                "formula": "1.057692307692 ÷ 1.000000 - 1",
+                "placeholder": "输入小数",
+                "unit": "小数",
+                "precision": 6,
+                "tolerance": 0.000001
+              }
+            ]
+          },
+          "answer": [
+            "3800000",
+            "6000000",
+            "0.057692"
+          ],
+          "explanation": "先从本期利润和公允价值变动反推出已实现利润，再用两部分合计复核本期利润，最后按期初净值复算增长率。",
+          "hints": [
+            "净值增长率保留未舍入中间值，最后再按批准精度舍入。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-WORKPAPER-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把利润拆分结果填入工作底稿的来源/科目栏。",
+          "ledgerEntries": [
+            {
+              "entryId": "realized-source",
+              "direction": "取数",
+              "label": "已实现利润 3,800,000.00 元",
+              "amount": "3,800,000.00 元",
+              "placeholder": "输入来源对象"
+            },
+            {
+              "entryId": "unrealized-source",
+              "direction": "取数",
+              "label": "未实现利润 2,200,000.00 元",
+              "amount": "2,200,000.00 元",
+              "placeholder": "输入来源对象"
+            }
+          ],
+          "answer": [
+            "利润表/账簿—本期利润—已实现",
+            "利润表/估值表—公允价值变动—未实现"
+          ],
+          "explanation": "工作底稿要同时保留金额和来源对象，不能只填一个利润总额。",
+          "hints": [
+            "区分本期利润合计和公允价值变动形成的未实现部分。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-WORKPAPER-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "核对利润合计、净值增长率和公式证据边界。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "profit-total-check",
+                "label": "3.8m + 2.2m 与本期利润",
+                "kind": "NUMBER",
+                "formula": "3,800,000 + 2,200,000 - 6,000,000",
+                "placeholder": "输入差额",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "growth-check",
+                "label": "净值增长率复算差额",
+                "kind": "NUMBER",
+                "formula": "1.057692307692 ÷ 1.000000 - 1 - 0.057692307692",
+                "placeholder": "输入差额",
+              "precision": 8,
+                "tolerance": 0.000001
+              },
+              {
+                "fieldId": "link-status",
+                "label": "跨表/跨来源状态",
+                "kind": "SELECT",
+                "formula": "利润、净值和期间来源均一致",
+                "placeholder": "选择状态",
+                "options": [
+                  {
+                    "optionId": "MATCHED",
+                    "text": "一致"
+                  },
+                  {
+                    "optionId": "UNMATCHED",
+                    "text": "不一致"
+                  }
+                ]
+              }
+            ]
+          },
+          "answer": [
+            "0",
+            "0",
+            "MATCHED"
+          ],
+          "explanation": "两个数值差额均为零，且来源、期间和公式对象可以连成同一条复算链。",
+          "hints": [
+            "不把标准差文字当作已闭合公式。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-WORKPAPER-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出本期利润、期末单位净值、净值增长率和标准差边界。",
+          "textInput": {
+            "label": "底稿结论",
+            "placeholder": "至少写出利润拆分、净值结果、增长率和证据边界"
+          },
+          "answer": [
+            "3,800,000",
+            "2,200,000",
+            "6,000,000",
+            "1.057692",
+            "0.057692",
+            "一致",
+            "标准差"
+          ],
+          "explanation": "可追溯结论应保留数字链、来源闭合状态和标准差证据边界。",
+          "hints": [
+            "不要写成只有签送或升级动作的结论。"
+          ]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "和宁基金的年报/中报复核人员",
+        "product": "和宁基金（脱敏合成产品）",
+        "date": "2026-06-30",
+        "purpose": "使用同一套正常中报资料包，完成任务口径、3.1 利润与分配份额、3.2 净值表现的取数、计算、复算和底稿结论。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "EDW-CASE-CONTROL",
+          "title": "本案例任务口径与来源批准卡",
+          "kind": "INSTRUCTION",
+          "description": "这是本案例批准快照；时点、模板、字段和版本仅用于本题，不构成永久规则。",
+          "fields": [
+            {
+              "fieldId": "report-type",
+              "label": "报告类型",
+              "value": "中报 / SEMI_ANNUAL"
+            },
+            {
+              "fieldId": "report-period",
+              "label": "报告期间",
+              "value": "2026-01-01 至 2026-06-30"
+            },
+            {
+              "fieldId": "financial-cutoff",
+              "label": "财务截止日",
+              "value": "2026-06-30"
+            },
+            {
+              "fieldId": "performance-cutoff",
+              "label": "净值表现截止日",
+              "value": "2026-06-30"
+            },
+            {
+              "fieldId": "review-window",
+              "label": "复核窗口",
+              "value": "CASE-ED-B1-WINDOW-01"
+            },
+            {
+              "fieldId": "source-version",
+              "label": "XBRL/Word 来源版本",
+              "value": "CASE-ED-B1-XBRL-01"
+            },
+            {
+              "fieldId": "precision",
+              "label": "结果精度",
+              "value": "金额 2 位小数；单位净值、增长率和份额利润 6 位小数"
+            }
+          ]
+        },
+        {
+          "materialId": "EDW-CASE-PROFILE",
+          "title": "和宁基金份额与净值对象",
+          "kind": "CONFIRMATION",
+          "description": "脱敏合成产品的期初/期末单位和期末净值对象。",
+          "fields": [
+            {
+              "fieldId": "fund-name",
+              "label": "产品",
+              "value": "和宁基金（脱敏合成产品）"
+            },
+            {
+              "fieldId": "fund-code",
+              "label": "产品代码",
+              "value": "CASE-FUND-001"
+            },
+            {
+              "fieldId": "beginning-units",
+              "label": "期初份额",
+              "value": "100000000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "ending-units",
+              "label": "期末份额",
+              "value": "104000000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "beginning-nav",
+              "label": "期初单位净值",
+              "value": "1.000000"
+            },
+            {
+              "fieldId": "ending-nav",
+              "label": "期末单位净值",
+              "value": "1.057692307692"
+            },
+            {
+              "fieldId": "distribution-split",
+              "label": "分红/拆分",
+              "value": "无"
+            }
+          ]
+        },
+        {
+          "materialId": "EDW-CASE-PROFIT-LEDGER",
+          "title": "本期利润拆分账簿与利润表结果",
+          "kind": "LEDGER",
+          "description": "来源对象已按已实现、未实现和本期利润分别列示。",
+          "fields": [
+            {
+              "fieldId": "realized-profit",
+              "label": "已实现利润",
+              "value": "3800000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "unrealized-profit",
+              "label": "未实现利润/公允价值变动",
+              "value": "2200000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fair-value-change",
+              "label": "公允价值变动损益",
+              "value": "2200000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "profit-total",
+              "label": "本期利润",
+              "value": "6000000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDW-CASE-DISTRIBUTION",
+          "title": "可供分配额与份额资料",
+          "kind": "STATEMENT",
+          "description": "资料完整，按本案例批准口径取已实现可分配部分与期末未分配利润的较小值。",
+          "fields": [
+            {
+              "fieldId": "ending-undistributed-profit",
+              "label": "期末未分配利润",
+              "value": "6000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "realized-undistributed-profit",
+              "label": "已实现可分配部分",
+              "value": "5800000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "available-distributable",
+              "label": "可供分配额",
+              "value": "5800000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "distribution-per-unit",
+              "label": "可供分配份额利润（未舍入）",
+              "value": "0.055769230769",
+              "unit": "元/份"
+            }
+          ]
+        },
+        {
+          "materialId": "EDW-CASE-VALUATION",
+          "title": "期末估值与净资产结果",
+          "kind": "VALUATION",
+          "description": "期末净资产和单位净值可由估值结果独立复算。",
+          "fields": [
+            {
+              "fieldId": "ending-net-assets",
+              "label": "期末净资产",
+              "value": "110000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "ending-units",
+              "label": "期末份额",
+              "value": "104000000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "ending-nav",
+              "label": "期末单位净值（未舍入）",
+              "value": "1.057692307692"
+            }
+          ]
+        },
+        {
+          "materialId": "EDW-CASE-NAV",
+          "title": "3.2 净值表现报告字段",
+          "kind": "REPORT",
+          "description": "期初基准、期末净值、期间和分红/拆分状态均已提供。",
+          "fields": [
+            {
+              "fieldId": "performance-period",
+              "label": "表现期间",
+              "value": "2026-01-01 至 2026-06-30"
+            },
+            {
+              "fieldId": "beginning-nav",
+              "label": "期初单位净值",
+              "value": "1.000000"
+            },
+            {
+              "fieldId": "ending-nav",
+              "label": "期末单位净值",
+              "value": "1.057692307692"
+            },
+            {
+              "fieldId": "nav-growth",
+              "label": "净值增长率（未舍入）",
+              "value": "0.057692307692"
+            },
+            {
+              "fieldId": "distribution-split",
+              "label": "期间分红/拆分",
+              "value": "无"
+            }
+          ]
+        },
+        {
+          "materialId": "EDW-CASE-RECON",
+          "title": "跨来源复核状态表",
+          "kind": "RECONCILIATION",
+          "description": "待学习者填入复算结果；资料包状态为正常完整，结论只能由数字链支持。",
+          "fields": [
+            {
+              "fieldId": "profit-recon",
+              "label": "已实现 + 未实现 = 本期利润",
+              "value": "待复算"
+            },
+            {
+              "fieldId": "nav-recon",
+              "label": "期末净资产 ÷ 期末份额 = 期末单位净值",
+              "value": "待复算"
+            },
+            {
+              "fieldId": "growth-recon",
+              "label": "期末净值 ÷ 期初净值 - 1",
+              "value": "待复算"
+            },
+            {
+              "fieldId": "source-status",
+              "label": "资料状态",
+              "value": "正常完整"
+            }
+          ]
+        },
+        {
+          "materialId": "EDW-CASE-FORMULA-BOUNDARY",
+          "title": "公式、精度与敏感边界批准卡",
+          "kind": "PARAMETER",
+          "description": "本案例只把证据充分的公式纳入答案；标准差周边文本对象不完整，不能补造成正式公式。",
+          "fields": [
+            {
+              "fieldId": "approved-formulas",
+              "label": "批准公式",
+              "value": "利润拆分；可供分配额 ÷ 期末份额；期末净资产 ÷ 期末份额；期末净值 ÷ 期初净值 - 1"
+            },
+            {
+              "fieldId": "standard-deviation",
+              "label": "标准差",
+              "value": "EXCLUDED_BY_EVIDENCE：未提供可恢复的完整正式公式对象"
+            },
+            {
+              "fieldId": "tolerance",
+              "label": "数值容差",
+              "value": "金额按 0.01 元；6 位小数结果按 0.000001"
+            },
+            {
+              "fieldId": "sensitive-boundary",
+              "label": "敏感信息边界",
+              "value": "不得填写真实机构、账号、联系人、内部路径或权限信息"
+            }
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "control-report-type",
+          "type": "FIELD_MAP",
+          "title": "锁定报告类型",
+          "instruction": "从任务口径卡读取本次报告类型。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择报告类型",
+            "options": [
+              {
+                "optionId": "SEMI_ANNUAL",
+                "text": "中报"
+              },
+              {
+                "optionId": "ANNUAL",
+                "text": "年报"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "control-period",
+          "type": "FIELD_MAP",
+          "title": "锁定报告期间",
+          "instruction": "读取报告期间并确认期末为 2026-06-30。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择期间",
+            "options": [
+              {
+                "optionId": "2026H1",
+                "text": "2026-01-01 至 2026-06-30"
+              },
+              {
+                "optionId": "PRIOR_PERIOD",
+                "text": "前期期间"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "control-source-version",
+          "type": "FIELD_MAP",
+          "title": "锁定来源版本",
+          "instruction": "选择本案例批准的 XBRL/Word 来源快照。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择来源状态",
+            "options": [
+              {
+                "optionId": "APPROVED_SNAPSHOT",
+                "text": "CASE-ED-B1-XBRL-01"
+              },
+              {
+                "optionId": "HISTORICAL_DEFAULT",
+                "text": "历史默认版本"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "realized-profit",
+          "type": "CALCULATION",
+          "title": "复算已实现利润",
+          "instruction": "用本期利润减去公允价值变动形成的未实现部分：6,000,000 - 2,200,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "unrealized-profit",
+          "type": "CALCULATION",
+          "title": "读取未实现利润",
+          "instruction": "从公允价值变动字段读取未实现利润。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "profit-total",
+          "type": "RECONCILIATION",
+          "title": "闭合本期利润",
+          "instruction": "用已实现利润加未实现利润，复核本期利润。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "profit-realized-source",
+          "type": "LEDGER_ENTRY",
+          "title": "填写已实现利润来源",
+          "instruction": "填写工作底稿中已实现利润的来源对象。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入来源对象"
+          }
+        },
+        {
+          "workItemId": "profit-unrealized-source",
+          "type": "LEDGER_ENTRY",
+          "title": "填写未实现利润来源",
+          "instruction": "填写工作底稿中未实现利润/公允价值变动的来源对象。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入来源对象"
+          }
+        },
+        {
+          "workItemId": "ending-units",
+          "type": "FIELD_MAP",
+          "title": "读取期末份额",
+          "instruction": "从份额资料和净值资料读取同一截止日的期末份额。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入份额",
+            "unit": "份",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "available-distributable",
+          "type": "CALCULATION",
+          "title": "复算可供分配额",
+          "instruction": "按批准快照取 min(期末未分配利润 6,000,000, 已实现可分配部分 5,800,000)。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "distributable-per-unit",
+          "type": "CALCULATION",
+          "title": "复算可供分配份额利润",
+          "instruction": "可供分配额 5,800,000 ÷ 期末份额 104,000,000，最后保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入元/份",
+            "unit": "元/份",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "ending-nav",
+          "type": "CALCULATION",
+          "title": "复算期末单位净值",
+          "instruction": "期末净资产 110,000,000 ÷ 期末份额 104,000,000，最后保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入单位净值",
+            "unit": "元/份",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "nav-growth",
+          "type": "CALCULATION",
+          "title": "复算净值增长率",
+          "instruction": "无分红、拆分时，用 1.057692307692 ÷ 1.000000 - 1，最后保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入小数",
+            "unit": "小数",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "growth-period-link",
+          "type": "RECONCILIATION",
+          "title": "核对表现期间与净值来源",
+          "instruction": "确认期初净值、期末净值、表现期间和分红/拆分状态来自同一批准快照。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "MATCHED",
+                "text": "来源和期间一致"
+              },
+              {
+                "optionId": "UNMATCHED",
+                "text": "来源或期间不一致"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "standard-deviation-boundary",
+          "type": "FIELD_MAP",
+          "title": "记录标准差证据边界",
+          "instruction": "根据公式对象证据选择是否纳入正式答案。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择证据状态",
+            "options": [
+              {
+                "optionId": "EXCLUDED_BY_EVIDENCE",
+                "text": "对象不完整，排除正式计算"
+              },
+              {
+                "optionId": "FORMALIZED_FROM_CONTEXT",
+                "text": "仅凭周边文字补成公式"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "形成底稿结论",
+          "instruction": "简短写出利润拆分、份额利润、期末净值、净值增长率、来源一致状态和标准差边界。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入可追溯结论"
+          }
+        }
+      ],
+      "submissionNote": "本案例为资料完整、规则明确、业务正常的中报复核。请先锁定报告口径和批准来源，再取数、计算、复算并完成跨来源勾稽；不要把历史截图金额直接复制为综合答案，也不要补造标准差正式公式。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ED-WORKPAPER-OLD-DOC",
+      "title": "年报半年报复核事项及要求",
+      "source": "project_materials/新人陪练案例库/核算/03_估值对账与信息披露__年报半年报复核事项及要求.doc",
+      "usage": "P0005-P0018 支持年报/中报复核流程、资料和时点控制；P0019-P0024 支持复核原则。老式 DOC 未可靠恢复打印版式，因此不使用页码或不可确认表格定位。"
+    },
+    {
+      "referenceId": "ED-WORKPAPER-ANNUAL-DOCX",
+      "title": "年报和中报计算流程-更新版20250220",
+      "source": "project_materials/新人陪练案例库/核算/03_估值对账与信息披露__年报和中报计算流程-更新版20250220.docx",
+      "usage": "P0003-P0017 支持任务范围和资料来源；P0047-P0056/T01 支持 3.1 指标和利润取数；P0058-P0086/T02 支持 3.2 净值表现、增长率及可恢复乘积公式；P0100-P0111/T03 支持分配资料。"
+    },
+    {
+      "referenceId": "ED-WORKPAPER-FORMULA-OBJECTS",
+      "title": "年报/中报公式对象恢复边界",
+      "source": "annual-interim DOCX XML: OMML and OLE relationship inspection",
+      "usage": "可恢复的 OMML 乘积结构支持已明确的净值表现公式；word/embeddings/oleObject1.bin 至 oleObject7.bin 的 ProgID 为 Equation.3，但标准差对象缺少足够完整的正式公式结构，因此只记录证据边界。"
+    }
+  ]
+}

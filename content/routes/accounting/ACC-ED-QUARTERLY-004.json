@@ -1,0 +1,1269 @@
+{
+  "routeId": "ACC-ED-QUARTERLY-004",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "季度报告 3.1/3.2 与指定字段复核",
+  "summary": "在批准的季度定期报告资料快照内，先锁定报告期间、模板、来源和复核时点，再完成 3.1 主要财务指标、3.2 基金净值表现的取数与复算，核对管理人报告/投资组合指定字段，并以结构化底稿、主管复核和正常归档结果形成短结论。",
+  "estimatedMinutes": 65,
+  "objectives": [
+    "从季度任务控制卡、批准模板和来源快照读取报告类型、期间、截止日、模板版本和复核时点",
+    "独立复算 3.1 的利润拆分、加权平均份额利润和期末单位净值，并与基金概况字段勾稽",
+    "独立复算 3.2 净值增长率、同期业绩比较基准收益率和超额结果，核对管理人报告、投资组合指定字段及正常底稿状态",
+    "区分正常业务资料与截图中的异常列表/重签边界，不把签名、权限、发送或归档话术当作学习结果"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ED-QUARTERLY-KC-01",
+          "type": "FLOW",
+          "title": "先锁定季度任务和来源快照",
+          "conclusion": "季度报告类型、期间、财务截止日、披露日期、复核日期、批准模板和来源状态必须先一致；这些字段只作为本案例题面快照。",
+          "items": [
+            "确认本案例为季度报告以及期间起止日",
+            "确认财务截止日、披露日期和复核日期的相互关系",
+            "记录批准的模板/XBRL 字段版本和来源快照",
+            "不把 D 日后重签、权限和历史操作时点固化为永久规则"
+          ]
+        },
+        {
+          "cardId": "ED-QUARTERLY-KC-02",
+          "type": "CATEGORIES",
+          "title": "3.1 与指定字段要回到原始资料",
+          "conclusion": "3.1 主要财务指标必须由利润、份额、净资产和净值字段计算；重要提示、基金概况、管理人报告和投资组合指定字段要逐项读取并保留来源。",
+          "items": [
+            "已实现收益和未实现/公允价值变动合计为本期利润",
+            "本期利润 ÷ 加权平均份额形成加权平均基金份额本期利润",
+            "期末净资产 ÷ 期末份额形成期末单位净值",
+            "托管人、报告期间、基金概况、管理人报告和前十名证券声明分别取数"
+          ]
+        },
+        {
+          "cardId": "ED-QUARTERLY-KC-03",
+          "type": "KEY_POINT",
+          "title": "3.2 复算结果与截图边界分开",
+          "conclusion": "净值增长率要按期初净值、期末净值和本案例批准的分红口径复算，再与报告/基准字段勾稽；截图中的异常或不符列表只说明界面字段存在，不进入正常案例答案。",
+          "items": [
+            "净值增长率 =（期末单位净值 + 本案例批准的每份分红）÷ 期初单位净值 - 1",
+            "同期业绩比较基准收益率和超额结果按批准快照字段复核",
+            "截图不可靠的细小文字不补造成正式字段或公式",
+            "正常资料包不制作异常差异、重签或升级案例"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "栖禾季度基金的定期报告复核人员",
+        "product": "栖禾季度基金（示范合成产品）",
+        "date": "2026-03-31",
+        "purpose": "用与综合实务不同的正常季度资料，完成任务控制、3.1/3.2 复算、指定字段读取和结构化底稿结论。",
+        "facts": [
+          "报告为 2026 年第一季度，期间 2026-01-01 至 2026-03-31，批准复核日期 2026-04-18，披露日期 2026-04-21。",
+          "已实现收益 1,200,000.00 元，未实现收益 300,000.00 元，本期利润 1,500,000.00 元；加权平均份额 75,000,000 份。",
+          "期末净资产 82,000,000.00 元，期末份额 80,000,000 份，期末单位净值 1.025000，批准每份分红 0.005000 元。",
+          "净值增长率 = (1.025000 + 0.005000) ÷ 1.000000 - 1 = 0.030000；基准收益率 0.018000；超额结果 0.012000。",
+          "管理人报告、前十名证券声明、托管人相关信息和主管复核状态均为正常一致。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "在控制卡记录季度类型、2026-01-01 至 2026-03-31、批准模板/来源快照，并确认复核日期 2026-04-18 早于披露日期 2026-04-21",
+          "reason": "对象、期间、模板和批准时点一致后，数字和文字字段才可进入同一份底稿。"
+        },
+        {
+          "order": 2,
+          "action": "读取重要提示、基金概况和指定字段：托管人、期间、基金简称、主代码、合同生效日和期末份额",
+          "reason": "季度复核既包含数字也包含指定文字字段，不能只看 3.1/3.2。"
+        },
+        {
+          "order": 3,
+          "action": "计算 3.1：1,200,000 + 300,000 = 1,500,000；1,500,000 ÷ 75,000,000 = 0.020000；82,000,000 ÷ 80,000,000 = 1.025000",
+          "reason": "本期利润、加权平均份额利润和期末净值需要独立数值链，而不是抄表内结果。"
+        },
+        {
+          "order": 4,
+          "action": "计算 3.2：(1.025000 + 0.005000) ÷ 1.000000 - 1 = 0.030000；与基准 0.018000 勾稽，超额结果为 0.012000",
+          "reason": "批准分红口径必须与期末净值、期初净值和报告期间一致。"
+        },
+        {
+          "order": 5,
+          "action": "把 3.1/3.2 公式和指定字段填入底稿，确认管理人/投资组合字段一致、主管已复核并正常归档",
+          "reason": "结论要由数值、指定字段和复核状态共同支持，不以签送或升级动作代替业务结果。"
+        }
+      ],
+      "summary": "锁定季度控制卡 → 读取指定字段 → 3.1 数值链 → 3.2 净值表现链 → 底稿、主管复核与正常归档结论"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-ED-QUARTERLY-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把季度任务卡字段映射到本次批准复核范围。",
+          "fieldMappings": [
+            {
+              "fieldId": "report-type",
+              "label": "报告类型：季度报告",
+              "source": "季度任务控制卡",
+              "options": [
+                {
+                  "optionId": "QUARTERLY",
+                  "text": "季度报告"
+                },
+                {
+                  "optionId": "SEMI_ANNUAL",
+                  "text": "中报"
+                }
+              ]
+            },
+            {
+              "fieldId": "report-period",
+              "label": "报告期间：2026-01-01 至 2026-03-31",
+              "source": "批准模板",
+              "options": [
+                {
+                  "optionId": "2026Q1",
+                  "text": "2026Q1"
+                },
+                {
+                  "optionId": "PRIOR_PERIOD",
+                  "text": "前期期间"
+                }
+              ]
+            },
+            {
+              "fieldId": "template-source",
+              "label": "模板和来源版本",
+              "source": "批准快照",
+              "options": [
+                {
+                  "optionId": "APPROVED_SNAPSHOT",
+                  "text": "CASE-ED-B2-TEMPLATE-01 / CASE-ED-B2-XBRL-01"
+                },
+                {
+                  "optionId": "HISTORICAL_DEFAULT",
+                  "text": "历史默认版本"
+                }
+              ]
+            },
+            {
+              "fieldId": "review-timing",
+              "label": "复核日期相对披露日期",
+              "source": "重要提示/任务卡",
+              "options": [
+                {
+                  "optionId": "BEFORE_DISCLOSURE_DATE",
+                  "text": "复核日期早于披露日期"
+                },
+                {
+                  "optionId": "AFTER_DISCLOSURE_DATE",
+                  "text": "复核日期晚于披露日期"
+                }
+              ]
+            }
+          ],
+          "answer": [
+            "QUARTERLY",
+            "2026Q1",
+            "APPROVED_SNAPSHOT",
+            "BEFORE_DISCLOSURE_DATE"
+          ],
+          "explanation": "本案例先固定季度期间、批准模板/来源和复核时点；历史默认版本和 D 日后边界不替代题面快照。",
+          "hints": [
+            "先确认控制卡，再读取 3.1/3.2 数字。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-QUARTERLY-Q-02",
+          "type": "CALCULATION",
+          "prompt": "复算栖禾季度基金的 3.1 主要财务指标。",
+          "calculation": {
+            "fields": [
+              {
+                "fieldId": "current-profit",
+                "label": "本期利润",
+                "formula": "1,200,000 + 300,000",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "weighted-average-share-profit",
+                "label": "加权平均基金份额本期利润",
+                "formula": "1,500,000 ÷ 75,000,000",
+                "placeholder": "输入元/份",
+                "unit": "元/份",
+                "precision": 6,
+                "tolerance": 0.000001
+              },
+              {
+                "fieldId": "ending-nav",
+                "label": "期末基金份额净值",
+                "formula": "82,000,000 ÷ 80,000,000",
+                "placeholder": "输入单位净值",
+                "unit": "元/份",
+                "precision": 6,
+                "tolerance": 0.000001
+              }
+            ]
+          },
+          "answer": [
+            "1500000",
+            "0.020000",
+            "1.025000"
+          ],
+          "explanation": "先由已实现/未实现收益复算本期利润，再除以加权平均份额，最后用期末净资产和期末份额复算单位净值。",
+          "hints": [
+            "保留份额和金额单位，不把期末份额误作加权平均份额。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-QUARTERLY-Q-03",
+          "type": "RECONCILIATION",
+          "prompt": "复算 3.2 净值表现并完成基准勾稽。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "nav-growth",
+                "label": "净值增长率",
+                "kind": "NUMBER",
+                "formula": "(1.025000 + 0.005000) ÷ 1.000000 - 1",
+                "placeholder": "输入小数",
+                "precision": 6,
+                "tolerance": 0.000001
+              },
+              {
+                "fieldId": "benchmark-growth",
+                "label": "同期业绩比较基准收益率",
+                "kind": "NUMBER",
+                "formula": "批准报告字段",
+                "placeholder": "输入小数",
+                "precision": 6,
+                "tolerance": 0.000001
+              },
+              {
+                "fieldId": "excess-performance",
+                "label": "超额结果",
+                "kind": "NUMBER",
+                "formula": "0.030000 - 0.018000",
+                "placeholder": "输入小数",
+                "precision": 6,
+                "tolerance": 0.000001
+              },
+              {
+                "fieldId": "performance-link",
+                "label": "3.2 来源/期间状态",
+                "kind": "SELECT",
+                "formula": "期初净值、期末净值、分红、基准和报告期间一致",
+                "placeholder": "选择状态",
+                "options": [
+                  {
+                    "optionId": "MATCHED",
+                    "text": "一致"
+                  },
+                  {
+                    "optionId": "UNMATCHED",
+                    "text": "不一致"
+                  }
+                ]
+              }
+            ]
+          },
+          "answer": [
+            "0.030000",
+            "0.018000",
+            "0.012000",
+            "MATCHED"
+          ],
+          "explanation": "增长率使用批准分红口径复算，基准收益率从同一报告快照读取，超额结果由两者相减得到。",
+          "hints": [
+            "不要把截图中的异常列表当作增长率来源。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-QUARTERLY-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把 3.1 和 3.2 的复算结果填入季度手工工作底稿局部。",
+          "ledgerEntries": [
+            {
+              "entryId": "workpaper-31",
+              "direction": "复算结果",
+              "label": "3.1：本期利润 1,500,000.00；加权平均份额利润 0.020000；期末净值 1.025000",
+              "amount": "1,500,000.00 元 / 0.020000 元/份 / 1.025000",
+              "placeholder": "输入底稿栏或来源对象"
+            },
+            {
+              "entryId": "workpaper-32",
+              "direction": "复算结果",
+              "label": "3.2：净值增长率 0.030000；基准 0.018000；超额 0.012000",
+              "amount": "0.030000 / 0.018000 / 0.012000",
+              "placeholder": "输入底稿栏或来源对象"
+            }
+          ],
+          "answer": [
+            "3.1-手工计算底稿",
+            "3.2-手工计算底稿"
+          ],
+          "explanation": "局部填表要同时保留公式结果和 3.1/3.2 来源，不生成无来源的总数。",
+          "hints": [
+            "填入工作底稿对象，不要用签名或发送动作替代结果。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-QUARTERLY-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出季度复核结论，至少包含 3.1、3.2、指定字段和正常底稿状态。",
+          "textInput": {
+            "label": "季度复核结论",
+            "placeholder": "写出关键数字、字段勾稽和正常复核状态"
+          },
+          "answer": [
+            "1,200,000",
+            "300,000",
+            "1,500,000",
+            "0.020000",
+            "1.025000",
+            "0.030000",
+            "0.018000",
+            "0.012000",
+            "指定字段",
+            "主管复核",
+            "正常归档"
+          ],
+          "explanation": "短结论必须回报可复算数字、指定字段核对和正常复核状态，不写成签送/升级话术。",
+          "hints": [
+            "至少同时写 3.1、3.2 和底稿状态。"
+          ]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "澄川季度基金的定期报告复核人员",
+        "product": "澄川季度基金（脱敏合成产品）",
+        "date": "2026-06-30",
+        "purpose": "使用一套资料充分、规则明确、业务正常的 2026 年第二季度资料包，完成季度控制、3.1/3.2 计算复算、指定字段勾稽、底稿填充、主管复核和正常归档结果。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "EDQ-CASE-CONTROL",
+          "title": "季度任务控制卡与批准来源快照",
+          "kind": "INSTRUCTION",
+          "description": "本案例的季度类型、期间、模板、来源和时点均为批准题面快照，不构成永久规则。",
+          "fields": [
+            {
+              "fieldId": "report-type",
+              "label": "报告类型",
+              "value": "季度报告 / QUARTERLY"
+            },
+            {
+              "fieldId": "report-period",
+              "label": "报告期间",
+              "value": "2026-04-01 至 2026-06-30"
+            },
+            {
+              "fieldId": "financial-cutoff",
+              "label": "财务截止日",
+              "value": "2026-06-30"
+            },
+            {
+              "fieldId": "disclosure-date",
+              "label": "批准披露日期",
+              "value": "2026-07-21"
+            },
+            {
+              "fieldId": "review-date",
+              "label": "批准复核日期",
+              "value": "2026-07-18"
+            },
+            {
+              "fieldId": "template-snapshot",
+              "label": "季度模板快照",
+              "value": "CASE-ED-B2-TEMPLATE-01"
+            },
+            {
+              "fieldId": "source-snapshot",
+              "label": "XBRL/报告来源快照",
+              "value": "CASE-ED-B2-XBRL-01"
+            },
+            {
+              "fieldId": "review-window",
+              "label": "题面复核窗口",
+              "value": "CASE-ED-B2-WINDOW-01"
+            },
+            {
+              "fieldId": "timing-boundary",
+              "label": "时点边界",
+              "value": "复核日期早于披露日期仅为本案例批准条件"
+            }
+          ]
+        },
+        {
+          "materialId": "EDQ-CASE-TEMPLATE",
+          "title": "批准模板与权限边界卡",
+          "kind": "PARAMETER",
+          "description": "模板字段、复核日期、D 日后重签、权限和敏感信息均按本案例边界处理。",
+          "fields": [
+            {
+              "fieldId": "approved-template",
+              "label": "批准模板",
+              "value": "CASE-ED-B2-TEMPLATE-01"
+            },
+            {
+              "fieldId": "approved-xbrl-fields",
+              "label": "批准字段范围",
+              "value": "重要提示、基金概况、3.1、3.2、管理人报告、投资组合指定字段"
+            },
+            {
+              "fieldId": "d-day-resign-boundary",
+              "label": "D 日后重签",
+              "value": "仅作流程边界，不进入正常案例"
+            },
+            {
+              "fieldId": "permission-boundary",
+              "label": "权限",
+              "value": "不提供真实权限或内部账号信息"
+            },
+            {
+              "fieldId": "sensitive-boundary",
+              "label": "敏感边界",
+              "value": "仅使用脱敏产品、代码和案例机构名称"
+            }
+          ]
+        },
+        {
+          "materialId": "EDQ-CASE-SCREENSHOT-BOUNDARY",
+          "title": "季度截图对象与正常案例边界",
+          "kind": "PARAMETER",
+          "description": "8 张截图只支持界面章节/字段对象存在；其中异常或不符数据列表不进入本案例正常输入，也不补造截图细节。",
+          "fields": [
+            {
+              "fieldId": "media-objects",
+              "label": "截图对象",
+              "value": "word/media/image1.png 至 image8.png"
+            },
+            {
+              "fieldId": "media-scope",
+              "label": "截图可支持结论",
+              "value": "界面章节、字段位置和复核入口的存在"
+            },
+            {
+              "fieldId": "abnormal-list",
+              "label": "核对异常/不符数据列表",
+              "value": "EXCLUDED_FROM_NORMAL_CASE"
+            },
+            {
+              "fieldId": "screenshot-text",
+              "label": "截图细小文字",
+              "value": "不以不可可靠辨认的截图文字补造正式字段"
+            }
+          ]
+        },
+        {
+          "materialId": "EDQ-CASE-IMPORTANT",
+          "title": "重要提示指定字段",
+          "kind": "CONFIRMATION",
+          "description": "重要提示字段按批准季度快照已填入且正常。",
+          "fields": [
+            {
+              "fieldId": "custodian",
+              "label": "基金托管人",
+              "value": "案例托管人甲（脱敏）"
+            },
+            {
+              "fieldId": "review-date",
+              "label": "复核日期",
+              "value": "2026-07-18"
+            },
+            {
+              "fieldId": "report-period",
+              "label": "报告期起止日期",
+              "value": "2026-04-01 至 2026-06-30"
+            },
+            {
+              "fieldId": "audit-label",
+              "label": "审计状态文字",
+              "value": "未经审计"
+            }
+          ]
+        },
+        {
+          "materialId": "EDQ-CASE-FUND-PROFILE",
+          "title": "基金概况指定字段",
+          "kind": "CONFIRMATION",
+          "description": "基金基本情况字段完整，所有名称和代码均为脱敏合成值。",
+          "fields": [
+            {
+              "fieldId": "fund-short-name",
+              "label": "基金简称",
+              "value": "澄川季度"
+            },
+            {
+              "fieldId": "fund-primary-code",
+              "label": "基金主代码",
+              "value": "CASE-QUARTER-FUND-001"
+            },
+            {
+              "fieldId": "contract-effective-date",
+              "label": "基金合同生效日",
+              "value": "2024-09-12"
+            },
+            {
+              "fieldId": "ending-units",
+              "label": "报告期末基金份额总额",
+              "value": "120000000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "fund-manager",
+              "label": "基金管理人",
+              "value": "案例管理人甲（脱敏）"
+            },
+            {
+              "fieldId": "custodian",
+              "label": "基金托管人",
+              "value": "案例托管人甲（脱敏）"
+            }
+          ]
+        },
+        {
+          "materialId": "EDQ-CASE-31",
+          "title": "3.1 主要财务指标资料",
+          "kind": "STATEMENT",
+          "description": "3.1 数字字段完整，可从分项利润、份额和净资产独立复算指定结果。",
+          "fields": [
+            {
+              "fieldId": "realized-profit",
+              "label": "本期已实现收益",
+              "value": "3400000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "unrealized-profit",
+              "label": "本期未实现收益/公允价值变动",
+              "value": "1200000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "current-profit",
+              "label": "本期利润",
+              "value": "4600000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "weighted-average-units",
+              "label": "加权平均基金份额",
+              "value": "115000000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "weighted-average-share-profit",
+              "label": "加权平均基金份额本期利润",
+              "value": "0.040000",
+              "unit": "元/份"
+            },
+            {
+              "fieldId": "ending-net-assets",
+              "label": "期末基金资产净值",
+              "value": "126000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "ending-units",
+              "label": "期末基金份额",
+              "value": "120000000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "ending-nav",
+              "label": "期末基金份额净值",
+              "value": "1.050000",
+              "unit": "元/份"
+            },
+            {
+              "fieldId": "distribution-per-unit",
+              "label": "本案例批准每份分红",
+              "value": "0.010000",
+              "unit": "元/份"
+            },
+            {
+              "fieldId": "ending-cumulative-nav",
+              "label": "期末基金份额累计净值",
+              "value": "1.060000",
+              "unit": "元/份"
+            }
+          ]
+        },
+        {
+          "materialId": "EDQ-CASE-32",
+          "title": "3.2 基金净值表现资料",
+          "kind": "REPORT",
+          "description": "3.2 的期初/期末净值、分红、基准和报告期间来自同一批准快照。",
+          "fields": [
+            {
+              "fieldId": "performance-period",
+              "label": "净值表现期间",
+              "value": "2026-04-01 至 2026-06-30"
+            },
+            {
+              "fieldId": "beginning-nav",
+              "label": "期初单位净值",
+              "value": "1.000000",
+              "unit": "元/份"
+            },
+            {
+              "fieldId": "ending-nav",
+              "label": "期末单位净值",
+              "value": "1.050000",
+              "unit": "元/份"
+            },
+            {
+              "fieldId": "distribution-per-unit",
+              "label": "期间每份分红",
+              "value": "0.010000",
+              "unit": "元/份"
+            },
+            {
+              "fieldId": "nav-growth",
+              "label": "基金净值增长率",
+              "value": "0.060000"
+            },
+            {
+              "fieldId": "benchmark-growth",
+              "label": "同期业绩比较基准收益率",
+              "value": "0.042000"
+            },
+            {
+              "fieldId": "excess-performance",
+              "label": "超额结果",
+              "value": "0.018000"
+            },
+            {
+              "fieldId": "reported-nav-growth",
+              "label": "报告披露增长率字段",
+              "value": "0.060000"
+            }
+          ]
+        },
+        {
+          "materialId": "EDQ-CASE-MANAGER",
+          "title": "管理人报告指定字段",
+          "kind": "REPORT",
+          "description": "4.2、4.5、4.6 的正常字段均已提供，要求与数字底稿和批准快照勾稽。",
+          "fields": [
+            {
+              "fieldId": "compliance-statement",
+              "label": "4.2 遵规守信说明",
+              "value": "NO_SPECIAL_STATEMENT"
+            },
+            {
+              "fieldId": "performance-statement",
+              "label": "4.5 业绩表现文字/数字状态",
+              "value": "PERFORMANCE_TEXT_MATCHED"
+            },
+            {
+              "fieldId": "holder-count",
+              "label": "4.6 报告期末持有人数",
+              "value": "3200",
+              "unit": "户"
+            },
+            {
+              "fieldId": "net-asset-warning",
+              "label": "4.6 基金资产净值预警",
+              "value": "NO_WARNING"
+            }
+          ]
+        },
+        {
+          "materialId": "EDQ-CASE-PORTFOLIO",
+          "title": "投资组合及其他重要信息指定字段",
+          "kind": "REPORT",
+          "description": "5.12.1 和第 10 节与托管人相关的信息均为正常一致字段。",
+          "fields": [
+            {
+              "fieldId": "top10-regulatory",
+              "label": "前十名证券发行主体监管事项",
+              "value": "NO_REGULATORY_EVENT"
+            },
+            {
+              "fieldId": "custodian-info",
+              "label": "第 10 节托管人相关信息",
+              "value": "CUSTODIAN_INFO_MATCHED"
+            },
+            {
+              "fieldId": "portfolio-period",
+              "label": "投资组合报告期间",
+              "value": "2026-04-01 至 2026-06-30"
+            }
+          ]
+        },
+        {
+          "materialId": "EDQ-CASE-WORKPAPER",
+          "title": "手工工作底稿、主管复核与归档状态",
+          "kind": "RECONCILIATION",
+          "description": "资料包为正常定稿包；学习者需填入复算链和局部底稿，状态字段只确认结果。",
+          "fields": [
+            {
+              "fieldId": "workpaper-31-check",
+              "label": "3.1 底稿状态",
+              "value": "待学习者复算"
+            },
+            {
+              "fieldId": "workpaper-32-check",
+              "label": "3.2 底稿状态",
+              "value": "待学习者复算"
+            },
+            {
+              "fieldId": "specified-fields-check",
+              "label": "指定字段状态",
+              "value": "待学习者勾稽"
+            },
+            {
+              "fieldId": "supervisor-review-status",
+              "label": "主管复核状态",
+              "value": "待学习者确认"
+            },
+            {
+              "fieldId": "archive-status",
+              "label": "正常归档状态",
+              "value": "待学习者确认"
+            }
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "control-report-type",
+          "type": "FIELD_MAP",
+          "title": "锁定报告类型",
+          "instruction": "从季度任务控制卡读取报告类型。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "QUARTERLY",
+                "text": "季度报告"
+              },
+              {
+                "optionId": "SEMI_ANNUAL",
+                "text": "中报"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "control-period",
+          "type": "FIELD_MAP",
+          "title": "锁定报告期间",
+          "instruction": "选择本案例 2026 年第二季度期间。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "2026Q2",
+                "text": "2026-04-01 至 2026-06-30"
+              },
+              {
+                "optionId": "PRIOR_PERIOD",
+                "text": "前期期间"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "control-template-source",
+          "type": "FIELD_MAP",
+          "title": "锁定模板和来源快照",
+          "instruction": "选择本案例批准的模板/来源组合。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "APPROVED_SNAPSHOT",
+                "text": "CASE-ED-B2-TEMPLATE-01 / CASE-ED-B2-XBRL-01"
+              },
+              {
+                "optionId": "HISTORICAL_DEFAULT",
+                "text": "历史默认版本"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "review-timing",
+          "type": "FIELD_MAP",
+          "title": "核对复核日期边界",
+          "instruction": "确认 2026-07-18 早于批准披露日期 2026-07-21。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "BEFORE_DISCLOSURE_DATE",
+                "text": "复核日期早于披露日期"
+              },
+              {
+                "optionId": "AFTER_DISCLOSURE_DATE",
+                "text": "复核日期晚于披露日期"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "d-day-resign-boundary",
+          "type": "FIELD_MAP",
+          "title": "记录 D 日后重签边界",
+          "instruction": "按题面边界记录 D 日后重签，不把它变成正常案例任务。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "BOUNDARY_ONLY",
+                "text": "仅作题面边界"
+              },
+              {
+                "optionId": "NORMAL_CASE_STEP",
+                "text": "作为正常案例操作步骤"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "screenshot-boundary",
+          "type": "FIELD_MAP",
+          "title": "排除截图异常列表",
+          "instruction": "选择 8 张截图中异常/不符数据列表在本案例中的处理边界。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "EXCLUDED_FROM_NORMAL_CASE",
+                "text": "只作界面字段证据，排除正常案例"
+              },
+              {
+                "optionId": "USE_AS_EXCEPTION_INPUT",
+                "text": "作为正常案例异常输入"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "important-custodian",
+          "type": "FIELD_MAP",
+          "title": "读取重要提示托管人",
+          "instruction": "从重要提示读取脱敏托管人名称。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入托管人字段"
+          }
+        },
+        {
+          "workItemId": "important-period",
+          "type": "FIELD_MAP",
+          "title": "读取重要提示报告期间",
+          "instruction": "读取重要提示中的报告期起止日期。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "2026Q2",
+                "text": "2026-04-01 至 2026-06-30"
+              },
+              {
+                "optionId": "OTHER_PERIOD",
+                "text": "其他期间"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "fund-short-name",
+          "type": "FIELD_MAP",
+          "title": "读取基金简称",
+          "instruction": "从基金概况读取基金简称。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入基金简称"
+          }
+        },
+        {
+          "workItemId": "fund-primary-code",
+          "type": "FIELD_MAP",
+          "title": "读取基金主代码",
+          "instruction": "从基金概况读取脱敏基金主代码。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入基金主代码"
+          }
+        },
+        {
+          "workItemId": "contract-effective-date",
+          "type": "FIELD_MAP",
+          "title": "读取基金合同生效日",
+          "instruction": "从基金概况读取合同生效日。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入日期"
+          }
+        },
+        {
+          "workItemId": "ending-units",
+          "type": "FIELD_MAP",
+          "title": "读取期末基金份额",
+          "instruction": "从基金概况和 3.1 读取同一截止日的期末份额。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "份",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "realized-profit",
+          "type": "CALCULATION",
+          "title": "读取 3.1 已实现收益",
+          "instruction": "从 3.1 分项字段读取本期已实现收益。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "unrealized-profit",
+          "type": "CALCULATION",
+          "title": "读取 3.1 未实现收益",
+          "instruction": "从 3.1 分项字段读取本期未实现收益/公允价值变动。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "current-profit",
+          "type": "RECONCILIATION",
+          "title": "复算 3.1 本期利润",
+          "instruction": "用已实现收益 3,400,000 加未实现收益 1,200,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "weighted-average-units",
+          "type": "FIELD_MAP",
+          "title": "读取加权平均份额",
+          "instruction": "读取 3.1 的加权平均基金份额，不使用期末份额替代。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "份",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "weighted-average-share-profit",
+          "type": "CALCULATION",
+          "title": "复算加权平均份额本期利润",
+          "instruction": "4,600,000 ÷ 115,000,000，保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元/份",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "ending-net-assets",
+          "type": "FIELD_MAP",
+          "title": "读取期末基金资产净值",
+          "instruction": "从 3.1 读取期末基金资产净值。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "ending-nav",
+          "type": "CALCULATION",
+          "title": "复算期末基金份额净值",
+          "instruction": "126,000,000 ÷ 120,000,000，保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元/份",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "ending-cumulative-nav",
+          "type": "CALCULATION",
+          "title": "复算期末累计净值",
+          "instruction": "按本案例批准无其他调整，1.050000 + 0.010000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元/份",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "nav-growth",
+          "type": "CALCULATION",
+          "title": "复算 3.2 净值增长率",
+          "instruction": "(1.050000 + 0.010000) ÷ 1.000000 - 1，保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "小数",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "benchmark-growth",
+          "type": "FIELD_MAP",
+          "title": "读取同期业绩比较基准收益率",
+          "instruction": "从 3.2 同一批准快照读取基准收益率。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "小数",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "excess-performance",
+          "type": "RECONCILIATION",
+          "title": "复算超额结果",
+          "instruction": "用净值增长率 0.060000 减基准收益率 0.042000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "小数",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "performance-link",
+          "type": "RECONCILIATION",
+          "title": "勾稽 3.2 来源和期间",
+          "instruction": "确认期初净值、期末净值、分红、基准和报告期间来自同一快照。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "MATCHED",
+                "text": "来源和期间一致"
+              },
+              {
+                "optionId": "UNMATCHED",
+                "text": "来源或期间不一致"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "manager-compliance",
+          "type": "FIELD_MAP",
+          "title": "核对管理人遵规守信说明",
+          "instruction": "读取 4.2 的正常字段状态。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "NO_SPECIAL_STATEMENT",
+                "text": "无特殊表述"
+              },
+              {
+                "optionId": "SPECIAL_STATEMENT",
+                "text": "存在特殊表述"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "manager-performance",
+          "type": "RECONCILIATION",
+          "title": "核对管理人业绩表现",
+          "instruction": "把 4.5 文字/数字状态与 3.2 复算结果勾稽。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "PERFORMANCE_TEXT_MATCHED",
+                "text": "与复算结果一致"
+              },
+              {
+                "optionId": "PERFORMANCE_TEXT_UNMATCHED",
+                "text": "与复算结果不一致"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "holder-warning",
+          "type": "FIELD_MAP",
+          "title": "核对持有人数/净值预警字段",
+          "instruction": "读取 4.6 的正常字段状态。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "NO_WARNING",
+                "text": "无预警情形"
+              },
+              {
+                "optionId": "WARNING_PRESENT",
+                "text": "存在预警情形"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "top10-regulatory",
+          "type": "FIELD_MAP",
+          "title": "核对前十名证券发行主体声明",
+          "instruction": "读取 5.12.1 的正常字段状态。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "NO_REGULATORY_EVENT",
+                "text": "未出现相关监管事项"
+              },
+              {
+                "optionId": "REGULATORY_EVENT_PRESENT",
+                "text": "存在相关监管事项"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "custodian-info",
+          "type": "FIELD_MAP",
+          "title": "核对第 10 节托管人相关信息",
+          "instruction": "读取影响投资者决策的其他重要信息中的托管人字段状态。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "CUSTODIAN_INFO_MATCHED",
+                "text": "托管人信息一致"
+              },
+              {
+                "optionId": "CUSTODIAN_INFO_UNMATCHED",
+                "text": "托管人信息不一致"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "workpaper-3-1",
+          "type": "LEDGER_ENTRY",
+          "title": "填充 3.1 手工底稿局部",
+          "instruction": "写入 3.1 的利润拆分、加权平均份额利润和期末净值复算链。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入 3.1 底稿栏或来源对象"
+          }
+        },
+        {
+          "workItemId": "workpaper-3-2",
+          "type": "LEDGER_ENTRY",
+          "title": "填充 3.2 手工底稿局部",
+          "instruction": "写入 3.2 的增长率、基准和超额结果复算链。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入 3.2 底稿栏或来源对象"
+          }
+        },
+        {
+          "workItemId": "supervisor-review-status",
+          "type": "RECONCILIATION",
+          "title": "确认主管复核结果",
+          "instruction": "在数字链和指定字段均闭合后选择主管已复核状态。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "REVIEWED",
+                "text": "已复核"
+              },
+              {
+                "optionId": "PENDING",
+                "text": "待复核"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "archive-status",
+          "type": "RECONCILIATION",
+          "title": "确认正常归档结果",
+          "instruction": "确认底稿结果正常并完成题面批准的归档状态。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "NORMAL_ARCHIVED",
+                "text": "正常归档"
+              },
+              {
+                "optionId": "NOT_ARCHIVED",
+                "text": "未归档"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "形成季度复核结论",
+          "instruction": "简短写出 3.1/3.2 数值链、指定字段状态、底稿、主管复核和正常归档结果。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入可追溯季度复核结论"
+          }
+        }
+      ],
+      "submissionNote": "本案例为资料充分、规则明确、业务正常的季度定稿包。请按控制卡和批准来源取数，独立复算 3.1 与 3.2，填充局部工作底稿并完成指定字段勾稽；截图异常列表、D 日后重签、真实权限和签送动作均不进入正常答案。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ED-QUARTERLY-DOCX",
+      "title": "基金季度定期报告复核操作流程（2026年版）",
+      "source": "project_materials/新人陪练案例库/核算/03_估值对账与信息披露__中国建设银行托管运营中心上海分中心基金季度定期报告复核操作流程（2026年版）.docx",
+      "usage": "P0005-P0019 支持季度任务、3.1/3.2 手工底稿和复核原则；P0040-P0052 支持重要提示、基金概况指定字段；P0059-P0072 支持管理人报告、投资组合和托管人相关指定字段；P0079-P0090 支持主管复核、全量状态检查及 D 日后重签边界。"
+    },
+    {
+      "referenceId": "ED-QUARTERLY-MEDIA-OBJECTS",
+      "title": "季度流程 DOCX 截图对象",
+      "source": "quarterly DOCX word/media/image1.png through image8.png",
+      "usage": "P0025/P0027/P0029/P0031/P0038/P0042/P0051/P0081 的 8 个媒体对象仅支持界面章节、字段位置和复核入口存在；不可可靠辨认的截图文字和异常列表金额不进入正式答案。"
+    }
+  ]
+}

@@ -300,6 +300,27 @@
       "locator": "4 条期货路线各自综合实务资料包与 evidence.md，2026.08 版本",
       "contentUse": "期货模块全部 4 条路线",
       "reviewNote": "仅约束各案例明确给出的合约乘数、方向、价格、保证金比例、科目、数量、金额、精度、容差和正常处理关系，不外推为现行统一制度。"
+    },
+    {
+      "referenceId": "ACC-REF-ED-MATERIALS-202608",
+      "title": "估值对账与信息披露原始培训材料",
+      "locator": "年报半年报复核 DOC、年报中报计算 DOCX、季度报告流程 DOCX、更新招募及产品资料概要流程 DOCX 的正文、表格、公式、媒体与嵌入对象",
+      "contentUse": "路线 ACC-ED-WORKPAPER-001、ACC-ED-STATEMENTS-002、ACC-ED-PORTFOLIO-003、ACC-ED-QUARTERLY-004、ACC-ED-UPDATES-005",
+      "reviewNote": "支持 3.1/3.2、财务主表、投资组合与收益、季度指定字段、版本与截止日复核。旧 DOC 版式、截图异常界面和不完整公式不作为正式答案。"
+    },
+    {
+      "referenceId": "ACC-REF-ED-ROUTE-DECISIONS-202608",
+      "title": "估值对账与信息披露高保真路线施工与验收决定",
+      "locator": "阶段 5 教学有效性复核、材料审计和三批施工验收",
+      "contentUse": "估值对账与信息披露模块全部 5 条路线",
+      "reviewNote": "冻结 5 条 REQUIRED 连续主链，不设阶段闸门；多来源口径与尾差重算因缺少完整正常双口径资料包继续 DEFER。"
+    },
+    {
+      "referenceId": "ACC-REF-ED-CASE-PARAMETERS-202608",
+      "title": "估值对账与信息披露题面批准合成参数",
+      "locator": "5 条路线各自综合实务资料包与 evidence.md，2026.08 版本",
+      "contentUse": "估值对账与信息披露模块全部 5 条路线",
+      "reviewNote": "仅约束案例明确给出的报告期间、版本、来源、字段、金额、费率、精度、容差和附件范围，不外推为现行统一制度。"
     }
   ]
 }

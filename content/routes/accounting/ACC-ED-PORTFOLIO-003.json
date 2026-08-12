@@ -1,0 +1,901 @@
+{
+  "routeId": "ACC-ED-PORTFOLIO-003",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "投资组合、投资收益与披露附注勾稽",
+  "summary": "从交易明细、凭证、估值表和披露附注读取股票、基金、债券投资字段，独立复算投资收益和公允价值，再按分子/分母重算组合比例并与利润表、资产负债表勾稽。",
+  "estimatedMinutes": 65,
+  "objectives": [
+    "把交易明细、凭证和估值表的原始字段对应到股票、基金、债券投资收益和公允价值结果",
+    "至少独立复算一条投资收益，并分别处理成交成本、费用、增值税、应计利息和公允价值变动",
+    "用披露附注的分子/分母重新计算组合比例和合计，避免加总已舍入比例后再与主表勾稽"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ED-PORTFOLIO-KC-01",
+          "type": "FLOW",
+          "title": "先从原始交易字段建立收益链",
+          "conclusion": "交易明细、凭证和估值表是投资收益的原始证据；收益计算必须保留成交金额、成本、费用和税费的方向。",
+          "items": [
+            "股票先按数量×单价复算成交金额",
+            "基金赎回区分赎回款、成本、增值税和费用",
+            "债券出售区分成本、应计利息和费用",
+            "不要用披露附注的已舍入收益替代原始字段"
+          ]
+        },
+        {
+          "cardId": "ED-PORTFOLIO-KC-02",
+          "type": "CATEGORIES",
+          "title": "收益与公允价值是两条不同链",
+          "conclusion": "已实现投资收益由交易字段闭合，期末投资组合公允价值由成本、应计项目和公允价值变动闭合，两者共同回到利润表。",
+          "items": [
+            "股票交易收益 = 交易价款 - 成本 - 费用",
+            "基金收益 = 赎回款 - 成本 - 增值税 - 费用",
+            "债券收益 = 出售价款 - 成本 - 应计利息 - 费用",
+            "公允价值 = 成本 + 应计项目 + 公允价值变动"
+          ]
+        },
+        {
+          "cardId": "ED-PORTFOLIO-KC-03",
+          "type": "KEY_POINT",
+          "title": "比例必须按分子/分母重算",
+          "conclusion": "披露附注比例按期末组合分项作为分子、批准的总资产作为分母逐项计算；不把已舍入的股票/基金/债券比例相加当作组合合计。",
+          "items": [
+            "先确认总资产分母和组合分子来自同一截止日",
+            "比例保留未舍入中间值，最后统一精度",
+            "合计比例用组合总额 ÷ 总资产重新计算",
+            "比例、投资收益、公允价值和主表金额要互相勾稽"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "景行基金的投资组合复核人员",
+        "product": "景行基金（示范合成产品）",
+        "date": "2026-06-30",
+        "purpose": "使用不同于综合实务的正常交易和估值数字，演示股票、基金、债券收益及组合比例的连续复核。",
+        "facts": [
+          "股票成交价款 4,500,000.00、成本 3,600,000.00、费用 50,000.00；基金赎回款 1,100,000.00、成本 700,000.00、增值税 30,000.00、费用 20,000.00。",
+          "债券出售价款 2,200,000.00、成本 1,700,000.00、应计利息 200,000.00、费用 50,000.00。",
+          "示范投资收益分别为 850,000.00、350,000.00、250,000.00，合计 1,450,000.00；估值组合为股票 10,000,000、基金 6,000,000、债券 8,500,000，合计 24,500,000。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "确认交易明细、凭证、估值表和附注属于景行基金 2026-06-30，股票/基金/债券单位和金额一致",
+          "reason": "不同期间或不同来源对象不能直接拼接收益和比例。"
+        },
+        {
+          "order": 2,
+          "action": "复算股票收益 4,500,000 - 3,600,000 - 50,000 = 850,000，并复算基金 1,100,000 - 700,000 - 30,000 - 20,000 = 350,000",
+          "reason": "费用和税费不能被隐藏在披露合计中。"
+        },
+        {
+          "order": 3,
+          "action": "复算债券收益 2,200,000 - 1,700,000 - 200,000 - 50,000 = 250,000，三类投资收益合计 1,450,000",
+          "reason": "债券应计利息是收益链中的独立扣减字段。"
+        },
+        {
+          "order": 4,
+          "action": "用股票 10,000,000、基金 6,000,000、债券 8,500,000 分别除以批准总资产分母，并用组合合计 24,500,000 重新计算合计比例",
+          "reason": "不能相加已舍入的分项比例代替分子/分母重算。"
+        },
+        {
+          "order": 5,
+          "action": "把投资收益和组合估值结果与主表/附注字段勾稽，记录正常 BALANCED 结论",
+          "reason": "原始交易、估值、附注和主表必须形成连续证据链。"
+        }
+      ],
+      "summary": "锁定原始资料 → 股票/基金/债券收益复算 → 估值复算 → 按分子/分母重算比例 → 附注与主表闭合"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-ED-PORTFOLIO-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把三类投资结果映射回各自原始来源。",
+          "fieldMappings": [
+            {
+              "fieldId": "stock-source",
+              "label": "股票成交价款、成本和费用",
+              "source": "交易明细/凭证",
+              "options": [
+                {
+                  "optionId": "STOCK_VOUCHER",
+                  "text": "股票交易明细与凭证"
+                },
+                {
+                  "optionId": "VALUATION_SHEET",
+                  "text": "期末估值表"
+                }
+              ]
+            },
+            {
+              "fieldId": "fund-source",
+              "label": "基金赎回款、税费和费用",
+              "source": "交易明细/凭证",
+              "options": [
+                {
+                  "optionId": "FUND_VOUCHER",
+                  "text": "基金赎回凭证"
+                },
+                {
+                  "optionId": "DISCLOSURE_NOTE",
+                  "text": "披露附注比例"
+                }
+              ]
+            },
+            {
+              "fieldId": "bond-source",
+              "label": "债券出售价款、应计利息和费用",
+              "source": "交易明细/凭证",
+              "options": [
+                {
+                  "optionId": "BOND_VOUCHER",
+                  "text": "债券出售凭证"
+                },
+                {
+                  "optionId": "INCOME_STATEMENT",
+                  "text": "利润表投资收益合计"
+                }
+              ]
+            }
+          ],
+          "answer": [
+            "STOCK_VOUCHER",
+            "FUND_VOUCHER",
+            "BOND_VOUCHER"
+          ],
+          "explanation": "三类收益先回到各自原始凭证，再与估值和主表合计勾稽。",
+          "hints": [
+            "附注比例不是交易原始字段。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-PORTFOLIO-Q-02",
+          "type": "CALCULATION",
+          "prompt": "复算景行基金示范的股票、基金和债券投资收益。",
+          "calculation": {
+            "fields": [
+              {
+                "fieldId": "stock-income",
+                "label": "股票投资收益",
+                "formula": "4,500,000 - 3,600,000 - 50,000",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "fund-income",
+                "label": "基金投资收益",
+                "formula": "1,100,000 - 700,000 - 30,000 - 20,000",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "bond-income",
+                "label": "债券投资收益",
+                "formula": "2,200,000 - 1,700,000 - 200,000 - 50,000",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              }
+            ]
+          },
+          "answer": [
+            "850000",
+            "350000",
+            "250000"
+          ],
+          "explanation": "股票扣费用，基金同时扣增值税和费用，债券扣应计利息和费用。",
+          "hints": [
+            "保留每一项扣减字段。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-PORTFOLIO-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把收益和公允价值结果填入主表对应局部栏。",
+          "ledgerEntries": [
+            {
+              "entryId": "investment-income",
+              "direction": "贷方/结果",
+              "label": "投资收益 1,450,000.00 元",
+              "amount": "1,450,000.00 元",
+              "placeholder": "输入主表栏"
+            },
+            {
+              "entryId": "fair-value-change",
+              "direction": "结果",
+              "label": "公允价值变动 1,100,000.00 元",
+              "amount": "1,100,000.00 元",
+              "placeholder": "输入主表栏"
+            }
+          ],
+          "answer": [
+            "利润表—投资收益",
+            "利润表—公允价值变动损益"
+          ],
+          "explanation": "已实现投资收益和公允价值变动分别填入对应结果栏，不合并成一个没有来源的数字。",
+          "hints": [
+            "收益和公允价值变动是两条不同链。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-PORTFOLIO-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "按分子/分母重新计算示范组合比例，不加总已舍入比例。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "stock-ratio",
+                "label": "股票比例",
+                "kind": "NUMBER",
+                "formula": "10,000,000 ÷ 27,500,000",
+                "placeholder": "输入比例",
+                "precision": 6,
+                "tolerance": 0.000001
+              },
+              {
+                "fieldId": "fund-ratio",
+                "label": "基金比例",
+                "kind": "NUMBER",
+                "formula": "6,000,000 ÷ 27,500,000",
+                "placeholder": "输入比例",
+                "precision": 6,
+                "tolerance": 0.000001
+              },
+              {
+                "fieldId": "bond-ratio",
+                "label": "债券比例",
+                "kind": "NUMBER",
+                "formula": "8,500,000 ÷ 27,500,000",
+                "placeholder": "输入比例",
+                "precision": 6,
+                "tolerance": 0.000001
+              },
+              {
+                "fieldId": "portfolio-total-ratio",
+                "label": "组合合计比例",
+                "kind": "NUMBER",
+                "formula": "24,500,000 ÷ 27,500,000",
+                "placeholder": "输入比例",
+                "precision": 6,
+                "tolerance": 0.000001
+              }
+            ]
+          },
+          "answer": [
+            "0.363636",
+            "0.218182",
+            "0.309091",
+            "0.890909"
+          ],
+          "explanation": "示范也使用分子/分母重算原则，合计比例来自组合总额而非分项显示值求和。",
+          "hints": [
+            "最后一个公式不能写成前三个已舍入值相加。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-PORTFOLIO-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话说明投资收益、组合比例和主表勾稽的证据顺序。",
+          "textInput": {
+            "label": "投资组合结论",
+            "placeholder": "写出原始字段、独立复算、比例分母和主表结果"
+          },
+          "answer": [
+            "交易明细",
+            "凭证",
+            "估值表",
+            "分子",
+            "分母",
+            "主表",
+            "勾稽"
+          ],
+          "explanation": "先读原始字段并复算，再按分子/分母重算比例，最后回到附注和主表。",
+          "hints": [
+            "不要只说比例一致。"
+          ]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "和宁基金的投资组合与披露复核人员",
+        "product": "和宁基金（脱敏合成产品）",
+        "date": "2026-06-30",
+        "purpose": "使用同一正常中报资料包，独立复算股票、基金、债券投资收益和期末组合比例，并与估值表、披露附注和主表勾稽。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "EDP-CASE-STOCK-TRANSACTIONS",
+          "title": "股票交易明细与凭证字段",
+          "kind": "VOUCHER",
+          "description": "两笔股票正常出售明细，成交价款、成本和费用均完整。",
+          "fields": [
+            {
+              "fieldId": "stock-a-quantity",
+              "label": "股票 A 数量",
+              "value": "80000",
+              "unit": "股"
+            },
+            {
+              "fieldId": "stock-a-price",
+              "label": "股票 A 单价",
+              "value": "120.00",
+              "unit": "元/股"
+            },
+            {
+              "fieldId": "stock-a-proceeds",
+              "label": "股票 A 成交价款",
+              "value": "9600000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "stock-a-cost",
+              "label": "股票 A 成本",
+              "value": "7600000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "stock-a-fee",
+              "label": "股票 A 费用",
+              "value": "60000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "stock-b-quantity",
+              "label": "股票 B 数量",
+              "value": "25000",
+              "unit": "股"
+            },
+            {
+              "fieldId": "stock-b-price",
+              "label": "股票 B 单价",
+              "value": "120.00",
+              "unit": "元/股"
+            },
+            {
+              "fieldId": "stock-b-proceeds",
+              "label": "股票 B 成交价款",
+              "value": "3000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "stock-b-cost",
+              "label": "股票 B 成本",
+              "value": "2400000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "stock-b-fee",
+              "label": "股票 B 费用",
+              "value": "40000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDP-CASE-FUND-REDEMPTION",
+          "title": "基金赎回凭证字段",
+          "kind": "VOUCHER",
+          "description": "基金正常赎回凭证同时列示赎回款、成本、增值税和费用。",
+          "fields": [
+            {
+              "fieldId": "fund-proceeds",
+              "label": "赎回款",
+              "value": "2100000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fund-cost",
+              "label": "成本",
+              "value": "1250000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fund-vat",
+              "label": "增值税",
+              "value": "30000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fund-fee",
+              "label": "费用",
+              "value": "20000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDP-CASE-BOND-SALE",
+          "title": "债券出售凭证字段",
+          "kind": "VOUCHER",
+          "description": "债券正常出售凭证列示出售价款、成本、应计利息和费用。",
+          "fields": [
+            {
+              "fieldId": "bond-proceeds",
+              "label": "出售价款",
+              "value": "1550000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "bond-cost",
+              "label": "成本",
+              "value": "1300000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "bond-accrued-interest",
+              "label": "应计利息",
+              "value": "40000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "bond-fee",
+              "label": "费用",
+              "value": "10000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDP-CASE-VALUATION",
+          "title": "期末估值表投资组合字段",
+          "kind": "VALUATION",
+          "description": "股票、基金、债券的成本、应计项目、公允价值变动和期末公允价值完整。",
+          "fields": [
+            {
+              "fieldId": "stock-cost",
+              "label": "股票成本",
+              "value": "48000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "stock-accrued",
+              "label": "股票应计项目",
+              "value": "0.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "stock-fv-change",
+              "label": "股票公允价值变动",
+              "value": "2000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "stock-fair-value",
+              "label": "股票期末公允价值",
+              "value": "50000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fund-cost",
+              "label": "基金成本",
+              "value": "19500000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fund-accrued",
+              "label": "基金应计项目",
+              "value": "0.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fund-fv-change",
+              "label": "基金公允价值变动",
+              "value": "500000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fund-fair-value",
+              "label": "基金期末公允价值",
+              "value": "20000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "bond-cost",
+              "label": "债券成本",
+              "value": "30300000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "bond-accrued",
+              "label": "债券应计项目",
+              "value": "800000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "bond-fv-change",
+              "label": "债券公允价值变动",
+              "value": "-300000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "bond-fair-value",
+              "label": "债券期末公允价值",
+              "value": "30800000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "portfolio-fair-value",
+              "label": "组合期末公允价值",
+              "value": "100800000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "portfolio-fv-change",
+              "label": "组合公允价值变动",
+              "value": "2200000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDP-CASE-DISCLOSURE",
+          "title": "投资组合披露附注",
+          "kind": "REPORT",
+          "description": "附注同时提供投资收益、公允价值变动、分项组合金额、其他资产和总资产分母。",
+          "fields": [
+            {
+              "fieldId": "investment-income",
+              "label": "投资收益",
+              "value": "3500000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fair-value-change",
+              "label": "公允价值变动损益",
+              "value": "2200000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "stock-disclosure",
+              "label": "股票组合金额",
+              "value": "50000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fund-disclosure",
+              "label": "基金组合金额",
+              "value": "20000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "fixed-income-disclosure",
+              "label": "固定收益组合金额",
+              "value": "30800000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "other-assets-disclosure",
+              "label": "其他资产/非上述组合",
+              "value": "10400000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "total-assets",
+              "label": "总资产分母",
+              "value": "111200000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDP-CASE-RECON",
+          "title": "收益、估值与主表勾稽表",
+          "kind": "RECONCILIATION",
+          "description": "要求学习者把交易、估值、附注和主表结果逐项闭合；资料状态为正常完整。",
+          "fields": [
+            {
+              "fieldId": "investment-income-check",
+              "label": "交易收益合计与附注投资收益",
+              "value": "待复算"
+            },
+            {
+              "fieldId": "fair-value-check",
+              "label": "估值公允价值变动与附注/利润表",
+              "value": "待复算"
+            },
+            {
+              "fieldId": "ratio-check",
+              "label": "分项比例与组合合计比例",
+              "value": "待复算"
+            },
+            {
+              "fieldId": "statement-status",
+              "label": "资料状态",
+              "value": "正常完整"
+            }
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "stock-row-a-proceeds",
+          "type": "CALCULATION",
+          "title": "复算股票 A 成交价款",
+          "instruction": "80,000 × 120。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "stock-row-b-proceeds",
+          "type": "CALCULATION",
+          "title": "复算股票 B 成交价款",
+          "instruction": "25,000 × 120。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "stock-sale-proceeds",
+          "type": "RECONCILIATION",
+          "title": "汇总股票成交价款",
+          "instruction": "股票 A 9,600,000 + 股票 B 3,000,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "stock-sale-cost",
+          "type": "CALCULATION",
+          "title": "汇总股票成本",
+          "instruction": "7,600,000 + 2,400,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "stock-fee",
+          "type": "CALCULATION",
+          "title": "汇总股票费用",
+          "instruction": "60,000 + 40,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "stock-income",
+          "type": "RECONCILIATION",
+          "title": "独立复算股票投资收益",
+          "instruction": "12,600,000 - 10,000,000 - 100,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "fund-income",
+          "type": "CALCULATION",
+          "title": "独立复算基金投资收益",
+          "instruction": "2,100,000 - 1,250,000 - 30,000 - 20,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "bond-income",
+          "type": "CALCULATION",
+          "title": "独立复算债券投资收益",
+          "instruction": "1,550,000 - 1,300,000 - 40,000 - 10,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "investment-income-total",
+          "type": "RECONCILIATION",
+          "title": "闭合投资收益合计",
+          "instruction": "股票 2,500,000 + 基金 800,000 + 债券 200,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "stock-fair-value",
+          "type": "CALCULATION",
+          "title": "复算股票期末公允价值",
+          "instruction": "48,000,000 + 0 + 2,000,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "fund-fair-value",
+          "type": "CALCULATION",
+          "title": "复算基金期末公允价值",
+          "instruction": "19,500,000 + 0 + 500,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "bond-fair-value",
+          "type": "CALCULATION",
+          "title": "复算债券期末公允价值",
+          "instruction": "30,300,000 + 800,000 - 300,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "valuation-total",
+          "type": "RECONCILIATION",
+          "title": "闭合组合期末公允价值",
+          "instruction": "50,000,000 + 20,000,000 + 30,800,000。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入金额",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "portfolio-stock-ratio",
+          "type": "CALCULATION",
+          "title": "重算股票组合比例",
+          "instruction": "50,000,000 ÷ 111,200,000，最后保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入比例",
+            "unit": "比例",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "portfolio-fund-ratio",
+          "type": "CALCULATION",
+          "title": "重算基金组合比例",
+          "instruction": "20,000,000 ÷ 111,200,000，最后保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入比例",
+            "unit": "比例",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "portfolio-fixed-ratio",
+          "type": "CALCULATION",
+          "title": "重算固定收益组合比例",
+          "instruction": "30,800,000 ÷ 111,200,000，最后保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入比例",
+            "unit": "比例",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "portfolio-total-ratio",
+          "type": "CALCULATION",
+          "title": "用组合总额重算合计比例",
+          "instruction": "100,800,000 ÷ 111,200,000，不能把已舍入的分项比例相加。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入比例",
+            "unit": "比例",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "investment-income-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填入投资收益主表栏",
+          "instruction": "把 3,500,000 投资收益填入对应结果栏。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入主表栏"
+          }
+        },
+        {
+          "workItemId": "fair-value-account",
+          "type": "LEDGER_ENTRY",
+          "title": "填入公允价值变动主表栏",
+          "instruction": "把 2,200,000 公允价值变动填入对应结果栏。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入主表栏"
+          }
+        },
+        {
+          "workItemId": "statement-recon",
+          "type": "RECONCILIATION",
+          "title": "确认附注与主表勾稽",
+          "instruction": "投资收益、组合公允价值、比例合计和主表字段一致时选择 BALANCED。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "BALANCED",
+                "text": "附注/估值/主表闭合"
+              },
+              {
+                "optionId": "UNBALANCED",
+                "text": "存在差额"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "形成投资组合复核结论",
+          "instruction": "简短报告三类投资收益、组合公允价值、分项/合计比例和主表状态。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入可追溯结论"
+          }
+        }
+      ],
+      "submissionNote": "本案例资料完整且业务正常。请先从交易明细/凭证取数，至少独立复算股票、基金、债券中的一条收益，再复算估值和比例；比例必须按分子/分母重算，不能加总已舍入分项比例。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ED-PORTFOLIO-ANNUAL-DOCX",
+      "title": "年报和中报计算流程-更新版20250220",
+      "source": "project_materials/新人陪练案例库/核算/03_估值对账与信息披露__年报和中报计算流程-更新版20250220.docx",
+      "usage": "P0328-P0389 与 T20-T24 支持股票、基金、债券投资收益和凭证/估值字段；P0610-P0652 与 T46 支持投资组合披露和比例对象。"
+    },
+    {
+      "referenceId": "ED-PORTFOLIO-MEDIA",
+      "title": "交易、基金收益和凭证截图对象",
+      "source": "annual-interim DOCX media/image16.png, image18.png, image20.png, image21.png",
+      "usage": "支持历史材料中交易字段、基金投资收益、凭证/账簿和债券字段对象；截图金额不直接复制为综合答案。"
+    },
+    {
+      "referenceId": "ED-PORTFOLIO-OLD-DOC",
+      "title": "年报半年报复核事项及要求",
+      "source": "project_materials/新人陪练案例库/核算/03_估值对账与信息披露__年报半年报复核事项及要求.doc",
+      "usage": "P0005-P0024 支持资料核对、来源留痕和底稿原则；版式/页码未可靠恢复，不使用伪造页码。"
+    }
+  ]
+}

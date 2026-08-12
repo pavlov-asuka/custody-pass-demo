@@ -1,0 +1,1266 @@
+{
+  "routeId": "ACC-ED-UPDATES-005",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "更新招募与产品资料概要版本、截止日和数值复核",
+  "summary": "在批准的正常更新资料包内识别当前稿、上一稿和变更公告，定位版本差异，核对内容/财务/业绩三类截止日、托管人和最新定期报告数据，复算一项最新报告数字及综合运作费率/期间费用，并以局部对比底稿和附件范围结论闭合复核。",
+  "estimatedMinutes": 65,
+  "objectives": [
+    "从当前稿、上一稿、变更公告和批准资料表读取版本字段，定位托管人/费率等实际差异与未变字段",
+    "按内容截止日大于等于财务数据截止日大于等于业绩数据截止日的题面快照，核对托管人和最新公开季报来源",
+    "独立复算最新报告单位净值以及综合运作费率/期间费用，完成局部对比底稿、跨来源勾稽和附件范围短结论",
+    "把材料中的历史版本表、文件名年份、权限和回复/签送流程作为证据限制或题面边界，不当作永久规则"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ED-UPDATES-KC-01",
+          "type": "FLOW",
+          "title": "先锁定当前稿、上一稿和变更公告",
+          "conclusion": "更新复核的第一步是建立当前稿、上一稿、变更公告和附件对象的身份链；只对同一产品、同一更新批次的文件做差异判断。",
+          "items": [
+            "读取当前稿和上一稿的版本/更新次序及文件名",
+            "确认批准变更公告覆盖本次差异",
+            "把基金代码、合同生效日等未变字段与实际变更字段分开",
+            "文件名年份只作线索，不能替代正文版本表和题面批准快照"
+          ]
+        },
+        {
+          "cardId": "ED-UPDATES-KC-02",
+          "type": "CATEGORIES",
+          "title": "三类截止日和最新报告来源要分层",
+          "conclusion": "内容截止日、财务数据截止日和业绩数据截止日分别取数并验证顺序；最新投资组合和业绩数据必须回到截至更新截止日已公开的最新定期报告。",
+          "items": [
+            "内容截止日 ≥ 财务数据截止日 ≥ 业绩数据截止日",
+            "财务数据截止日与投资组合报告截止日一致",
+            "业绩数据截止日与基金业绩章节截止日一致",
+            "托管人字段按题面批准复核意见日期对应的最新来源核对"
+          ]
+        },
+        {
+          "cardId": "ED-UPDATES-KC-03",
+          "type": "KEY_POINT",
+          "title": "费率、数值和附件范围都要闭合",
+          "conclusion": "最新报告数字和产品资料概要费率均需独立复算；附件范围要明确当前稿、上一稿、公告、最新报告和托管人来源，结论只针对列示附件。",
+          "items": [
+            "最新单位净值 = 最新报告期末净资产 ÷ 期末份额",
+            "综合运作费率 = 管理费率 + 托管费率 + 销售服务费率 + 其他费用费率",
+            "题面批准的平均资产、天数和日计数分母只用于本案例期间费用估算",
+            "不把回复、签送、权限或后续再次改稿流程当作数值复核结果"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "青屿基金的更新招募与产品资料概要复核人员",
+        "product": "青屿基金（示范合成产品）",
+        "date": "2026-04-10",
+        "purpose": "使用不同于综合实务的正常更新资料，完成版本差异、截止日、最新报告净值、综合费率和附件范围复核。",
+        "facts": [
+          "当前稿为 CASE-DEMO-CURRENT-招募-2026-第1次更新.docx/产品资料概要，上一稿为 CASE-DEMO-PREV-招募-2025-第3次更新.docx/产品资料概要，变更公告为 CASE-DEMO-ANN-2026-03-15.pdf。",
+          "当前托管人为案例托管人丙（脱敏），上一稿为案例托管人甲（脱敏）；管理费率由 1.00% 变为 0.90%，托管费率由 0.20% 变为 0.18%，其余两项费率不变。",
+          "内容截止日 2026-04-05，财务数据截止日 2026-03-31，业绩数据截止日 2026-03-31；最新季报期末净资产 82,000,000.00 元、期末份额 80,000,000 份。",
+          "最新单位净值 = 82,000,000 ÷ 80,000,000 = 1.025000；综合运作费率 = 0.90% + 0.18% + 0.15% + 0.07% = 1.30%。",
+          "批准期间费用估算参数为平均资产 80,000,000.00 元、90 天、日计数分母 365，估算费用 80,000,000 × 1.30% × 90 ÷ 365 = 256,438.36 元；附件集完整，结论正常。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "按文件名、版本字段和变更公告识别青屿当前稿、上一稿及公告，并把托管人/费率变化与基金代码未变化分开",
+          "reason": "版本身份错误会把上一稿或其他批次的差异带入本次更新。"
+        },
+        {
+          "order": 2,
+          "action": "核对内容截止日 2026-04-05 ≥ 财务数据截止日 2026-03-31 ≥ 业绩数据截止日 2026-03-31，并锁定托管人丙为当前来源",
+          "reason": "三类截止日分别承载文字、财务和业绩数据，不能只记录一个日期。"
+        },
+        {
+          "order": 3,
+          "action": "复算最新季报单位净值 82,000,000 ÷ 80,000,000 = 1.025000",
+          "reason": "最新报告数字必须回到净资产和份额原始字段，不直接照抄概要显示值。"
+        },
+        {
+          "order": 4,
+          "action": "复算综合运作费率 0.90% + 0.18% + 0.15% + 0.07% = 1.30%，并按批准参数估算期间费用 256,438.36 元",
+          "reason": "费率变更要由当前稿字段独立重算，期间费用估算只适用本案例批准参数。"
+        },
+        {
+          "order": 5,
+          "action": "把当前/上一稿差异、三类截止日、托管人、最新季报、费率和完整附件集填入对比底稿，形成正常复核结论",
+          "reason": "结论应说明复核对象和数字/附件闭合状态，不以逐段比对或签送动作代替业务结果。"
+        }
+      ],
+      "summary": "识别三类版本资料 → 定位差异 → 核对截止日/托管人/最新报告 → 复算净值和费率/费用 → 形成附件范围结论"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-ED-UPDATES-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把更新资料字段映射到当前稿、上一稿、变更公告和三类截止日。",
+          "fieldMappings": [
+            {
+              "fieldId": "current-draft",
+              "label": "当前稿",
+              "source": "更新资料包",
+              "options": [
+                {
+                  "optionId": "CURRENT_DRAFT",
+                  "text": "当前更新招募/产品资料概要"
+                },
+                {
+                  "optionId": "PREVIOUS_DRAFT",
+                  "text": "上一稿"
+                }
+              ]
+            },
+            {
+              "fieldId": "previous-draft",
+              "label": "上一稿",
+              "source": "更新资料包",
+              "options": [
+                {
+                  "optionId": "PREVIOUS_DRAFT",
+                  "text": "上一更新定稿版"
+                },
+                {
+                  "optionId": "ANNOUNCEMENT",
+                  "text": "变更公告"
+                }
+              ]
+            },
+            {
+              "fieldId": "change-announcement",
+              "label": "批准变更公告",
+              "source": "更新资料包",
+              "options": [
+                {
+                  "optionId": "ANNOUNCEMENT",
+                  "text": "批准变更公告"
+                },
+                {
+                  "optionId": "LATEST_REPORT",
+                  "text": "最新季报"
+                }
+              ]
+            },
+            {
+              "fieldId": "cutoff-order",
+              "label": "截止日顺序",
+              "source": "题面批准参数",
+              "options": [
+                {
+                  "optionId": "ORDER_OK",
+                  "text": "内容 ≥ 财务 ≥ 业绩"
+                },
+                {
+                  "optionId": "ORDER_BROKEN",
+                  "text": "顺序不成立"
+                }
+              ]
+            }
+          ],
+          "answer": [
+            "CURRENT_DRAFT",
+            "PREVIOUS_DRAFT",
+            "ANNOUNCEMENT",
+            "ORDER_OK"
+          ],
+          "explanation": "当前稿、上一稿和公告承担不同证据角色，三类截止日按批准顺序逐项确认。",
+          "hints": [
+            "不要用文件名年份直接代替版本表。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-UPDATES-Q-02",
+          "type": "CALCULATION",
+          "prompt": "复算青屿示范的最新报告单位净值和综合运作费率。",
+          "calculation": {
+            "fields": [
+              {
+                "fieldId": "latest-report-nav",
+                "label": "最新报告单位净值",
+                "formula": "82,000,000 ÷ 80,000,000",
+                "placeholder": "输入单位净值",
+                "unit": "元/份",
+                "precision": 6,
+                "tolerance": 0.000001
+              },
+              {
+                "fieldId": "comprehensive-fee-rate",
+                "label": "综合运作费率",
+                "formula": "0.90% + 0.18% + 0.15% + 0.07%",
+                "placeholder": "输入百分比数值",
+                "unit": "%",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "estimated-period-fee",
+                "label": "批准参数下期间费用估算",
+                "formula": "80,000,000 × 1.30% × 90 ÷ 365",
+                "placeholder": "输入金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              }
+            ]
+          },
+          "answer": [
+            "1.025000",
+            "1.30",
+            "256438.36"
+          ],
+          "explanation": "最新报告数字从净资产/份额复算，综合费率从当前稿四项费率相加，期间费用只使用本案例批准的资产、天数和日计数参数。",
+          "hints": [
+            "费率以百分比数值相加，不能把 1.30% 写成永久计费规则。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-UPDATES-Q-03",
+          "type": "RECONCILIATION",
+          "prompt": "核对青屿示范的版本差异、截止日和来源勾稽。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "version-diff-status",
+                "label": "当前稿与上一稿差异",
+                "kind": "SELECT",
+                "formula": "托管人和两项费率变化，基金代码未变",
+                "placeholder": "选择状态",
+                "options": [
+                  {
+                    "optionId": "MATCHED",
+                    "text": "公告、当前稿和上一稿一致"
+                  },
+                  {
+                    "optionId": "UNMATCHED",
+                    "text": "差异无法由公告支持"
+                  }
+                ]
+              },
+              {
+                "fieldId": "cutoff-order",
+                "label": "三类截止日顺序",
+                "kind": "SELECT",
+                "formula": "2026-04-05 ≥ 2026-03-31 ≥ 2026-03-31",
+                "placeholder": "选择状态",
+                "options": [
+                  {
+                    "optionId": "ORDER_OK",
+                    "text": "顺序正确"
+                  },
+                  {
+                    "optionId": "ORDER_BROKEN",
+                    "text": "顺序错误"
+                  }
+                ]
+              },
+              {
+                "fieldId": "latest-report-link",
+                "label": "最新季报与当前稿数据链接",
+                "kind": "SELECT",
+                "formula": "最新季报已在内容截止日前公开且净值来源一致",
+                "placeholder": "选择状态",
+                "options": [
+                  {
+                    "optionId": "MATCHED",
+                    "text": "来源和截止日一致"
+                  },
+                  {
+                    "optionId": "UNMATCHED",
+                    "text": "来源或截止日不一致"
+                  }
+                ]
+              }
+            ]
+          },
+          "answer": [
+            "MATCHED",
+            "ORDER_OK",
+            "MATCHED"
+          ],
+          "explanation": "差异由公告支持，截止日满足顺序，最新季报在批准内容截止日前可作为数据来源。",
+          "hints": [
+            "差异状态不是逐段比对完成的同义词。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-UPDATES-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把当前/上一稿费率和附件对象填入更新对比底稿局部。",
+          "ledgerEntries": [
+            {
+              "entryId": "fee-diff",
+              "direction": "当前稿/上一稿",
+              "label": "管理费 0.90% / 1.00%；托管费 0.18% / 0.20%",
+              "amount": "当前 1.30% 综合费率",
+              "placeholder": "输入对比底稿栏"
+            },
+            {
+              "entryId": "attachment-scope",
+              "direction": "附件范围",
+              "label": "当前稿、上一稿、变更公告、最新季报、托管人来源",
+              "amount": "COMPLETE_APPROVED_SET",
+              "placeholder": "输入附件底稿栏"
+            }
+          ],
+          "answer": [
+            "更新对比底稿—当前/上一稿费率",
+            "附件范围底稿—COMPLETE_APPROVED_SET"
+          ],
+          "explanation": "局部底稿同时保留差异和附件对象，不能只填复核意见或发送状态。",
+          "hints": [
+            "把当前稿和上一稿放在同一行比较。"
+          ]
+        },
+        {
+          "questionId": "ACC-ED-UPDATES-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话形成更新复核结论，至少包含版本差异、三类截止日、最新报告数字、综合费率和附件范围。",
+          "textInput": {
+            "label": "更新复核结论",
+            "placeholder": "写出版本、截止日、净值、费率和附件状态"
+          },
+          "answer": [
+            "当前稿",
+            "上一稿",
+            "公告",
+            "内容截止日",
+            "财务截止日",
+            "业绩截止日",
+            "1.025000",
+            "1.30%",
+            "附件",
+            "一致"
+          ],
+          "explanation": "短结论要能追溯到版本链、截止日顺序、最新报告和费率复算，不写成逐段比对/签送话术。",
+          "hints": [
+            "至少写一项数字复算和附件范围。"
+          ]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "澄川季度基金的更新招募与产品资料概要复核人员",
+        "product": "澄川季度基金（脱敏合成产品）",
+        "date": "2026-07-15",
+        "purpose": "使用资料充分、规则明确、业务正常的更新资料包，完成当前/上一稿/公告识别、版本差异、三类截止日、托管人、最新季报、费率/费用复算和附件范围结论。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "EDU-CASE-VERSION-CONTROL",
+          "title": "当前稿、上一稿和批准变更公告身份卡",
+          "kind": "CONFIRMATION",
+          "description": "三类版本对象属于同一澄川更新批次，文件名和版本字段均为题面批准的脱敏值。",
+          "fields": [
+            {
+              "fieldId": "current-draft-id",
+              "label": "当前招募说明书",
+              "value": "CASE-CURRENT-招募-2026-第2次更新.docx"
+            },
+            {
+              "fieldId": "current-summary-id",
+              "label": "当前产品资料概要",
+              "value": "CASE-CURRENT-产品资料概要-2026-第2次更新.docx"
+            },
+            {
+              "fieldId": "previous-draft-id",
+              "label": "上一招募说明书",
+              "value": "CASE-PREV-招募-2025-第1次更新.docx"
+            },
+            {
+              "fieldId": "previous-summary-id",
+              "label": "上一产品资料概要",
+              "value": "CASE-PREV-产品资料概要-2025-第1次更新.docx"
+            },
+            {
+              "fieldId": "announcement-id",
+              "label": "批准变更公告",
+              "value": "CASE-ANN-托管人及费率变更-2026-05-10.pdf"
+            },
+            {
+              "fieldId": "current-version",
+              "label": "当前稿版本",
+              "value": "2026-第2次更新"
+            },
+            {
+              "fieldId": "previous-version",
+              "label": "上一稿版本",
+              "value": "2025-第1次更新"
+            }
+          ]
+        },
+        {
+          "materialId": "EDU-CASE-VERSION-DIFF",
+          "title": "当前稿/上一稿/公告差异表",
+          "kind": "RECONCILIATION",
+          "description": "差异表只列本案例批准的变化和未变化字段。",
+          "fields": [
+            {
+              "fieldId": "custodian-diff",
+              "label": "基金托管人",
+              "value": "上一稿案例托管人甲（脱敏） → 当前稿案例托管人乙（脱敏）"
+            },
+            {
+              "fieldId": "management-rate-diff",
+              "label": "管理费率",
+              "value": "上一稿 1.00% → 当前稿 0.80%"
+            },
+            {
+              "fieldId": "custody-rate-diff",
+              "label": "托管费率",
+              "value": "上一稿 0.20% → 当前稿 0.15%"
+            },
+            {
+              "fieldId": "sales-rate-diff",
+              "label": "销售服务费率",
+              "value": "0.20% → 0.20%，未变"
+            },
+            {
+              "fieldId": "other-rate-diff",
+              "label": "其他费用费率",
+              "value": "0.05% → 0.05%，未变"
+            },
+            {
+              "fieldId": "fund-code-diff",
+              "label": "基金主代码",
+              "value": "CASE-QUARTER-FUND-001 → CASE-QUARTER-FUND-001，未变"
+            },
+            {
+              "fieldId": "announcement-support",
+              "label": "公告支持状态",
+              "value": "公告支持托管人和两项费率变化"
+            }
+          ]
+        },
+        {
+          "materialId": "EDU-CASE-CUTOFFS",
+          "title": "内容/财务/业绩截止日批准参数",
+          "kind": "PARAMETER",
+          "description": "三类截止日、最新报告公开日期和托管人信息控制日期仅适用于本案例。",
+          "fields": [
+            {
+              "fieldId": "content-cutoff",
+              "label": "内容截止日",
+              "value": "2026-07-10"
+            },
+            {
+              "fieldId": "financial-cutoff",
+              "label": "财务数据截止日",
+              "value": "2026-06-30"
+            },
+            {
+              "fieldId": "performance-cutoff",
+              "label": "业绩数据截止日",
+              "value": "2026-06-30"
+            },
+            {
+              "fieldId": "latest-report-published",
+              "label": "最新季报公开日期",
+              "value": "2026-07-08"
+            },
+            {
+              "fieldId": "custodian-control-date",
+              "label": "托管人信息控制日期",
+              "value": "2026-07-15"
+            },
+            {
+              "fieldId": "cutoff-rule",
+              "label": "题面截止日关系",
+              "value": "内容截止日 ≥ 财务数据截止日 ≥ 业绩数据截止日"
+            },
+            {
+              "fieldId": "permanent-rule-boundary",
+              "label": "永久规则边界",
+              "value": "以上日期和关系只作本案例批准快照"
+            }
+          ]
+        },
+        {
+          "materialId": "EDU-CASE-CUSTODIAN",
+          "title": "截至复核意见日期的托管人来源",
+          "kind": "CONFIRMATION",
+          "description": "当前稿托管人字段与题面批准的最新托管人来源一致。",
+          "fields": [
+            {
+              "fieldId": "current-custodian",
+              "label": "当前稿基金托管人",
+              "value": "案例托管人乙（脱敏）"
+            },
+            {
+              "fieldId": "previous-custodian",
+              "label": "上一稿基金托管人",
+              "value": "案例托管人甲（脱敏）"
+            },
+            {
+              "fieldId": "custodian-source-file",
+              "label": "最新托管人来源",
+              "value": "CASE-CUSTODIAN-BULLETIN-2026-07-15.pdf"
+            },
+            {
+              "fieldId": "custodian-source-date",
+              "label": "来源日期",
+              "value": "2026-07-15"
+            },
+            {
+              "fieldId": "custodian-status",
+              "label": "托管人状态",
+              "value": "MATCHED"
+            }
+          ]
+        },
+        {
+          "materialId": "EDU-CASE-LATEST-REPORT",
+          "title": "截至内容截止日已公开的最新季度报告",
+          "kind": "REPORT",
+          "description": "最新季报与 B2 正常季度资料链使用同一脱敏产品和连续数字。",
+          "fields": [
+            {
+              "fieldId": "report-period",
+              "label": "最新报告期间",
+              "value": "2026-04-01 至 2026-06-30"
+            },
+            {
+              "fieldId": "report-type",
+              "label": "报告类型",
+              "value": "2026Q2 季度报告"
+            },
+            {
+              "fieldId": "report-published-date",
+              "label": "公开日期",
+              "value": "2026-07-08"
+            },
+            {
+              "fieldId": "ending-net-assets",
+              "label": "期末基金资产净值",
+              "value": "126000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "ending-units",
+              "label": "期末基金份额",
+              "value": "120000000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "ending-nav",
+              "label": "报告披露期末单位净值",
+              "value": "1.050000",
+              "unit": "元/份"
+            },
+            {
+              "fieldId": "current-profit",
+              "label": "最新报告本期利润",
+              "value": "4600000.00",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "EDU-CASE-PERFORMANCE",
+          "title": "最新报告与当前稿业绩数据",
+          "kind": "REPORT",
+          "description": "业绩数据时间与最新季报一致，当前稿使用批准的已公开数据。",
+          "fields": [
+            {
+              "fieldId": "performance-cutoff",
+              "label": "业绩数据截止日",
+              "value": "2026-06-30"
+            },
+            {
+              "fieldId": "latest-nav",
+              "label": "最新报告单位净值",
+              "value": "1.050000"
+            },
+            {
+              "fieldId": "latest-reported-growth",
+              "label": "最新报告净值表现字段",
+              "value": "0.060000"
+            },
+            {
+              "fieldId": "current-draft-performance",
+              "label": "当前稿业绩字段",
+              "value": "0.060000"
+            },
+            {
+              "fieldId": "performance-status",
+              "label": "业绩来源状态",
+              "value": "MATCHED"
+            }
+          ]
+        },
+        {
+          "materialId": "EDU-CASE-FEES",
+          "title": "当前/上一稿费率与批准期间费用参数",
+          "kind": "PARAMETER",
+          "description": "费率和期间费用估算参数是本案例题面快照，不构成永久计费或账务结算规则。",
+          "fields": [
+            {
+              "fieldId": "management-rate-current",
+              "label": "当前管理费率",
+              "value": "0.80",
+              "unit": "%"
+            },
+            {
+              "fieldId": "custody-rate-current",
+              "label": "当前托管费率",
+              "value": "0.15",
+              "unit": "%"
+            },
+            {
+              "fieldId": "sales-rate-current",
+              "label": "当前销售服务费率",
+              "value": "0.20",
+              "unit": "%"
+            },
+            {
+              "fieldId": "other-rate-current",
+              "label": "当前其他费用费率",
+              "value": "0.05",
+              "unit": "%"
+            },
+            {
+              "fieldId": "management-rate-previous",
+              "label": "上一管理费率",
+              "value": "1.00",
+              "unit": "%"
+            },
+            {
+              "fieldId": "custody-rate-previous",
+              "label": "上一托管费率",
+              "value": "0.20",
+              "unit": "%"
+            },
+            {
+              "fieldId": "sales-rate-previous",
+              "label": "上一销售服务费率",
+              "value": "0.20",
+              "unit": "%"
+            },
+            {
+              "fieldId": "other-rate-previous",
+              "label": "上一其他费用费率",
+              "value": "0.05",
+              "unit": "%"
+            },
+            {
+              "fieldId": "average-asset-base",
+              "label": "批准平均资产基数",
+              "value": "120000000.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "period-days",
+              "label": "批准估算天数",
+              "value": "91",
+              "unit": "天"
+            },
+            {
+              "fieldId": "day-count-denominator",
+              "label": "批准日计数分母",
+              "value": "365",
+              "unit": "天"
+            },
+            {
+              "fieldId": "fee-parameter-boundary",
+              "label": "费率边界",
+              "value": "只用于本案例综合费率和期间费用估算"
+            }
+          ]
+        },
+        {
+          "materialId": "EDU-CASE-PROFILE",
+          "title": "当前产品资料概要指定字段",
+          "kind": "CONFIRMATION",
+          "description": "当前产品资料概要字段与当前稿和托管人来源一致。",
+          "fields": [
+            {
+              "fieldId": "fund-short-name",
+              "label": "基金简称",
+              "value": "澄川季度"
+            },
+            {
+              "fieldId": "fund-primary-code",
+              "label": "基金主代码",
+              "value": "CASE-QUARTER-FUND-001"
+            },
+            {
+              "fieldId": "contract-effective-date",
+              "label": "基金合同生效日",
+              "value": "2024-09-12"
+            },
+            {
+              "fieldId": "current-custodian",
+              "label": "基金托管人",
+              "value": "案例托管人乙（脱敏）"
+            },
+            {
+              "fieldId": "performance-benchmark",
+              "label": "业绩比较基准",
+              "value": "CASE-BENCHMARK-042"
+            }
+          ]
+        },
+        {
+          "materialId": "EDU-CASE-ATTACHMENTS",
+          "title": "本次复核批准附件范围",
+          "kind": "PARAMETER",
+          "description": "复核意见只针对列示附件；该附件集合为本案例批准范围。",
+          "fields": [
+            {
+              "fieldId": "current-draft-attachment",
+              "label": "当前招募说明书附件",
+              "value": "CASE-CURRENT-招募-2026-第2次更新.docx"
+            },
+            {
+              "fieldId": "current-summary-attachment",
+              "label": "当前产品资料概要附件",
+              "value": "CASE-CURRENT-产品资料概要-2026-第2次更新.docx"
+            },
+            {
+              "fieldId": "previous-draft-attachment",
+              "label": "上一招募说明书对比件",
+              "value": "CASE-PREV-招募-2025-第1次更新.docx"
+            },
+            {
+              "fieldId": "previous-summary-attachment",
+              "label": "上一产品资料概要对比件",
+              "value": "CASE-PREV-产品资料概要-2025-第1次更新.docx"
+            },
+            {
+              "fieldId": "announcement-attachment",
+              "label": "批准变更公告附件",
+              "value": "CASE-ANN-托管人及费率变更-2026-05-10.pdf"
+            },
+            {
+              "fieldId": "latest-report-attachment",
+              "label": "最新季度报告附件",
+              "value": "CASE-LATEST-季度报告-2026Q2.docx"
+            },
+            {
+              "fieldId": "custodian-attachment",
+              "label": "最新托管人来源附件",
+              "value": "CASE-CUSTODIAN-BULLETIN-2026-07-15.pdf"
+            },
+            {
+              "fieldId": "review-opinion-attachment",
+              "label": "托管人复核意见附件",
+              "value": "CASE-REVIEW-OPINION-2026-07-15.docx"
+            },
+            {
+              "fieldId": "attachment-scope",
+              "label": "附件范围结论",
+              "value": "COMPLETE_APPROVED_SET"
+            }
+          ]
+        },
+        {
+          "materialId": "EDU-CASE-WORKPAPER",
+          "title": "更新对比底稿与复核结论表",
+          "kind": "RECONCILIATION",
+          "description": "学习者需将版本差异、截止日、最新报告数字、费率/费用和附件范围写入底稿。",
+          "fields": [
+            {
+              "fieldId": "version-check",
+              "label": "版本差异状态",
+              "value": "待学习者复核"
+            },
+            {
+              "fieldId": "cutoff-check",
+              "label": "三类截止日状态",
+              "value": "待学习者复核"
+            },
+            {
+              "fieldId": "latest-report-check",
+              "label": "最新报告状态",
+              "value": "待学习者复核"
+            },
+            {
+              "fieldId": "fee-check",
+              "label": "综合费率/费用状态",
+              "value": "待学习者复核"
+            },
+            {
+              "fieldId": "attachment-check",
+              "label": "附件范围状态",
+              "value": "待学习者复核"
+            },
+            {
+              "fieldId": "cross-source-status",
+              "label": "跨来源状态",
+              "value": "待学习者复核"
+            }
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "current-draft-id",
+          "type": "FIELD_MAP",
+          "title": "识别当前稿",
+          "instruction": "从更新资料包选择当前招募说明书/产品资料概要。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入当前稿文件名"
+          }
+        },
+        {
+          "workItemId": "previous-draft-id",
+          "type": "FIELD_MAP",
+          "title": "识别上一稿",
+          "instruction": "从更新资料包选择用于比对的上一更新定稿版。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入上一稿文件名"
+          }
+        },
+        {
+          "workItemId": "announcement-id",
+          "type": "FIELD_MAP",
+          "title": "识别变更公告",
+          "instruction": "选择支持本次托管人和费率变化的批准公告。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入公告文件名"
+          }
+        },
+        {
+          "workItemId": "version-diff-custodian",
+          "type": "RECONCILIATION",
+          "title": "定位托管人差异",
+          "instruction": "比较上一稿、当前稿和公告中的托管人字段。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "CHANGED_AND_SUPPORTED",
+                "text": "发生变化且公告支持"
+              },
+              {
+                "optionId": "UNSUPPORTED",
+                "text": "变化无法支持"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "version-diff-management-rate",
+          "type": "RECONCILIATION",
+          "title": "定位管理费率差异",
+          "instruction": "比较上一稿 1.00% 与当前稿 0.80%。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "CHANGED_AND_SUPPORTED",
+                "text": "发生变化且公告支持"
+              },
+              {
+                "optionId": "UNCHANGED",
+                "text": "未发生变化"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "version-diff-custody-rate",
+          "type": "RECONCILIATION",
+          "title": "定位托管费率差异",
+          "instruction": "比较上一稿 0.20% 与当前稿 0.15%。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "CHANGED_AND_SUPPORTED",
+                "text": "发生变化且公告支持"
+              },
+              {
+                "optionId": "UNCHANGED",
+                "text": "未发生变化"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "unchanged-fund-code",
+          "type": "RECONCILIATION",
+          "title": "验证未变基金代码",
+          "instruction": "确认当前稿和上一稿基金主代码均为 CASE-QUARTER-FUND-001。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "UNCHANGED_MATCHED",
+                "text": "未变且一致"
+              },
+              {
+                "optionId": "CHANGED",
+                "text": "发生变化"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "content-cutoff",
+          "type": "FIELD_MAP",
+          "title": "读取内容截止日",
+          "instruction": "读取当前稿批准的内容截止日。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入日期"
+          }
+        },
+        {
+          "workItemId": "financial-cutoff",
+          "type": "FIELD_MAP",
+          "title": "读取财务数据截止日",
+          "instruction": "读取最新定期报告/投资组合财务数据截止日。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入日期"
+          }
+        },
+        {
+          "workItemId": "performance-cutoff",
+          "type": "FIELD_MAP",
+          "title": "读取业绩数据截止日",
+          "instruction": "读取基金业绩章节和净值表现数据截止日。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入日期"
+          }
+        },
+        {
+          "workItemId": "cutoff-order",
+          "type": "RECONCILIATION",
+          "title": "验证三类截止日顺序",
+          "instruction": "验证内容截止日 ≥ 财务数据截止日 ≥ 业绩数据截止日。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "ORDER_OK",
+                "text": "顺序正确"
+              },
+              {
+                "optionId": "ORDER_BROKEN",
+                "text": "顺序错误"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "current-custodian",
+          "type": "FIELD_MAP",
+          "title": "更新托管人字段",
+          "instruction": "以题面批准托管人来源和复核意见日期核对当前托管人。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入当前托管人"
+          }
+        },
+        {
+          "workItemId": "latest-report-period",
+          "type": "FIELD_MAP",
+          "title": "锁定最新定期报告",
+          "instruction": "选择截至内容截止日已公开的最新季度报告。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "2026Q2",
+                "text": "2026Q2 最新季度报告"
+              },
+              {
+                "optionId": "OLDER_REPORT",
+                "text": "更早报告"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "latest-report-net-assets",
+          "type": "FIELD_MAP",
+          "title": "读取最新报告期末净资产",
+          "instruction": "从最新季度报告读取期末基金资产净值。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "latest-report-units",
+          "type": "FIELD_MAP",
+          "title": "读取最新报告期末份额",
+          "instruction": "从最新季度报告读取期末基金份额。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "份",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "latest-report-nav",
+          "type": "CALCULATION",
+          "title": "复算最新报告单位净值",
+          "instruction": "126,000,000 ÷ 120,000,000，保留 6 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元/份",
+            "precision": 6
+          }
+        },
+        {
+          "workItemId": "latest-report-profit",
+          "type": "FIELD_MAP",
+          "title": "读取最新报告本期利润",
+          "instruction": "从最新季度报告读取本期利润并与已复核季度数字勾稽。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "management-rate-current",
+          "type": "FIELD_MAP",
+          "title": "读取当前管理费率",
+          "instruction": "从当前产品资料概要读取管理费率。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "%",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "custody-rate-current",
+          "type": "FIELD_MAP",
+          "title": "读取当前托管费率",
+          "instruction": "从当前产品资料概要读取托管费率。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "%",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "sales-rate-current",
+          "type": "FIELD_MAP",
+          "title": "读取当前销售服务费率",
+          "instruction": "从当前产品资料概要读取销售服务费率。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "%",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "other-rate-current",
+          "type": "FIELD_MAP",
+          "title": "读取当前其他费用费率",
+          "instruction": "从当前产品资料概要读取其他费用费率。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "%",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "comprehensive-fee-rate",
+          "type": "CALCULATION",
+          "title": "复算综合运作费率",
+          "instruction": "0.80% + 0.15% + 0.20% + 0.05%。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "%",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "average-asset-base",
+          "type": "FIELD_MAP",
+          "title": "读取批准平均资产基数",
+          "instruction": "读取本案例期间费用估算的批准平均资产基数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "period-days",
+          "type": "FIELD_MAP",
+          "title": "读取批准估算天数",
+          "instruction": "读取本案例批准的期间天数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "天",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "estimated-period-fee",
+          "type": "CALCULATION",
+          "title": "复算批准参数下期间费用",
+          "instruction": "120,000,000 × 1.20% × 91 ÷ 365，保留 2 位小数。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "rate-difference",
+          "type": "RECONCILIATION",
+          "title": "验证费率变化结果",
+          "instruction": "上一稿综合费率 1.45% 减当前稿综合费率 1.20%。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入数值",
+            "unit": "百分点",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "attachment-scope",
+          "type": "FIELD_MAP",
+          "title": "确认附件范围",
+          "instruction": "选择当前稿、上一稿、公告、最新季报、托管人来源和复核意见均在批准集合内。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "COMPLETE_APPROVED_SET",
+                "text": "批准附件集合完整"
+              },
+              {
+                "optionId": "INCOMPLETE_SET",
+                "text": "附件集合不完整"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "attachment-current-draft",
+          "type": "LEDGER_ENTRY",
+          "title": "填入当前稿附件",
+          "instruction": "把当前招募说明书和产品资料概要文件名填入附件底稿。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入当前稿附件"
+          }
+        },
+        {
+          "workItemId": "attachment-previous-draft",
+          "type": "LEDGER_ENTRY",
+          "title": "填入上一稿对比附件",
+          "instruction": "把上一招募说明书和产品资料概要文件名填入对比底稿。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入上一稿附件"
+          }
+        },
+        {
+          "workItemId": "attachment-announcement",
+          "type": "LEDGER_ENTRY",
+          "title": "填入变更公告附件",
+          "instruction": "把批准变更公告填入附件底稿。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入公告附件"
+          }
+        },
+        {
+          "workItemId": "attachment-latest-report",
+          "type": "LEDGER_ENTRY",
+          "title": "填入最新报告附件",
+          "instruction": "把截至内容截止日已公开的最新季度报告填入附件底稿。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入最新报告附件"
+          }
+        },
+        {
+          "workItemId": "attachment-custodian-source",
+          "type": "LEDGER_ENTRY",
+          "title": "填入托管人来源附件",
+          "instruction": "把题面批准日期的最新托管人来源和复核意见填入附件底稿。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入托管人来源附件"
+          }
+        },
+        {
+          "workItemId": "cross-source-status",
+          "type": "RECONCILIATION",
+          "title": "确认跨来源闭合",
+          "instruction": "确认版本公告、截止日、托管人、最新季报、费率和附件范围均一致。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择状态",
+            "options": [
+              {
+                "optionId": "MATCHED",
+                "text": "跨来源闭合"
+              },
+              {
+                "optionId": "UNMATCHED",
+                "text": "存在未解释差异"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "result-note",
+          "type": "SHORT_TEXT",
+          "title": "形成更新复核结论",
+          "instruction": "简短报告版本差异、三类截止日、托管人、最新报告数字、综合费率/期间费用和附件范围。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "输入可追溯更新复核结论"
+          }
+        }
+      ],
+      "submissionNote": "本案例为正常完整更新资料包。请先识别当前稿/上一稿/公告，再核对截止日和托管人，复算最新报告单位净值及批准参数下费率/费用，填充对比底稿并确认附件范围；不把历史文件名年份、内部权限、回复签送或后续改稿流程当作永久业务规则。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ED-UPDATES-DOCX",
+      "title": "更新招募及产品资料概要更新复核业务流程（2026年版）",
+      "source": "project_materials/新人陪练案例库/核算/03_估值对账与信息披露__中国建设银行托管运营中心上海分中心更新招募及产品资料概要更新复核业务流程（2026年版）.docx",
+      "usage": "P0069-P0071 支持上一稿/当前稿/公告比对；P0090-P0098 支持正文比对、托管人控制日期；P0104-P0108 支持最新定期报告业绩/投资组合数据；P0111-P0112 支持产品概况字段和第二稿起比对；P0122-P0127 支持费率和综合费率复核；P0141-P0155 支持附件与复核意见范围。"
+    },
+    {
+      "referenceId": "ED-UPDATES-TABLES",
+      "title": "更新流程版本表、章节复核表与附件登记对象",
+      "source": "update DOCX tables T00-T03",
+      "usage": "T00 支持版本记录；T01R01/T01R05/T01R09/T01R10/T01R11 支持截止日、托管人、投资组合和业绩数据关系；T02 支持涉及组合的附件对象；T03 是空白更新登记簿模板，只支持登记对象存在，不提供本案例历史填充数据。"
+    }
+  ]
+}

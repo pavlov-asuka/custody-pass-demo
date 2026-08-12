@@ -1,0 +1,454 @@
+{
+  "routeId": "ACC-ED-WORKPAPER-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-EDW-CONTROL",
+          "description": "理解报告类型、期间、截止日和批准来源快照是取数前提。",
+          "weight": 10,
+          "evidenceRequirement": "报告类型为中报、期间为 2026H1、来源为 APPROVED_SNAPSHOT。",
+          "evidenceRules": [
+            {
+              "fieldId": "control-report-type",
+              "operator": "EQUALS",
+              "expected": "SEMI_ANNUAL"
+            },
+            {
+              "fieldId": "control-period",
+              "operator": "EQUALS",
+              "expected": "2026H1"
+            },
+            {
+              "fieldId": "control-source-version",
+              "operator": "EQUALS",
+              "expected": "APPROVED_SNAPSHOT"
+            }
+          ],
+          "remediationTargetId": "R-EDW-CONTROL"
+        },
+        {
+          "criterionId": "C-EDW-PROFIT",
+          "description": "理解已实现、未实现和本期利润的拆分关系。",
+          "weight": 8,
+          "evidenceRequirement": "已实现利润 3,800,000、未实现利润 2,200,000，合计本期利润 6,000,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "realized-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 3800000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "unrealized-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 2200000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "profit-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 6000000,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "R-EDW-PROFIT"
+        },
+        {
+          "criterionId": "C-EDW-NAV",
+          "description": "理解期末份额、可供分配额、期末单位净值和净值增长率的字段关系。",
+          "weight": 7,
+          "evidenceRequirement": "期末份额 104,000,000、份额利润 0.055769、期末净值 1.057692、增长率 0.057692。",
+          "evidenceRules": [
+            {
+              "fieldId": "ending-units",
+              "operator": "NUMBER_EQUALS",
+              "expected": 104000000,
+              "tolerance": 0
+            },
+            {
+              "fieldId": "available-distributable",
+              "operator": "NUMBER_EQUALS",
+              "expected": 5800000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "distributable-per-unit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.055769,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "ending-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.057692,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "nav-growth",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.057692,
+              "tolerance": 0.000001
+            }
+          ],
+          "remediationTargetId": "R-EDW-NAV"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-EDW-TAKE",
+          "description": "从资料包读取来源对象和期末份额，建立工作底稿字段。",
+          "weight": 8,
+          "evidenceRequirement": "两个利润来源对象和期末份额均填入。",
+          "evidenceRules": [
+            {
+              "fieldId": "profit-realized-source",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "已实现"
+              ]
+            },
+            {
+              "fieldId": "profit-unrealized-source",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "公允价值"
+              ]
+            },
+            {
+              "fieldId": "ending-units",
+              "operator": "NUMBER_EQUALS",
+              "expected": 104000000,
+              "tolerance": 0
+            }
+          ],
+          "remediationTargetId": "R-EDW-SOURCE"
+        },
+        {
+          "criterionId": "P-EDW-CALC",
+          "description": "完成利润、分配份额利润、单位净值和增长率的计算与复算。",
+          "weight": 12,
+          "evidenceRequirement": "所有批准公式均按连续数字链计算，结果达到案例精度。",
+          "evidenceRules": [
+            {
+              "fieldId": "realized-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 3800000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "available-distributable",
+              "operator": "NUMBER_EQUALS",
+              "expected": 5800000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "distributable-per-unit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.055769,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "ending-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.057692,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "nav-growth",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.057692,
+              "tolerance": 0.000001
+            }
+          ],
+          "remediationTargetId": "R-EDW-CALC"
+        },
+        {
+          "criterionId": "P-EDW-RECON",
+          "description": "完成利润合计、净值表现期间/来源和公式证据边界的跨来源勾稽。",
+          "weight": 10,
+          "evidenceRequirement": "利润合计、增长率和来源状态均闭合，标准差选择证据不足排除。",
+          "evidenceRules": [
+            {
+              "fieldId": "profit-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 6000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "growth-period-link",
+              "operator": "EQUALS",
+              "expected": "MATCHED"
+            },
+            {
+              "fieldId": "standard-deviation-boundary",
+              "operator": "EQUALS",
+              "expected": "EXCLUDED_BY_EVIDENCE"
+            }
+          ],
+          "remediationTargetId": "R-EDW-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "K-EDW-SNAPSHOT",
+          "description": "不混用期间、截止日或历史版本字段。",
+          "weight": 9,
+          "evidenceRequirement": "控制字段锁定为本案例 2026H1 和批准来源快照。",
+          "evidenceRules": [
+            {
+              "fieldId": "control-period",
+              "operator": "EQUALS",
+              "expected": "2026H1"
+            },
+            {
+              "fieldId": "control-source-version",
+              "operator": "EQUALS",
+              "expected": "APPROVED_SNAPSHOT"
+            }
+          ],
+          "remediationTargetId": "R-EDW-CONTROL"
+        },
+        {
+          "criterionId": "K-EDW-FORMULA",
+          "description": "不把周边文本或不完整对象补造成标准差正式公式。",
+          "weight": 8,
+          "evidenceRequirement": "标准差明确选择 EXCLUDED_BY_EVIDENCE。",
+          "evidenceRules": [
+            {
+              "fieldId": "standard-deviation-boundary",
+              "operator": "EQUALS",
+              "expected": "EXCLUDED_BY_EVIDENCE"
+            }
+          ],
+          "remediationTargetId": "R-EDW-RECON"
+        },
+        {
+          "criterionId": "K-EDW-CROSS-SOURCE",
+          "description": "不只抄写单一结果，必须同时保留利润、份额、净值和来源一致性。",
+          "weight": 8,
+          "evidenceRequirement": "利润、增长率和跨来源状态均完成。",
+          "evidenceRules": [
+            {
+              "fieldId": "profit-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 6000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "ending-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.057692,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "nav-growth",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.057692,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "growth-period-link",
+              "operator": "EQUALS",
+              "expected": "MATCHED"
+            }
+          ],
+          "remediationTargetId": "R-EDW-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-EDW-CONCLUSION",
+          "description": "用简短可追溯文字报告利润拆分、分配份额利润、净值表现和公式证据边界。",
+          "weight": 20,
+          "evidenceRequirement": "结论含完整数值链、来源一致和标准差边界，不以签送/升级话术代替业务结果。",
+          "evidenceRules": [
+            {
+              "fieldId": "result-note",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "3,800,000",
+                "2,200,000",
+                "6,000,000",
+                "0.055769",
+                "1.057692",
+                "0.057692",
+                "一致",
+                "标准差"
+              ]
+            }
+          ],
+          "remediationTargetId": "R-EDW-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-EDW-PROFIT-SPLIT",
+      "description": "必须独立完成已实现/未实现利润拆分并闭合本期利润。",
+      "evidenceRequirement": "两个来源对象存在，3,800,000 + 2,200,000 = 6,000,000。",
+      "evidenceRules": [
+        {
+          "fieldId": "profit-realized-source",
+          "operator": "CONTAINS_ALL",
+          "expected": [
+            "已实现"
+          ]
+        },
+        {
+          "fieldId": "profit-unrealized-source",
+          "operator": "CONTAINS_ALL",
+          "expected": [
+            "公允价值"
+          ]
+        },
+        {
+          "fieldId": "realized-profit",
+          "operator": "NUMBER_EQUALS",
+          "expected": 3800000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "unrealized-profit",
+          "operator": "NUMBER_EQUALS",
+          "expected": 2200000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "profit-total",
+          "operator": "NUMBER_EQUALS",
+          "expected": 6000000,
+          "tolerance": 0.01
+        }
+      ],
+      "remediationTargetId": "R-EDW-PROFIT"
+    },
+    {
+      "requirementId": "M-EDW-NAV-WORKPAPER",
+      "description": "必须独立完成期末净值、净值增长率和跨来源状态。",
+      "evidenceRequirement": "期末份额 104,000,000、期末净值 1.057692、增长率 0.057692，来源状态 MATCHED。",
+      "evidenceRules": [
+        {
+          "fieldId": "ending-units",
+          "operator": "NUMBER_EQUALS",
+          "expected": 104000000,
+          "tolerance": 0
+        },
+        {
+          "fieldId": "ending-nav",
+          "operator": "NUMBER_EQUALS",
+          "expected": 1.057692,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "nav-growth",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.057692,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "growth-period-link",
+          "operator": "EQUALS",
+          "expected": "MATCHED"
+        }
+      ],
+      "remediationTargetId": "R-EDW-NAV"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-EDW-CONTROL",
+      "title": "重新锁定期间与来源快照",
+      "reason": "报告类型、期间、截止日或批准版本选错，导致后续取数不可比。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-WORKPAPER-KC-01",
+      "questionId": "ACC-ED-WORKPAPER-Q-01"
+    },
+    {
+      "targetId": "R-EDW-SOURCE",
+      "title": "重建利润来源取数",
+      "reason": "只抄利润合计，未保留已实现/未实现来源或期末份额。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "2",
+      "questionId": "ACC-ED-WORKPAPER-Q-03"
+    },
+    {
+      "targetId": "R-EDW-PROFIT",
+      "title": "补做利润拆分复算",
+      "reason": "已实现、未实现和本期利润不能连续复算。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "2",
+      "questionId": "ACC-ED-WORKPAPER-Q-02"
+    },
+    {
+      "targetId": "R-EDW-NAV",
+      "title": "补做净值表现底稿",
+      "reason": "期末净值、份额或增长率未按同一期间复算。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "4",
+      "questionId": "ACC-ED-WORKPAPER-Q-04"
+    },
+    {
+      "targetId": "R-EDW-CALC",
+      "title": "补做分配份额利润计算",
+      "reason": "分配额、份额和净值结果的精度或公式链错误。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "3",
+      "questionId": "ACC-ED-WORKPAPER-Q-02"
+    },
+    {
+      "targetId": "R-EDW-RECON",
+      "title": "重建跨来源勾稽与公式边界",
+      "reason": "没有把利润、净值、期间来源和标准差证据边界放在同一条复核链上。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-WORKPAPER-KC-03",
+      "questionId": "ACC-ED-WORKPAPER-Q-04"
+    },
+    {
+      "targetId": "R-EDW-CONCLUSION",
+      "title": "补全可追溯底稿结论",
+      "reason": "结论遗漏关键数值、来源一致状态或公式证据边界。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "5",
+      "questionId": "ACC-ED-WORKPAPER-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "control-report-type": "SEMI_ANNUAL",
+      "control-period": "2026H1",
+      "control-source-version": "APPROVED_SNAPSHOT",
+      "realized-profit": 3800000,
+      "unrealized-profit": 2200000,
+      "profit-total": 6000000,
+      "profit-realized-source": "利润表/账簿—本期利润—已实现",
+      "profit-unrealized-source": "利润表/估值表—公允价值变动—未实现",
+      "ending-units": 104000000,
+      "available-distributable": 5800000,
+      "distributable-per-unit": 0.055769,
+      "ending-nav": 1.057692,
+      "nav-growth": 0.057692,
+      "growth-period-link": "MATCHED",
+      "standard-deviation-boundary": "EXCLUDED_BY_EVIDENCE",
+      "result-note": "和宁基金中报 2026H1 来源一致；已实现利润 3,800,000.00、未实现利润 2,200,000.00，合计本期利润 6,000,000.00；可供分配份额利润 0.055769，期末单位净值 1.057692，净值增长率 0.057692；标准差因证据对象不完整排除正式公式。"
+    }
+  }
+}

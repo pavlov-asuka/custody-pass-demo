@@ -1,0 +1,622 @@
+{
+  "routeId": "ACC-ED-QUARTERLY-004",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-EDQ-CONTROL",
+          "description": "理解季度报告的期间、批准模板/来源和复核时点是取数前提。",
+          "weight": 8,
+          "evidenceRequirement": "报告为 2026Q2，来源为批准快照，复核日期早于披露日期。",
+          "evidenceRules": [
+            {
+              "fieldId": "control-report-type",
+              "operator": "EQUALS",
+              "expected": "QUARTERLY"
+            },
+            {
+              "fieldId": "control-period",
+              "operator": "EQUALS",
+              "expected": "2026Q2"
+            },
+            {
+              "fieldId": "control-template-source",
+              "operator": "EQUALS",
+              "expected": "APPROVED_SNAPSHOT"
+            },
+            {
+              "fieldId": "review-timing",
+              "operator": "EQUALS",
+              "expected": "BEFORE_DISCLOSURE_DATE"
+            }
+          ],
+          "remediationTargetId": "R-EDQ-CONTROL"
+        },
+        {
+          "criterionId": "C-EDQ-31",
+          "description": "理解 3.1 本期利润、加权平均份额利润、期末净资产和期末单位净值之间的数值关系。",
+          "weight": 9,
+          "evidenceRequirement": "3.1 数值链得到本期利润 4,600,000、加权平均份额利润 0.040000 和期末净值 1.050000。",
+          "evidenceRules": [
+            {
+              "fieldId": "current-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 4600000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "weighted-average-share-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.04,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "ending-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.05,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "ending-net-assets",
+              "operator": "NUMBER_EQUALS",
+              "expected": 126000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "ending-units",
+              "operator": "NUMBER_EQUALS",
+              "expected": 120000000,
+              "tolerance": 0
+            }
+          ],
+          "remediationTargetId": "R-EDQ-31"
+        },
+        {
+          "criterionId": "C-EDQ-32",
+          "description": "理解 3.2 净值增长率、同期业绩比较基准和超额结果必须使用同一期间和批准分红口径。",
+          "weight": 8,
+          "evidenceRequirement": "增长率 0.060000、基准 0.042000、超额 0.018000，来源期间状态 MATCHED。",
+          "evidenceRules": [
+            {
+              "fieldId": "nav-growth",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.06,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "benchmark-growth",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.042,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "excess-performance",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.018,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "performance-link",
+              "operator": "EQUALS",
+              "expected": "MATCHED"
+            }
+          ],
+          "remediationTargetId": "R-EDQ-32"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-EDQ-SOURCE",
+          "description": "从重要提示和基金概况读取托管人、期间、简称、主代码、合同生效日和期末份额。",
+          "weight": 7,
+          "evidenceRequirement": "指定字段来自同一批准季度资料包，期末份额为 120,000,000。",
+          "evidenceRules": [
+            {
+              "fieldId": "important-custodian",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "案例托管人甲"
+              ]
+            },
+            {
+              "fieldId": "important-period",
+              "operator": "EQUALS",
+              "expected": "2026Q2"
+            },
+            {
+              "fieldId": "fund-short-name",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "澄川季度"
+              ]
+            },
+            {
+              "fieldId": "fund-primary-code",
+              "operator": "EQUALS",
+              "expected": "CASE-QUARTER-FUND-001"
+            },
+            {
+              "fieldId": "contract-effective-date",
+              "operator": "EQUALS",
+              "expected": "2024-09-12"
+            },
+            {
+              "fieldId": "ending-units",
+              "operator": "NUMBER_EQUALS",
+              "expected": 120000000,
+              "tolerance": 0
+            }
+          ],
+          "remediationTargetId": "R-EDQ-SOURCE"
+        },
+        {
+          "criterionId": "P-EDQ-31",
+          "description": "完成 3.1 的取数、利润拆分、加权平均份额利润、期末净值计算和结果验证。",
+          "weight": 10,
+          "evidenceRequirement": "已实现 3,400,000、未实现 1,200,000、本期利润 4,600,000、加权平均份额 115,000,000、净资产 126,000,000、净值 1.050000。",
+          "evidenceRules": [
+            {
+              "fieldId": "realized-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 3400000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "unrealized-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1200000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "current-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 4600000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "weighted-average-units",
+              "operator": "NUMBER_EQUALS",
+              "expected": 115000000,
+              "tolerance": 0
+            },
+            {
+              "fieldId": "weighted-average-share-profit",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.04,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "ending-net-assets",
+              "operator": "NUMBER_EQUALS",
+              "expected": 126000000,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "ending-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.05,
+              "tolerance": 0.000001
+            }
+          ],
+          "remediationTargetId": "R-EDQ-31"
+        },
+        {
+          "criterionId": "P-EDQ-32",
+          "description": "完成 3.2 净值表现计算、基准读取、超额复算和跨来源勾稽。",
+          "weight": 9,
+          "evidenceRequirement": "累计净值 1.060000、增长率 0.060000、基准 0.042000、超额 0.018000，来源状态 MATCHED。",
+          "evidenceRules": [
+            {
+              "fieldId": "ending-cumulative-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 1.06,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "nav-growth",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.06,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "benchmark-growth",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.042,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "excess-performance",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.018,
+              "tolerance": 0.000001
+            },
+            {
+              "fieldId": "performance-link",
+              "operator": "EQUALS",
+              "expected": "MATCHED"
+            }
+          ],
+          "remediationTargetId": "R-EDQ-32"
+        },
+        {
+          "criterionId": "P-EDQ-WORKPAPER",
+          "description": "把 3.1/3.2 公式结果写入局部手工底稿并验证主管复核和正常归档状态。",
+          "weight": 4,
+          "evidenceRequirement": "两个底稿字段保留完整结果链，主管状态 REVIEWED、归档状态 NORMAL_ARCHIVED。",
+          "evidenceRules": [
+            {
+              "fieldId": "workpaper-3-1",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "3,400,000",
+                "1,200,000",
+                "4,600,000",
+                "0.040000",
+                "1.050000"
+              ]
+            },
+            {
+              "fieldId": "workpaper-3-2",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "0.060000",
+                "0.042000",
+                "0.018000"
+              ]
+            },
+            {
+              "fieldId": "supervisor-review-status",
+              "operator": "EQUALS",
+              "expected": "REVIEWED"
+            },
+            {
+              "fieldId": "archive-status",
+              "operator": "EQUALS",
+              "expected": "NORMAL_ARCHIVED"
+            }
+          ],
+          "remediationTargetId": "R-EDQ-WORKPAPER"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "K-EDQ-TIMING",
+          "description": "不把复核日期、D 日后重签或权限边界变成未经批准的永久业务规则。",
+          "weight": 8,
+          "evidenceRequirement": "本案例只记录复核日期早于披露日期，D 日后重签为边界，权限不读取真实信息。",
+          "evidenceRules": [
+            {
+              "fieldId": "review-timing",
+              "operator": "EQUALS",
+              "expected": "BEFORE_DISCLOSURE_DATE"
+            },
+            {
+              "fieldId": "d-day-resign-boundary",
+              "operator": "EQUALS",
+              "expected": "BOUNDARY_ONLY"
+            },
+            {
+              "fieldId": "control-template-source",
+              "operator": "EQUALS",
+              "expected": "APPROVED_SNAPSHOT"
+            }
+          ],
+          "remediationTargetId": "R-EDQ-CONTROL"
+        },
+        {
+          "criterionId": "K-EDQ-SPECIFIED",
+          "description": "指定字段必须逐项核对，不以数字链或签送动作代替文字信息复核。",
+          "weight": 9,
+          "evidenceRequirement": "管理人遵规、业绩表现、预警、前十名证券监管事项和托管人相关信息均为正常一致。",
+          "evidenceRules": [
+            {
+              "fieldId": "manager-compliance",
+              "operator": "EQUALS",
+              "expected": "NO_SPECIAL_STATEMENT"
+            },
+            {
+              "fieldId": "manager-performance",
+              "operator": "EQUALS",
+              "expected": "PERFORMANCE_TEXT_MATCHED"
+            },
+            {
+              "fieldId": "holder-warning",
+              "operator": "EQUALS",
+              "expected": "NO_WARNING"
+            },
+            {
+              "fieldId": "top10-regulatory",
+              "operator": "EQUALS",
+              "expected": "NO_REGULATORY_EVENT"
+            },
+            {
+              "fieldId": "custodian-info",
+              "operator": "EQUALS",
+              "expected": "CUSTODIAN_INFO_MATCHED"
+            }
+          ],
+          "remediationTargetId": "R-EDQ-SPECIFIED"
+        },
+        {
+          "criterionId": "K-EDQ-SCREENSHOT",
+          "description": "不把截图中的核对异常/不符数据列表或不可可靠辨认文字带入正常资料包。",
+          "weight": 8,
+          "evidenceRequirement": "8 张截图只作界面字段证据，异常列表选择 EXCLUDED_FROM_NORMAL_CASE，3.2 正常来源保持 MATCHED。",
+          "evidenceRules": [
+            {
+              "fieldId": "screenshot-boundary",
+              "operator": "EQUALS",
+              "expected": "EXCLUDED_FROM_NORMAL_CASE"
+            },
+            {
+              "fieldId": "performance-link",
+              "operator": "EQUALS",
+              "expected": "MATCHED"
+            },
+            {
+              "fieldId": "control-period",
+              "operator": "EQUALS",
+              "expected": "2026Q2"
+            }
+          ],
+          "remediationTargetId": "R-EDQ-SCREENSHOT"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-EDQ-CONCLUSION",
+          "description": "用短结论报告 3.1/3.2 数值链、指定字段勾稽和正常底稿状态，不以签送/升级话术代替结果。",
+          "weight": 20,
+          "evidenceRequirement": "结论包含利润拆分、3.1/3.2 结果、指定字段、主管复核和正常归档。",
+          "evidenceRules": [
+            {
+              "fieldId": "result-note",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "3,400,000",
+                "1,200,000",
+                "4,600,000",
+                "0.040000",
+                "1.050000",
+                "0.060000",
+                "0.042000",
+                "0.018000",
+                "指定字段",
+                "主管复核",
+                "正常归档"
+              ]
+            }
+          ],
+          "remediationTargetId": "R-EDQ-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-EDQ-31-CHAIN",
+      "description": "必须独立完成 3.1 利润拆分、加权平均份额利润和期末单位净值复算。",
+      "evidenceRequirement": "3,400,000 + 1,200,000 = 4,600,000；4,600,000 ÷ 115,000,000 = 0.040000；126,000,000 ÷ 120,000,000 = 1.050000。",
+      "evidenceRules": [
+        {
+          "fieldId": "realized-profit",
+          "operator": "NUMBER_EQUALS",
+          "expected": 3400000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "unrealized-profit",
+          "operator": "NUMBER_EQUALS",
+          "expected": 1200000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "current-profit",
+          "operator": "NUMBER_EQUALS",
+          "expected": 4600000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "weighted-average-units",
+          "operator": "NUMBER_EQUALS",
+          "expected": 115000000,
+          "tolerance": 0
+        },
+        {
+          "fieldId": "weighted-average-share-profit",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.04,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "ending-net-assets",
+          "operator": "NUMBER_EQUALS",
+          "expected": 126000000,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "ending-units",
+          "operator": "NUMBER_EQUALS",
+          "expected": 120000000,
+          "tolerance": 0
+        },
+        {
+          "fieldId": "ending-nav",
+          "operator": "NUMBER_EQUALS",
+          "expected": 1.05,
+          "tolerance": 0.000001
+        }
+      ],
+      "remediationTargetId": "R-EDQ-31"
+    },
+    {
+      "requirementId": "M-EDQ-32-CHAIN",
+      "description": "必须独立完成 3.2 净值增长率、同期基准、超额结果和来源期间勾稽。",
+      "evidenceRequirement": "(1.050000 + 0.010000) ÷ 1.000000 - 1 = 0.060000；0.060000 - 0.042000 = 0.018000，来源状态 MATCHED。",
+      "evidenceRules": [
+        {
+          "fieldId": "ending-nav",
+          "operator": "NUMBER_EQUALS",
+          "expected": 1.05,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "ending-cumulative-nav",
+          "operator": "NUMBER_EQUALS",
+          "expected": 1.06,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "nav-growth",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.06,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "benchmark-growth",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.042,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "excess-performance",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.018,
+          "tolerance": 0.000001
+        },
+        {
+          "fieldId": "performance-link",
+          "operator": "EQUALS",
+          "expected": "MATCHED"
+        },
+        {
+          "fieldId": "manager-performance",
+          "operator": "EQUALS",
+          "expected": "PERFORMANCE_TEXT_MATCHED"
+        }
+      ],
+      "remediationTargetId": "R-EDQ-32"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "R-EDQ-CONTROL",
+      "title": "重新锁定季度期间与来源",
+      "reason": "报告期间、模板/来源快照或复核时点选择错误。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-QUARTERLY-KC-01",
+      "questionId": "ACC-ED-QUARTERLY-Q-01"
+    },
+    {
+      "targetId": "R-EDQ-SOURCE",
+      "title": "补做指定字段取数",
+      "reason": "重要提示、基金概况或期末份额字段取错来源或期间。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "2",
+      "questionId": "ACC-ED-QUARTERLY-Q-01"
+    },
+    {
+      "targetId": "R-EDQ-31",
+      "title": "补做 3.1 数值链",
+      "reason": "利润拆分、加权平均份额利润、期末净资产或期末净值复算错误。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "3",
+      "questionId": "ACC-ED-QUARTERLY-Q-02"
+    },
+    {
+      "targetId": "R-EDQ-32",
+      "title": "补做 3.2 净值表现链",
+      "reason": "分红口径、期初/期末净值、基准或超额结果没有按同一期间闭合。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "4",
+      "questionId": "ACC-ED-QUARTERLY-Q-03"
+    },
+    {
+      "targetId": "R-EDQ-SPECIFIED",
+      "title": "补做管理人和投资组合指定字段",
+      "reason": "遵规守信、业绩表现、预警、前十名证券声明或托管人信息未逐项核对。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-QUARTERLY-KC-02",
+      "questionId": "ACC-ED-QUARTERLY-Q-05"
+    },
+    {
+      "targetId": "R-EDQ-SCREENSHOT",
+      "title": "恢复截图使用边界",
+      "reason": "把截图异常/不符列表或不可可靠辨认文字带入正常案例。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "ED-QUARTERLY-KC-03",
+      "questionId": "ACC-ED-QUARTERLY-Q-03"
+    },
+    {
+      "targetId": "R-EDQ-WORKPAPER",
+      "title": "补全季度手工底稿和状态",
+      "reason": "3.1/3.2 公式结果没有写入底稿，或未验证主管复核/正常归档状态。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "5",
+      "questionId": "ACC-ED-QUARTERLY-Q-04"
+    },
+    {
+      "targetId": "R-EDQ-CONCLUSION",
+      "title": "补全可追溯季度结论",
+      "reason": "短结论遗漏数字链、指定字段或正常复核结果。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "5",
+      "questionId": "ACC-ED-QUARTERLY-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "control-report-type": "QUARTERLY",
+      "control-period": "2026Q2",
+      "control-template-source": "APPROVED_SNAPSHOT",
+      "review-timing": "BEFORE_DISCLOSURE_DATE",
+      "d-day-resign-boundary": "BOUNDARY_ONLY",
+      "screenshot-boundary": "EXCLUDED_FROM_NORMAL_CASE",
+      "important-custodian": "案例托管人甲（脱敏）",
+      "important-period": "2026Q2",
+      "fund-short-name": "澄川季度",
+      "fund-primary-code": "CASE-QUARTER-FUND-001",
+      "contract-effective-date": "2024-09-12",
+      "ending-units": 120000000,
+      "realized-profit": 3400000,
+      "unrealized-profit": 1200000,
+      "current-profit": 4600000,
+      "weighted-average-units": 115000000,
+      "weighted-average-share-profit": 0.04,
+      "ending-net-assets": 126000000,
+      "ending-nav": 1.05,
+      "ending-cumulative-nav": 1.06,
+      "nav-growth": 0.06,
+      "benchmark-growth": 0.042,
+      "excess-performance": 0.018,
+      "performance-link": "MATCHED",
+      "manager-compliance": "NO_SPECIAL_STATEMENT",
+      "manager-performance": "PERFORMANCE_TEXT_MATCHED",
+      "holder-warning": "NO_WARNING",
+      "top10-regulatory": "NO_REGULATORY_EVENT",
+      "custodian-info": "CUSTODIAN_INFO_MATCHED",
+      "workpaper-3-1": "3.1 底稿：3,400,000.00 + 1,200,000.00 = 4,600,000.00；4,600,000.00 ÷ 115,000,000 = 0.040000；126,000,000.00 ÷ 120,000,000 = 1.050000。",
+      "workpaper-3-2": "3.2 底稿：(1.050000 + 0.010000) ÷ 1.000000 - 1 = 0.060000；基准 0.042000；超额 0.018000。",
+      "supervisor-review-status": "REVIEWED",
+      "archive-status": "NORMAL_ARCHIVED",
+      "result-note": "澄川季度 2026Q2 来源与期间一致；3.1 已实现收益 3,400,000.00 + 未实现收益 1,200,000.00 = 本期利润 4,600,000.00，加权平均份额利润 0.040000，期末净值 1.050000；3.2 净值增长率 0.060000、基准 0.042000、超额 0.018000；指定字段一致，截图异常列表排除，主管复核完成，正常归档。"
+    }
+  }
+}

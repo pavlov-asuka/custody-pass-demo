@@ -125,7 +125,11 @@ class LearningFlowApplicationTests {
                 .andExpect(jsonPath("$.regions[0].modules[3].nodes[0].routeId").value("ACC-FUT-CONTRACT-001"))
                 .andExpect(jsonPath("$.regions[0].modules[3].nodes[0].state").value("LOCKED"))
                 .andExpect(jsonPath("$.regions[0].modules[3].nodes[3].routeId").value("ACC-FUT-RECON-004"))
-                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(16));
+                .andExpect(jsonPath("$.regions[0].modules[4].moduleId").value("ACC-MODULE-VALUATION-DISCLOSURE"))
+                .andExpect(jsonPath("$.regions[0].modules[4].nodes.length()").value(5))
+                .andExpect(jsonPath("$.regions[0].modules[4].nodes[0].routeId").value("ACC-ED-WORKPAPER-001"))
+                .andExpect(jsonPath("$.regions[0].modules[4].nodes[4].routeId").value("ACC-ED-UPDATES-005"))
+                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(21));
     }
 
     @Test
