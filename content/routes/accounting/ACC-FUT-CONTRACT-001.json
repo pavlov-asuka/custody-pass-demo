@@ -1,0 +1,102 @@
+{
+  "routeId": "ACC-FUT-CONTRACT-001",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "期货合约、方向与开平仓识别",
+  "summary": "从脱敏成交资料识别股指期货合约、乘数、多空和开平仓，计算初始合约价值并完成开仓及交易费用凭证。",
+  "estimatedMinutes": 42,
+  "objectives": [
+    "从合约参数和成交记录读取合约代码、合约乘数、交易方向、开平仓属性、数量和成交金额",
+    "结合多空方向与开平仓属性解释买入和卖出，不把买入机械等同于开仓",
+    "按成交金额或成交点位乘合约乘数乘数量复算初始合约价值",
+    "补全开仓初始确认和交易费用凭证，并核对借贷金额"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {"cards": [
+      {"cardId": "FUT-CONTRACT-KC-01", "type": "CATEGORIES", "title": "方向必须和开平仓一起读", "conclusion": "买入、卖出只描述成交方向；必须再结合多头/空头和开仓/平仓属性，才能判断持仓怎样变化。", "items": ["买入开仓形成多头持仓", "卖出平仓减少多头持仓", "卖出开仓形成空头持仓", "买入平仓减少空头持仓"]},
+      {"cardId": "FUT-CONTRACT-KC-02", "type": "FLOW", "title": "合约字段怎样进入初始确认", "conclusion": "先确认合约和题面批准乘数，再读取方向、属性、数量和成交点位，最后复算初始合约价值。", "items": ["合约代码标识具体合约", "本案例初始合约价值 = 成交点位 × 合约乘数 × 成交数量", "多头与空头的初始确认借贷方向不同", "交易费用单独落账，不并入初始合约价值"]},
+      {"cardId": "FUT-CONTRACT-KC-03", "type": "KEY_POINT", "title": "所有参数只属于当前案例", "conclusion": "乘数、价格、费率、科目、精度和舍入均来自本案例批准快照，不代表当前市场或其他产品的永久规则。", "items": ["先读参数卡再计算", "金额保留 2 位小数", "费用以成交记录给定金额为准", "不背诵历史系统路径和内部编码"]}
+    ]},
+    "DEMONSTRATION": {
+      "scenario": {"role": "案例产品甲的组合核算人员", "product": "案例产品甲 / 案例股指期货甲", "date": "案例日 T", "facts": ["本案例批准合约乘数为每点 300 元，金额保留 2 位小数。", "成交记录显示买入开仓 4 份，成交点位 3,250.40，交易费用 214.53 元。", "该笔交易形成多头持仓；交易费用按本案例批准科目单独确认。"]},
+      "steps": [
+        {"order": 1, "action": "读取合约代码、买入方向、开仓属性、4 份数量和每点 300 元乘数", "reason": "只有方向、属性和合约参数共同齐备，才能判断业务对象。"},
+        {"order": 2, "action": "判断买入开仓形成多头持仓，期末新增多头 4 份", "reason": "买入不能脱离开平仓属性直接解释。"},
+        {"order": 3, "action": "复算初始合约价值 3,250.40 × 300 × 4 = 3,900,480.00 元", "reason": "点位、乘数和数量必须保留各自单位。"},
+        {"order": 4, "action": "借记多头初始合约价值并贷记冲抵初始合约价值 3,900,480.00 元", "reason": "成对初始确认记录数量和金额，同时保持初始净额关系。"},
+        {"order": 5, "action": "借记交易费用、贷记结算备付金 214.53 元，并核对两张凭证借贷平衡", "reason": "交易费用只在本路线单独确认，不混入初始合约价值。"}
+      ],
+      "summary": "读合约参数 → 识别方向与属性 → 计算初始合约价值 → 补全开仓凭证 → 单独确认交易费用"
+    },
+    "BASIC_PRACTICE": {"questions": [
+      {"questionId": "ACC-FUT-CONTRACT-Q-01", "type": "FIELD_MAP", "prompt": "把成交字段对应到它证明的业务含义。", "fieldMappings": [
+        {"fieldId": "trade-side", "label": "卖出", "source": "成交记录", "options": [{"optionId": "SIDE_ONLY", "text": "成交方向，不能单独判断开仓或平仓"}, {"optionId": "SHORT_OPEN", "text": "必然形成空头开仓"}]},
+        {"fieldId": "position-effect", "label": "卖出开仓", "source": "成交记录", "options": [{"optionId": "ADD_SHORT", "text": "增加空头持仓"}, {"optionId": "REDUCE_LONG", "text": "减少多头持仓"}]},
+        {"fieldId": "multiplier", "label": "每点 300 元", "source": "本案例参数卡", "options": [{"optionId": "CONTRACT_MULTIPLIER", "text": "合约乘数"}, {"optionId": "TRADE_FEE", "text": "交易费用"}]}
+      ], "answer": ["SIDE_ONLY", "ADD_SHORT", "CONTRACT_MULTIPLIER"], "explanation": "卖出只是方向；卖出开仓增加空头；每点金额是本案例合约乘数。", "hints": ["先分开方向、开平仓属性和参数。"]},
+      {"questionId": "ACC-FUT-CONTRACT-Q-02", "type": "CALCULATION", "prompt": "使用本案例批准参数复算 3 份、成交点位 3,180.60、每点 300 元的初始合约价值。", "calculation": {"fields": [
+        {"fieldId": "contract-value", "label": "初始合约价值", "formula": "3,180.60 × 300 × 3", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01}
+      ]}, "answer": ["2862540"], "explanation": "初始合约价值为 2,862,540.00 元。", "hints": ["不要漏乘合约数量。"]},
+      {"questionId": "ACC-FUT-CONTRACT-Q-03", "type": "ORDERING", "prompt": "按业务因果顺序排列开仓处理。", "items": [{"itemId": "READ", "text": "读取合约、方向、开平仓属性和参数"}, {"itemId": "CLASSIFY", "text": "判断多头或空头持仓变化"}, {"itemId": "CALC", "text": "复算初始合约价值"}, {"itemId": "POST", "text": "生成并核对开仓凭证"}], "answer": ["READ", "CLASSIFY", "CALC", "POST"], "explanation": "先识别业务对象，再计算并落账。", "hints": ["凭证是识别和计算后的结果。"]},
+      {"questionId": "ACC-FUT-CONTRACT-Q-04", "type": "LEDGER_ENTRY", "prompt": "补全多头开仓及交易费用凭证的关键科目。", "ledgerEntries": [
+        {"entryId": "debit-long", "direction": "借", "label": "多头初始合约价值", "amount": "2,862,540.00 元", "placeholder": "输入科目"},
+        {"entryId": "credit-offset", "direction": "贷", "label": "冲抵初始合约价值", "amount": "2,862,540.00 元", "placeholder": "输入科目"},
+        {"entryId": "debit-fee", "direction": "借", "label": "交易费用", "amount": "157.44 元", "placeholder": "输入科目"},
+        {"entryId": "credit-cash", "direction": "贷", "label": "费用资金减少", "amount": "157.44 元", "placeholder": "输入科目"}
+      ], "answer": ["其他衍生工具-多头-初始合约价值", "其他衍生工具-冲抵初始合约价值", "交易费用", "结算备付金"], "explanation": "初始确认成对记录，交易费用单独借记并减少结算备付金。", "hints": ["交易费用不得并入初始合约价值。"]},
+      {"questionId": "ACC-FUT-CONTRACT-Q-05", "type": "RECONCILIATION", "prompt": "核对 3 份多头开仓的数量、初始确认和费用凭证。", "reconciliation": {"fields": [
+        {"fieldId": "ending-long", "label": "新增多头持仓", "kind": "NUMBER", "formula": "0 + 3", "placeholder": "输入份数", "precision": 0, "tolerance": 0},
+        {"fieldId": "initial-balance", "label": "初始确认借贷差额", "kind": "NUMBER", "formula": "2,862,540 - 2,862,540", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "fee-balance", "label": "费用凭证借贷差额", "kind": "NUMBER", "formula": "157.44 - 157.44", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01}
+      ]}, "answer": ["3", "0", "0"], "explanation": "新增多头 3 份，两张凭证借贷差额均为 0。", "hints": ["分别核对数量和两张凭证。"]}
+    ]},
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {"role": "案例产品乙的组合核算人员", "product": "案例产品乙 / 案例股指期货乙", "date": "案例日 T", "purpose": "独立识别一笔正常空头开仓，复算初始合约价值并完成开仓和交易费用凭证。"},
+      "sourceMaterials": [
+        {"materialId": "FUTC-PARAM", "title": "本案例批准参数", "kind": "PARAMETER", "description": "仅适用于本案例，不构成现行市场或其他产品的永久规则。", "fields": [
+          {"fieldId": "multiplier", "label": "合约乘数", "value": "每点 200 元"},
+          {"fieldId": "value-formula", "label": "初始合约价值", "value": "成交点位 × 合约乘数 × 成交数量"},
+          {"fieldId": "precision", "label": "金额精度与容差", "value": "保留 2 位小数；绝对误差 0.01 元"},
+          {"fieldId": "ledger-snapshot", "label": "批准科目表达", "value": "其他衍生工具-空头-初始合约价值、其他衍生工具-冲抵初始合约价值、交易费用、结算备付金"}
+        ]},
+        {"materialId": "FUTC-TRADE", "title": "正常成交记录", "kind": "STATEMENT", "description": "成交状态正常完成。", "fields": [
+          {"fieldId": "contract", "label": "脱敏合约", "value": "案例股指期货乙"},
+          {"fieldId": "side", "label": "买卖方向", "value": "卖出"},
+          {"fieldId": "open-close", "label": "开平仓属性", "value": "开仓"},
+          {"fieldId": "position", "label": "持仓属性", "value": "空头"},
+          {"fieldId": "quantity", "label": "成交数量", "value": "7", "unit": "份"},
+          {"fieldId": "trade-price", "label": "成交点位", "value": "2,468.50", "unit": "点"},
+          {"fieldId": "trade-amount", "label": "成交金额", "value": "3,455,900.00", "unit": "元"},
+          {"fieldId": "trade-fee", "label": "交易费用", "value": "228.36", "unit": "元"}
+        ]},
+        {"materialId": "FUTC-OPEN", "title": "处理前持仓与账簿", "kind": "LEDGER", "description": "该脱敏合约处理前没有多头或空头持仓。", "fields": [
+          {"fieldId": "opening-long", "label": "期初多头", "value": "0", "unit": "份"},
+          {"fieldId": "opening-short", "label": "期初空头", "value": "0", "unit": "份"}
+        ]}
+      ],
+      "workItems": [
+        {"workItemId": "trade-side-meaning", "type": "FIELD_MAP", "title": "识别卖出字段", "instruction": "选择卖出字段本身能够证明的含义。", "response": {"kind": "SELECT", "placeholder": "选择含义", "options": [{"optionId": "SIDE_ONLY", "text": "成交方向，需结合开平仓属性判断持仓"}, {"optionId": "ALWAYS_CLOSE", "text": "必然是平仓"}]}},
+        {"workItemId": "position-effect", "type": "FIELD_MAP", "title": "判断持仓变化", "instruction": "结合卖出、开仓和空头字段判断本次变化。", "response": {"kind": "SELECT", "placeholder": "选择变化", "options": [{"optionId": "ADD_SHORT_7", "text": "新增空头 7 份"}, {"optionId": "ADD_LONG_7", "text": "新增多头 7 份"}]}},
+        {"workItemId": "contract-value", "type": "CALCULATION", "title": "复算初始合约价值", "instruction": "按本案例公式复算成交金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "ending-short", "type": "RECONCILIATION", "title": "期末空头数量", "instruction": "用期初空头和本次开仓数量复算。", "response": {"kind": "NUMBER", "placeholder": "输入份数", "unit": "份", "precision": 0}},
+        {"workItemId": "initial-debit-account", "type": "LEDGER_ENTRY", "title": "空头开仓借方科目", "instruction": "填写空头开仓初始确认的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "initial-credit-account", "type": "LEDGER_ENTRY", "title": "空头开仓贷方科目", "instruction": "填写空头开仓初始确认的贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "initial-debit-amount", "type": "CALCULATION", "title": "初始确认借方金额", "instruction": "填写开仓初始确认借方金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "initial-credit-amount", "type": "CALCULATION", "title": "初始确认贷方金额", "instruction": "填写开仓初始确认贷方金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "fee-debit-account", "type": "LEDGER_ENTRY", "title": "交易费用借方科目", "instruction": "填写交易费用借方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "fee-credit-account", "type": "LEDGER_ENTRY", "title": "交易费用贷方科目", "instruction": "填写交易费用贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "fee-amount", "type": "CALCULATION", "title": "交易费用金额", "instruction": "从成交记录读取本案例费用金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "initial-balance", "type": "RECONCILIATION", "title": "初始确认借贷差额", "instruction": "用借方金额减贷方金额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "fee-balance", "type": "RECONCILIATION", "title": "费用凭证借贷差额", "instruction": "核对费用凭证借贷金额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "opening-result", "type": "RECONCILIATION", "title": "开仓结果", "instruction": "核对合约、方向、数量、金额和两张凭证。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "空头开仓结果完整且勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "正常开仓结论", "instruction": "简述方向、期末空头、初始合约价值、交易费用和勾稽结果。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
+      ],
+      "submissionNote": "本案例为正常、充分且已批准的脱敏合成快照。正式提交前请核对方向、乘数、数量、金额和凭证平衡。"
+    }
+  },
+  "references": [
+    {"referenceId": "FUT-SOURCE-DOCX", "title": "期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__期货业务介绍2023.docx", "usage": "方向、开平仓、初始合约价值、交易费用和凭证结构的历史培训依据；参数仅作为案例快照。"},
+    {"referenceId": "FUT-SOURCE-PPTX", "title": "期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__期货业务介绍2023.pptx", "usage": "合约字段、方向关系与正常多头案例的交叉证据。"},
+    {"referenceId": "FUT-SOURCE-XLSX", "title": "随堂测试题目-期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__随堂测试题目-期货业务介绍2023.xlsx", "usage": "开仓先于平仓及保证金计算认知的交叉证据，不复用历史题目答案。"}
+  ]
+}

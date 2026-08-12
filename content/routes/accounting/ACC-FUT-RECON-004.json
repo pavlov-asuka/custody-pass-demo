@@ -1,0 +1,112 @@
+{
+  "routeId": "ACC-FUT-RECON-004",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "资金、保证金、持仓与账簿勾稽",
+  "summary": "使用同一产品、合约和日期的外部结算资料、资金与保证金台账、持仓台账及账簿结果，逐项计算差额并验证正常日终闭环。",
+  "estimatedMinutes": 45,
+  "objectives": [
+    "先核对产品、合约、日期、方向和单位，再建立外部资料与内部结果的字段对应",
+    "逐项核对外部期末持仓、证券台账和账簿数量，不用绝对值掩盖方向",
+    "逐项核对结算备付金、存出保证金、持仓估值变动、平仓损益和结算过渡金额",
+    "在所有单项差额均为零后形成可追溯的正常对账结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {"cards": [
+      {"cardId": "FUT-RECON-KC-01", "type": "FLOW", "title": "先锁定同一对象再对数", "conclusion": "外部结算单、资金资料、台账和账簿只有在产品、合约、日期、方向和单位一致时才能进入同一组对账。", "items": ["产品和账户范围一致", "合约代码和业务日期一致", "多头/空头方向一致", "数量用份、金额用元，不混用点位"]},
+      {"cardId": "FUT-RECON-KC-02", "type": "CATEGORIES", "title": "每类结果都有独立来源", "conclusion": "持仓、结算备付金、保证金、持仓估值、平仓损益和结算过渡金额必须分别寻找外部与内部证据。", "items": ["外部期末持仓 ↔ 证券台账 ↔ 账簿数量", "外部可用资金 ↔ 结算备付金账", "外部保证金占用 ↔ 存出保证金账", "外部持仓损益/平仓损益/当日结算 ↔ 对应账簿结果"]},
+      {"cardId": "FUT-RECON-KC-03", "type": "KEY_POINT", "title": "总净额为零不能替代逐项核对", "conclusion": "不同项目的正负差额不能相互抵销；只有每个持仓、资金、保证金和结算项目的差额分别为零，才能确认正常闭合。", "items": ["先计算单项外部数减内部数", "方向不一致不能先取绝对值", "所有差额分别保留", "历史字段、科目和时点只按本案例批准快照解释"]}
+    ]},
+    "DEMONSTRATION": {
+      "scenario": {"role": "案例产品甲的组合核算人员", "product": "案例产品甲 / 案例股指期货甲", "date": "案例日 T", "facts": ["外部结算单、内部台账和账簿均标识案例产品甲、案例合约甲、T 日、多头、数量单位份、金额单位元。", "外部期末多头、证券台账和账簿数量均为 11 份。", "外部可用资金与结算备付金账均为 1,550,860.00 元；外部保证金占用与存出保证金账均为 1,401,119.94 元。", "外部持仓损益、账簿估值变动和结算过渡金额均为 250,860.00 元；外部与账簿平仓损益均为 0。"]},
+      "steps": [
+        {"order": 1, "action": "确认三类资料属于同一产品、合约、T 日、多头，并统一数量份和金额元", "reason": "对象、日期、方向或单位不同的数值不能直接比较。"},
+        {"order": 2, "action": "逐项计算外部持仓 11 - 证券台账 11 = 0，账簿数量 11 - 证券台账 11 = 0", "reason": "外部、台账和账簿三方分别闭合，不能只看其中两方。"},
+        {"order": 3, "action": "计算可用资金差额 1,550,860 - 1,550,860 = 0，保证金差额 1,401,119.94 - 1,401,119.94 = 0", "reason": "结算备付金与存出保证金是两个项目，必须分别核对。"},
+        {"order": 4, "action": "分别核对持仓损益差额 0、平仓损益差额 0、当日结算与过渡金额差额 0", "reason": "估值、已实现损益和结算过渡关系不能通过总净额互相抵销。"},
+        {"order": 5, "action": "确认全部七项差额分别为零，记录正常 BALANCED 结论", "reason": "正常结论由逐项结构化证据支持，而不是一句‘总额一致’。"}
+      ],
+      "summary": "锁定对象与单位 → 三方持仓核对 → 资金和保证金分别核对 → 三项日终结果分别核对 → 汇总逐项闭合结论"
+    },
+    "BASIC_PRACTICE": {"questions": [
+      {"questionId": "ACC-FUT-RECON-Q-01", "type": "FIELD_MAP", "prompt": "把外部字段映射到对应内部结果。", "fieldMappings": [
+        {"fieldId": "external-position", "label": "期末多头持仓 11 份", "source": "外部结算单", "options": [{"optionId": "POSITION_LEDGER", "text": "证券台账与账簿持仓数量"}, {"optionId": "MARGIN_LEDGER", "text": "存出保证金余额"}]},
+        {"fieldId": "external-available", "label": "可用资金 1,550,860.00 元", "source": "外部资金资料", "options": [{"optionId": "CASH_LEDGER", "text": "结算备付金账"}, {"optionId": "POSITION_LEDGER", "text": "证券台账数量"}]},
+        {"fieldId": "external-margin", "label": "保证金占用 1,401,119.94 元", "source": "外部结算单", "options": [{"optionId": "MARGIN_LEDGER", "text": "存出保证金账"}, {"optionId": "CASH_LEDGER", "text": "结算备付金账"}]}
+      ], "answer": ["POSITION_LEDGER", "CASH_LEDGER", "MARGIN_LEDGER"], "explanation": "持仓、可用资金和保证金分别对应持仓台账、结算备付金和存出保证金。", "hints": ["不要把资金与保证金合成一个净额。"]},
+      {"questionId": "ACC-FUT-RECON-Q-02", "type": "ORDERING", "prompt": "排列正常多来源对账顺序。", "items": [{"itemId": "IDENTITY", "text": "核对产品、合约、日期、方向和单位"}, {"itemId": "POSITION", "text": "逐项核对外部、台账和账簿持仓"}, {"itemId": "CASH_MARGIN", "text": "分别核对资金和保证金"}, {"itemId": "RESULTS", "text": "分别核对估值、平仓损益和结算过渡"}, {"itemId": "CONCLUDE", "text": "确认所有单项差额后形成结论"}], "answer": ["IDENTITY", "POSITION", "CASH_MARGIN", "RESULTS", "CONCLUDE"], "explanation": "对象一致是数值比较的前提，结论必须在全部单项核对后形成。", "hints": ["先确认是否可比，再开始计算。"]},
+      {"questionId": "ACC-FUT-RECON-Q-03", "type": "RECONCILIATION", "prompt": "复算示范的持仓、资金和保证金差额。", "reconciliation": {"fields": [
+        {"fieldId": "external-ledger-position-diff", "label": "外部持仓-证券台账", "kind": "NUMBER", "formula": "11 - 11", "placeholder": "输入差额", "precision": 0, "tolerance": 0},
+        {"fieldId": "book-ledger-position-diff", "label": "账簿持仓-证券台账", "kind": "NUMBER", "formula": "11 - 11", "placeholder": "输入差额", "precision": 0, "tolerance": 0},
+        {"fieldId": "cash-diff", "label": "外部可用资金-结算备付金账", "kind": "NUMBER", "formula": "1,550,860 - 1,550,860", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "margin-diff", "label": "外部保证金-存出保证金账", "kind": "NUMBER", "formula": "1,401,119.94 - 1,401,119.94", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01}
+      ]}, "answer": ["0", "0", "0", "0"], "explanation": "四项差额分别为零。", "hints": ["逐项保留差额，不能相互抵销。"]},
+      {"questionId": "ACC-FUT-RECON-Q-04", "type": "LEDGER_ENTRY", "prompt": "根据外部字段选择需要核对的内部账簿对象。", "ledgerEntries": [
+        {"entryId": "available-funds-ledger", "direction": "核对", "label": "外部可用资金", "amount": "1,550,860.00 元", "placeholder": "输入内部账簿对象"},
+        {"entryId": "margin-ledger", "direction": "核对", "label": "外部保证金占用", "amount": "1,401,119.94 元", "placeholder": "输入内部账簿对象"},
+        {"entryId": "daily-settlement-ledger", "direction": "核对", "label": "外部当日结算", "amount": "250,860.00 元", "placeholder": "输入内部账簿对象"}
+      ], "answer": ["结算备付金", "存出保证金", "证券清算款-期货无负债结算暂收暂付款"], "explanation": "三个外部字段分别落到资金、保证金和结算过渡账簿对象。", "hints": ["按字段业务含义选择对象，不按金额大小选择。"]},
+      {"questionId": "ACC-FUT-RECON-Q-05", "type": "SHORT_TEXT", "prompt": "用一句话说明为什么总净额一致仍不能跳过单项核对。", "textInput": {"label": "对账原则", "placeholder": "写明至少三类必须分别核对的项目。"}, "answer": ["持仓", "资金", "保证金", "估值", "平仓损益", "逐项"], "explanation": "不同项目的正负差额可能相互抵销，因此必须逐项核对持仓、资金、保证金和日终结果。", "hints": ["说明总净额可能掩盖什么。"]}
+    ]},
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {"role": "案例产品乙的组合核算人员", "product": "案例产品乙 / 案例股指期货乙", "date": "案例日 T", "purpose": "独立完成同一空头合约的持仓、资金、保证金和日终账簿结果多来源逐项勾稽。"},
+      "sourceMaterials": [
+        {"materialId": "FUTR-IDENTITY", "title": "本案例批准对账范围", "kind": "PARAMETER", "description": "字段、科目、日期和方向只适用于本案例，不构成现行永久规则。", "fields": [
+          {"fieldId": "product", "label": "产品", "value": "案例产品乙"},
+          {"fieldId": "contract", "label": "合约", "value": "案例股指期货乙"},
+          {"fieldId": "date", "label": "业务日期", "value": "案例日 T"},
+          {"fieldId": "direction", "label": "持仓方向", "value": "空头"},
+          {"fieldId": "units", "label": "单位", "value": "持仓为份；点位为点；账务结果为元"},
+          {"fieldId": "rule", "label": "正常结论规则", "value": "每个对应项目分别计算外部数减内部数；所有单项差额均为零才可选择 BALANCED"}
+        ]},
+        {"materialId": "FUTR-EXTERNAL", "title": "外部结算单与资金资料", "kind": "STATEMENT", "description": "同一产品、合约和日期的正常外部结果。", "fields": [
+          {"fieldId": "external-position", "label": "期末空头持仓", "value": "10", "unit": "份"},
+          {"fieldId": "external-available-funds", "label": "可用资金", "value": "1,988,000.00", "unit": "元"},
+          {"fieldId": "external-margin", "label": "保证金占用", "value": "912,000.00", "unit": "元"},
+          {"fieldId": "external-holding-pnl", "label": "当日持仓损益", "value": "50,000.00", "unit": "元"},
+          {"fieldId": "external-flat-pnl", "label": "当日平仓损益", "value": "-12,500.00", "unit": "元"},
+          {"fieldId": "external-daily-settlement", "label": "当日结算金额", "value": "50,000.00", "unit": "元"}
+        ]},
+        {"materialId": "FUTR-POSITION", "title": "内部持仓台账与账簿数量", "kind": "LEDGER", "description": "内部两类数量证据均已完成正常登记。", "fields": [
+          {"fieldId": "security-ledger-position", "label": "证券台账空头持仓", "value": "10", "unit": "份"},
+          {"fieldId": "book-position", "label": "账簿空头数量", "value": "10", "unit": "份"}
+        ]},
+        {"materialId": "FUTR-FUNDS", "title": "内部资金与保证金台账", "kind": "LEDGER", "description": "资金和保证金分别列示，不作净额合并。", "fields": [
+          {"fieldId": "cash-ledger", "label": "结算备付金账", "value": "1,988,000.00", "unit": "元"},
+          {"fieldId": "margin-ledger", "label": "存出保证金账", "value": "912,000.00", "unit": "元"}
+        ]},
+        {"materialId": "FUTR-BOOK", "title": "内部估值与损益结果", "kind": "VALUATION", "description": "持仓估值、平仓损益和结算过渡金额分别列示。", "fields": [
+          {"fieldId": "book-holding-valuation", "label": "其他衍生工具-空头-公允价值当日变动", "value": "50,000.00", "unit": "元"},
+          {"fieldId": "book-flat-pnl", "label": "投资收益-股指期货当日平仓损益", "value": "-12,500.00", "unit": "元"},
+          {"fieldId": "book-settlement-transition", "label": "证券清算款-期货无负债结算暂收暂付款当日金额", "value": "50,000.00", "unit": "元"}
+        ]}
+      ],
+      "workItems": [
+        {"workItemId": "identity-match", "type": "FIELD_MAP", "title": "确认对账对象", "instruction": "确认外部和内部资料属于同一产品、合约、日期、方向和单位。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "SAME_SCOPE", "text": "同一案例产品乙、案例合约乙、T 日空头，单位一致"}, {"optionId": "MIXED_SCOPE", "text": "可以跨产品或日期合并核对"}]}},
+        {"workItemId": "external-position", "type": "FIELD_MAP", "title": "读取外部期末持仓", "instruction": "读取保留空头方向的期末数量。", "response": {"kind": "NUMBER", "placeholder": "输入份数", "unit": "份", "precision": 0}},
+        {"workItemId": "position-ledger-object", "type": "LEDGER_ENTRY", "title": "选择持仓内部对象", "instruction": "填写与外部期末持仓直接核对的内部台账对象。", "response": {"kind": "TEXT", "placeholder": "输入对象"}},
+        {"workItemId": "external-security-position-diff", "type": "RECONCILIATION", "title": "外部持仓—证券台账差额", "instruction": "外部空头数量减证券台账空头数量。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "份", "precision": 0}},
+        {"workItemId": "book-security-position-diff", "type": "RECONCILIATION", "title": "账簿—证券台账持仓差额", "instruction": "账簿空头数量减证券台账空头数量。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "份", "precision": 0}},
+        {"workItemId": "external-funds", "type": "FIELD_MAP", "title": "读取外部可用资金", "instruction": "读取外部结算单可用资金。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "cash-ledger-object", "type": "LEDGER_ENTRY", "title": "选择资金账簿对象", "instruction": "填写与外部可用资金直接核对的内部账簿。", "response": {"kind": "TEXT", "placeholder": "输入对象"}},
+        {"workItemId": "funds-diff", "type": "RECONCILIATION", "title": "可用资金差额", "instruction": "外部可用资金减结算备付金账。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "external-margin", "type": "FIELD_MAP", "title": "读取外部保证金", "instruction": "读取外部保证金占用。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "margin-ledger-object", "type": "LEDGER_ENTRY", "title": "选择保证金账簿对象", "instruction": "填写与外部保证金直接核对的内部账簿。", "response": {"kind": "TEXT", "placeholder": "输入对象"}},
+        {"workItemId": "margin-diff", "type": "RECONCILIATION", "title": "保证金差额", "instruction": "外部保证金占用减存出保证金账。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "holding-pnl-diff", "type": "RECONCILIATION", "title": "持仓损益差额", "instruction": "外部持仓损益减内部空头公允价值当日变动。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "flat-pnl-diff", "type": "RECONCILIATION", "title": "平仓损益差额", "instruction": "外部平仓损益减内部投资收益平仓损益，保留负号。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "settlement-transition-object", "type": "LEDGER_ENTRY", "title": "选择结算过渡对象", "instruction": "填写与外部当日结算金额核对的内部账簿对象。", "response": {"kind": "TEXT", "placeholder": "输入对象"}},
+        {"workItemId": "daily-settlement-diff", "type": "RECONCILIATION", "title": "当日结算差额", "instruction": "外部当日结算金额减内部结算过渡金额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "zero-difference-count", "type": "CALCULATION", "title": "零差额项目数", "instruction": "分别检查两项持仓、资金、保证金、持仓损益、平仓损益和当日结算，共七项。", "response": {"kind": "NUMBER", "placeholder": "输入项目数", "unit": "项", "precision": 0}},
+        {"workItemId": "reconciliation-result", "type": "RECONCILIATION", "title": "多来源对账结论", "instruction": "只有七项差额分别为零时选择 BALANCED。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "七项逐项闭合"}, {"optionId": "NET_ONLY", "text": "只确认总净额一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "正常对账结论", "instruction": "简述对象范围、持仓、资金、保证金和三项日终结果均逐项闭合。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
+      ],
+      "submissionNote": "本案例所有资料完整且状态正常。请保留空头方向和原单位，逐项计算七个差额，不得以总净额替代单项核对。"
+    }
+  },
+  "references": [
+    {"referenceId": "FUT-RECON-DOCX", "title": "期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__期货业务介绍2023.docx", "usage": "资金调节表、持仓三方核对、外部结算单与估值表资金/保证金核对及账表关系的历史培训依据。"},
+    {"referenceId": "FUT-RECON-PPTX", "title": "期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__期货业务介绍2023.pptx", "usage": "第 21—28 页账务检查、资金/持仓核对和估值表统计口径的交叉证据。"},
+    {"referenceId": "FUT-RECON-XLSX", "title": "随堂测试题目-期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__随堂测试题目-期货业务介绍2023.xlsx", "usage": "工作表 11 行情前置题用于确认多个日终结果必须分别核验，不复用旧题作为正式案例。"}
+  ]
+}

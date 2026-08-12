@@ -1,0 +1,49 @@
+{
+  "routeId": "ACC-FUT-RECON-004",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {"dimension": "CONCEPT", "maxScore": 25, "criteria": [
+      {"criterionId": "C-FUTR-SCOPE", "description": "确认外部和内部资料属于同一产品、合约、日期、空头方向和单位。", "weight": 10, "evidenceRequirement": "选择 SAME_SCOPE，并保留期末空头 10 份。", "evidenceRules": [{"fieldId": "identity-match", "operator": "EQUALS", "expected": "SAME_SCOPE"}, {"fieldId": "external-position", "operator": "NUMBER_EQUALS", "expected": 10, "tolerance": 0}], "remediationTargetId": "R-FUTR-SCOPE"},
+      {"criterionId": "C-FUTR-MAPPING", "description": "正确建立外部持仓、可用资金、保证金和当日结算与内部账簿对象的对应。", "weight": 15, "evidenceRequirement": "分别选择证券台账、结算备付金、存出保证金和结算过渡科目。", "evidenceRules": [{"fieldId": "position-ledger-object", "operator": "CONTAINS_ALL", "expected": ["证券台账"]}, {"fieldId": "cash-ledger-object", "operator": "CONTAINS_ALL", "expected": ["结算备付金"]}, {"fieldId": "margin-ledger-object", "operator": "CONTAINS_ALL", "expected": ["存出保证金"]}, {"fieldId": "settlement-transition-object", "operator": "CONTAINS_ALL", "expected": ["证券清算款", "期货无负债结算暂收暂付款"]}], "remediationTargetId": "R-FUTR-MAPPING"}
+    ]},
+    {"dimension": "PROCESS", "maxScore": 30, "criteria": [
+      {"criterionId": "P-FUTR-POSITION", "description": "完成外部、证券台账和账簿的三方持仓核对。", "weight": 8, "evidenceRequirement": "外部—台账和账簿—台账数量差额均为零。", "evidenceRules": [{"fieldId": "external-security-position-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}, {"fieldId": "book-security-position-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}], "remediationTargetId": "R-FUTR-POSITION"},
+      {"criterionId": "P-FUTR-FUNDS", "description": "分别读取和核对外部可用资金及保证金。", "weight": 8, "evidenceRequirement": "外部资金 1,988,000、保证金 912,000，两个差额分别为零。", "evidenceRules": [{"fieldId": "external-funds", "operator": "NUMBER_EQUALS", "expected": 1988000, "tolerance": 0.01}, {"fieldId": "funds-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "external-margin", "operator": "NUMBER_EQUALS", "expected": 912000, "tolerance": 0.01}, {"fieldId": "margin-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "R-FUTR-FUNDS"},
+      {"criterionId": "P-FUTR-RESULTS", "description": "分别核对持仓损益、平仓损益和当日结算过渡金额。", "weight": 8, "evidenceRequirement": "三项差额分别为零，平仓损益保留负号。", "evidenceRules": [{"fieldId": "holding-pnl-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "flat-pnl-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "daily-settlement-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "R-FUTR-RESULTS"},
+      {"criterionId": "P-FUTR-COMPLETE", "description": "验证七项差额全部独立为零后形成结构化结论。", "weight": 6, "evidenceRequirement": "零差额项目数为 7，结论为 BALANCED。", "evidenceRules": [{"fieldId": "zero-difference-count", "operator": "NUMBER_EQUALS", "expected": 7, "tolerance": 0}, {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FUTR-COMPLETE"}
+    ]},
+    {"dimension": "RISK", "maxScore": 25, "criteria": [
+      {"criterionId": "K-FUTR-IDENTITY", "description": "不混用产品、合约、日期、方向或单位。", "weight": 10, "evidenceRequirement": "范围一致且空头数量按份核对。", "evidenceRules": [{"fieldId": "identity-match", "operator": "EQUALS", "expected": "SAME_SCOPE"}, {"fieldId": "external-position", "operator": "NUMBER_EQUALS", "expected": 10, "tolerance": 0}], "remediationTargetId": "R-FUTR-SCOPE"},
+      {"criterionId": "K-FUTR-NETTING", "description": "不以总净额或跨项目抵销替代逐项核对。", "weight": 15, "evidenceRequirement": "七项差额分别为零且选择 BALANCED，而非 NET_ONLY。", "evidenceRules": [{"fieldId": "external-security-position-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}, {"fieldId": "book-security-position-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}, {"fieldId": "funds-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "margin-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "holding-pnl-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "flat-pnl-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "daily-settlement-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FUTR-NETTING"}
+    ]},
+    {"dimension": "EXPRESSION", "maxScore": 20, "criteria": [
+      {"criterionId": "E-FUTR-CONCLUSION", "description": "结论明确对象范围并逐类报告持仓、资金、保证金和日终结果。", "weight": 20, "evidenceRequirement": "结论包含案例产品乙、空头 10 份、1,988,000、912,000、50,000、-12,500、七项和逐项闭合。", "evidenceRules": [{"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["案例产品乙", "空头", "10", "1,988,000", "912,000", "50,000", "-12,500", "七项", "逐项闭合"]}], "remediationTargetId": "R-FUTR-CONCLUSION"}
+    ]}
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FUTR-POSITION", "description": "必须确认同一对象并完成持仓方向、数量和账簿连续性核对。", "evidenceRequirement": "范围一致、期末空头 10 份，外部—台账和账簿—台账差额均为零。", "evidenceRules": [{"fieldId": "identity-match", "operator": "EQUALS", "expected": "SAME_SCOPE"}, {"fieldId": "external-position", "operator": "NUMBER_EQUALS", "expected": 10, "tolerance": 0}, {"fieldId": "external-security-position-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}, {"fieldId": "book-security-position-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}], "remediationTargetId": "R-FUTR-POSITION"},
+    {"requirementId": "M-FUTR-MULTISOURCE", "description": "必须完成资金、保证金和三项日终结果的多来源逐项闭合。", "evidenceRequirement": "资金、保证金、持仓损益、平仓损益和当日结算差额均为零，七项全部闭合。", "evidenceRules": [{"fieldId": "funds-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "margin-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "holding-pnl-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "flat-pnl-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "daily-settlement-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "zero-difference-count", "operator": "NUMBER_EQUALS", "expected": 7, "tolerance": 0}, {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FUTR-NETTING"}
+  ],
+  "remediationTargets": [
+    {"targetId": "R-FUTR-SCOPE", "title": "重新锁定对账范围", "reason": "产品、合约、日期、方向或单位没有统一。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-RECON-KC-01", "questionId": "ACC-FUT-RECON-Q-02"},
+    {"targetId": "R-FUTR-MAPPING", "title": "重建来源与账簿对应", "reason": "持仓、资金、保证金或结算字段映射到错误对象。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-RECON-KC-02", "questionId": "ACC-FUT-RECON-Q-01"},
+    {"targetId": "R-FUTR-POSITION", "title": "完成三方持仓核对", "reason": "方向、外部持仓、台账或账簿数量差额错误。", "materialStep": "DEMONSTRATION", "materialItemId": "2", "questionId": "ACC-FUT-RECON-Q-03"},
+    {"targetId": "R-FUTR-FUNDS", "title": "分别核对资金和保证金", "reason": "可用资金或保证金字段、账簿对象或差额错误。", "materialStep": "DEMONSTRATION", "materialItemId": "3", "questionId": "ACC-FUT-RECON-Q-03"},
+    {"targetId": "R-FUTR-RESULTS", "title": "分别核对三项日终结果", "reason": "持仓损益、平仓损益或结算过渡金额混淆。", "materialStep": "DEMONSTRATION", "materialItemId": "4", "questionId": "ACC-FUT-RECON-Q-04"},
+    {"targetId": "R-FUTR-COMPLETE", "title": "核对全部七项差额", "reason": "遗漏单项或在全部闭合前形成结论。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-RECON-Q-03"},
+    {"targetId": "R-FUTR-NETTING", "title": "禁止用总净额替代逐项核对", "reason": "使用跨项目抵销或只确认总净额。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-RECON-KC-03", "questionId": "ACC-FUT-RECON-Q-05"},
+    {"targetId": "R-FUTR-CONCLUSION", "title": "补全正常对账结论", "reason": "结论遗漏对象范围、关键金额或逐项闭合状态。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-RECON-Q-05"}
+  ],
+  "referenceAnswer": {
+    "identity-match": "SAME_SCOPE", "external-position": 10, "position-ledger-object": "证券台账",
+    "external-security-position-diff": 0, "book-security-position-diff": 0,
+    "external-funds": 1988000, "cash-ledger-object": "结算备付金", "funds-diff": 0,
+    "external-margin": 912000, "margin-ledger-object": "存出保证金", "margin-diff": 0,
+    "holding-pnl-diff": 0, "flat-pnl-diff": 0,
+    "settlement-transition-object": "证券清算款-期货无负债结算暂收暂付款", "daily-settlement-diff": 0,
+    "zero-difference-count": 7, "reconciliation-result": "BALANCED",
+    "result-note": "案例产品乙、案例合约乙、T 日空头范围一致；外部、台账和账簿空头均为 10 份，可用资金 1,988,000.00 元、保证金 912,000.00 元、持仓损益 50,000.00 元、平仓损益 -12,500.00 元和当日结算 50,000.00 元均逐项一致，七项差额分别为零并逐项闭合。"
+  }
+}

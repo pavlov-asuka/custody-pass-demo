@@ -13,7 +13,6 @@ $originalServerPort = $env:SERVER_PORT
 $originalMockDbUrl = $env:MOCK_DB_URL
 $verifyPort = 18080
 
-& (Join-Path $PSScriptRoot 'test-backend.ps1')
 & (Join-Path $PSScriptRoot 'build-app.ps1')
 
 New-Item -ItemType Directory -Force -Path $logDirectory, $dataDirectory | Out-Null

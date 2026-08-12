@@ -1,0 +1,50 @@
+{
+  "routeId": "ACC-FUT-SETTLEMENT-003",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {"dimension": "CONCEPT", "maxScore": 25, "criteria": [
+      {"criterionId": "C-FUTS-PRICE", "description": "区分平仓成交价和期末持仓结算价，并读取期末持仓。", "weight": 8, "evidenceRequirement": "选择结算价 3,040.00，期末空头 10 份。", "evidenceRules": [{"fieldId": "valuation-price-source", "operator": "EQUALS", "expected": "SETTLEMENT_PRICE"}, {"fieldId": "ending-position", "operator": "NUMBER_EQUALS", "expected": 10, "tolerance": 0}], "remediationTargetId": "R-FUTS-FIELDS"},
+      {"criterionId": "C-FUTS-SEPARATION", "description": "区分期末持仓估值变动、平仓损益和无负债结算。", "weight": 9, "evidenceRequirement": "估值变动 50,000.00，平仓损益 -12,500.00，无负债结算 50,000.00，三项不混同。", "evidenceRules": [{"fieldId": "holding-valuation-change", "operator": "NUMBER_EQUALS", "expected": 50000, "tolerance": 0.01}, {"fieldId": "flat-pnl", "operator": "NUMBER_EQUALS", "expected": -12500, "tolerance": 0.01}, {"fieldId": "daily-settlement", "operator": "NUMBER_EQUALS", "expected": 50000, "tolerance": 0.01}], "remediationTargetId": "R-FUTS-VALUATION"},
+      {"criterionId": "C-FUTS-MARGIN", "description": "区分目标保证金、当前余额、调整额和期末余额。", "weight": 8, "evidenceRequirement": "目标 912,000.00、调整 62,000.00、方向追加、期末 912,000.00。", "evidenceRules": [{"fieldId": "target-margin", "operator": "NUMBER_EQUALS", "expected": 912000, "tolerance": 0.01}, {"fieldId": "margin-adjustment", "operator": "NUMBER_EQUALS", "expected": 62000, "tolerance": 0.01}, {"fieldId": "margin-direction", "operator": "EQUALS", "expected": "ADD_MARGIN"}], "remediationTargetId": "R-FUTS-MARGIN"}
+    ]},
+    {"dimension": "PROCESS", "maxScore": 30, "criteria": [
+      {"criterionId": "P-FUTS-VALUATION", "description": "按空头方向公式复算结算价合约价值和持仓估值变动。", "weight": 8, "evidenceRequirement": "结算价合约价值 7,600,000.00，估值变动 50,000.00。", "evidenceRules": [{"fieldId": "settlement-contract-value", "operator": "NUMBER_EQUALS", "expected": 7600000, "tolerance": 0.01}, {"fieldId": "holding-valuation-change", "operator": "NUMBER_EQUALS", "expected": 50000, "tolerance": 0.01}], "remediationTargetId": "R-FUTS-VALUATION"},
+      {"criterionId": "P-FUTS-VOUCHERS", "description": "按批准模板完成估值与无负债结算凭证。", "weight": 9, "evidenceRequirement": "估值借贷和无负债结算借贷科目均正确。", "evidenceRules": [{"fieldId": "valuation-debit-account", "operator": "CONTAINS_ALL", "expected": ["其他衍生工具", "空头", "公允价值"]}, {"fieldId": "valuation-credit-account", "operator": "CONTAINS_ALL", "expected": ["公允价值变动损益", "股指期货"]}, {"fieldId": "settlement-debit-account", "operator": "CONTAINS_ALL", "expected": ["结算备付金"]}, {"fieldId": "settlement-credit-account", "operator": "CONTAINS_ALL", "expected": ["证券清算款", "期货无负债结算暂收暂付款"]}], "remediationTargetId": "R-FUTS-VOUCHER"},
+      {"criterionId": "P-FUTS-MARGIN", "description": "展示完整单位链并复算保证金目标、调整额和期末余额。", "weight": 8, "evidenceRequirement": "目标 912,000.00，调整 62,000.00，期末 912,000.00。", "evidenceRules": [{"fieldId": "target-margin", "operator": "NUMBER_EQUALS", "expected": 912000, "tolerance": 0.01}, {"fieldId": "margin-adjustment", "operator": "NUMBER_EQUALS", "expected": 62000, "tolerance": 0.01}, {"fieldId": "ending-margin", "operator": "NUMBER_EQUALS", "expected": 912000, "tolerance": 0.01}], "remediationTargetId": "R-FUTS-MARGIN"},
+      {"criterionId": "P-FUTS-MARGIN-VOUCHER", "description": "按追加方向完成保证金凭证。", "weight": 5, "evidenceRequirement": "借记存出保证金、贷记结算备付金。", "evidenceRules": [{"fieldId": "margin-debit-account", "operator": "CONTAINS_ALL", "expected": ["存出保证金"]}, {"fieldId": "margin-credit-account", "operator": "CONTAINS_ALL", "expected": ["结算备付金"]}], "remediationTargetId": "R-FUTS-MARGIN-VOUCHER"}
+    ]},
+    {"dimension": "RISK", "maxScore": 25, "criteria": [
+      {"criterionId": "K-FUTS-SNAPSHOT", "description": "严格使用本案例批准结算价、方向公式、乘数、比例、科目和精度。", "weight": 10, "evidenceRequirement": "结算价来源、估值方向和保证金结果均符合题面快照。", "evidenceRules": [{"fieldId": "valuation-price-source", "operator": "EQUALS", "expected": "SETTLEMENT_PRICE"}, {"fieldId": "holding-valuation-change", "operator": "NUMBER_EQUALS", "expected": 50000, "tolerance": 0.01}, {"fieldId": "target-margin", "operator": "NUMBER_EQUALS", "expected": 912000, "tolerance": 0.01}], "remediationTargetId": "R-FUTS-SNAPSHOT"},
+      {"criterionId": "K-FUTS-RECON", "description": "分别核对估值—结算链和保证金链，防止用一条差额掩盖另一条。", "weight": 15, "evidenceRequirement": "估值结算差额和保证金差额均为零，日终结论闭合。", "evidenceRules": [{"fieldId": "valuation-settlement-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "margin-balance-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "eod-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FUTS-RECON"}
+    ]},
+    {"dimension": "EXPRESSION", "maxScore": 20, "criteria": [
+      {"criterionId": "E-FUTS-CONCLUSION", "description": "结论分别报告估值、平仓、结算和保证金结果。", "weight": 20, "evidenceRequirement": "结论包含 50,000、-12,500、无负债结算、912,000、追加 62,000 和勾稽一致。", "evidenceRules": [{"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["50,000", "-12,500", "无负债结算", "912,000", "追加", "62,000", "勾稽一致"]}], "remediationTargetId": "R-FUTS-CONCLUSION"}
+    ]}
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FUTS-VALUATION-SETTLEMENT", "description": "必须正确完成估值—无负债结算链及凭证。", "evidenceRequirement": "估值变动和无负债结算均为 50,000.00 元，平仓损益单列，结算过渡科目正确，差额为零。", "evidenceRules": [{"fieldId": "holding-valuation-change", "operator": "NUMBER_EQUALS", "expected": 50000, "tolerance": 0.01}, {"fieldId": "flat-pnl", "operator": "NUMBER_EQUALS", "expected": -12500, "tolerance": 0.01}, {"fieldId": "daily-settlement", "operator": "NUMBER_EQUALS", "expected": 50000, "tolerance": 0.01}, {"fieldId": "settlement-credit-account", "operator": "CONTAINS_ALL", "expected": ["证券清算款", "期货无负债结算暂收暂付款"]}, {"fieldId": "valuation-settlement-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "R-FUTS-VALUATION"},
+    {"requirementId": "M-FUTS-MARGIN-CHAIN", "description": "必须正确完成保证金目标—调整—期末余额链。", "evidenceRequirement": "目标 912,000.00、追加 62,000.00、期末 912,000.00，科目方向和差额正确。", "evidenceRules": [{"fieldId": "target-margin", "operator": "NUMBER_EQUALS", "expected": 912000, "tolerance": 0.01}, {"fieldId": "margin-adjustment", "operator": "NUMBER_EQUALS", "expected": 62000, "tolerance": 0.01}, {"fieldId": "margin-direction", "operator": "EQUALS", "expected": "ADD_MARGIN"}, {"fieldId": "ending-margin", "operator": "NUMBER_EQUALS", "expected": 912000, "tolerance": 0.01}, {"fieldId": "margin-balance-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "R-FUTS-MARGIN"}
+  ],
+  "remediationTargets": [
+    {"targetId": "R-FUTS-FIELDS", "title": "区分成交、结算与期末持仓字段", "reason": "价格用途或期末持仓读取错误。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-SETTLEMENT-KC-01", "questionId": "ACC-FUT-SETTLEMENT-Q-01"},
+    {"targetId": "R-FUTS-VALUATION", "title": "复算空头持仓估值与结算", "reason": "方向公式、估值变动、平仓损益或无负债结算混淆。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-SETTLEMENT-KC-02", "questionId": "ACC-FUT-SETTLEMENT-Q-02"},
+    {"targetId": "R-FUTS-VOUCHER", "title": "补全估值和结算凭证", "reason": "衍生工具、损益、结算备付金或过渡科目错误。", "materialStep": "DEMONSTRATION", "materialItemId": "3", "questionId": "ACC-FUT-SETTLEMENT-Q-03"},
+    {"targetId": "R-FUTS-MARGIN", "title": "复算保证金完整单位链", "reason": "目标余额、当前余额、调整额或期末余额混淆。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-SETTLEMENT-KC-03", "questionId": "ACC-FUT-SETTLEMENT-Q-04"},
+    {"targetId": "R-FUTS-MARGIN-VOUCHER", "title": "校正保证金调整方向", "reason": "追加方向或保证金凭证科目错误。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-SETTLEMENT-Q-04"},
+    {"targetId": "R-FUTS-SNAPSHOT", "title": "按批准快照使用日终参数", "reason": "把历史术语、比例、乘数、价格来源或科目泛化。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-SETTLEMENT-KC-03", "questionId": "ACC-FUT-SETTLEMENT-Q-01"},
+    {"targetId": "R-FUTS-RECON", "title": "分别闭合两条日终链", "reason": "估值结算或保证金差额不为零。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-SETTLEMENT-Q-05"},
+    {"targetId": "R-FUTS-CONCLUSION", "title": "补全正常日终结论", "reason": "结论遗漏估值、平仓、结算或保证金结果。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-SETTLEMENT-Q-05"}
+  ],
+  "referenceAnswer": {
+    "valuation-price-source": "SETTLEMENT_PRICE", "ending-position": 10, "settlement-contract-value": 7600000,
+    "holding-valuation-change": 50000, "flat-pnl": -12500, "daily-settlement": 50000,
+    "valuation-debit-account": "其他衍生工具-空头-公允价值", "valuation-credit-account": "公允价值变动损益-股指期货",
+    "settlement-debit-account": "结算备付金", "settlement-credit-account": "证券清算款-期货无负债结算暂收暂付款",
+    "target-margin": 912000, "margin-adjustment": 62000, "margin-direction": "ADD_MARGIN",
+    "margin-debit-account": "存出保证金", "margin-credit-account": "结算备付金", "ending-margin": 912000,
+    "valuation-settlement-diff": 0, "margin-balance-diff": 0, "eod-result": "BALANCED",
+    "result-note": "本案例空头持仓估值变动 50,000.00 元，平仓损益 -12,500.00 元单列，无负债结算 50,000.00 元；目标保证金 912,000.00 元，追加 62,000.00 元后期末余额 912,000.00 元，两条链勾稽一致。"
+  }
+}

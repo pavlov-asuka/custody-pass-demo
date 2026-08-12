@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.4",
+  "version": "2026.08.5",
   "lines": [
     {
       "line": "CLEARING",
@@ -273,6 +273,57 @@
                   "order": 9,
                   "position": "LEFT",
                   "prerequisiteNodeIds": ["ACC-NODE-FI-TRADE-001", "ACC-NODE-FI-VALUATION-004"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "ACC-MODULE-FUTURES",
+              "name": "期货核算业务",
+              "order": 4,
+              "nodes": [
+                {
+                  "nodeId": "ACC-NODE-FUT-CONTRACT-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FUT-CONTRACT-001",
+                  "title": "期货合约、方向与开平仓识别",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FUT-POSITION-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FUT-POSITION-002",
+                  "title": "开平仓、移动加权与持仓连续性",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FUT-CONTRACT-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FUT-SETTLEMENT-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FUT-SETTLEMENT-003",
+                  "title": "日终估值、无负债结算与保证金",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FUT-POSITION-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FUT-RECON-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FUT-RECON-004",
+                  "title": "资金、保证金、持仓与账簿勾稽",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FUT-SETTLEMENT-003"],
                   "contentAvailability": "PUBLISHED"
                 }
               ]

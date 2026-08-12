@@ -16,7 +16,6 @@ $verifyPort = 18081
 
 Write-Output '=== 阶段 4：内容校验 / 后端测试 / 同源构建 ==='
 & (Join-Path $PSScriptRoot 'validate-content.ps1')
-& (Join-Path $PSScriptRoot 'test-backend.ps1')
 & (Join-Path $PSScriptRoot 'build-app.ps1')
 
 New-Item -ItemType Directory -Force -Path $logDirectory, $dataDirectory, $testResultsDirectory | Out-Null

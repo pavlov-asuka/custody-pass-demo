@@ -279,6 +279,27 @@
       "locator": "9 条固定收益路线各自综合实务资料包与 evidence.md，2026.08 版本",
       "contentUse": "固定收益模块全部 9 条路线",
       "reviewNote": "仅约束各案例明确给出的价格、利率、计息日历、数量、金额、精度、容差、费用和处理口径，不外推为现行统一制度。"
+    },
+    {
+      "referenceId": "ACC-REF-FUTURES-MATERIALS-2023",
+      "title": "期货业务介绍2023及随堂测试",
+      "locator": "DOCX 正文、51 个表格，PPTX 46 页，XLSX 工作表11 A1:H8",
+      "contentUse": "路线 ACC-FUT-CONTRACT-001、ACC-FUT-POSITION-002、ACC-FUT-SETTLEMENT-003、ACC-FUT-RECON-004",
+      "reviewNote": "支持合约与方向、开平仓及持仓连续性、日终估值与无负债结算、保证金及多来源对账。历史菜单、文件路径、保证金率、乘数、科目和时点只在题面批准快照内使用。"
+    },
+    {
+      "referenceId": "ACC-REF-FUTURES-ROUTE-DECISIONS-202608",
+      "title": "期货高保真路线施工与验收决定",
+      "locator": "阶段 5 教学有效性复核、期货材料审计与四批施工验收",
+      "contentUse": "期货模块全部 4 条路线",
+      "reviewNote": "冻结 4 条 REQUIRED 连续主链，不设阶段闸门和进阶路线；备付金计息、报表披露、投机与套保属性继续 BUILDING，到期交割、自动解析和商品期货继续 DEFER。"
+    },
+    {
+      "referenceId": "ACC-REF-FUTURES-CASE-PARAMETERS-202608",
+      "title": "期货路线题面批准合成参数",
+      "locator": "4 条期货路线各自综合实务资料包与 evidence.md，2026.08 版本",
+      "contentUse": "期货模块全部 4 条路线",
+      "reviewNote": "仅约束各案例明确给出的合约乘数、方向、价格、保证金比例、科目、数量、金额、精度、容差和正常处理关系，不外推为现行统一制度。"
     }
   ]
 }

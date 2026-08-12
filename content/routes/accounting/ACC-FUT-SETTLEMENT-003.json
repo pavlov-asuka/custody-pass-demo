@@ -1,0 +1,117 @@
+{
+  "routeId": "ACC-FUT-SETTLEMENT-003",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "日终估值、无负债结算与保证金",
+  "summary": "基于完整正常日终资料，分别复算持仓估值变动、平仓损益、当日无负债结算和保证金目标及调整，并完成凭证与勾稽。",
+  "estimatedMinutes": 50,
+  "objectives": [
+    "区分成交价、当日结算价、期末持仓、持仓估值变动和平仓损益",
+    "按多头或空头题面公式复算持仓估值变动，不用绝对值遮蔽方向",
+    "完成估值与当日无负债结算凭证并核对结算过渡关系",
+    "按结算价、乘数、期末持仓和批准比例复算目标保证金、调整额与期末余额"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {"cards": [
+      {"cardId": "FUT-SETTLEMENT-KC-01", "type": "CATEGORIES", "title": "成交、估值和平仓损益是三个对象", "conclusion": "成交价用于交易结果，日终结算价用于题面批准的持仓估值与保证金；平仓损益和期末持仓估值变动必须分开。", "items": ["成交价证明开平仓成交金额", "当日结算价用于期末未平仓合约", "持仓估值变动只针对期末持仓", "当日平仓损益单列，不并入持仓估值变动"]},
+      {"cardId": "FUT-SETTLEMENT-KC-02", "type": "FLOW", "title": "估值怎样进入无负债结算", "conclusion": "先按方向公式计算持仓估值变动，再按本案例批准的凭证模板确认估值和无负债结算；结算过渡科目与衍生工具市值关系必须闭合。", "items": ["多头：结算价价值减账簿初始价值和既有估值余额", "空头：账簿初始价值和既有估值余额减结算价价值", "无负债结算金额按题面取当日多空持仓估值变动之和", "平仓损益仍是独立结果"]},
+      {"cardId": "FUT-SETTLEMENT-KC-03", "type": "KEY_POINT", "title": "保证金目标不等于调整额", "conclusion": "目标保证金由结算价、乘数、期末持仓和批准比例形成；调整额是目标余额减当前余额，正数追加、负数释放。", "items": ["目标保证金 = 结算价 × 每点金额 × 期末持仓 × 比例", "调整额 = 目标保证金 - 当前保证金", "调整后余额 = 当前余额 + 调整额", "乘数、比例、科目、精度和术语仅适用于本案例"]}
+    ]},
+    "DEMONSTRATION": {
+      "scenario": {"role": "案例产品甲的组合核算人员", "product": "案例产品甲 / 案例股指期货甲", "date": "案例日 T", "facts": ["本案例期末多头 11 份，当日结算价 2,811.80 点，合约乘数每点 300 元。", "日终前多头初始合约价值借方余额 9,028,080.00 元，既有估值余额为 0；当日平仓损益为 0。", "当前保证金余额 0，本案例批准保证金比例 15.1%；金额保留 2 位。", "本案例批准将持仓估值变动同时用于当日无负债结算，并使用给定估值、结算过渡和保证金凭证模板。"]},
+      "steps": [
+        {"order": 1, "action": "读取期末多头 11 份、结算价 2,811.80、乘数 300，以及账簿初始价值 9,028,080.00 元", "reason": "成交价不进入本次期末持仓估值，日终必须使用题面批准结算价。"},
+        {"order": 2, "action": "按多头公式计算持仓估值变动 2,811.80 × 300 × 11 - 9,028,080.00 = 250,860.00 元", "reason": "方向公式保留正负号，不能用绝对值替代。"},
+        {"order": 3, "action": "按批准模板确认估值，并以 250,860.00 元完成无负债结算；平仓损益仍为 0", "reason": "持仓估值、平仓损益与结算金额分别取证，结算过渡科目不能与平仓损益混同。"},
+        {"order": 4, "action": "复算目标保证金 2,811.80 点 × 300 元/点 × 11 份 × 15.1% = 1,401,119.94 元", "reason": "完整单位链最终落到金额，不能只写比例乘积。"},
+        {"order": 5, "action": "计算保证金调整额 1,401,119.94 - 0 = 1,401,119.94 元，追加后期末保证金为 1,401,119.94 元", "reason": "目标、当前、调整和期末余额四项必须相互勾稽。"}
+      ],
+      "summary": "读取日终字段 → 按方向计算估值 → 完成估值和无负债结算 → 复算目标保证金 → 确认调整方向与期末余额"
+    },
+    "BASIC_PRACTICE": {"questions": [
+      {"questionId": "ACC-FUT-SETTLEMENT-Q-01", "type": "FIELD_MAP", "prompt": "把日终资料字段对应到各自用途。", "fieldMappings": [
+        {"fieldId": "trade-price", "label": "当日平仓成交价", "source": "成交汇总", "options": [{"optionId": "CLOSE_PNL", "text": "用于平仓成交结果"}, {"optionId": "ENDING_VALUATION", "text": "直接作为期末持仓估值价格"}]},
+        {"fieldId": "settlement-price", "label": "当日结算价", "source": "本案例批准行情", "options": [{"optionId": "ENDING_VALUE_MARGIN", "text": "用于期末持仓估值和目标保证金"}, {"optionId": "TRADE_FEE", "text": "用于交易费用"}]},
+        {"fieldId": "current-margin", "label": "当前保证金余额", "source": "日终前保证金台账", "options": [{"optionId": "ADJUSTMENT_BASE", "text": "用于计算目标与当前余额差额"}, {"optionId": "TARGET_MARGIN", "text": "等同于目标保证金"}]}
+      ], "answer": ["CLOSE_PNL", "ENDING_VALUE_MARGIN", "ADJUSTMENT_BASE"], "explanation": "成交价、结算价和当前保证金分别服务于不同计算。", "hints": ["先按来源和用途分开字段。"]},
+      {"questionId": "ACC-FUT-SETTLEMENT-Q-02", "type": "CALCULATION", "prompt": "按多头方向公式复算示范持仓估值与无负债结算。", "calculation": {"fields": [
+        {"fieldId": "settlement-value", "label": "结算价对应合约价值", "formula": "2,811.80 点 × 300 元/点 × 11 份", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "holding-change", "label": "多头持仓估值变动", "formula": "结算价合约价值 - 9,028,080.00 - 0", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "daily-settlement", "label": "无负债结算金额", "formula": "多头持仓估值变动 + 空头持仓估值变动 0", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01}
+      ]}, "answer": ["9278940", "250860", "250860"], "explanation": "结算价价值 9,278,940 元，估值变动和无负债结算均为 250,860 元。", "hints": ["保留估值变动的正负号。"]},
+      {"questionId": "ACC-FUT-SETTLEMENT-Q-03", "type": "LEDGER_ENTRY", "prompt": "补全示范的估值和无负债结算凭证。", "ledgerEntries": [
+        {"entryId": "valuation-debit", "direction": "借", "label": "多头持仓估值变动", "amount": "250,860.00 元", "placeholder": "输入科目"},
+        {"entryId": "valuation-credit", "direction": "贷", "label": "估值损益", "amount": "250,860.00 元", "placeholder": "输入科目"},
+        {"entryId": "settlement-debit", "direction": "借", "label": "无负债结算资金增加", "amount": "250,860.00 元", "placeholder": "输入科目"},
+        {"entryId": "settlement-credit", "direction": "贷", "label": "结算过渡金额", "amount": "250,860.00 元", "placeholder": "输入科目"}
+      ], "answer": ["其他衍生工具-多头-公允价值", "公允价值变动损益-股指期货", "结算备付金", "证券清算款-期货无负债结算暂收暂付款"], "explanation": "估值与无负债结算分别通过衍生工具、公允价值变动损益、结算备付金和结算过渡科目确认。", "hints": ["不要把平仓损益科目填入持仓估值凭证。"]},
+      {"questionId": "ACC-FUT-SETTLEMENT-Q-04", "type": "CALCULATION", "prompt": "复算示范的目标保证金、调整额和期末余额。", "calculation": {"fields": [
+        {"fieldId": "target-margin", "label": "目标保证金", "formula": "2,811.80 点 × 300 元/点 × 11 份 × 15.1%", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "margin-adjustment", "label": "保证金调整额", "formula": "目标保证金 - 当前保证金 0", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "ending-margin", "label": "调整后保证金", "formula": "当前保证金 + 调整额", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01}
+      ]}, "answer": ["1401119.94", "1401119.94", "1401119.94"], "explanation": "目标、追加额和期末保证金均为 1,401,119.94 元。", "hints": ["调整额不是目标余额的别名。"]},
+      {"questionId": "ACC-FUT-SETTLEMENT-Q-05", "type": "RECONCILIATION", "prompt": "核对估值、结算和保证金两条日终链。", "reconciliation": {"fields": [
+        {"fieldId": "valuation-settlement-diff", "label": "估值与无负债结算差额", "kind": "NUMBER", "formula": "250,860 - 250,860", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "margin-diff", "label": "保证金期末差额", "kind": "NUMBER", "formula": "0 + 1,401,119.94 - 1,401,119.94", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "eod-result", "label": "日终结果", "kind": "SELECT", "formula": "两条差额均为零", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "估值结算与保证金均闭合"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}
+      ]}, "answer": ["0", "0", "BALANCED"], "explanation": "估值—结算链和保证金链均闭合。", "hints": ["分别核对两条链，不要相互抵销。"]}
+    ]},
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {"role": "案例产品乙的组合核算人员", "product": "案例产品乙 / 案例股指期货乙", "date": "案例日 T", "purpose": "独立完成正常空头持仓的日终估值、无负债结算、保证金调整及凭证勾稽。"},
+      "sourceMaterials": [
+        {"materialId": "FUTS-PARAM", "title": "本案例批准参数与术语", "kind": "PARAMETER", "description": "仅适用于本案例；术语、乘数、比例、来源、科目、精度和舍入不构成现行永久规则。", "fields": [
+          {"fieldId": "multiplier", "label": "合约乘数", "value": "每点 250 元"},
+          {"fieldId": "margin-rate", "label": "保证金比例", "value": "12%"},
+          {"fieldId": "short-formula", "label": "空头持仓估值变动", "value": "账簿初始合约价值贷方余额 + 既有估值贷方余额 - 当日结算价 × 合约乘数 × 期末空头数量"},
+          {"fieldId": "daily-settlement-formula", "label": "当日无负债结算金额", "value": "本案例当日多头持仓估值变动 0 + 空头持仓估值变动"},
+          {"fieldId": "margin-formula", "label": "目标保证金", "value": "结算价 × 合约乘数 × 期末持仓绝对数量 × 保证金比例"},
+          {"fieldId": "precision", "label": "金额精度与容差", "value": "金额保留 2 位；绝对误差 0.01 元"}
+        ]},
+        {"materialId": "FUTS-MARKET", "title": "正常日终行情与持仓", "kind": "VALUATION", "description": "行情来源和日终状态均已按本案例批准。", "fields": [
+          {"fieldId": "trade-price", "label": "当日平仓平均成交点位", "value": "3,018.00", "unit": "点"},
+          {"fieldId": "settlement-price", "label": "当日结算价", "value": "3,040.00", "unit": "点"},
+          {"fieldId": "ending-short", "label": "期末空头持仓", "value": "10", "unit": "份"},
+          {"fieldId": "flat-pnl", "label": "当日平仓损益", "value": "-12,500.00", "unit": "元"}
+        ]},
+        {"materialId": "FUTS-LEDGER", "title": "日终处理前账簿", "kind": "LEDGER", "description": "估值、结算和保证金所需余额完整。", "fields": [
+          {"fieldId": "initial-credit", "label": "空头初始合约价值贷方余额", "value": "7,600,000.00", "unit": "元"},
+          {"fieldId": "valuation-credit", "label": "既有空头估值贷方余额", "value": "50,000.00", "unit": "元"},
+          {"fieldId": "current-margin", "label": "当前保证金余额", "value": "850,000.00", "unit": "元"}
+        ]},
+        {"materialId": "FUTS-VOUCHER", "title": "本案例批准凭证模板", "kind": "VOUCHER", "description": "只提供材料明确支持的估值、无负债结算和追加保证金科目关系。", "fields": [
+          {"fieldId": "valuation-template", "label": "空头估值", "value": "借：其他衍生工具-空头-公允价值；贷：公允价值变动损益-股指期货"},
+          {"fieldId": "settlement-template", "label": "正数无负债结算", "value": "借：结算备付金；贷：证券清算款-期货无负债结算暂收暂付款"},
+          {"fieldId": "margin-template", "label": "正数追加保证金", "value": "借：存出保证金；贷：结算备付金"}
+        ]}
+      ],
+      "workItems": [
+        {"workItemId": "valuation-price-source", "type": "FIELD_MAP", "title": "选择期末估值价格", "instruction": "从成交价和结算价中选择本案例期末持仓估值价格。", "response": {"kind": "SELECT", "placeholder": "选择价格", "options": [{"optionId": "SETTLEMENT_PRICE", "text": "当日结算价 3,040.00"}, {"optionId": "TRADE_PRICE", "text": "平仓成交价 3,018.00"}]}},
+        {"workItemId": "ending-position", "type": "FIELD_MAP", "title": "读取期末持仓", "instruction": "读取进入估值和保证金公式的期末空头数量。", "response": {"kind": "NUMBER", "placeholder": "输入份数", "unit": "份", "precision": 0}},
+        {"workItemId": "settlement-contract-value", "type": "CALCULATION", "title": "结算价合约价值", "instruction": "按结算价、每点金额和期末持仓复算。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "holding-valuation-change", "type": "CALCULATION", "title": "空头持仓估值变动", "instruction": "按题面空头方向公式计算，保留正负号。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "flat-pnl", "type": "FIELD_MAP", "title": "读取当日平仓损益", "instruction": "从成交结果读取，不与持仓估值变动相加。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "daily-settlement", "type": "CALCULATION", "title": "当日无负债结算金额", "instruction": "按题面多空持仓估值变动之和计算。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "valuation-debit-account", "type": "LEDGER_ENTRY", "title": "估值借方科目", "instruction": "按批准模板填写空头估值借方。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "valuation-credit-account", "type": "LEDGER_ENTRY", "title": "估值贷方科目", "instruction": "按批准模板填写估值损益贷方。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "settlement-debit-account", "type": "LEDGER_ENTRY", "title": "无负债结算借方科目", "instruction": "按正数结算模板填写借方。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "settlement-credit-account", "type": "LEDGER_ENTRY", "title": "结算过渡贷方科目", "instruction": "填写结算过渡科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "target-margin", "type": "CALCULATION", "title": "目标保证金", "instruction": "展示结算价、元/点、份和比例的完整单位链后计算。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "margin-adjustment", "type": "CALCULATION", "title": "保证金调整额", "instruction": "目标保证金减当前保证金；正数表示追加。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "margin-direction", "type": "FIELD_MAP", "title": "保证金调整方向", "instruction": "根据调整额正负选择方向。", "response": {"kind": "SELECT", "placeholder": "选择方向", "options": [{"optionId": "ADD_MARGIN", "text": "追加保证金"}, {"optionId": "RELEASE_MARGIN", "text": "释放保证金"}]}},
+        {"workItemId": "margin-debit-account", "type": "LEDGER_ENTRY", "title": "保证金调整借方", "instruction": "按批准模板填写正数追加的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "margin-credit-account", "type": "LEDGER_ENTRY", "title": "保证金调整贷方", "instruction": "按批准模板填写正数追加的贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "ending-margin", "type": "RECONCILIATION", "title": "调整后保证金余额", "instruction": "当前保证金加调整额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "valuation-settlement-diff", "type": "RECONCILIATION", "title": "估值—结算差额", "instruction": "持仓估值变动减无负债结算金额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "margin-balance-diff", "type": "RECONCILIATION", "title": "保证金余额差额", "instruction": "当前余额加调整额减目标余额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "eod-result", "type": "RECONCILIATION", "title": "日终闭合结论", "instruction": "分别核对估值结算和保证金两条链。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "两条链均完整且勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "正常日终结论", "instruction": "简述估值变动、平仓损益、无负债结算、目标保证金、调整方向和期末余额。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
+      ],
+      "submissionNote": "本案例资料完整、状态正常。正式提交前请分别复核持仓估值—无负债结算链和平仓损益，以及保证金目标—调整—期末余额链。"
+    }
+  },
+  "references": [
+    {"referenceId": "FUT-SET-DOCX", "title": "期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__期货业务介绍2023.docx", "usage": "日终估值、平仓损益、无负债结算、保证金调整和凭证关系的历史培训依据。"},
+    {"referenceId": "FUT-SET-PPTX", "title": "期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__期货业务介绍2023.pptx", "usage": "第 32—45 页多头日终案例及凭证、公式的交叉证据。"},
+    {"referenceId": "FUT-SET-XLSX", "title": "随堂测试题目-期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__随堂测试题目-期货业务介绍2023.xlsx", "usage": "工作表 11 的行情前置和保证金计算题用于字段用途与公式交叉核对。"}
+  ]
+}

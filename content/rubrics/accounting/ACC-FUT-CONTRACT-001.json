@@ -1,0 +1,44 @@
+{
+  "routeId": "ACC-FUT-CONTRACT-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {"dimension": "CONCEPT", "maxScore": 25, "criteria": [
+      {"criterionId": "C-FUTC-DIRECTION", "description": "正确区分成交方向与开平仓属性，并判断空头持仓变化。", "weight": 15, "evidenceRequirement": "卖出字段不被机械解释为平仓，卖出开仓被识别为新增空头 7 份。", "evidenceRules": [{"fieldId": "trade-side-meaning", "operator": "EQUALS", "expected": "SIDE_ONLY"}, {"fieldId": "position-effect", "operator": "EQUALS", "expected": "ADD_SHORT_7"}], "remediationTargetId": "R-FUTC-DIRECTION"},
+      {"criterionId": "C-FUTC-VALUE", "description": "理解成交点位、合约乘数和数量共同形成初始合约价值。", "weight": 10, "evidenceRequirement": "初始合约价值复算为 3,455,900.00 元。", "evidenceRules": [{"fieldId": "contract-value", "operator": "NUMBER_EQUALS", "expected": 3455900, "tolerance": 0.01}], "remediationTargetId": "R-FUTC-VALUE"}
+    ]},
+    {"dimension": "PROCESS", "maxScore": 30, "criteria": [
+      {"criterionId": "P-FUTC-QUANTITY", "description": "从期初持仓和成交数量复算期末空头。", "weight": 8, "evidenceRequirement": "期末空头为 7 份。", "evidenceRules": [{"fieldId": "ending-short", "operator": "NUMBER_EQUALS", "expected": 7, "tolerance": 0}], "remediationTargetId": "R-FUTC-DIRECTION"},
+      {"criterionId": "P-FUTC-INITIAL", "description": "按批准科目和金额完成空头开仓初始确认。", "weight": 14, "evidenceRequirement": "借记冲抵初始合约价值、贷记空头初始合约价值，金额均为 3,455,900.00 元且差额为零。", "evidenceRules": [{"fieldId": "initial-debit-account", "operator": "CONTAINS_ALL", "expected": ["其他衍生工具", "冲抵初始合约价值"]}, {"fieldId": "initial-credit-account", "operator": "CONTAINS_ALL", "expected": ["其他衍生工具", "空头", "初始合约价值"]}, {"fieldId": "initial-debit-amount", "operator": "NUMBER_EQUALS", "expected": 3455900, "tolerance": 0.01}, {"fieldId": "initial-credit-amount", "operator": "NUMBER_EQUALS", "expected": 3455900, "tolerance": 0.01}, {"fieldId": "initial-balance", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "R-FUTC-INITIAL"},
+      {"criterionId": "P-FUTC-FEE", "description": "交易费用单独落账并完成借贷核对。", "weight": 8, "evidenceRequirement": "借记交易费用、贷记结算备付金 228.36 元，差额为零。", "evidenceRules": [{"fieldId": "fee-debit-account", "operator": "CONTAINS_ALL", "expected": ["交易费用"]}, {"fieldId": "fee-credit-account", "operator": "CONTAINS_ALL", "expected": ["结算备付金"]}, {"fieldId": "fee-amount", "operator": "NUMBER_EQUALS", "expected": 228.36, "tolerance": 0.01}, {"fieldId": "fee-balance", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "R-FUTC-FEE"}
+    ]},
+    {"dimension": "RISK", "maxScore": 25, "criteria": [
+      {"criterionId": "K-FUTC-SNAPSHOT", "description": "按题面批准快照使用乘数、科目和精度，不把卖出方向或历史参数泛化。", "weight": 12, "evidenceRequirement": "方向和持仓判断与题面一致，初始价值在批准容差内。", "evidenceRules": [{"fieldId": "trade-side-meaning", "operator": "EQUALS", "expected": "SIDE_ONLY"}, {"fieldId": "contract-value", "operator": "NUMBER_EQUALS", "expected": 3455900, "tolerance": 0.01}], "remediationTargetId": "R-FUTC-SNAPSHOT"},
+      {"criterionId": "K-FUTC-BALANCE", "description": "确认两张正常凭证均平衡且交易费用没有并入初始合约价值。", "weight": 13, "evidenceRequirement": "两项借贷差额均为零并选择完整闭合。", "evidenceRules": [{"fieldId": "initial-balance", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fee-balance", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "opening-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FUTC-RECON"}
+    ]},
+    {"dimension": "EXPRESSION", "maxScore": 20, "criteria": [
+      {"criterionId": "E-FUTC-CONCLUSION", "description": "结论准确覆盖方向、数量、初始合约价值、费用和勾稽结果。", "weight": 20, "evidenceRequirement": "简短结论包含空头、7、3,455,900、228.36 和勾稽一致。", "evidenceRules": [{"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["空头", "7", "3,455,900", "228.36", "勾稽一致"]}], "remediationTargetId": "R-FUTC-CONCLUSION"}
+    ]}
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FUTC-DIRECTION-VALUE", "description": "必须正确判断空头开仓并复算初始合约价值。", "evidenceRequirement": "新增空头 7 份且初始合约价值为 3,455,900.00 元。", "evidenceRules": [{"fieldId": "position-effect", "operator": "EQUALS", "expected": "ADD_SHORT_7"}, {"fieldId": "contract-value", "operator": "NUMBER_EQUALS", "expected": 3455900, "tolerance": 0.01}], "remediationTargetId": "R-FUTC-VALUE"},
+    {"requirementId": "M-FUTC-LEDGER", "description": "必须完成开仓初始确认和交易费用两张平衡凭证。", "evidenceRequirement": "科目方向正确，初始确认与费用凭证差额均为零。", "evidenceRules": [{"fieldId": "initial-debit-account", "operator": "CONTAINS_ALL", "expected": ["冲抵初始合约价值"]}, {"fieldId": "initial-credit-account", "operator": "CONTAINS_ALL", "expected": ["空头", "初始合约价值"]}, {"fieldId": "initial-balance", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fee-balance", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "R-FUTC-INITIAL"}
+  ],
+  "remediationTargets": [
+    {"targetId": "R-FUTC-DIRECTION", "title": "重建方向与开平仓判断", "reason": "成交方向、开平仓属性或持仓变化判断错误。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-CONTRACT-KC-01", "questionId": "ACC-FUT-CONTRACT-Q-01"},
+    {"targetId": "R-FUTC-VALUE", "title": "复算初始合约价值", "reason": "点位、乘数或数量的单位关系错误。", "materialStep": "DEMONSTRATION", "materialItemId": "2", "questionId": "ACC-FUT-CONTRACT-Q-02"},
+    {"targetId": "R-FUTC-INITIAL", "title": "补全开仓初始确认", "reason": "多空方向对应的借贷科目或金额不平。", "materialStep": "DEMONSTRATION", "materialItemId": "4", "questionId": "ACC-FUT-CONTRACT-Q-04"},
+    {"targetId": "R-FUTC-FEE", "title": "单独确认交易费用", "reason": "交易费用科目、资金科目或金额错误。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-CONTRACT-Q-04"},
+    {"targetId": "R-FUTC-SNAPSHOT", "title": "按批准快照读取参数", "reason": "把题面参数或卖出方向泛化为永久规则。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-CONTRACT-KC-03", "questionId": "ACC-FUT-CONTRACT-Q-02"},
+    {"targetId": "R-FUTC-RECON", "title": "核对数量与凭证平衡", "reason": "期末数量或两张凭证勾稽不闭合。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-CONTRACT-Q-05"},
+    {"targetId": "R-FUTC-CONCLUSION", "title": "补全开仓结论", "reason": "结论遗漏方向、数量、金额、费用或勾稽结果。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-CONTRACT-Q-05"}
+  ],
+  "referenceAnswer": {
+    "trade-side-meaning": "SIDE_ONLY", "position-effect": "ADD_SHORT_7", "contract-value": 3455900, "ending-short": 7,
+    "initial-debit-account": "其他衍生工具-冲抵初始合约价值", "initial-credit-account": "其他衍生工具-空头-初始合约价值",
+    "initial-debit-amount": 3455900, "initial-credit-amount": 3455900, "fee-debit-account": "交易费用", "fee-credit-account": "结算备付金",
+    "fee-amount": 228.36, "initial-balance": 0, "fee-balance": 0, "opening-result": "BALANCED",
+    "result-note": "本案例卖出开仓新增空头 7 份，初始合约价值 3,455,900.00 元，交易费用 228.36 元，两张凭证勾稽一致。"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "routeId": "ACC-FUT-POSITION-002",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "开平仓、移动加权与持仓连续性",
+  "summary": "沿同一合约的跨日正常交易，复算开平仓均价、比例结转初始合约价值、平仓损益及期末持仓连续性。",
+  "estimatedMinutes": 48,
+  "objectives": [
+    "从跨日成交汇总和期初账簿读取开仓、平仓、数量、成交金额与初始合约价值余额",
+    "复算开仓均价、平仓均价和期末持仓，不重复基础方向识别",
+    "按题面批准移动加权比例结转平仓部分初始合约价值并计算剩余余额",
+    "计算多头或空头平仓损益，并用数量、金额和账簿关系验证连续性"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {"cards": [
+      {"cardId": "FUT-POSITION-KC-01", "type": "FLOW", "title": "同日开平仓怎样保持连续", "conclusion": "同一合约同日既有开仓又有平仓时，本案例先纳入开仓，再按平仓数量占可供平仓数量的比例结转初始合约价值。", "items": ["可供平仓数量 = 期初持仓 + 当日开仓数量", "结转比例 q = 平仓数量 ÷ 可供平仓数量", "结转金额 = 开仓后初始合约价值余额 × q", "期末持仓 = 期初持仓 + 当日开仓 - 当日平仓"]},
+      {"cardId": "FUT-POSITION-KC-02", "type": "CATEGORIES", "title": "多头和空头的平仓损益方向", "conclusion": "多头平仓用平仓成交金额减结转成本；空头平仓用结转成本减平仓成交金额。", "items": ["多头：平仓收益 = 平仓成交金额 - 结转初始合约价值", "空头：平仓收益 = 结转初始合约价值 - 平仓成交金额", "正数表示收益，负数表示损失", "先确认题面持仓属性，再选择公式"]},
+      {"cardId": "FUT-POSITION-KC-03", "type": "KEY_POINT", "title": "比例、精度和舍入属于案例快照", "conclusion": "本路线只使用题面批准的移动加权比例、金额精度和舍入方法，不把历史系统设置固化为永久规则。", "items": ["均价保留足够计算精度", "结转金额按题面要求保留 2 位", "剩余余额用开仓后余额减结转金额", "交易费用已在 001 教学，本路线不重复"]}
+    ]},
+    "DEMONSTRATION": {
+      "scenario": {"role": "案例产品甲的组合核算人员", "product": "案例产品甲 / 案例股指期货甲", "date": "案例日 T-1 至 T", "facts": ["T-1 多头持仓 11 份，初始合约价值余额 9,028,080.00 元。", "T 日多头开仓 3 份，成交金额 2,570,040.00 元；多头平仓 14 份，成交金额 11,932,440.00 元。", "本案例先处理开仓再处理平仓，比例和金额按批准精度计算。"]},
+      "steps": [
+        {"order": 1, "action": "复算开仓均价 2,570,040 ÷ 300 ÷ 3 = 2,855.60，平仓均价 11,932,440 ÷ 300 ÷ 14 = 2,841.057142857…", "reason": "成交金额、乘数和数量共同证明平均成交点位。"},
+        {"order": 2, "action": "先纳入开仓，得到可供平仓数量 11 + 3 = 14 份、开仓后初始合约价值 9,028,080 + 2,570,040 = 11,598,120 元", "reason": "当日开仓先进入数量和金额基数。"},
+        {"order": 3, "action": "计算 q = 14 ÷ 14 = 1，结转初始合约价值 11,598,120 × 1 = 11,598,120 元", "reason": "本案例使用批准的移动加权比例结转。"},
+        {"order": 4, "action": "计算多头平仓收益 11,932,440 - 11,598,120 = 334,320 元", "reason": "多头平仓用成交金额减结转成本。"},
+        {"order": 5, "action": "复算期末持仓 11 + 3 - 14 = 0，剩余初始合约价值 11,598,120 - 11,598,120 = 0", "reason": "数量与初始合约价值同时归零，跨日链闭合。"}
+      ],
+      "summary": "复算均价 → 先纳入开仓 → 计算比例和结转金额 → 计算平仓损益 → 核对期末数量与余额"
+    },
+    "BASIC_PRACTICE": {"questions": [
+      {"questionId": "ACC-FUT-POSITION-Q-01", "type": "FIELD_MAP", "prompt": "把跨日资料字段对应到数量或金额基数。", "fieldMappings": [
+        {"fieldId": "available-qty", "label": "期初 24 份、当日开仓 6 份", "source": "持仓与成交汇总", "options": [{"optionId": "AVAILABLE_30", "text": "可供平仓数量 30 份"}, {"optionId": "ENDING_30", "text": "期末持仓必为 30 份"}]},
+        {"fieldId": "base-value", "label": "期初初始合约价值 20,477,940、当日开仓金额 5,175,720", "source": "账簿与成交汇总", "options": [{"optionId": "BASE_25653660", "text": "开仓后结转基数 25,653,660 元"}, {"optionId": "PNL_25653660", "text": "平仓损益 25,653,660 元"}]}
+      ], "answer": ["AVAILABLE_30", "BASE_25653660"], "explanation": "先开仓后，可供平仓 30 份，初始合约价值结转基数为 25,653,660 元。", "hints": ["数量基数和金额基数分别相加。"]},
+      {"questionId": "ACC-FUT-POSITION-Q-02", "type": "CALCULATION", "prompt": "复算空头开仓 6 份、成交金额 5,175,720 元和乘数 300 的平均成交点位。", "calculation": {"fields": [
+        {"fieldId": "open-average", "label": "开仓平均成交点位", "formula": "5,175,720 ÷ 300 ÷ 6", "placeholder": "输入点位", "unit": "点", "precision": 4, "tolerance": 0.0001}
+      ]}, "answer": ["2875.4"], "explanation": "开仓平均成交点位为 2,875.40。", "hints": ["成交金额需同时除以乘数和数量。"]},
+      {"questionId": "ACC-FUT-POSITION-Q-03", "type": "ORDERING", "prompt": "排列同日开仓和平仓的移动加权处理。", "items": [{"itemId": "ADD_OPEN", "text": "将当日开仓纳入数量和初始合约价值"}, {"itemId": "CALC_Q", "text": "用平仓数量除以可供平仓数量计算 q"}, {"itemId": "TRANSFER", "text": "按 q 结转初始合约价值"}, {"itemId": "REMAIN", "text": "复算期末持仓和剩余余额"}], "answer": ["ADD_OPEN", "CALC_Q", "TRANSFER", "REMAIN"], "explanation": "先形成完整基数，再计算比例、结转和剩余。", "hints": ["不要先平仓后补记开仓。"]},
+      {"questionId": "ACC-FUT-POSITION-Q-04", "type": "CALCULATION", "prompt": "按题面批准比例复算空头案例的结转和剩余。", "calculation": {"fields": [
+        {"fieldId": "close-ratio", "label": "平仓比例 q", "formula": "13 ÷ (24 + 6)", "placeholder": "输入小数", "unit": "小数", "precision": 8, "tolerance": 0.00000001},
+        {"fieldId": "transfer-value", "label": "结转初始合约价值", "formula": "25,653,660 × 13 ÷ 30", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "ending-qty", "label": "期末持仓", "formula": "24 + 6 - 13", "placeholder": "输入份数", "unit": "份", "precision": 0, "tolerance": 0},
+        {"fieldId": "remaining-value", "label": "剩余初始合约价值", "formula": "25,653,660 - 11,116,586", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01}
+      ]}, "answer": ["0.43333333", "11116586", "17", "14537074"], "explanation": "q 为 13/30，结转 11,116,586 元，剩余 17 份和 14,537,074 元。", "hints": ["比例使用可供平仓数量 30 份作分母。"]},
+      {"questionId": "ACC-FUT-POSITION-Q-05", "type": "RECONCILIATION", "prompt": "核对空头平仓损益和数量金额连续性。", "reconciliation": {"fields": [
+        {"fieldId": "short-pnl", "label": "空头平仓损益", "kind": "NUMBER", "formula": "结转初始合约价值 11,116,586 - 平仓成交金额 11,188,560", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+        {"fieldId": "position-recon", "label": "数量与余额结论", "kind": "SELECT", "formula": "30 - 13 = 17；25,653,660 - 11,116,586 = 14,537,074", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "数量和初始合约价值连续"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}
+      ]}, "answer": ["-71974", "BALANCED"], "explanation": "空头平仓损益为 -71,974 元，数量和剩余初始合约价值连续。", "hints": ["空头公式是结转成本减平仓成交金额。"]}
+    ]},
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {"role": "案例产品乙的组合核算人员", "product": "案例产品乙 / 案例股指期货乙", "date": "案例日 T-1 至 T", "purpose": "独立完成一条正常空头跨日开平仓链的均价、比例结转、损益和剩余持仓勾稽。"},
+      "sourceMaterials": [
+        {"materialId": "FUTP-PARAM", "title": "本案例批准参数", "kind": "PARAMETER", "description": "仅适用于本案例，不构成现行市场、系统或其他产品的永久规则。", "fields": [
+          {"fieldId": "multiplier", "label": "合约乘数", "value": "每点 250 元"},
+          {"fieldId": "sequence", "label": "同日处理顺序", "value": "先将开仓纳入数量和初始合约价值，再处理平仓"},
+          {"fieldId": "transfer", "label": "结转规则", "value": "q = 平仓数量 ÷（期初持仓 + 当日开仓）；结转金额 = 开仓后初始合约价值 × q"},
+          {"fieldId": "pnl", "label": "空头平仓损益", "value": "结转初始合约价值 - 平仓成交金额"},
+          {"fieldId": "precision", "label": "精度与容差", "value": "比例保留 8 位展示；金额保留 2 位；金额绝对误差 0.01 元"}
+        ]},
+        {"materialId": "FUTP-OPEN", "title": "T-1 日终持仓与账簿", "kind": "LEDGER", "description": "同一脱敏空头合约的正常期初余额。", "fields": [
+          {"fieldId": "opening-qty", "label": "期初空头持仓", "value": "18", "unit": "份"},
+          {"fieldId": "opening-value", "label": "期初初始合约价值", "value": "13,500,000.00", "unit": "元"}
+        ]},
+        {"materialId": "FUTP-TRADE", "title": "T 日正常成交汇总", "kind": "STATEMENT", "description": "同一合约当日先空头开仓、后空头平仓。", "fields": [
+          {"fieldId": "open-qty", "label": "空头开仓数量", "value": "6", "unit": "份"},
+          {"fieldId": "open-amount", "label": "空头开仓成交金额", "value": "4,560,000.00", "unit": "元"},
+          {"fieldId": "close-qty", "label": "空头平仓数量", "value": "9", "unit": "份"},
+          {"fieldId": "close-amount", "label": "空头平仓成交金额", "value": "6,795,000.00", "unit": "元"}
+        ]}
+      ],
+      "workItems": [
+        {"workItemId": "opening-quantity", "type": "FIELD_MAP", "title": "定位期初持仓", "instruction": "从期初账簿读取可供平仓基数的一部分。", "response": {"kind": "NUMBER", "placeholder": "输入份数", "unit": "份", "precision": 0}},
+        {"workItemId": "opening-value", "type": "FIELD_MAP", "title": "定位期初初始合约价值", "instruction": "从期初账簿读取金额基数。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "open-average", "type": "CALCULATION", "title": "开仓平均成交点位", "instruction": "用开仓成交金额除以乘数和数量。", "response": {"kind": "NUMBER", "placeholder": "输入点位", "unit": "点", "precision": 4}},
+        {"workItemId": "close-average", "type": "CALCULATION", "title": "平仓平均成交点位", "instruction": "用平仓成交金额除以乘数和数量。", "response": {"kind": "NUMBER", "placeholder": "输入点位", "unit": "点", "precision": 4}},
+        {"workItemId": "available-quantity", "type": "CALCULATION", "title": "可供平仓数量", "instruction": "先把当日开仓纳入期初持仓。", "response": {"kind": "NUMBER", "placeholder": "输入份数", "unit": "份", "precision": 0}},
+        {"workItemId": "preclose-value", "type": "CALCULATION", "title": "开仓后初始合约价值", "instruction": "期初余额加当日开仓成交金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "close-ratio", "type": "CALCULATION", "title": "平仓比例 q", "instruction": "平仓数量除以可供平仓数量。", "response": {"kind": "NUMBER", "placeholder": "输入小数", "precision": 8}},
+        {"workItemId": "transfer-value", "type": "CALCULATION", "title": "结转初始合约价值", "instruction": "按批准比例结转开仓后余额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "short-pnl", "type": "CALCULATION", "title": "空头平仓损益", "instruction": "用结转初始合约价值减平仓成交金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "ending-quantity", "type": "RECONCILIATION", "title": "期末空头持仓", "instruction": "期初加开仓减平仓。", "response": {"kind": "NUMBER", "placeholder": "输入份数", "unit": "份", "precision": 0}},
+        {"workItemId": "remaining-value", "type": "RECONCILIATION", "title": "剩余初始合约价值", "instruction": "开仓后余额减结转金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "quantity-check", "type": "RECONCILIATION", "title": "数量勾稽差额", "instruction": "账簿期末数量减计算期末数量；正常结果应为零。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "份", "precision": 0}},
+        {"workItemId": "value-check", "type": "RECONCILIATION", "title": "金额勾稽差额", "instruction": "开仓后余额减结转金额再减剩余余额；正常结果应为零。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "continuity-result", "type": "RECONCILIATION", "title": "持仓连续性结论", "instruction": "综合判断数量、初始合约价值和损益链。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "数量、金额和损益链连续"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "正常跨日结论", "instruction": "简述比例、结转金额、平仓损益、期末持仓和剩余余额。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
+      ],
+      "submissionNote": "本案例为正常、充分且已批准的脱敏合成快照，不包含交易费用、日终估值或保证金。请先复算全部数量和金额关系。"
+    }
+  },
+  "references": [
+    {"referenceId": "FUT-POS-DOCX", "title": "期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__期货业务介绍2023.docx", "usage": "跨日多空案例、先开仓后平仓、移动加权比例、平仓损益及剩余持仓的历史培训依据。"},
+    {"referenceId": "FUT-POS-PPTX", "title": "期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__期货业务介绍2023.pptx", "usage": "第 36—45 页多头跨日案例及账务关系的交叉证据。"},
+    {"referenceId": "FUT-POS-XLSX", "title": "随堂测试题目-期货业务介绍2023", "source": "project_materials/新人陪练案例库/核算/02_基础资产区_期货__随堂测试题目-期货业务介绍2023.xlsx", "usage": "工作表 11 的同日开平仓顺序题用于交叉核对，不复用原题答案作为正式考核。"}
+  ]
+}

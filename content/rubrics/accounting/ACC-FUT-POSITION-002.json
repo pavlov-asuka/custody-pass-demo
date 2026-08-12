@@ -1,0 +1,47 @@
+{
+  "routeId": "ACC-FUT-POSITION-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {"dimension": "CONCEPT", "maxScore": 25, "criteria": [
+      {"criterionId": "C-FUTP-BASE", "description": "理解先纳入当日开仓再形成数量和金额结转基数。", "weight": 13, "evidenceRequirement": "可供平仓数量为 24 份，开仓后初始合约价值为 18,060,000.00 元。", "evidenceRules": [{"fieldId": "available-quantity", "operator": "NUMBER_EQUALS", "expected": 24, "tolerance": 0}, {"fieldId": "preclose-value", "operator": "NUMBER_EQUALS", "expected": 18060000, "tolerance": 0.01}], "remediationTargetId": "R-FUTP-BASE"},
+      {"criterionId": "C-FUTP-SHORT-PNL", "description": "正确使用空头平仓损益方向。", "weight": 12, "evidenceRequirement": "空头平仓损益按结转初始合约价值减平仓成交金额计算为 -22,500.00 元。", "evidenceRules": [{"fieldId": "short-pnl", "operator": "NUMBER_EQUALS", "expected": -22500, "tolerance": 0.01}], "remediationTargetId": "R-FUTP-PNL"}
+    ]},
+    {"dimension": "PROCESS", "maxScore": 30, "criteria": [
+      {"criterionId": "P-FUTP-SOURCE", "description": "准确读取期初数量和初始合约价值。", "weight": 6, "evidenceRequirement": "期初空头 18 份、期初初始合约价值 13,500,000.00 元。", "evidenceRules": [{"fieldId": "opening-quantity", "operator": "NUMBER_EQUALS", "expected": 18, "tolerance": 0}, {"fieldId": "opening-value", "operator": "NUMBER_EQUALS", "expected": 13500000, "tolerance": 0.01}], "remediationTargetId": "R-FUTP-SOURCE"},
+      {"criterionId": "P-FUTP-AVERAGE", "description": "按成交金额、乘数和数量复算开平仓均价。", "weight": 6, "evidenceRequirement": "开仓均价 3,040.00，平仓均价 3,020.00。", "evidenceRules": [{"fieldId": "open-average", "operator": "NUMBER_EQUALS", "expected": 3040, "tolerance": 0.0001}, {"fieldId": "close-average", "operator": "NUMBER_EQUALS", "expected": 3020, "tolerance": 0.0001}], "remediationTargetId": "R-FUTP-AVERAGE"},
+      {"criterionId": "P-FUTP-TRANSFER", "description": "按批准比例完成移动加权结转。", "weight": 10, "evidenceRequirement": "q 为 0.375，结转初始合约价值 6,772,500.00 元。", "evidenceRules": [{"fieldId": "close-ratio", "operator": "NUMBER_EQUALS", "expected": 0.375, "tolerance": 0.00000001}, {"fieldId": "transfer-value", "operator": "NUMBER_EQUALS", "expected": 6772500, "tolerance": 0.01}], "remediationTargetId": "R-FUTP-TRANSFER"},
+      {"criterionId": "P-FUTP-REMAIN", "description": "复算期末数量和剩余初始合约价值。", "weight": 8, "evidenceRequirement": "期末空头 15 份、剩余初始合约价值 11,287,500.00 元。", "evidenceRules": [{"fieldId": "ending-quantity", "operator": "NUMBER_EQUALS", "expected": 15, "tolerance": 0}, {"fieldId": "remaining-value", "operator": "NUMBER_EQUALS", "expected": 11287500, "tolerance": 0.01}], "remediationTargetId": "R-FUTP-REMAIN"}
+    ]},
+    {"dimension": "RISK", "maxScore": 25, "criteria": [
+      {"criterionId": "K-FUTP-SNAPSHOT", "description": "按本案例批准顺序、比例、乘数和精度处理，不把历史规则泛化。", "weight": 10, "evidenceRequirement": "均价、比例和结转金额均符合题面参数。", "evidenceRules": [{"fieldId": "open-average", "operator": "NUMBER_EQUALS", "expected": 3040, "tolerance": 0.0001}, {"fieldId": "close-ratio", "operator": "NUMBER_EQUALS", "expected": 0.375, "tolerance": 0.00000001}], "remediationTargetId": "R-FUTP-SNAPSHOT"},
+      {"criterionId": "K-FUTP-CONTINUITY", "description": "通过独立数量与金额关系确认持仓连续，防止重复或遗漏结转。", "weight": 15, "evidenceRequirement": "数量和金额勾稽差额均为零，连续性结论为闭合。", "evidenceRules": [{"fieldId": "quantity-check", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}, {"fieldId": "value-check", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "continuity-result", "operator": "EQUALS", "expected": "BALANCED"}], "remediationTargetId": "R-FUTP-RECON"}
+    ]},
+    {"dimension": "EXPRESSION", "maxScore": 20, "criteria": [
+      {"criterionId": "E-FUTP-CONCLUSION", "description": "结论准确覆盖比例、结转、损益、期末持仓和剩余余额。", "weight": 20, "evidenceRequirement": "简短结论包含 0.375、6,772,500、-22,500、15、11,287,500 和连续。", "evidenceRules": [{"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["0.375", "6,772,500", "-22,500", "15", "11,287,500", "连续"]}], "remediationTargetId": "R-FUTP-CONCLUSION"}
+    ]}
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FUTP-TRANSFER", "description": "必须正确完成比例和初始合约价值结转。", "evidenceRequirement": "q 为 0.375，结转金额为 6,772,500.00 元。", "evidenceRules": [{"fieldId": "close-ratio", "operator": "NUMBER_EQUALS", "expected": 0.375, "tolerance": 0.00000001}, {"fieldId": "transfer-value", "operator": "NUMBER_EQUALS", "expected": 6772500, "tolerance": 0.01}], "remediationTargetId": "R-FUTP-TRANSFER"},
+    {"requirementId": "M-FUTP-CONTINUITY", "description": "必须正确计算空头平仓损益并闭合剩余持仓。", "evidenceRequirement": "损益 -22,500.00 元，期末 15 份、剩余 11,287,500.00 元，数量和金额差额为零。", "evidenceRules": [{"fieldId": "short-pnl", "operator": "NUMBER_EQUALS", "expected": -22500, "tolerance": 0.01}, {"fieldId": "ending-quantity", "operator": "NUMBER_EQUALS", "expected": 15, "tolerance": 0}, {"fieldId": "remaining-value", "operator": "NUMBER_EQUALS", "expected": 11287500, "tolerance": 0.01}, {"fieldId": "quantity-check", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}, {"fieldId": "value-check", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "R-FUTP-RECON"}
+  ],
+  "remediationTargets": [
+    {"targetId": "R-FUTP-SOURCE", "title": "重读跨日期初资料", "reason": "期初持仓或初始合约价值读取错误。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-POSITION-KC-01", "questionId": "ACC-FUT-POSITION-Q-01"},
+    {"targetId": "R-FUTP-BASE", "title": "重建开仓后结转基数", "reason": "没有先把当日开仓纳入数量或金额基数。", "materialStep": "DEMONSTRATION", "materialItemId": "2", "questionId": "ACC-FUT-POSITION-Q-01"},
+    {"targetId": "R-FUTP-AVERAGE", "title": "复算开平仓均价", "reason": "成交金额、乘数或数量单位使用错误。", "materialStep": "DEMONSTRATION", "materialItemId": "1", "questionId": "ACC-FUT-POSITION-Q-02"},
+    {"targetId": "R-FUTP-TRANSFER", "title": "复算比例与结转金额", "reason": "平仓比例分母或移动加权结转错误。", "materialStep": "DEMONSTRATION", "materialItemId": "3", "questionId": "ACC-FUT-POSITION-Q-04"},
+    {"targetId": "R-FUTP-PNL", "title": "校正空头平仓损益方向", "reason": "空头平仓损益公式方向错误。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-POSITION-KC-02", "questionId": "ACC-FUT-POSITION-Q-05"},
+    {"targetId": "R-FUTP-REMAIN", "title": "复算期末数量与剩余余额", "reason": "期末持仓或剩余初始合约价值错误。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-POSITION-Q-04"},
+    {"targetId": "R-FUTP-SNAPSHOT", "title": "按批准参数处理", "reason": "忽略题面乘数、顺序、精度或舍入。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "FUT-POSITION-KC-03", "questionId": "ACC-FUT-POSITION-Q-02"},
+    {"targetId": "R-FUTP-RECON", "title": "闭合数量和金额链", "reason": "数量或金额勾稽不为零，存在重复或遗漏结转。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-POSITION-Q-05"},
+    {"targetId": "R-FUTP-CONCLUSION", "title": "补全跨日持仓结论", "reason": "结论遗漏比例、结转、损益或剩余持仓。", "materialStep": "DEMONSTRATION", "materialItemId": "5", "questionId": "ACC-FUT-POSITION-Q-05"}
+  ],
+  "referenceAnswer": {
+    "opening-quantity": 18, "opening-value": 13500000, "open-average": 3040, "close-average": 3020,
+    "available-quantity": 24, "preclose-value": 18060000, "close-ratio": 0.375, "transfer-value": 6772500,
+    "short-pnl": -22500, "ending-quantity": 15, "remaining-value": 11287500, "quantity-check": 0, "value-check": 0,
+    "continuity-result": "BALANCED",
+    "result-note": "本案例平仓比例 0.375，结转初始合约价值 6,772,500.00 元，空头平仓损益 -22,500.00 元，期末空头 15 份、剩余初始合约价值 11,287,500.00 元，数量和金额链连续。"
+  }
+}
