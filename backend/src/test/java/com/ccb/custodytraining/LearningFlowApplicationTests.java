@@ -129,7 +129,7 @@ class LearningFlowApplicationTests {
                 .andExpect(jsonPath("$.regions[0].modules[4].nodes.length()").value(5))
                 .andExpect(jsonPath("$.regions[0].modules[4].nodes[0].routeId").value("ACC-ED-WORKPAPER-001"))
                 .andExpect(jsonPath("$.regions[0].modules[4].nodes[4].routeId").value("ACC-ED-UPDATES-005"))
-                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(21));
+                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(26));
     }
 
     @Test

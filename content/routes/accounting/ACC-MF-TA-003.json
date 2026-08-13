@@ -1,0 +1,312 @@
+{
+  "routeId": "ACC-MF-TA-003",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "TA份额、申赎与资产/资金时序勾稽",
+  "summary": "沿普通货币基金一笔正常申赎资料，区分T日指令与T+1确认，完成确认份额、到账金额以及管理账、TA和现金三方勾稽。",
+  "estimatedMinutes": 55,
+  "objectives": [
+    "从批准参数、T日指令和T+1 TA确认记录读取申请、确认、份额与到账时序",
+    "不把T日指令提前当作已确认份额或已发生银行现金",
+    "按单位结果1.000000复算确认申购/赎回份额、净资金和期末份额/现金",
+    "用基金管理人台账、TA台账和银行现金资料完成正常三方勾稽"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "MF-TA-KC-01",
+          "type": "CATEGORIES",
+          "title": "T日指令不是T+1确认",
+          "conclusion": "T日只能按题面批准状态记录申购/赎回指令；普通货币基金确认份额和对应资金结转以T+1 TA确认资料为准。",
+          "items": [
+            "T日指令保留申请数量和金额，不直接增加或减少最终份额",
+            "T+1 TA确认记录决定本题确认申购、确认赎回和确认份额",
+            "确认日期、产品、金额和数量必须在指令、TA和管理账之间一致",
+            "本路线不把直销网点申购款利息、交易型货币或异常赎回混入普通时序"
+          ]
+        },
+        {
+          "cardId": "MF-TA-KC-02",
+          "type": "FLOW",
+          "title": "确认份额、资金到账和台账要同一时点闭合",
+          "conclusion": "确认申购/赎回金额在T+1形成份额变化和净现金变化；管理人台账、TA台账和银行现金只能以同一批准批次相互解释。",
+          "items": [
+            "确认申购金额 ÷ 1.000000 = 确认申购份额",
+            "确认赎回金额 ÷ 1.000000 = 确认赎回份额",
+            "净确认资金 = 确认申购金额 − 确认赎回金额",
+            "T日未确认份额变化为0，T+1才把确认净额带入期末份额"
+          ]
+        },
+        {
+          "cardId": "MF-TA-KC-03",
+          "type": "KEY_POINT",
+          "title": "确认凭证只承接已确认状态",
+          "conclusion": "普通货币基金TA确认凭证按已确认资料承接应收申购款和实收基金，数量按本题确认金额与1.000000单位结果闭合；赎回资金按T+1结转资料核对。",
+          "items": [
+            "确认申购凭证：借应收申购款，贷实收基金（4001）",
+            "确认份额数量等于本题确认金额，不能用T日申请金额提前入账",
+            "T+1赎回结转金额要与管理公司指令和TA数据核对",
+            "本路线只评价正常确认和到账，不处理指令异常升级"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品甲的基金核算人员",
+        "product": "案例产品甲 / 普通货币基金",
+        "date": "2026-08-19 至 2026-08-20",
+        "facts": [
+          "2026-08-19为T日，管理公司指令记录申购申请260,000.00元、赎回申请90,000.00元；该日只保留申请状态，不确认最终份额，也不确认银行现金已到账。",
+          "2026-08-20为T+1，批准TA确认申购260,000.00元、确认赎回90,000.00元，普通货币基金本题单位结果为1.000000，因此确认申购260,000份、确认赎回90,000份。",
+          "T+1净确认资金为170,000.00元；管理人台账期初份额8,400,000份，银行现金期初2,600,000.00元；T+1到账后分别形成8,570,000份和2,770,000.00元。",
+          "确认申购凭证按已确认申购资料形成：借应收申购款260,000.00元，贷实收基金（4001）260,000.00元，数量260,000份。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取T日指令并标记申购申请260,000.00元、赎回申请90,000.00元仍为申请状态，T日份额变化和银行现金到账均为0",
+          "reason": "申请记录不能直接替代T+1确认记录，否则会把未确认指令提前形成份额和现金。"
+        },
+        {
+          "order": 2,
+          "action": "读取T+1 TA确认记录，确认申购260,000.00元、赎回90,000.00元及1.000000单位结果下的260,000份和90,000份",
+          "reason": "普通货币基金确认份额以本题批准TA确认批次为准，金额和份额必须同一日期闭合。"
+        },
+        {
+          "order": 3,
+          "action": "计算T+1净确认资金260,000.00−90,000.00=170,000.00元，净确认份额260,000−90,000=170,000份",
+          "reason": "申购与赎回分别读取后再净额计算，不能拿T日净指令直接当作已到账结果。"
+        },
+        {
+          "order": 4,
+          "action": "按T+1已确认申购资料补全凭证：借应收申购款260,000.00元，贷实收基金（4001）260,000.00元，数量260,000份；赎回结转金额按管理公司指令核对",
+          "reason": "确认凭证承接已确认状态，赎回结转需与TA和管理公司资料保持同一批次。"
+        },
+        {
+          "order": 5,
+          "action": "勾稽管理人台账8,400,000+170,000=8,570,000份、TA净确认170,000份和银行现金2,600,000+170,000=2,770,000.00元，三方差额均为0",
+          "reason": "份额、到账和现金结果必须由三方来源共同支持后才完成正常TA承接。"
+        }
+      ],
+      "summary": "识别T日申请 → 读取T+1确认 → 复算确认份额和净资金 → 形成已确认申购凭证 → 管理账/TA/现金三方勾稽"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-MF-TA-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把本题字段对应到正确的申赎状态和时点。",
+          "fieldMappings": [
+            {
+              "fieldId": "instruction-state",
+              "label": "T日申购/赎回指令",
+              "source": "T日管理公司指令",
+              "options": [
+                {"optionId": "APPLICATION_NO_CONFIRMATION", "text": "申请状态，不形成确认份额或到账现金"},
+                {"optionId": "CONFIRMED_POSITION", "text": "已确认状态，立即形成期末份额"}
+              ]
+            },
+            {
+              "fieldId": "confirmation-state",
+              "label": "T+1 TA确认记录",
+              "source": "T+1 TA确认表",
+              "options": [
+                {"optionId": "APPLICATION_ONLY", "text": "仍为申请状态"},
+                {"optionId": "CONFIRMATION", "text": "已确认，可形成确认份额和结转金额"}
+              ]
+            },
+            {
+              "fieldId": "unit-basis",
+              "label": "本题普通货币基金单位结果1.000000",
+              "source": "批准参数字典",
+              "options": [
+                {"optionId": "AMOUNT_TO_UNITS", "text": "确认金额按1.000000换算确认份额"},
+                {"optionId": "HISTORICAL_DEFAULT", "text": "沿用未批准历史截图参数"}
+              ]
+            }
+          ],
+          "answer": ["APPLICATION_NO_CONFIRMATION", "CONFIRMATION", "AMOUNT_TO_UNITS"],
+          "explanation": "T日只保留申请，T+1 TA确认后才形成份额和结转；单位结果只使用本题批准参数。",
+          "hints": ["先看业务日期和确认状态，再看金额如何换算份额。"]
+        },
+        {
+          "questionId": "ACC-MF-TA-Q-02",
+          "type": "CALCULATION",
+          "prompt": "根据案例甲T+1确认资料计算净确认资金、净确认份额、期末份额和期末现金。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "net-confirmed-cash", "label": "净确认资金", "formula": "260,000 − 90,000", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "net-confirmed-units", "label": "净确认份额", "formula": "260,000 ÷ 1.000000 − 90,000 ÷ 1.000000", "placeholder": "输入份额", "unit": "份", "precision": 0, "tolerance": 0},
+              {"fieldId": "ending-units", "label": "期末份额", "formula": "8,400,000 + 净确认份额", "placeholder": "输入份额", "unit": "份", "precision": 0, "tolerance": 0},
+              {"fieldId": "ending-cash", "label": "期末现金", "formula": "2,600,000 + 净确认资金", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01}
+            ]
+          },
+          "answer": ["170000", "170000", "8570000", "2770000"],
+          "explanation": "T+1净确认资金和净确认份额均为170,000；份额与现金分别带入管理台账和银行余额。",
+          "hints": ["申购和赎回先分别确认，再做净额；T日不带入期末结果。"]
+        },
+        {
+          "questionId": "ACC-MF-TA-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全案例甲T+1已确认申购的TA确认凭证。",
+          "ledgerEntries": [
+            {"entryId": "subscription-debit", "direction": "借", "label": "确认申购金额260,000.00元", "amount": "260,000.00元", "placeholder": "输入借方科目"},
+            {"entryId": "subscription-credit", "direction": "贷", "label": "确认申购金额260,000.00元、数量260,000份", "amount": "260,000.00元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["应收申购款", "实收基金（4001）"],
+          "explanation": "确认申购凭证借应收申购款、贷实收基金（4001），数量等于确认金额；T日申请不能提前形成该凭证。",
+          "hints": ["只使用T+1已确认申购资料，不要把T日申请状态当成确认。"]
+        },
+        {
+          "questionId": "ACC-MF-TA-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "完成案例甲管理人台账、TA确认表和银行现金的三方勾稽。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "management-ta-unit-diff", "label": "管理人台账与TA净确认份额差额", "kind": "NUMBER", "formula": "170,000 − 170,000", "placeholder": "输入差额", "precision": 0, "tolerance": 0},
+              {"fieldId": "ta-cash-diff", "label": "TA净确认资金与银行到账差额", "kind": "NUMBER", "formula": "170,000 − 170,000", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "management-cash-diff", "label": "管理人资金台账与银行到账差额", "kind": "NUMBER", "formula": "170,000 − 170,000", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "result", "label": "TA三方结果", "kind": "SELECT", "formula": "份额、到账和现金均由同一T+1批次解释", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "三方勾稽一致"}, {"optionId": "BROKEN", "text": "存在未解释差异"}]}
+            ]
+          },
+          "answer": ["0", "0", "0", "BALANCED"],
+          "explanation": "管理人、TA和银行现金的净确认结果均为170,000，差额全部为零。",
+          "hints": ["先把申购和赎回分别核对，再比较三方净额。"]
+        },
+        {
+          "questionId": "ACC-MF-TA-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话说明T日指令、T+1确认、份额到账和三方勾稽的关系。",
+          "textInput": {"label": "TA时序结论", "placeholder": "写明申请不确认、T+1确认、份额/现金和三方结果"},
+          "answer": ["T日指令不确认", "T+1确认", "确认份额", "到账", "三方勾稽"],
+          "explanation": "合格结论应同时保留申请与确认状态、确认份额/资金以及管理人台账、TA、银行现金的一致性。",
+          "hints": ["不要只写‘已核对’，要让读者能找到两个日期和三方来源。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品乙的基金核算人员",
+        "product": "案例产品乙 / 普通货币基金",
+        "date": "2026-08-26 至 2026-08-27",
+        "purpose": "根据完整脱敏的T日指令、T+1 TA确认、管理人台账和银行现金资料，独立完成确认份额、净到账和三方勾稽；本路线综合案例为独立脱敏批次，不承接其他路线的金额、份额或余额，仅复用前置确认字段定义。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "MF-TA-C-PARAM",
+          "title": "本案例批准TA参数字典",
+          "kind": "PARAMETER",
+          "description": "只约束案例产品乙的T/T+1日期、单位结果、精度、确认状态和净额关系；本路线案例为独立脱敏批次，不承接其他路线的金额、份额或余额。",
+          "fields": [
+            {"fieldId": "instruction-date", "label": "T日", "value": "2026-08-26"},
+            {"fieldId": "confirmation-date", "label": "T+1日", "value": "2026-08-27"},
+            {"fieldId": "unit-result", "label": "普通货币基金单位结果", "value": "1.000000", "unit": "元/份"},
+            {"fieldId": "precision", "label": "精度与容差", "value": "金额保留2位；份额保留0位；金额容差0.01元；份额容差0份"},
+            {"fieldId": "state-rule", "label": "时序快照", "value": "T日只记录申请；T+1按TA确认资料形成确认份额并核对到账"}
+          ]
+        },
+        {
+          "materialId": "MF-TA-C-INSTRUCTION",
+          "title": "2026-08-26 T日申赎指令",
+          "kind": "INSTRUCTION",
+          "description": "只用于识别申请状态和申请金额，不直接形成最终份额或银行现金。",
+          "fields": [
+            {"fieldId": "subscription-application", "label": "申购申请", "value": "375,000.00", "unit": "元"},
+            {"fieldId": "redemption-application", "label": "赎回申请", "value": "125,000.00", "unit": "元"},
+            {"fieldId": "instruction-status", "label": "指令状态", "value": "T日申请；未确认"},
+            {"fieldId": "t-day-unit-delta", "label": "T日份额变化", "value": "0", "unit": "份"},
+            {"fieldId": "t-day-bank-cash", "label": "T日银行现金到账", "value": "0.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "MF-TA-C-CONFIRMATION",
+          "title": "2026-08-27 T+1 TA确认表",
+          "kind": "CONFIRMATION",
+          "description": "同一产品的正常确认批次，是确认申购、赎回、份额和结转金额的来源。",
+          "fields": [
+            {"fieldId": "confirmed-subscription", "label": "确认申购", "value": "375,000.00", "unit": "元"},
+            {"fieldId": "confirmed-redemption", "label": "确认赎回", "value": "125,000.00", "unit": "元"},
+            {"fieldId": "confirmed-subscription-units", "label": "确认申购份额", "value": "375,000", "unit": "份"},
+            {"fieldId": "confirmed-redemption-units", "label": "确认赎回份额", "value": "125,000", "unit": "份"},
+            {"fieldId": "confirmation-status", "label": "确认状态", "value": "T+1正常确认"}
+          ]
+        },
+        {
+          "materialId": "MF-TA-C-MANAGEMENT-LEDGER",
+          "title": "基金管理人份额与资金台账",
+          "kind": "LEDGER",
+          "description": "用于复核期初份额、净确认份额、期末份额和管理人记录的净资金变化。",
+          "fields": [
+            {"fieldId": "opening-units", "label": "期初份额", "value": "12,600,000", "unit": "份"},
+            {"fieldId": "management-unit-delta", "label": "管理人确认份额净增加", "value": "250,000", "unit": "份"},
+            {"fieldId": "ending-units", "label": "期末份额", "value": "12,850,000", "unit": "份"},
+            {"fieldId": "management-net-cash", "label": "管理人记录净资金增加", "value": "250,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "MF-TA-C-TA-LEDGER",
+          "title": "TA确认与结转台账",
+          "kind": "LEDGER",
+          "description": "用于复核TA确认份额、净结转金额和已与管理公司指令核对的状态。",
+          "fields": [
+            {"fieldId": "ta-unit-delta", "label": "TA净确认份额", "value": "250,000", "unit": "份"},
+            {"fieldId": "ta-net-cash", "label": "TA净结转金额", "value": "250,000.00", "unit": "元"},
+            {"fieldId": "ta-status", "label": "TA状态", "value": "T+1确认并完成正常批次核对"}
+          ]
+        },
+        {
+          "materialId": "MF-TA-C-CASH",
+          "title": "T+1银行现金到账摘要",
+          "kind": "STATEMENT",
+          "description": "用于复核净确认资金在T+1到账后的银行余额。",
+          "fields": [
+            {"fieldId": "opening-cash", "label": "期初银行现金", "value": "4,320,000.00", "unit": "元"},
+            {"fieldId": "cash-arrival", "label": "T+1净到账", "value": "250,000.00", "unit": "元"},
+            {"fieldId": "ending-cash", "label": "期末银行现金", "value": "4,570,000.00", "unit": "元"},
+            {"fieldId": "cash-status", "label": "到账状态", "value": "T+1正常到账"}
+          ]
+        },
+        {
+          "materialId": "MF-TA-C-VOUCHER",
+          "title": "T+1已确认申购凭证摘要",
+          "kind": "VOUCHER",
+          "description": "仅承接T+1已确认申购，不把T日申请提前入账。",
+          "fields": [
+            {"fieldId": "subscription-debit", "label": "借方", "value": "应收申购款", "unit": "375,000.00元"},
+            {"fieldId": "subscription-credit", "label": "贷方", "value": "实收基金（4001）", "unit": "375,000.00元"},
+            {"fieldId": "subscription-quantity", "label": "数量", "value": "375,000", "unit": "份"}
+          ]
+        }
+      ],
+      "workItems": [
+        {"workItemId": "instruction-timing", "type": "FIELD_MAP", "title": "定位T日与T+1时点", "instruction": "选择本题申请、确认和到账分别所属的日期。", "response": {"kind": "SELECT", "placeholder": "选择时点", "options": [{"optionId": "T_APPLY_T1_CONFIRM", "text": "T日申请，T+1确认并到账"}, {"optionId": "T_CONFIRM", "text": "T日直接确认并到账"}]}},
+        {"workItemId": "instruction-state", "type": "FIELD_MAP", "title": "识别T日指令状态", "instruction": "选择T日申购/赎回指令是否形成最终份额。", "response": {"kind": "SELECT", "placeholder": "选择状态", "options": [{"optionId": "APPLICATION_NO_CONFIRMATION", "text": "申请状态，不形成最终份额和现金"}, {"optionId": "CONFIRMED", "text": "已确认，形成最终份额和现金"}]}},
+        {"workItemId": "unit-basis", "type": "FIELD_MAP", "title": "定位份额换算口径", "instruction": "选择本题确认金额换算确认份额的批准单位结果。", "response": {"kind": "SELECT", "placeholder": "选择单位口径", "options": [{"optionId": "AMOUNT_TO_UNITS", "text": "确认金额按1.000000换算确认份额"}, {"optionId": "HISTORICAL_DEFAULT", "text": "沿用未批准历史默认值"}]}},
+        {"workItemId": "cash-arrival-date", "type": "FIELD_MAP", "title": "定位净资金到账日期", "instruction": "选择本题250,000.00元净资金到账日期。", "response": {"kind": "SELECT", "placeholder": "选择日期", "options": [{"optionId": "T_PLUS_1", "text": "T+1正常到账"}, {"optionId": "T_DAY", "text": "T日已到账"}]}},
+        {"workItemId": "confirmed-subscription-amount", "type": "CALCULATION", "title": "读取确认申购金额", "instruction": "从T+1 TA确认表填写确认申购金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "confirmed-redemption-amount", "type": "CALCULATION", "title": "读取确认赎回金额", "instruction": "从T+1 TA确认表填写确认赎回金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "net-confirmed-cash", "type": "CALCULATION", "title": "复算净确认资金", "instruction": "用确认申购金额减确认赎回金额。", "response": {"kind": "NUMBER", "placeholder": "输入净额", "unit": "元", "precision": 2}},
+        {"workItemId": "net-confirmed-units", "type": "CALCULATION", "title": "复算净确认份额", "instruction": "用确认申购份额减确认赎回份额。", "response": {"kind": "NUMBER", "placeholder": "输入份额", "unit": "份", "precision": 0}},
+        {"workItemId": "ending-units", "type": "CALCULATION", "title": "复算期末份额", "instruction": "用期初份额加T+1净确认份额。", "response": {"kind": "NUMBER", "placeholder": "输入份额", "unit": "份", "precision": 0}},
+        {"workItemId": "ending-cash", "type": "CALCULATION", "title": "复算期末现金", "instruction": "用期初银行现金加T+1净到账。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "t-day-unit-delta", "type": "RECONCILIATION", "title": "核对T日份额变化", "instruction": "T日只有申请指令，核对T日最终份额变化。", "response": {"kind": "NUMBER", "placeholder": "输入份额变化", "unit": "份", "precision": 0}},
+        {"workItemId": "management-ta-unit-diff", "type": "RECONCILIATION", "title": "勾稽管理人台账与TA份额", "instruction": "比较管理人净确认份额与TA净确认份额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "份", "precision": 0}},
+        {"workItemId": "ta-cash-diff", "type": "RECONCILIATION", "title": "勾稽TA与现金到账", "instruction": "比较TA净结转金额与银行T+1到账金额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "management-cash-diff", "type": "RECONCILIATION", "title": "勾稽管理人资金与银行现金", "instruction": "比较管理人记录净资金增加与银行到账金额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "subscription-debit", "type": "LEDGER_ENTRY", "title": "补全确认申购借方", "instruction": "填写T+1已确认申购凭证的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入借方科目"}},
+        {"workItemId": "subscription-credit", "type": "LEDGER_ENTRY", "title": "补全确认申购贷方", "instruction": "填写T+1已确认申购凭证的贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}},
+        {"workItemId": "reconciliation-result", "type": "RECONCILIATION", "title": "选择TA三方结论", "instruction": "核对T/T+1状态、确认份额、净到账及管理人/TA/现金三方差额。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "时序、份额、到账和三方勾稽一致"}, {"optionId": "BROKEN", "text": "存在未解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "记录TA承接结论", "instruction": "用一句话写明T日指令不确认、T+1确认到账、份额变化和三方勾稽结果。", "response": {"kind": "TEXT", "placeholder": "输入可追溯的TA结论"}}
+      ],
+      "submissionNote": "提交前按T日指令、T+1确认、确认份额、净到账、凭证和三方勾稽顺序复核；不得把申请状态提前作为最终确认。"
+    }
+  },
+  "references": [
+    {"referenceId": "ACC-REF-MF-MAIN-DOC-TA-202306", "title": "货币市场基金核算业务介绍（TA确认与结转）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.docx；P137-P146", "usage": "T+1确认、TA确认凭证、确认数量=金额和T+1申赎款/管理公司指令核对的原始证据；P148-P152直销申购款利息不进入本路线。"},
+    {"referenceId": "ACC-REF-MF-MAIN-PPT-TA-202306", "title": "货币市场基金核算业务介绍（TA日常主题）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.pptx；S13-S15及其媒体对象", "usage": "TA确认与结转主题、凭证/结转截图定位；不把截图中的内部参数或历史数字固化为题面。"},
+    {"referenceId": "ACC-REF-MF-TA-CASE-PARAMETERS-202608", "title": "本路线题面批准脱敏参数", "source": "ACC-MF-TA-003综合实务资料包中的MF-TA-C-PARAM及关联资料（2026.08版本）", "usage": "只约束本案例T/T+1日期、确认金额、份额、到账、精度和三方勾稽，不替代业务规则。"}
+  ]
+}

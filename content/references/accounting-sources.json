@@ -321,6 +321,27 @@
       "locator": "5 条路线各自综合实务资料包与 evidence.md，2026.08 版本",
       "contentUse": "估值对账与信息披露模块全部 5 条路线",
       "reviewNote": "仅约束案例明确给出的报告期间、版本、来源、字段、金额、费率、精度、容差和附件范围，不外推为现行统一制度。"
+    },
+    {
+      "referenceId": "ACC-REF-MF-MATERIALS-202306",
+      "title": "货币市场基金核算业务介绍202306",
+      "locator": "主 DOCX 正文、T01-T02、OMML1-5、OLE 与媒体对象；同名 PPTX S06-S18",
+      "contentUse": "路线 ACC-MF-FRAME-001、ACC-MF-EIR-002、ACC-MF-TA-003、ACC-MF-CARRY-004、ACC-MF-YIELD-005",
+      "reviewNote": "支持普通货币基金摊余成本/影子定价、实际利率、TA、费用与收益结转、偏离/期限及收益披露。历史阈值、费率、日历、菜单和原始案例数字不固化为永久规则。"
+    },
+    {
+      "referenceId": "ACC-REF-MF-ROUTE-DECISIONS-202608",
+      "title": "普通货币基金高保真路线施工与验收决定",
+      "locator": "阶段 5 教学有效性复核、货币基金材料审计与四批 Luna Max 受控施工验收",
+      "contentUse": "普通货币基金模块全部 5 条路线",
+      "reviewNote": "冻结 5 条 REQUIRED 连续主链，不设阶段闸门；活期存款、回购、交易型货币基金、巨额赎回/负收益、重要货币市场基金及直销申购款利息继续 DEFER。"
+    },
+    {
+      "referenceId": "ACC-REF-MF-CASE-PARAMETERS-202608",
+      "title": "普通货币基金路线题面批准合成参数",
+      "locator": "5 条路线各自综合实务资料包与 evidence.md，2026.08 版本",
+      "contentUse": "普通货币基金模块全部 5 条路线",
+      "reviewNote": "仅约束各独立脱敏案例明确给出的现金流、利率、份额、费用、结转模式、收益公式、日历、精度和容差，不外推为现行统一制度。"
     }
   ]
 }

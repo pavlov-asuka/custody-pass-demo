@@ -1,0 +1,243 @@
+{
+  "routeId": "ACC-MF-CARRY-004",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-MFCARRY-LAYER",
+          "description": "区分资产交易费与运营费用",
+          "weight": 9,
+          "evidenceRequirement": "资产交易费不进入运营费用，运营费用合计正确",
+          "evidenceRules": [
+            {"fieldId": "asset-fee-layer", "operator": "EQUALS", "expected": "EXCLUDE_ASSET_TRADE"},
+            {"fieldId": "operating-fee-total", "operator": "NUMBER_EQUALS", "expected": 3200, "tolerance": 0.01},
+            {"fieldId": "fee-debit", "operator": "CONTAINS_ALL", "expected": ["运营费用"]},
+            {"fieldId": "fee-credit", "operator": "CONTAINS_ALL", "expected": ["应付费用"]}
+          ],
+          "remediationTargetId": "R-MFCARRY-LAYER"
+        },
+        {
+          "criterionId": "C-MFCARRY-FLOW",
+          "description": "理解4103、4104和2232的连续结转",
+          "weight": 8,
+          "evidenceRequirement": "分配方式、4103/4104结转和2232分配前余额正确",
+          "evidenceRules": [
+            {"fieldId": "period-mode", "operator": "EQUALS", "expected": "MONTHLY"},
+            {"fieldId": "carry-4103", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01},
+            {"fieldId": "carry-4104", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01},
+            {"fieldId": "payable-before-distribution", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFCARRY-CALC"
+        },
+        {
+          "criterionId": "C-MFCARRY-DISTRIBUTION",
+          "description": "理解月结分配的再投资与现金支付组合",
+          "weight": 8,
+          "evidenceRequirement": "月末批准分配方式、再投资金额和现金支付金额正确",
+          "evidenceRules": [
+            {"fieldId": "settlement-split", "operator": "EQUALS", "expected": "REINVEST_AND_CASH"},
+            {"fieldId": "reinvest-amount", "operator": "NUMBER_EQUALS", "expected": 7000, "tolerance": 0.01},
+            {"fieldId": "cash-payment-amount", "operator": "NUMBER_EQUALS", "expected": 5000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFCARRY-DISTRIBUTION"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-MFCARRY-CALC",
+          "description": "完成三日收入、费用和净结果计算",
+          "weight": 12,
+          "evidenceRequirement": "三日净结果、收入合计、费用合计和总净结果可复算",
+          "evidenceRules": [
+            {"fieldId": "asset-fee-layer", "operator": "EQUALS", "expected": "EXCLUDE_ASSET_TRADE"},
+            {"fieldId": "period-mode", "operator": "EQUALS", "expected": "MONTHLY"},
+            {"fieldId": "day1-profit", "operator": "NUMBER_EQUALS", "expected": 4100, "tolerance": 0.01},
+            {"fieldId": "day2-profit", "operator": "NUMBER_EQUALS", "expected": 3900, "tolerance": 0.01},
+            {"fieldId": "day3-profit", "operator": "NUMBER_EQUALS", "expected": 4000, "tolerance": 0.01},
+            {"fieldId": "income-total", "operator": "NUMBER_EQUALS", "expected": 15200, "tolerance": 0.01},
+            {"fieldId": "operating-fee-total", "operator": "NUMBER_EQUALS", "expected": 3200, "tolerance": 0.01},
+            {"fieldId": "realized-profit", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFCARRY-CALC"
+        },
+        {
+          "criterionId": "P-MFCARRY-CARRY",
+          "description": "完成损益结转至应付收益",
+          "weight": 8,
+          "evidenceRequirement": "4103、4104和2232金额连续",
+          "evidenceRules": [
+            {"fieldId": "carry-4103", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01},
+            {"fieldId": "carry-4104", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01},
+            {"fieldId": "payable-before-distribution", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFCARRY-CALC"
+        },
+        {
+          "criterionId": "P-MFCARRY-LEDGER",
+          "description": "完成费用计提、再投资和现金支付凭证",
+          "weight": 10,
+          "evidenceRequirement": "运营费用、应付费用、应付收益、实收基金和银行存款科目正确",
+          "evidenceRules": [
+            {"fieldId": "settlement-split", "operator": "EQUALS", "expected": "REINVEST_AND_CASH"},
+            {"fieldId": "fee-debit", "operator": "CONTAINS_ALL", "expected": ["运营费用"]},
+            {"fieldId": "fee-credit", "operator": "CONTAINS_ALL", "expected": ["应付费用"]},
+            {"fieldId": "reinvest-debit", "operator": "CONTAINS_ALL", "expected": ["应付收益", "2232"]},
+            {"fieldId": "reinvest-credit", "operator": "CONTAINS_ALL", "expected": ["实收基金", "4001"]},
+            {"fieldId": "cash-payment-debit", "operator": "CONTAINS_ALL", "expected": ["应付收益", "2232"]},
+            {"fieldId": "cash-payment-credit", "operator": "CONTAINS_ALL", "expected": ["银行存款"]},
+            {"fieldId": "distribution-total-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFCARRY-LEDGER"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "RISK-MFCARRY-LAYER",
+          "description": "控制资产交易费重复进入运营损益",
+          "weight": 9,
+          "evidenceRequirement": "资产交易费边界、运营费用和费用凭证一致",
+          "evidenceRules": [
+            {"fieldId": "asset-fee-layer", "operator": "EQUALS", "expected": "EXCLUDE_ASSET_TRADE"},
+            {"fieldId": "operating-fee-total", "operator": "NUMBER_EQUALS", "expected": 3200, "tolerance": 0.01},
+            {"fieldId": "fee-debit", "operator": "CONTAINS_ALL", "expected": ["运营费用"]}
+          ],
+          "remediationTargetId": "R-MFCARRY-LAYER"
+        },
+        {
+          "criterionId": "RISK-MFCARRY-MODE",
+          "description": "控制日结/月结方式和2232余额处理错误",
+          "weight": 8,
+          "evidenceRequirement": "月结方式、分配拆分和分配后2232正确",
+          "evidenceRules": [
+            {"fieldId": "period-mode", "operator": "EQUALS", "expected": "MONTHLY"},
+            {"fieldId": "settlement-split", "operator": "EQUALS", "expected": "REINVEST_AND_CASH"},
+            {"fieldId": "payable-after-distribution", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "distribution-total-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFCARRY-DISTRIBUTION"
+        },
+        {
+          "criterionId": "RISK-MFCARRY-CLOSE",
+          "description": "控制再投资份额、现金支付和应付收益不闭合",
+          "weight": 8,
+          "evidenceRequirement": "期末份额、现金、两个分配差额和总结果均正确",
+          "evidenceRules": [
+            {"fieldId": "ending-units", "operator": "NUMBER_EQUALS", "expected": 6807000, "tolerance": 0},
+            {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 3745000, "tolerance": 0.01},
+            {"fieldId": "unit-reinvest-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "cash-payment-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFCARRY-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-MFCARRY-RESULT",
+          "description": "形成包含费用层、结转链、分配和余额的短结论",
+          "weight": 20,
+          "evidenceRequirement": "结论覆盖资产交易费边界、4103/4104/2232、再投资、现金支付和闭合",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["资产交易费", "不进入运营费用", "4103", "4104", "2232", "7000", "5000", "闭合"]},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFCARRY-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-MFCARRY-LAYER-FLOW",
+      "description": "运营费用不得吸收资产交易费，净结果必须经4103、4104结转至2232",
+      "evidenceRequirement": "费用层、收入/费用净结果、4103、4104和2232分配前余额全部闭合",
+      "evidenceRules": [
+        {"fieldId": "asset-fee-layer", "operator": "EQUALS", "expected": "EXCLUDE_ASSET_TRADE"},
+        {"fieldId": "income-total", "operator": "NUMBER_EQUALS", "expected": 15200, "tolerance": 0.01},
+        {"fieldId": "operating-fee-total", "operator": "NUMBER_EQUALS", "expected": 3200, "tolerance": 0.01},
+        {"fieldId": "realized-profit", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01},
+        {"fieldId": "carry-4103", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01},
+        {"fieldId": "carry-4104", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01},
+        {"fieldId": "payable-before-distribution", "operator": "NUMBER_EQUALS", "expected": 12000, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-MFCARRY-LAYER"
+    },
+    {
+      "requirementId": "M-MFCARRY-DISTRIBUTION-CLOSE",
+      "description": "月末应付收益按批准分配方式完成再投资与现金支付并清零",
+      "evidenceRequirement": "分配拆分、份额、现金、2232和四项差额全部一致",
+      "evidenceRules": [
+        {"fieldId": "period-mode", "operator": "EQUALS", "expected": "MONTHLY"},
+        {"fieldId": "settlement-split", "operator": "EQUALS", "expected": "REINVEST_AND_CASH"},
+        {"fieldId": "reinvest-amount", "operator": "NUMBER_EQUALS", "expected": 7000, "tolerance": 0.01},
+        {"fieldId": "cash-payment-amount", "operator": "NUMBER_EQUALS", "expected": 5000, "tolerance": 0.01},
+        {"fieldId": "payable-after-distribution", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "ending-units", "operator": "NUMBER_EQUALS", "expected": 6807000, "tolerance": 0},
+        {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 3745000, "tolerance": 0.01},
+        {"fieldId": "distribution-total-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "unit-reinvest-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+        {"fieldId": "cash-payment-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-MFCARRY-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-MFCARRY-LAYER", "title": "区分资产交易费与运营费用", "reason": "把EIR资产交易费重复计入运营费用或运营费用凭证层次错误", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-CARRY-KC-01", "questionId": "ACC-MF-CARRY-Q-01"},
+    {"targetId": "R-MFCARRY-CALC", "title": "复算运营净结果与结转", "reason": "收入、运营费用、4103、4104或2232金额未连续复算", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-MF-CARRY-Q-02"},
+    {"targetId": "R-MFCARRY-LEDGER", "title": "补全费用与分配凭证", "reason": "费用计提、再投资或现金支付的借贷科目未按层次填写", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-MF-CARRY-Q-03"},
+    {"targetId": "R-MFCARRY-DISTRIBUTION", "title": "识别日/月结分配方式", "reason": "日结或月结方式、再投资/现金支付金额和2232处理错误", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-CARRY-KC-03", "questionId": "ACC-MF-CARRY-Q-04"},
+    {"targetId": "R-MFCARRY-RECON", "title": "完成份额现金与应付收益闭合", "reason": "再投资份额、现金支付、2232或分配差额未清零", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-CARRY-Q-04"},
+    {"targetId": "R-MFCARRY-EXPRESSION", "title": "形成收益结转结论", "reason": "短结论遗漏费用层、结转链或分配闭合结果", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-CARRY-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "period-mode": "MONTHLY",
+      "asset-fee-layer": "EXCLUDE_ASSET_TRADE",
+      "settlement-split": "REINVEST_AND_CASH",
+      "day1-profit": 4100,
+      "day2-profit": 3900,
+      "day3-profit": 4000,
+      "income-total": 15200,
+      "operating-fee-total": 3200,
+      "realized-profit": 12000,
+      "carry-4103": 12000,
+      "carry-4104": 12000,
+      "payable-before-distribution": 12000,
+      "reinvest-amount": 7000,
+      "cash-payment-amount": 5000,
+      "ending-units": 6807000,
+      "ending-cash": 3745000,
+      "fee-debit": "运营费用",
+      "fee-credit": "应付费用",
+      "reinvest-debit": "应付收益（2232）",
+      "reinvest-credit": "实收基金（4001）",
+      "cash-payment-debit": "应付收益（2232）",
+      "cash-payment-credit": "银行存款",
+      "payable-after-distribution": 0,
+      "distribution-total-diff": 0,
+      "unit-reinvest-diff": 0,
+      "cash-payment-diff": 0,
+      "reconciliation-result": "BALANCED",
+      "result-note": "资产交易费110.00元属于EIR资产层，不进入运营费用；三日收入15,200.00元减运营费用3,200.00元得净结果12,000.00元，并经4103、4104结转至2232；月末7,000.00元红利再投形成6,807,000份，5,000.00元现金支付后银行现金3,745,000.00元，2232清零，份额、现金和分配合计闭合。"
+    }
+  }
+}

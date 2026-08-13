@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.6",
+  "version": "2026.08.7",
   "lines": [
     {
       "line": "CLEARING",
@@ -386,6 +386,68 @@
                   "order": 5,
                   "position": "CENTER",
                   "prerequisiteNodeIds": ["ACC-NODE-ED-QUARTERLY-004"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "ACC-MODULE-MONEY-MARKET-FUND",
+              "name": "货币基金核算业务",
+              "order": 6,
+              "nodes": [
+                {
+                  "nodeId": "ACC-NODE-MF-FRAME-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-MF-FRAME-001",
+                  "title": "普通货币基金估值框架与日终资产承接",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FI-VALUATION-004"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-MF-EIR-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-MF-EIR-002",
+                  "title": "资产实际利率、溢折价与摊余成本日计提",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-MF-FRAME-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-MF-TA-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-MF-TA-003",
+                  "title": "TA份额、申赎与资产/资金时序勾稽",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-MF-EIR-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-MF-CARRY-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-MF-CARRY-004",
+                  "title": "运营费用、损益结转与日/月收益分配",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-MF-TA-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-MF-YIELD-005",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-MF-YIELD-005",
+                  "title": "偏离、期限/存续期、收益指标与节假日披露",
+                  "pathType": "REQUIRED",
+                  "order": 5,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-MF-CARRY-004"],
                   "contentAvailability": "PUBLISHED"
                 }
               ]

@@ -1,0 +1,299 @@
+{
+  "routeId": "ACC-MF-FRAME-001",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "普通货币基金估值框架与日终资产承接",
+  "summary": "从批准参数、摊余成本估值表、影子定价结果、TA确认和负债台账分别取数，闭合成本NAV、影子NAV、份额单位结果与跨来源勾稽。",
+  "estimatedMinutes": 55,
+  "objectives": [
+    "区分本题批准口径、摊余成本账面结果和影子定价结果的来源与用途",
+    "用资产合计减负债合计复算摊余成本口径NAV和影子定价口径NAV",
+    "核对普通货币基金份额乘以1.000000的成本单位结果，并保持影子单位结果单独呈现",
+    "在日终资产承接前完成估值、TA确认、负债台账和第二来源之间的正常勾稽"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "MF-FRAME-KC-01",
+          "type": "CATEGORIES",
+          "title": "先分开三条证据链",
+          "conclusion": "批准参数决定本题采用的计算口径；摊余成本表形成账面NAV；影子定价形成同日比较NAV，三者不能互相替代。",
+          "items": [
+            "批准参数：本题的估值方法、精度和单位表示",
+            "成本估值表：账面资产、负债和摊余成本口径NAV",
+            "影子定价表：按市场利率和交易价格重估后的比较结果"
+          ]
+        },
+        {
+          "cardId": "MF-FRAME-KC-02",
+          "type": "FLOW",
+          "title": "NAV从资产和负债闭合",
+          "conclusion": "先分别合计资产和负债，再用资产合计减负债合计得到NAV，最后用TA确认份额复算单位结果。",
+          "items": [
+            "资产合计 = 持有资产 + 银行存款 + 应收项目",
+            "NAV = 资产合计 − 负债合计",
+            "成本单位结果 = 成本NAV ÷ 已确认份额；本题普通货币基金按1.000000表示"
+          ]
+        },
+        {
+          "cardId": "MF-FRAME-KC-03",
+          "type": "KEY_POINT",
+          "title": "影子结果用于比较，不自动改账",
+          "conclusion": "影子NAV和成本NAV的差额要先完成来源、公式和版本勾稽；没有批准动作时，不能直接把影子结果写回账面。",
+          "items": [
+            "影子NAV = 影子资产合计 − 同口径负债合计",
+            "影子单位结果与成本单位结果分别列示",
+            "日终资产承接以已核对的正常账面结果为基础，并保留比较结果"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品甲的组合核算人员",
+        "product": "案例产品甲 / 普通货币基金",
+        "date": "2026-08-12 日终",
+        "facts": [
+          "本题按普通货币基金的批准参数采用摊余成本账面结果；份额单位结果按1.000000展示。",
+          "成本估值表列示债券摊余成本9,420,000元、银行存款620,000元、应收利息28,000元；负债台账列示应付费用68,000元。",
+          "影子定价表将同一债券重估为9,382,000元，银行存款、应收利息和负债保持不变。",
+          "TA确认单列示已确认份额10,000,000份；本题所有金额为脱敏合成数值。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "先读取批准参数、成本估值表、影子定价表、负债台账和TA确认单，确认各来源的用途与确认状态",
+          "reason": "系统生成结果、TA指令和影子比较结果分别证明不同事实，不能只看一张表就承接日终结果。"
+        },
+        {
+          "order": 2,
+          "action": "成本口径资产合计为9,420,000 + 620,000 + 28,000 = 10,068,000元，成本NAV为10,068,000 − 68,000 = 10,000,000元",
+          "reason": "账面NAV必须由资产与负债两端闭合，不能把资产合计直接当成净资产。"
+        },
+        {
+          "order": 3,
+          "action": "影子资产合计为9,382,000 + 620,000 + 28,000 = 10,030,000元，影子NAV为10,030,000 − 68,000 = 9,962,000元",
+          "reason": "影子定价只替换被重估的资产金额，其他已确认资产和负债沿用同一日的可核对来源。"
+        },
+        {
+          "order": 4,
+          "action": "成本单位结果为10,000,000 ÷ 10,000,000 = 1.000000；影子单位结果为9,962,000 ÷ 10,000,000 = 0.996200",
+          "reason": "普通货币基金成本口径的份额单位表示与影子比较结果必须分开，不能用影子结果覆盖成本单位表示。"
+        },
+        {
+          "order": 5,
+          "action": "用成本估值表、负债台账、TA确认单与第二来源逐项勾稽，确认资产、负债、份额、单位结果和影子比较均有依据后再完成日终承接",
+          "reason": "日终承接的完成条件是来源、计算和下游结果一致，而不是某个系统任务显示成功。"
+        }
+      ],
+      "summary": "来源分层 → 成本资产与NAV → 影子资产与NAV → 份额单位结果 → 跨来源勾稽与日终承接"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-MF-FRAME-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把本题资料中的关键字段对应到其业务含义。",
+          "fieldMappings": [
+            {
+              "fieldId": "valuation-method",
+              "label": "普通货币基金的账面估值依据",
+              "source": "批准参数卡",
+              "options": [
+                {"optionId": "CARRYING_COST", "text": "摊余成本账面口径"},
+                {"optionId": "SHADOW_PRICE", "text": "影子定价比较口径"}
+              ]
+            },
+            {
+              "fieldId": "cost-assets",
+              "label": "摊余成本口径资产合计10,068,000元",
+              "source": "成本估值表",
+              "options": [
+                {"optionId": "ASSET_TOTAL", "text": "账面资产合计"},
+                {"optionId": "NAV_RESULT", "text": "净资产结果"}
+              ]
+            },
+            {
+              "fieldId": "liability-total",
+              "label": "应付费用68,000元",
+              "source": "负债台账",
+              "options": [
+                {"optionId": "LIABILITY_TOTAL", "text": "日终负债合计"},
+                {"optionId": "UNIT_BALANCE", "text": "已确认份额"}
+              ]
+            },
+            {
+              "fieldId": "units",
+              "label": "TA确认份额10,000,000份",
+              "source": "TA确认单",
+              "options": [
+                {"optionId": "UNIT_BALANCE", "text": "已确认份额余额"},
+                {"optionId": "SHADOW_NAV", "text": "影子定价净资产"}
+              ]
+            }
+          ],
+          "answer": ["CARRYING_COST", "ASSET_TOTAL", "LIABILITY_TOTAL", "UNIT_BALANCE"],
+          "explanation": "成本估值表提供账面资产，负债台账提供负债，TA确认单提供份额；影子定价是同日比较来源。",
+          "hints": ["先看字段来自哪一类资料，再判断它在NAV关系中的位置。"]
+        },
+        {
+          "questionId": "ACC-MF-FRAME-Q-02",
+          "type": "CALCULATION",
+          "prompt": "按本题资料分别计算成本口径和影子定价口径的资产、NAV及单位结果。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "cost-assets", "label": "成本口径资产合计", "formula": "9,420,000 + 620,000 + 28,000", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "cost-nav", "label": "成本口径NAV", "formula": "10,068,000 − 68,000", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "cost-unit-nav", "label": "成本单位结果", "formula": "10,000,000 ÷ 10,000,000", "placeholder": "输入单位结果", "unit": "元/份", "precision": 6, "tolerance": 0.000001},
+              {"fieldId": "shadow-assets", "label": "影子定价资产合计", "formula": "9,382,000 + 620,000 + 28,000", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "shadow-nav", "label": "影子定价NAV", "formula": "10,030,000 − 68,000", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "shadow-unit-nav", "label": "影子单位结果", "formula": "9,962,000 ÷ 10,000,000", "placeholder": "输入单位结果", "unit": "元/份", "precision": 6, "tolerance": 0.000001}
+            ]
+          },
+          "answer": ["10068000", "10000000", "1.000000", "10030000", "9962000", "0.996200"],
+          "explanation": "成本NAV和影子NAV都先由资产减负债得到，再分别除以已确认份额；本题成本单位结果为1.000000。",
+          "hints": ["资产合计不是NAV；单位结果的分母使用TA确认份额。"]
+        },
+        {
+          "questionId": "ACC-MF-FRAME-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全一个已确认净申购的TA确认凭证，用于识别确认状态，不改变本题成本NAV计算。",
+          "ledgerEntries": [
+            {"entryId": "ta-debit", "direction": "借", "label": "已确认净申购180,000元/份", "amount": "180,000.00元", "placeholder": "输入借方科目"},
+            {"entryId": "ta-credit", "direction": "贷", "label": "已确认净申购180,000元/份", "amount": "180,000.00元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["应收申购款", "实收基金（4001）"],
+          "explanation": "货币基金TA确认凭证区分应收申购款与实收基金；未确认指令或未核对流水不能直接当作已确认份额。",
+          "hints": ["先按借贷方向识别应收项与份额权益项，不要把影子NAV写入凭证。"]
+        },
+        {
+          "questionId": "ACC-MF-FRAME-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "完成成本NAV、份额和第二来源的日终勾稽。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "asset-total", "label": "资产合计", "kind": "NUMBER", "formula": "9,420,000 + 620,000 + 28,000", "placeholder": "输入资产合计", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "liability-total", "label": "负债合计", "kind": "NUMBER", "formula": "应付费用台账", "placeholder": "输入负债合计", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "nav", "label": "成本口径NAV", "kind": "NUMBER", "formula": "资产合计 − 负债合计", "placeholder": "输入NAV", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "units", "label": "已确认份额", "kind": "NUMBER", "formula": "TA确认单", "placeholder": "输入份额", "precision": 0, "tolerance": 0},
+              {"fieldId": "unit-nav", "label": "成本单位结果", "kind": "NUMBER", "formula": "NAV ÷ 已确认份额", "placeholder": "输入单位结果", "precision": 6, "tolerance": 0.000001},
+              {"fieldId": "result", "label": "跨来源勾稽结论", "kind": "SELECT", "formula": "资产、负债、NAV、份额和单位结果均可复算", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "勾稽一致"}, {"optionId": "UNBALANCED", "text": "存在未解释差异"}]}
+            ]
+          },
+          "answer": ["10068000", "68000", "10000000", "10000000", "1.000000", "BALANCED"],
+          "explanation": "成本估值表、负债台账和TA确认单共同闭合成本NAV及单位结果。",
+          "hints": ["把资产、负债和份额分开复算，最后再选择勾稽结论。"]
+        },
+        {
+          "questionId": "ACC-MF-FRAME-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话说明本题成本单位结果、影子定价结果和日终承接前的控制结论。",
+          "textInput": {"label": "日终承接结论", "placeholder": "写明成本单位、影子比较和跨来源勾稽"},
+          "answer": ["成本口径", "影子NAV", "1.000000", "跨源勾稽一致"],
+          "explanation": "合格结论应说明成本口径单位结果为1.000000，影子NAV仅作比较，并确认跨来源勾稽一致。",
+          "hints": ["不要只写“系统成功”，要同时写结果用途和勾稽状态。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品乙的组合核算人员",
+        "product": "案例产品乙 / 普通货币基金",
+        "date": "2026-08-18 日终",
+        "purpose": "根据一组完整脱敏资料，独立完成成本NAV、影子NAV、份额单位结果、TA确认凭证和资产负债跨来源勾稽；本路线综合案例为独立脱敏批次，不承接其他路线的金额、份额或余额，仅复用前置字段定义。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "MF-FRAME-C-PARAM",
+          "title": "本案例批准参数字典",
+          "kind": "PARAMETER",
+          "description": "本参数字典只约束案例产品乙的表示、精度和来源边界，不替代当前业务制度；本路线案例为独立脱敏批次，不承接其他路线的金额、份额或余额。",
+          "fields": [
+            {"fieldId": "valuation-basis", "label": "账面与比较口径", "value": "账面采用题面摊余成本结果；影子定价只用于同日比较"},
+            {"fieldId": "unit-nav-display", "label": "成本单位结果表示", "value": "成本NAV÷已确认份额；本题普通货币基金按1.000000表示"},
+            {"fieldId": "rounding", "label": "精度与容差", "value": "NAV金额保留2位；单位结果保留6位；金额容差0.01元；单位容差0.000001"},
+            {"fieldId": "ta-status", "label": "TA状态", "value": "净申购已确认；确认金额与份额按本题1.000000表示，不把未确认指令当作已入账"},
+            {"fieldId": "threshold", "label": "偏离处理范围", "value": "本题只计算影子差额，不设置历史阈值或永久处置规则"}
+          ]
+        },
+        {
+          "materialId": "MF-FRAME-C-VALUATION",
+          "title": "成本与影子估值表摘要",
+          "kind": "VALUATION",
+          "description": "同一估值日的成本口径、影子口径和负债结果。",
+          "fields": [
+            {"fieldId": "bond-carrying", "label": "债券摊余成本", "value": "7,860,000.00", "unit": "元"},
+            {"fieldId": "bank-balance", "label": "银行存款", "value": "1,240,000.00", "unit": "元"},
+            {"fieldId": "receivable-interest", "label": "应收利息", "value": "16,000.00", "unit": "元"},
+            {"fieldId": "cost-assets", "label": "成本口径资产合计", "value": "9,116,000.00", "unit": "元"},
+            {"fieldId": "payable-fees", "label": "应付费用", "value": "116,000.00", "unit": "元"},
+            {"fieldId": "cost-nav", "label": "成本口径NAV", "value": "9,000,000.00", "unit": "元"},
+            {"fieldId": "bond-shadow", "label": "债券影子定价金额", "value": "7,912,000.00", "unit": "元"},
+            {"fieldId": "shadow-assets", "label": "影子口径资产合计", "value": "9,168,000.00", "unit": "元"},
+            {"fieldId": "shadow-nav", "label": "影子口径NAV", "value": "9,052,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "MF-FRAME-C-TA",
+          "title": "TA确认单摘要",
+          "kind": "CONFIRMATION",
+          "description": "管理人TA已确认的正常净申购与估值日份额余额。",
+          "fields": [
+            {"fieldId": "net-subscription", "label": "当日已确认净申购", "value": "180,000.00", "unit": "元"},
+            {"fieldId": "confirmed-units", "label": "估值日已确认份额", "value": "9,000,000", "unit": "份"},
+            {"fieldId": "ta-status", "label": "确认状态", "value": "已确认，已与TA来源核对"}
+          ]
+        },
+        {
+          "materialId": "MF-FRAME-C-CROSS-SOURCE",
+          "title": "资产负债第二来源",
+          "kind": "RECONCILIATION",
+          "description": "用于独立复算成本估值表的资产、负债和份额结果。",
+          "fields": [
+            {"fieldId": "holdings-ledger", "label": "持仓台账债券摊余成本", "value": "7,860,000.00", "unit": "元"},
+            {"fieldId": "bank-statement", "label": "银行对账单余额", "value": "1,240,000.00", "unit": "元"},
+            {"fieldId": "interest-ledger", "label": "应收利息台账", "value": "16,000.00", "unit": "元"},
+            {"fieldId": "liability-ledger", "label": "负债台账", "value": "116,000.00", "unit": "元"},
+            {"fieldId": "source-units", "label": "TA确认份额", "value": "9,000,000", "unit": "份"}
+          ]
+        },
+        {
+          "materialId": "MF-FRAME-C-TA-VOUCHER",
+          "title": "已确认净申购凭证摘要",
+          "kind": "VOUCHER",
+          "description": "仅用于补全TA确认凭证方向，不把凭证金额重复加到已给出的日终份额余额。",
+          "fields": [
+            {"fieldId": "voucher-amount", "label": "本次确认金额", "value": "180,000.00", "unit": "元"},
+            {"fieldId": "voucher-status", "label": "凭证状态", "value": "正常生成并已与TA确认单核对"}
+          ]
+        }
+      ],
+      "workItems": [
+        {"workItemId": "valuation-source", "type": "FIELD_MAP", "title": "选择账面估值来源", "instruction": "选择本案例账面结果应采用的来源口径。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_PARAMETER", "text": "本案例批准参数与成本估值表"}, {"optionId": "HISTORICAL_RULE", "text": "沿用历史规则或旧截图"}]}},
+        {"workItemId": "cost-asset-total", "type": "CALCULATION", "title": "复算成本口径资产合计", "instruction": "用债券摊余成本、银行存款和应收利息相加。", "response": {"kind": "NUMBER", "placeholder": "输入资产合计", "unit": "元", "precision": 2}},
+        {"workItemId": "cost-liability-total", "type": "CALCULATION", "title": "读取成本口径负债合计", "instruction": "从负债台账读取应付费用合计。", "response": {"kind": "NUMBER", "placeholder": "输入负债合计", "unit": "元", "precision": 2}},
+        {"workItemId": "cost-nav", "type": "CALCULATION", "title": "复算成本口径NAV", "instruction": "用成本口径资产合计减负债合计。", "response": {"kind": "NUMBER", "placeholder": "输入成本NAV", "unit": "元", "precision": 2}},
+        {"workItemId": "shadow-asset-total", "type": "CALCULATION", "title": "复算影子口径资产合计", "instruction": "用影子定价债券金额、银行存款和应收利息相加。", "response": {"kind": "NUMBER", "placeholder": "输入影子资产合计", "unit": "元", "precision": 2}},
+        {"workItemId": "shadow-nav", "type": "CALCULATION", "title": "复算影子口径NAV", "instruction": "用影子口径资产合计减同口径负债合计。", "response": {"kind": "NUMBER", "placeholder": "输入影子NAV", "unit": "元", "precision": 2}},
+        {"workItemId": "cost-unit-nav", "type": "CALCULATION", "title": "复算成本单位结果", "instruction": "用成本NAV除以TA确认份额，并按本题精度填写。", "response": {"kind": "NUMBER", "placeholder": "输入单位结果", "unit": "元/份", "precision": 6}},
+        {"workItemId": "shadow-unit-nav", "type": "CALCULATION", "title": "复算影子单位结果", "instruction": "用影子NAV除以TA确认份额，独立于成本单位结果填写。", "response": {"kind": "NUMBER", "placeholder": "输入影子单位结果", "unit": "元/份", "precision": 6}},
+        {"workItemId": "shadow-gap", "type": "CALCULATION", "title": "计算影子与成本NAV差额", "instruction": "用影子NAV减成本NAV；本题只记录差额，不套用历史阈值。", "response": {"kind": "NUMBER", "placeholder": "输入NAV差额", "unit": "元", "precision": 2}},
+        {"workItemId": "ta-debit", "type": "LEDGER_ENTRY", "title": "补全TA确认借方", "instruction": "填写已确认净申购凭证的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入借方科目"}},
+        {"workItemId": "ta-credit", "type": "LEDGER_ENTRY", "title": "补全TA确认贷方", "instruction": "填写已确认净申购凭证的贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}},
+        {"workItemId": "asset-cross-source", "type": "RECONCILIATION", "title": "完成资产第二来源勾稽", "instruction": "核对持仓台账、银行对账单、应收利息台账与成本估值表的资产合计。", "response": {"kind": "NUMBER", "placeholder": "输入资产差额", "unit": "元", "precision": 2}},
+        {"workItemId": "liability-cross-source", "type": "RECONCILIATION", "title": "完成负债第二来源勾稽", "instruction": "核对负债台账与成本估值表的应付费用。", "response": {"kind": "NUMBER", "placeholder": "输入负债差额", "unit": "元", "precision": 2}},
+        {"workItemId": "unit-value-product", "type": "RECONCILIATION", "title": "核对份额乘单位结果", "instruction": "用已确认份额乘以成本单位结果，核对是否回到成本NAV。", "response": {"kind": "NUMBER", "placeholder": "输入份额乘单位结果", "unit": "元", "precision": 2}},
+        {"workItemId": "reconciliation-result", "type": "RECONCILIATION", "title": "选择总勾稽结论", "instruction": "资产、负债、NAV、份额、单位结果和TA凭证均能由资料包复算时，选择结论。", "response": {"kind": "SELECT", "placeholder": "选择勾稽结论", "options": [{"optionId": "BALANCED", "text": "资产、负债、NAV、份额和单位结果勾稽一致"}, {"optionId": "UNBALANCED", "text": "仍有未解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "记录日终资产承接结论", "instruction": "用一句话写明成本NAV、影子NAV、成本单位结果、份额乘单位结果和跨来源勾稽状态。", "response": {"kind": "TEXT", "placeholder": "输入可追溯的日终结论"}}
+      ],
+      "submissionNote": "提交前请按顺序复核批准参数、成本与影子资产、负债、TA确认状态、单位结果和第二来源。提交后将形成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {"referenceId": "ACC-REF-MF-MAIN-DOC-202306", "title": "货币市场基金核算业务介绍（DOCX）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.docx；P016、P019、P024-P025、P137-P146、P193-P201、P252-P269；T01-T02", "usage": "摊余成本与影子定价关系、TA确认及结转边界、偏离金额/偏离度、普通货币基金份额和开放日/节假日收益披露的资料来源。"},
+    {"referenceId": "ACC-REF-MF-MAIN-PPT-202306", "title": "货币市场基金核算业务介绍（PPTX）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.pptx；S06-S07、S09、S12-S14", "usage": "摊余成本、影子定价、普通货币基金特点、实际利率/TA/费用/结转的结构证据；不复制历史截图数字。"},
+    {"referenceId": "ACC-REF-MF-FRAME-CASE-PARAMETERS-202608", "title": "本路线题面批准脱敏参数", "source": "ACC-MF-FRAME-001 综合实务资料包中的 MF-FRAME-C-PARAM（2026.08 版本）", "usage": "只约束本题的估值来源、精度、份额单位表示和影子差额记录方式，不替代当前业务制度。"}
+  ]
+}

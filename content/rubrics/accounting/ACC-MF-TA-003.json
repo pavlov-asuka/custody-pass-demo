@@ -1,0 +1,228 @@
+{
+  "routeId": "ACC-MF-TA-003",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-MFTA-TIMING",
+          "description": "区分T日指令与T+1确认、到账时点",
+          "weight": 10,
+          "evidenceRequirement": "申请、确认和到账日期分别正确",
+          "evidenceRules": [
+            {"fieldId": "instruction-timing", "operator": "EQUALS", "expected": "T_APPLY_T1_CONFIRM"},
+            {"fieldId": "instruction-state", "operator": "EQUALS", "expected": "APPLICATION_NO_CONFIRMATION"},
+            {"fieldId": "cash-arrival-date", "operator": "EQUALS", "expected": "T_PLUS_1"}
+          ],
+          "remediationTargetId": "R-MFTA-TIMING"
+        },
+        {
+          "criterionId": "C-MFTA-UNIT",
+          "description": "理解批准单位结果与确认份额关系",
+          "weight": 8,
+          "evidenceRequirement": "单位换算口径、确认金额和净确认份额正确",
+          "evidenceRules": [
+            {"fieldId": "unit-basis", "operator": "EQUALS", "expected": "AMOUNT_TO_UNITS"},
+            {"fieldId": "confirmed-subscription-amount", "operator": "NUMBER_EQUALS", "expected": 375000, "tolerance": 0.01},
+            {"fieldId": "confirmed-redemption-amount", "operator": "NUMBER_EQUALS", "expected": 125000, "tolerance": 0.01},
+            {"fieldId": "net-confirmed-units", "operator": "NUMBER_EQUALS", "expected": 250000, "tolerance": 0}
+          ],
+          "remediationTargetId": "R-MFTA-AMOUNT"
+        },
+        {
+          "criterionId": "C-MFTA-STATE",
+          "description": "理解申请状态不形成最终份额或现金",
+          "weight": 7,
+          "evidenceRequirement": "T日份额和现金均不提前变化",
+          "evidenceRules": [
+            {"fieldId": "instruction-state", "operator": "EQUALS", "expected": "APPLICATION_NO_CONFIRMATION"},
+            {"fieldId": "t-day-unit-delta", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}
+          ],
+          "remediationTargetId": "R-MFTA-STATE"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-MFTA-READ",
+          "description": "完成T日指令与T+1确认资料读取",
+          "weight": 8,
+          "evidenceRequirement": "时点、状态和单位口径形成连续输入",
+          "evidenceRules": [
+            {"fieldId": "instruction-timing", "operator": "EQUALS", "expected": "T_APPLY_T1_CONFIRM"},
+            {"fieldId": "instruction-state", "operator": "EQUALS", "expected": "APPLICATION_NO_CONFIRMATION"},
+            {"fieldId": "unit-basis", "operator": "EQUALS", "expected": "AMOUNT_TO_UNITS"},
+            {"fieldId": "cash-arrival-date", "operator": "EQUALS", "expected": "T_PLUS_1"}
+          ],
+          "remediationTargetId": "R-MFTA-TIMING"
+        },
+        {
+          "criterionId": "P-MFTA-CALC",
+          "description": "完成确认金额、净资金、净份额、期末份额和现金计算",
+          "weight": 10,
+          "evidenceRequirement": "金额、份额和期末余额连续复算",
+          "evidenceRules": [
+            {"fieldId": "confirmed-subscription-amount", "operator": "NUMBER_EQUALS", "expected": 375000, "tolerance": 0.01},
+            {"fieldId": "confirmed-redemption-amount", "operator": "NUMBER_EQUALS", "expected": 125000, "tolerance": 0.01},
+            {"fieldId": "net-confirmed-cash", "operator": "NUMBER_EQUALS", "expected": 250000, "tolerance": 0.01},
+            {"fieldId": "net-confirmed-units", "operator": "NUMBER_EQUALS", "expected": 250000, "tolerance": 0},
+            {"fieldId": "ending-units", "operator": "NUMBER_EQUALS", "expected": 12850000, "tolerance": 0},
+            {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 4570000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFTA-AMOUNT"
+        },
+        {
+          "criterionId": "P-MFTA-LEDGER",
+          "description": "完成已确认申购凭证",
+          "weight": 6,
+          "evidenceRequirement": "确认申购借贷科目正确",
+          "evidenceRules": [
+            {"fieldId": "subscription-debit", "operator": "CONTAINS_ALL", "expected": ["应收申购款"]},
+            {"fieldId": "subscription-credit", "operator": "CONTAINS_ALL", "expected": ["实收基金", "4001"]}
+          ],
+          "remediationTargetId": "R-MFTA-LEDGER"
+        },
+        {
+          "criterionId": "P-MFTA-RECON",
+          "description": "完成管理人、TA和银行现金三方勾稽",
+          "weight": 6,
+          "evidenceRequirement": "三方差额为零且结果为BALANCED",
+          "evidenceRules": [
+            {"fieldId": "management-ta-unit-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "ta-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "management-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFTA-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "RISK-MFTA-EARLY",
+          "description": "控制把T日指令提前当作已确认份额",
+          "weight": 9,
+          "evidenceRequirement": "T日状态和T日份额变化正确",
+          "evidenceRules": [
+            {"fieldId": "instruction-state", "operator": "EQUALS", "expected": "APPLICATION_NO_CONFIRMATION"},
+            {"fieldId": "t-day-unit-delta", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}
+          ],
+          "remediationTargetId": "R-MFTA-STATE"
+        },
+        {
+          "criterionId": "RISK-MFTA-ARRIVAL",
+          "description": "控制确认日期与现金到账日期错位",
+          "weight": 8,
+          "evidenceRequirement": "T+1确认、T+1到账和现金差额正确",
+          "evidenceRules": [
+            {"fieldId": "instruction-timing", "operator": "EQUALS", "expected": "T_APPLY_T1_CONFIRM"},
+            {"fieldId": "cash-arrival-date", "operator": "EQUALS", "expected": "T_PLUS_1"},
+            {"fieldId": "ta-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFTA-TIMING"
+        },
+        {
+          "criterionId": "RISK-MFTA-THREE-WAY",
+          "description": "控制管理人台账、TA和银行现金来源不一致",
+          "weight": 8,
+          "evidenceRequirement": "份额、资金和三方结果均闭合",
+          "evidenceRules": [
+            {"fieldId": "ending-units", "operator": "NUMBER_EQUALS", "expected": 12850000, "tolerance": 0},
+            {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 4570000, "tolerance": 0.01},
+            {"fieldId": "management-ta-unit-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "management-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFTA-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-MFTA-RESULT",
+          "description": "形成包含时序、确认、到账和三方结果的短结论",
+          "weight": 20,
+          "evidenceRequirement": "结论覆盖T日申请不确认、T+1确认、份额/现金和三方勾稽",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["T日指令", "不确认", "T+1", "确认份额", "到账", "三方勾稽"]},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFTA-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-MFTA-TIMING-STATE",
+      "description": "T日申请不得提前形成份额和现金，T+1确认和到账时点必须正确",
+      "evidenceRequirement": "申请状态、T日份额变化、T+1确认和到账日期全部正确",
+      "evidenceRules": [
+        {"fieldId": "instruction-timing", "operator": "EQUALS", "expected": "T_APPLY_T1_CONFIRM"},
+        {"fieldId": "instruction-state", "operator": "EQUALS", "expected": "APPLICATION_NO_CONFIRMATION"},
+        {"fieldId": "cash-arrival-date", "operator": "EQUALS", "expected": "T_PLUS_1"},
+        {"fieldId": "t-day-unit-delta", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0}
+      ],
+      "remediationTargetId": "R-MFTA-TIMING"
+    },
+    {
+      "requirementId": "M-MFTA-THREE-WAY-CLOSE",
+      "description": "T+1确认份额、净到账、期末余额和三方勾稽必须闭合",
+      "evidenceRequirement": "份额、现金、凭证及管理人/TA/银行差额全部一致",
+      "evidenceRules": [
+        {"fieldId": "net-confirmed-cash", "operator": "NUMBER_EQUALS", "expected": 250000, "tolerance": 0.01},
+        {"fieldId": "net-confirmed-units", "operator": "NUMBER_EQUALS", "expected": 250000, "tolerance": 0},
+        {"fieldId": "ending-units", "operator": "NUMBER_EQUALS", "expected": 12850000, "tolerance": 0},
+        {"fieldId": "ending-cash", "operator": "NUMBER_EQUALS", "expected": 4570000, "tolerance": 0.01},
+        {"fieldId": "management-ta-unit-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+        {"fieldId": "ta-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "management-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-MFTA-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-MFTA-TIMING", "title": "识别T/T+1时序", "reason": "把申请、确认或到账日期放错，或把T日指令提前处理", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-TA-KC-01", "questionId": "ACC-MF-TA-Q-01"},
+    {"targetId": "R-MFTA-STATE", "title": "区分申请与确认状态", "reason": "T日提前形成份额或现金，未保留申请状态", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-TA-KC-01", "questionId": "ACC-MF-TA-Q-01"},
+    {"targetId": "R-MFTA-AMOUNT", "title": "复算确认金额与份额", "reason": "申购、赎回净额或1.000000单位结果换算错误", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-MF-TA-Q-02"},
+    {"targetId": "R-MFTA-LEDGER", "title": "补全TA确认凭证", "reason": "确认申购借贷科目或确认数量承接错误", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-MF-TA-Q-03"},
+    {"targetId": "R-MFTA-RECON", "title": "完成三方勾稽", "reason": "管理人台账、TA或银行现金未与同一T+1批次闭合", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-TA-Q-04"},
+    {"targetId": "R-MFTA-EXPRESSION", "title": "形成TA时序结论", "reason": "短结论遗漏申请不确认、T+1确认到账或三方结果", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-TA-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "instruction-timing": "T_APPLY_T1_CONFIRM",
+      "instruction-state": "APPLICATION_NO_CONFIRMATION",
+      "unit-basis": "AMOUNT_TO_UNITS",
+      "cash-arrival-date": "T_PLUS_1",
+      "confirmed-subscription-amount": 375000,
+      "confirmed-redemption-amount": 125000,
+      "net-confirmed-cash": 250000,
+      "net-confirmed-units": 250000,
+      "ending-units": 12850000,
+      "ending-cash": 4570000,
+      "t-day-unit-delta": 0,
+      "management-ta-unit-diff": 0,
+      "ta-cash-diff": 0,
+      "management-cash-diff": 0,
+      "subscription-debit": "应收申购款",
+      "subscription-credit": "实收基金（4001）",
+      "reconciliation-result": "BALANCED",
+      "result-note": "T日指令不确认最终份额和现金；T+1按TA确认申购375,000.00元、赎回125,000.00元，形成净确认份额250,000份并完成250,000.00元到账，期末份额12,850,000份，管理人台账、TA和银行现金三方勾稽一致。"
+    }
+  }
+}

@@ -1,0 +1,299 @@
+{
+  "routeId": "ACC-MF-CARRY-004",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "运营费用、损益结转与日/月收益分配",
+  "summary": "沿普通货币基金正常运营资料，区分资产交易费与运营费用，完成费用计提、损益结转、应付收益以及日结再投资和月结再投资/现金支付闭环。",
+  "estimatedMinutes": 65,
+  "objectives": [
+    "从批准费用资料区分资产交易费与管理费、托管费、销售服务费、银行费用和账户维护费等运营层金额",
+    "按收入、费用、本期利润已实现4103、收益分配已实现4104和应付收益2232完成损益结转",
+    "区分日结T+1红利再投与月结分配方式，按批准参数处理应付收益",
+    "用实收基金份额、银行现金和应付收益余额完成再投资/现金支付及正常闭环"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "MF-CARRY-KC-01",
+          "type": "CATEGORIES",
+          "title": "资产交易费与运营费用不跨层",
+          "conclusion": "资产交易费属于EIR资产层；管理费、托管费、销售服务费、银行费用和账户维护费属于本路线运营层，运营层金额只按本题批准参数计提。",
+          "items": [
+            "资产交易费进入取得工具的资产层，不重复放入本期运营费用",
+            "运营费按批准费用字典分别读取，不把历史费率当作永久制度",
+            "费用计提形成运营费用与应付费用，支付状态另由题面资料说明",
+            "本路线不重教EIR中的实际利率、溢折价或资产买卖处理"
+          ]
+        },
+        {
+          "cardId": "MF-CARRY-KC-02",
+          "type": "FLOW",
+          "title": "损益结转要经过三层余额",
+          "conclusion": "正常货币基金将收入和运营费用形成的净结果结转至本期利润已实现4103，再至收益分配已实现4104，最后形成应付收益2232。",
+          "items": [
+            "当期运营结果 = 收入合计 − 运营费用合计",
+            "本期利润已实现4103承接当期已实现的收入/费用结果",
+            "收益分配已实现4104再承接可分配的已实现结果",
+            "应付收益2232记录已结转但尚未按分配方式完成的收益"
+          ]
+        },
+        {
+          "cardId": "MF-CARRY-KC-03",
+          "type": "KEY_POINT",
+          "title": "日结与月结只按批准方式结清",
+          "conclusion": "日结T+1把上期应付收益按1.000000转入实收基金形成再投资份额；月结在批准结算日将2232按题面分配指令分成份额再投资和现金支付。",
+          "items": [
+            "T+1日结保留当日新形成的2232，次工作日转出上一日应付收益",
+            "月结期间2232按每日收益累计，结算日再执行批准的分配指令",
+            "红利再投金额 ÷ 1.000000 = 增加的实收基金份额",
+            "现金支付金额减少银行现金；两种结算金额合计应清零2232"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品甲的基金核算人员",
+        "product": "案例产品甲 / 普通货币基金",
+        "date": "2026-08-21",
+        "facts": [
+          "本题收入资料为投资收益7,800.00元和现金类收入600.00元；运营费用资料为管理费1,000.00元、托管费240.00元、销售服务费180.00元、银行费用60.00元和账户维护费20.00元。",
+          "运营费用合计1,500.00元，当日净结果为6,900.00元；另有资产交易费95.00元，仅作EIR资产层边界对照，不进入本路线运营费用。",
+          "案例甲为T+1日结型，期初应付收益2232为1,200.00元，期初实收基金份额为5,000,000份，单位结果按本题参数为1.000000。",
+          "当日净结果依次结转至4103、4104和2232；T+1分配上一日1,200.00元至4001实收基金，形成1,200份红利再投，期末2232余额为6,900.00元。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取收入、运营费用和资产交易费边界，确认收入合计8,400.00元、运营费用合计1,500.00元，资产交易费95.00元不进入运营层",
+          "reason": "费用所属层若混淆，会同时污染实际利率和当日运营损益。"
+        },
+        {
+          "order": 2,
+          "action": "计算当日净结果8,400.00−1,500.00=6,900.00元，并按费用计提资料保留运营费用与应付费用关系",
+          "reason": "当日收益分配必须建立在收入和运营费用已分别取数、可复算的基础上。"
+        },
+        {
+          "order": 3,
+          "action": "将6,900.00元从本期利润已实现4103结转至收益分配已实现4104，再结转至应付收益2232；2232累计为1,200.00+6,900.00=8,100.00元",
+          "reason": "4103、4104和2232是连续的损益/分配层，不能直接跳过中间层或把应付收益当作费用。"
+        },
+        {
+          "order": 4,
+          "action": "按T+1日结方式把上一日应付收益1,200.00元从2232转入4001实收基金，按1.000000形成1,200份再投资份额，留下当日6,900.00元在2232",
+          "reason": "T+1日结转出上一日余额，当日新结转收益仍保持为待分配应付收益。"
+        },
+        {
+          "order": 5,
+          "action": "核对期末份额5,001,200份、期末2232余额6,900.00元、资产交易费未进运营费用且结转路径完整，形成正常闭环",
+          "reason": "份额再投资和应付收益余额必须同时解释，不能只核对当日净结果。"
+        }
+      ],
+      "summary": "区分费用层 → 计算运营净结果 → 4103→4104→2232结转 → T+1红利再投 → 份额与应付收益闭合"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-MF-CARRY-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把案例甲费用、结转和分配字段对应到正确的业务层次。",
+          "fieldMappings": [
+            {"fieldId": "asset-trade-fee", "label": "资产交易费95.00元", "source": "资产交易资料", "options": [{"optionId": "EIR_ASSET_LAYER", "text": "留在EIR资产层，不计入本题运营费用"}, {"optionId": "OPERATING_LAYER", "text": "计入本题运营费用"}]},
+            {"fieldId": "operating-fees", "label": "管理费、托管费、销售服务费、银行费用和账户维护费", "source": "运营费用资料", "options": [{"optionId": "OPERATING_LAYER", "text": "计入运营费用并参与本期损益"}, {"optionId": "EIR_ASSET_LAYER", "text": "并入工具实际利率现金流"}]},
+            {"fieldId": "distribution-mode", "label": "案例甲分配方式", "source": "批准分配参数", "options": [{"optionId": "DAILY_T1_REINVEST", "text": "T+1日结，上一日应付收益红利再投"}, {"optionId": "MONTHLY_CASH", "text": "月结现金支付"}]}
+          ],
+          "answer": ["EIR_ASSET_LAYER", "OPERATING_LAYER", "DAILY_T1_REINVEST"],
+          "explanation": "资产交易费和运营费分别归属EIR资产层与本题运营层；案例甲按T+1日结再投资。",
+          "hints": ["先看金额改变的是工具成本还是基金运营结果，再看分配参数。"]
+        },
+        {
+          "questionId": "ACC-MF-CARRY-Q-02",
+          "type": "CALCULATION",
+          "prompt": "按案例甲资料计算收入合计、运营费用合计、当日净结果和2232结转前余额。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "income-total", "label": "收入合计", "formula": "7,800 + 600", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "operating-fee-total", "label": "运营费用合计", "formula": "1,000 + 240 + 180 + 60 + 20", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "realized-profit", "label": "当日净结果", "formula": "收入合计 − 运营费用合计", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "payable-before-distribution", "label": "2232结转后分配前余额", "formula": "1,200 + 当日净结果", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01}
+            ]
+          },
+          "answer": ["8400", "1500", "6900", "8100"],
+          "explanation": "收入合计8,400.00元，运营费用合计1,500.00元，当日净结果6,900.00元，分配前2232余额8,100.00元。",
+          "hints": ["资产交易费95.00元不进入运营费用合计。"]
+        },
+        {
+          "questionId": "ACC-MF-CARRY-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全案例甲运营费用计提和T+1红利再投凭证中的科目。",
+          "ledgerEntries": [
+            {"entryId": "fee-debit", "direction": "借", "label": "运营费用计提1,500.00元", "amount": "1,500.00元", "placeholder": "输入费用计提借方"},
+            {"entryId": "fee-credit", "direction": "贷", "label": "运营费用计提1,500.00元", "amount": "1,500.00元", "placeholder": "输入费用计提贷方"},
+            {"entryId": "reinvest-debit", "direction": "借", "label": "上一日应付收益红利再投1,200.00元", "amount": "1,200.00元", "placeholder": "输入再投借方"},
+            {"entryId": "reinvest-credit", "direction": "贷", "label": "上一日应付收益红利再投1,200.00元", "amount": "1,200.00元", "placeholder": "输入再投贷方"}
+          ],
+          "answer": ["运营费用", "应付费用", "应付收益（2232）", "实收基金（4001）"],
+          "explanation": "费用计提借运营费用、贷应付费用；T+1红利再投借应付收益（2232）、贷实收基金（4001）。",
+          "hints": ["费用计提和收益分配是两个不同层次的凭证。"]
+        },
+        {
+          "questionId": "ACC-MF-CARRY-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "完成案例甲T+1日结再投资、份额和应付收益余额勾稽。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "reinvest-amount", "label": "T+1红利再投金额", "kind": "NUMBER", "formula": "上一日2232余额=1,200", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "ending-units", "label": "期末份额", "kind": "NUMBER", "formula": "5,000,000 + 1,200 ÷ 1.000000", "placeholder": "输入份额", "precision": 0, "tolerance": 0},
+              {"fieldId": "ending-payable", "label": "期末2232应付收益", "kind": "NUMBER", "formula": "8,100 − 1,200", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "result", "label": "日结结果", "kind": "SELECT", "formula": "上一日应付收益再投、当日收益留在2232且份额闭合", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "日结再投与应付收益一致"}, {"optionId": "BROKEN", "text": "存在未解释差异"}]}
+            ]
+          },
+          "answer": ["1200", "5001200", "6900", "BALANCED"],
+          "explanation": "T+1只转出上一日1,200.00元，形成1,200份；当日新收益6,900.00元继续留在2232。",
+          "hints": ["不要把当日新结转收益一并提前转入4001。"]
+        },
+        {
+          "questionId": "ACC-MF-CARRY-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话说明运营费用、4103/4104/2232结转和T+1红利再投。",
+          "textInput": {"label": "收益结转结论", "placeholder": "写明费用层、三层结转、T+1再投和期末2232"},
+          "answer": ["资产交易费不进运营费用", "4103", "4104", "2232", "T+1", "红利再投"],
+          "explanation": "合格结论应同时说明费用分层、损益结转路径和T+1日结只转上一日应付收益。",
+          "hints": ["不要只写当日净结果，要写明余额如何分配。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品乙的基金核算人员",
+        "product": "案例产品乙 / 普通货币基金",
+        "date": "2026-09-28 至 2026-09-30",
+        "purpose": "根据三日正常运营资料和月结批准分配指令，独立完成费用层次、每日净结果、4103/4104/2232结转、份额再投资、现金支付和月末闭合；本路线综合案例为独立脱敏批次，不承接其他路线的金额、份额或余额，仅复用前置资产费用层字段定义。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "MF-CARRY-C-PARAM",
+          "title": "本案例批准运营与月结参数",
+          "kind": "PARAMETER",
+          "description": "只约束案例产品乙的三日数据、月结日、单位结果、金额精度和分配方式；本路线案例为独立脱敏批次，不承接其他路线的金额、份额或余额。",
+          "fields": [
+            {"fieldId": "period", "label": "月结资料期间", "value": "2026-09-28至2026-09-30"},
+            {"fieldId": "distribution-mode", "label": "收益分配方式", "value": "月结；2026-09-30执行本题批准分配指令"},
+            {"fieldId": "unit-result", "label": "红利再投单位结果", "value": "1.000000", "unit": "元/份"},
+            {"fieldId": "precision", "label": "精度与容差", "value": "金额保留2位；份额保留0位；金额容差0.01元；份额容差0份"},
+            {"fieldId": "asset-fee-boundary", "label": "资产交易费边界", "value": "资产交易费110.00元属于EIR资产层，不进入本案例运营费用"},
+            {"fieldId": "distribution-instruction", "label": "月末批准分配指令", "value": "应付收益12,000.00元中7,000.00元红利再投、5,000.00元现金支付"}
+          ]
+        },
+        {
+          "materialId": "MF-CARRY-C-DAILY-INCOME",
+          "title": "三日收入台账",
+          "kind": "STATEMENT",
+          "description": "按日期提供投资收益和现金类收入，可独立复算每日收入合计。",
+          "fields": [
+            {"fieldId": "day1-investment-income", "label": "9月28日投资收益", "value": "4,800.00", "unit": "元"},
+            {"fieldId": "day1-cash-income", "label": "9月28日现金类收入", "value": "400.00", "unit": "元"},
+            {"fieldId": "day2-investment-income", "label": "9月29日投资收益", "value": "4,500.00", "unit": "元"},
+            {"fieldId": "day2-cash-income", "label": "9月29日现金类收入", "value": "400.00", "unit": "元"},
+            {"fieldId": "day3-investment-income", "label": "9月30日投资收益", "value": "4,700.00", "unit": "元"},
+            {"fieldId": "day3-cash-income", "label": "9月30日现金类收入", "value": "400.00", "unit": "元"},
+            {"fieldId": "income-total", "label": "三日收入合计", "value": "15,200.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "MF-CARRY-C-FEE",
+          "title": "三日运营费用台账",
+          "kind": "LEDGER",
+          "description": "按运营层列示管理费、托管费、销售服务费、银行费用和账户维护费。",
+          "fields": [
+            {"fieldId": "management-fee", "label": "管理费", "value": "1,800.00", "unit": "元"},
+            {"fieldId": "custody-fee", "label": "托管费", "value": "600.00", "unit": "元"},
+            {"fieldId": "sales-service-fee", "label": "销售服务费", "value": "500.00", "unit": "元"},
+            {"fieldId": "bank-fee", "label": "银行费用", "value": "200.00", "unit": "元"},
+            {"fieldId": "account-maintenance-fee", "label": "账户维护费", "value": "100.00", "unit": "元"},
+            {"fieldId": "operating-fee-total", "label": "三日运营费用合计", "value": "3,200.00", "unit": "元"},
+            {"fieldId": "fee-status", "label": "费用状态", "value": "按本题批准资料正常计提；不含资产交易费"}
+          ]
+        },
+        {
+          "materialId": "MF-CARRY-C-CLOSING",
+          "title": "月末损益结转台账",
+          "kind": "LEDGER",
+          "description": "用于复核三日净结果以及4103、4104、2232的月末结转金额。",
+          "fields": [
+            {"fieldId": "day1-profit", "label": "9月28日净结果", "value": "4,100.00", "unit": "元"},
+            {"fieldId": "day2-profit", "label": "9月29日净结果", "value": "3,900.00", "unit": "元"},
+            {"fieldId": "day3-profit", "label": "9月30日净结果", "value": "4,000.00", "unit": "元"},
+            {"fieldId": "realized-profit", "label": "三日净结果合计", "value": "12,000.00", "unit": "元"},
+            {"fieldId": "carry-4103", "label": "结转至4103金额", "value": "12,000.00", "unit": "元"},
+            {"fieldId": "carry-4104", "label": "结转至4104金额", "value": "12,000.00", "unit": "元"},
+            {"fieldId": "payable-before-distribution", "label": "月末分配前2232", "value": "12,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "MF-CARRY-C-DISTRIBUTION",
+          "title": "月末批准收益分配指令",
+          "kind": "CONFIRMATION",
+          "description": "正常月结日按本题批准方式同时形成红利再投和现金支付两项结算。",
+          "fields": [
+            {"fieldId": "reinvest-amount", "label": "红利再投金额", "value": "7,000.00", "unit": "元"},
+            {"fieldId": "cash-payment-amount", "label": "现金支付金额", "value": "5,000.00", "unit": "元"},
+            {"fieldId": "distribution-total", "label": "分配合计", "value": "12,000.00", "unit": "元"},
+            {"fieldId": "distribution-status", "label": "分配状态", "value": "月末正常批准并完成"}
+          ]
+        },
+        {
+          "materialId": "MF-CARRY-C-BALANCE",
+          "title": "月末份额与现金余额表",
+          "kind": "STATEMENT",
+          "description": "用于核对再投资份额、现金支付后的银行余额和2232清零。",
+          "fields": [
+            {"fieldId": "opening-units", "label": "期初实收基金份额", "value": "6,800,000", "unit": "份"},
+            {"fieldId": "opening-cash", "label": "期初银行现金", "value": "3,750,000.00", "unit": "元"},
+            {"fieldId": "ending-units", "label": "月末实收基金份额", "value": "6,807,000", "unit": "份"},
+            {"fieldId": "ending-cash", "label": "月末银行现金", "value": "3,745,000.00", "unit": "元"},
+            {"fieldId": "ending-payable", "label": "分配后2232余额", "value": "0.00", "unit": "元"}
+          ]
+        }
+      ],
+      "workItems": [
+        {"workItemId": "period-mode", "type": "FIELD_MAP", "title": "识别月结方式", "instruction": "选择本题三日资料和月末分配指令对应的收益分配方式。", "response": {"kind": "SELECT", "placeholder": "选择方式", "options": [{"optionId": "MONTHLY", "text": "月结，月末统一按批准指令分配"}, {"optionId": "DAILY_T1", "text": "T+1日结，每日转出上一日余额"}]}},
+        {"workItemId": "asset-fee-layer", "type": "FIELD_MAP", "title": "识别资产交易费层次", "instruction": "选择110.00元资产交易费是否进入本案例运营费用。", "response": {"kind": "SELECT", "placeholder": "选择费用层", "options": [{"optionId": "EXCLUDE_ASSET_TRADE", "text": "属于EIR资产层，不进入运营费用"}, {"optionId": "INCLUDE_OPERATING", "text": "计入本案例运营费用"}]}},
+        {"workItemId": "settlement-split", "type": "FIELD_MAP", "title": "读取月末分配方式", "instruction": "选择12,000.00元应付收益的批准分配组合。", "response": {"kind": "SELECT", "placeholder": "选择分配组合", "options": [{"optionId": "REINVEST_AND_CASH", "text": "7,000.00元红利再投、5,000.00元现金支付"}, {"optionId": "ALL_REINVEST", "text": "全部红利再投"}]}},
+        {"workItemId": "day1-profit", "type": "CALCULATION", "title": "复算9月28日净结果", "instruction": "用9月28日收入合计减当日运营费用。", "response": {"kind": "NUMBER", "placeholder": "输入净结果", "unit": "元", "precision": 2}},
+        {"workItemId": "day2-profit", "type": "CALCULATION", "title": "复算9月29日净结果", "instruction": "用9月29日收入合计减当日运营费用。", "response": {"kind": "NUMBER", "placeholder": "输入净结果", "unit": "元", "precision": 2}},
+        {"workItemId": "day3-profit", "type": "CALCULATION", "title": "复算9月30日净结果", "instruction": "用9月30日收入合计减当日运营费用。", "response": {"kind": "NUMBER", "placeholder": "输入净结果", "unit": "元", "precision": 2}},
+        {"workItemId": "income-total", "type": "CALCULATION", "title": "复算三日收入合计", "instruction": "汇总三日投资收益和现金类收入。", "response": {"kind": "NUMBER", "placeholder": "输入收入", "unit": "元", "precision": 2}},
+        {"workItemId": "operating-fee-total", "type": "CALCULATION", "title": "复算运营费用合计", "instruction": "汇总管理费、托管费、销售服务费、银行费用和账户维护费。", "response": {"kind": "NUMBER", "placeholder": "输入费用", "unit": "元", "precision": 2}},
+        {"workItemId": "realized-profit", "type": "CALCULATION", "title": "复算三日净结果", "instruction": "用三日收入合计减三日运营费用合计。", "response": {"kind": "NUMBER", "placeholder": "输入净结果", "unit": "元", "precision": 2}},
+        {"workItemId": "carry-4103", "type": "CALCULATION", "title": "复算4103结转额", "instruction": "按三日正常已实现结果确定结转至本期利润已实现4103的金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "carry-4104", "type": "CALCULATION", "title": "复算4104结转额", "instruction": "按4103已实现结果确定结转至收益分配已实现4104的金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "payable-before-distribution", "type": "CALCULATION", "title": "复算月末分配前2232", "instruction": "读取三日累计已结转收益形成月末分配前应付收益。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "reinvest-amount", "type": "CALCULATION", "title": "读取红利再投金额", "instruction": "从月末批准分配指令读取红利再投金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "cash-payment-amount", "type": "CALCULATION", "title": "读取现金支付金额", "instruction": "从月末批准分配指令读取现金支付金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "ending-units", "type": "CALCULATION", "title": "复算再投资后份额", "instruction": "用期初份额加红利再投金额除以1.000000。", "response": {"kind": "NUMBER", "placeholder": "输入份额", "unit": "份", "precision": 0}},
+        {"workItemId": "ending-cash", "type": "CALCULATION", "title": "复算现金支付后余额", "instruction": "用期初银行现金减现金支付金额。", "response": {"kind": "NUMBER", "placeholder": "输入余额", "unit": "元", "precision": 2}},
+        {"workItemId": "fee-debit", "type": "LEDGER_ENTRY", "title": "补全运营费用计提借方", "instruction": "填写三日运营费用计提的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入借方科目"}},
+        {"workItemId": "fee-credit", "type": "LEDGER_ENTRY", "title": "补全运营费用计提贷方", "instruction": "填写三日运营费用计提的贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}},
+        {"workItemId": "reinvest-debit", "type": "LEDGER_ENTRY", "title": "补全红利再投借方", "instruction": "填写月末红利再投冲减应付收益的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入借方科目"}},
+        {"workItemId": "reinvest-credit", "type": "LEDGER_ENTRY", "title": "补全红利再投贷方", "instruction": "填写月末红利再投形成实收基金的贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}},
+        {"workItemId": "cash-payment-debit", "type": "LEDGER_ENTRY", "title": "补全现金支付借方", "instruction": "填写月末现金支付冲减应付收益的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入借方科目"}},
+        {"workItemId": "cash-payment-credit", "type": "LEDGER_ENTRY", "title": "补全现金支付贷方", "instruction": "填写月末现金支付的银行现金贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}},
+        {"workItemId": "payable-after-distribution", "type": "RECONCILIATION", "title": "核对分配后2232", "instruction": "用月末分配前2232减红利再投和现金支付金额。", "response": {"kind": "NUMBER", "placeholder": "输入余额", "unit": "元", "precision": 2}},
+        {"workItemId": "distribution-total-diff", "type": "RECONCILIATION", "title": "勾稽分配金额", "instruction": "比较红利再投与现金支付合计和分配前2232。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "unit-reinvest-diff", "type": "RECONCILIATION", "title": "勾稽再投资份额", "instruction": "比较红利再投金额按1.000000换算的份额与期末份额增加。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "份", "precision": 0}},
+        {"workItemId": "cash-payment-diff", "type": "RECONCILIATION", "title": "勾稽现金支付", "instruction": "比较现金支付指令与银行现金减少金额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "reconciliation-result", "type": "RECONCILIATION", "title": "选择月结闭合结论", "instruction": "核对费用、损益结转、2232、再投资份额和现金支付。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "费用、结转、应付收益、份额和现金闭合"}, {"optionId": "BROKEN", "text": "存在未解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "记录月结结论", "instruction": "用一句话写明资产交易费边界、运营净结果、4103/4104/2232、再投资、现金支付和闭合结果。", "response": {"kind": "TEXT", "placeholder": "输入可追溯的月结结论"}}
+      ],
+      "submissionNote": "提交前按费用层次、每日净结果、4103/4104/2232、月末分配指令、份额和现金顺序复核；不要把资产交易费重复计入运营费用。"
+    }
+  },
+  "references": [
+    {"referenceId": "ACC-REF-MF-MAIN-DOC-CARRY-202306", "title": "货币市场基金核算业务介绍（费用、结转与收益分配）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.docx；P160-P169、P180、P188-P190、T01；P172/P174/P182/P191的media对象；P176-P186及OMML2-5仅作收益指标边界定位", "usage": "运营费用类型、4103/4104/2232损益结转、T+0/T+1日结、月结红利再投和系统结转方式的原始证据；历史费率和截图数字不复制。"},
+    {"referenceId": "ACC-REF-MF-MAIN-PPT-CARRY-202306", "title": "货币市场基金核算业务介绍（费用与结转结构）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.pptx；S12-S15及其media对象", "usage": "资产交易费/运营费用边界、TA主题、费用与损益结转、日结/月结结构的连续证据；不把PPT历史参数固化为规则。"},
+    {"referenceId": "ACC-REF-MF-CARRY-CASE-PARAMETERS-202608", "title": "本路线题面批准脱敏参数", "source": "ACC-MF-CARRY-004综合实务资料包中的MF-CARRY-C-PARAM及关联资料（2026.08版本）", "usage": "只约束本案例费用金额、收入、日/月结方式、分配拆分、单位结果、精度和容差。"}
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "routeId": "ACC-MF-EIR-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-MFEIR-SOURCE",
+          "description": "从批准现金流和费用字段确定实际利率输入及所属层次",
+          "weight": 8,
+          "evidenceRequirement": "现金流、资产交易费和运营费来源选择正确",
+          "evidenceRules": [
+            {"fieldId": "cashflow-source", "operator": "EQUALS", "expected": "APPROVED_CASH_FLOW"},
+            {"fieldId": "asset-fee-layer", "operator": "EQUALS", "expected": "ASSET_LAYER"},
+            {"fieldId": "operating-fee-layer", "operator": "EQUALS", "expected": "OPERATING_LAYER"}
+          ],
+          "remediationTargetId": "R-MFEIR-SOURCE"
+        },
+        {
+          "criterionId": "C-MFEIR-RATE",
+          "description": "理解实际日利率和年化快照的计算关系",
+          "weight": 9,
+          "evidenceRequirement": "初始摊余成本、实际日利率和年化快照正确",
+          "evidenceRules": [
+            {"fieldId": "initial-carrying-amount", "operator": "NUMBER_EQUALS", "expected": 999700.479361, "tolerance": 0.01},
+            {"fieldId": "actual-daily-rate", "operator": "NUMBER_EQUALS", "expected": 0.0008, "tolerance": 0.0000000001},
+            {"fieldId": "annualized-rate-percent", "operator": "NUMBER_EQUALS", "expected": 33.89467, "tolerance": 0.000001}
+          ],
+          "remediationTargetId": "R-MFEIR-RATE"
+        },
+        {
+          "criterionId": "C-MFEIR-LAYERS",
+          "description": "理解实际利息收入、应收利息和溢折价摊销的差额关系",
+          "weight": 8,
+          "evidenceRequirement": "第1日三类金额形成可复算关系",
+          "evidenceRules": [
+            {"fieldId": "day1-interest-income", "operator": "NUMBER_EQUALS", "expected": 799.760383, "tolerance": 0.01},
+            {"fieldId": "day1-receivable-interest", "operator": "NUMBER_EQUALS", "expected": 700, "tolerance": 0.01},
+            {"fieldId": "day1-discount-amortization", "operator": "NUMBER_EQUALS", "expected": 99.760383, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFEIR-ROLLFORWARD"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-MFEIR-INITIAL",
+          "description": "完成初始资产金额和实际日利率的输入计算",
+          "weight": 8,
+          "evidenceRequirement": "初始摊余成本、现金流来源和实际日利率形成连续输入",
+          "evidenceRules": [
+            {"fieldId": "cashflow-source", "operator": "EQUALS", "expected": "APPROVED_CASH_FLOW"},
+            {"fieldId": "asset-fee-layer", "operator": "EQUALS", "expected": "ASSET_LAYER"},
+            {"fieldId": "operating-fee-layer", "operator": "EQUALS", "expected": "OPERATING_LAYER"},
+            {"fieldId": "initial-carrying-amount", "operator": "NUMBER_EQUALS", "expected": 999700.479361, "tolerance": 0.01},
+            {"fieldId": "actual-daily-rate", "operator": "NUMBER_EQUALS", "expected": 0.0008, "tolerance": 0.0000000001}
+          ],
+          "remediationTargetId": "R-MFEIR-RATE"
+        },
+        {
+          "criterionId": "P-MFEIR-ROLLFORWARD",
+          "description": "完成三日期初金额、实际利息、应收利息、摊销和期末余额的连续滚动",
+          "weight": 14,
+          "evidenceRequirement": "三日金额和期末摊余成本均可复算",
+          "evidenceRules": [
+            {"fieldId": "day1-interest-income", "operator": "NUMBER_EQUALS", "expected": 799.760383, "tolerance": 0.01},
+            {"fieldId": "day1-receivable-interest", "operator": "NUMBER_EQUALS", "expected": 700, "tolerance": 0.01},
+            {"fieldId": "day1-discount-amortization", "operator": "NUMBER_EQUALS", "expected": 99.760383, "tolerance": 0.01},
+            {"fieldId": "day1-ending-carrying", "operator": "NUMBER_EQUALS", "expected": 999800.239744, "tolerance": 0.01},
+            {"fieldId": "day2-interest-income", "operator": "NUMBER_EQUALS", "expected": 799.840192, "tolerance": 0.01},
+            {"fieldId": "day2-receivable-interest", "operator": "NUMBER_EQUALS", "expected": 700, "tolerance": 0.01},
+            {"fieldId": "day2-discount-amortization", "operator": "NUMBER_EQUALS", "expected": 99.840192, "tolerance": 0.01},
+            {"fieldId": "day2-ending-carrying", "operator": "NUMBER_EQUALS", "expected": 999900.079936, "tolerance": 0.01},
+            {"fieldId": "day3-interest-income", "operator": "NUMBER_EQUALS", "expected": 799.920064, "tolerance": 0.01},
+            {"fieldId": "day3-receivable-interest", "operator": "NUMBER_EQUALS", "expected": 700, "tolerance": 0.01},
+            {"fieldId": "day3-discount-amortization", "operator": "NUMBER_EQUALS", "expected": 99.920064, "tolerance": 0.01},
+            {"fieldId": "day3-ending-carrying", "operator": "NUMBER_EQUALS", "expected": 1000000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFEIR-ROLLFORWARD"
+        },
+        {
+          "criterionId": "P-MFEIR-LEDGER-CLOSURE",
+          "description": "完成每日计提凭证、终值现金流和资产余额闭合",
+          "weight": 8,
+          "evidenceRequirement": "凭证科目、终值收款和收款后零余额正确",
+          "evidenceRules": [
+            {"fieldId": "journal-debit", "operator": "CONTAINS_ALL", "expected": ["应收利息"]},
+            {"fieldId": "journal-credit-income", "operator": "CONTAINS_ALL", "expected": ["债券利息收入"]},
+            {"fieldId": "journal-credit-discount", "operator": "CONTAINS_ALL", "expected": ["债券溢折价"]},
+            {"fieldId": "terminal-cash-receipt", "operator": "NUMBER_EQUALS", "expected": 1000700, "tolerance": 0.01},
+            {"fieldId": "terminal-closing-carrying", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "rollforward-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFEIR-CLOSURE"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "RISK-MFEIR-FEE",
+          "description": "控制资产交易费与运营费跨层重复的风险",
+          "weight": 9,
+          "evidenceRequirement": "两类费用按所属层分别处理",
+          "evidenceRules": [
+            {"fieldId": "asset-fee-layer", "operator": "EQUALS", "expected": "ASSET_LAYER"},
+            {"fieldId": "operating-fee-layer", "operator": "EQUALS", "expected": "OPERATING_LAYER"},
+            {"fieldId": "initial-carrying-amount", "operator": "NUMBER_EQUALS", "expected": 999700.479361, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFEIR-SOURCE"
+        },
+        {
+          "criterionId": "RISK-MFEIR-APPROVAL",
+          "description": "控制以历史示例或未经批准精度替代本题现金流的风险",
+          "weight": 8,
+          "evidenceRequirement": "使用批准现金流并得到批准日利率和年化快照",
+          "evidenceRules": [
+            {"fieldId": "cashflow-source", "operator": "EQUALS", "expected": "APPROVED_CASH_FLOW"},
+            {"fieldId": "actual-daily-rate", "operator": "NUMBER_EQUALS", "expected": 0.0008, "tolerance": 0.0000000001},
+            {"fieldId": "annualized-rate-percent", "operator": "NUMBER_EQUALS", "expected": 33.89467, "tolerance": 0.000001}
+          ],
+          "remediationTargetId": "R-MFEIR-RATE"
+        },
+        {
+          "criterionId": "RISK-MFEIR-CONTINUITY",
+          "description": "控制逐日摊余成本断裂或终值未归零的风险",
+          "weight": 8,
+          "evidenceRequirement": "第3日期末回到本金且终值收款后余额为零",
+          "evidenceRules": [
+            {"fieldId": "day3-ending-carrying", "operator": "NUMBER_EQUALS", "expected": 1000000, "tolerance": 0.01},
+            {"fieldId": "terminal-closing-carrying", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "rollforward-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFEIR-CLOSURE"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-MFEIR-RESULT",
+          "description": "形成包含现金流来源、费用层次、逐日滚动和终值结果的短结论",
+          "weight": 20,
+          "evidenceRequirement": "结论覆盖实际利率、费用分层、折溢价摊销和终值闭合",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["批准现金流", "资产交易费", "运营费", "折溢价摊销", "终值闭合"]},
+            {"fieldId": "rollforward-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFEIR-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-MFEIR-CASHFLOW-LAYER",
+      "description": "批准现金流、初始摊余成本、实际日利率和费用层次必须正确",
+      "evidenceRequirement": "现金流来源、两类费用、初始金额和实际日利率均闭合",
+      "evidenceRules": [
+        {"fieldId": "cashflow-source", "operator": "EQUALS", "expected": "APPROVED_CASH_FLOW"},
+        {"fieldId": "asset-fee-layer", "operator": "EQUALS", "expected": "ASSET_LAYER"},
+        {"fieldId": "operating-fee-layer", "operator": "EQUALS", "expected": "OPERATING_LAYER"},
+        {"fieldId": "initial-carrying-amount", "operator": "NUMBER_EQUALS", "expected": 999700.479361, "tolerance": 0.01},
+        {"fieldId": "actual-daily-rate", "operator": "NUMBER_EQUALS", "expected": 0.0008, "tolerance": 0.0000000001}
+      ],
+      "remediationTargetId": "R-MFEIR-SOURCE"
+    },
+    {
+      "requirementId": "M-MFEIR-ROLLFORWARD-CLOSURE",
+      "description": "三日期末摊余成本和终值收款必须连续闭合",
+      "evidenceRequirement": "每日摊销、期末本金、终值现金流和收款后余额均正确",
+      "evidenceRules": [
+        {"fieldId": "day1-ending-carrying", "operator": "NUMBER_EQUALS", "expected": 999800.239744, "tolerance": 0.01},
+        {"fieldId": "day2-ending-carrying", "operator": "NUMBER_EQUALS", "expected": 999900.079936, "tolerance": 0.01},
+        {"fieldId": "day3-ending-carrying", "operator": "NUMBER_EQUALS", "expected": 1000000, "tolerance": 0.01},
+        {"fieldId": "terminal-cash-receipt", "operator": "NUMBER_EQUALS", "expected": 1000700, "tolerance": 0.01},
+        {"fieldId": "terminal-closing-carrying", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "rollforward-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-MFEIR-CLOSURE"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-MFEIR-SOURCE", "title": "区分现金流与费用层次", "reason": "使用历史现金流或把资产交易费、运营费放入错误层次", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-EIR-KC-03", "questionId": "ACC-MF-EIR-Q-01"},
+    {"targetId": "R-MFEIR-RATE", "title": "复算实际日利率和年化快照", "reason": "初始资产金额、IRR或年化展示未按批准现金流复算", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-EIR-KC-01", "questionId": "ACC-MF-EIR-Q-02"},
+    {"targetId": "R-MFEIR-LEDGER", "title": "补全实际利率计提凭证", "reason": "应收利息、利息收入或溢折价摊销科目方向未分层", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-MF-EIR-Q-03"},
+    {"targetId": "R-MFEIR-ROLLFORWARD", "title": "完成逐日摊余成本滚动", "reason": "实际利息、应收利息、摊销或某一日期末余额未连续", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-EIR-KC-02", "questionId": "ACC-MF-EIR-Q-04"},
+    {"targetId": "R-MFEIR-CLOSURE", "title": "完成终值闭合", "reason": "终值日前未回到本金或收款后资产余额未归零", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-EIR-Q-04"},
+    {"targetId": "R-MFEIR-EXPRESSION", "title": "形成可追溯计提结论", "reason": "短结论遗漏现金流来源、费用层次、摊销或终值结果", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-EIR-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "cashflow-source": "APPROVED_CASH_FLOW",
+      "asset-fee-layer": "ASSET_LAYER",
+      "operating-fee-layer": "OPERATING_LAYER",
+      "initial-carrying-amount": 999700.479361,
+      "actual-daily-rate": 0.0008,
+      "annualized-rate-percent": 33.89467,
+      "day1-interest-income": 799.760383,
+      "day1-receivable-interest": 700,
+      "day1-discount-amortization": 99.760383,
+      "day1-ending-carrying": 999800.239744,
+      "day2-interest-income": 799.840192,
+      "day2-receivable-interest": 700,
+      "day2-discount-amortization": 99.840192,
+      "day2-ending-carrying": 999900.079936,
+      "day3-interest-income": 799.920064,
+      "day3-receivable-interest": 700,
+      "day3-discount-amortization": 99.920064,
+      "day3-ending-carrying": 1000000,
+      "journal-debit": "应收利息",
+      "journal-credit-income": "债券利息收入",
+      "journal-credit-discount": "债券溢折价",
+      "terminal-cash-receipt": 1000700,
+      "terminal-closing-carrying": 0,
+      "rollforward-result": "BALANCED",
+      "result-note": "按批准现金流求得实际日利率0.000800，年化快照33.894670%；资产交易费120.00元进入初始资产层，运营费35.00元不进入实际利率；三日折溢价摊销后第3日期末摊余成本1,000,000.000000元，终值收款后资产余额0.00元，滚动和终值闭合。"
+    }
+  }
+}

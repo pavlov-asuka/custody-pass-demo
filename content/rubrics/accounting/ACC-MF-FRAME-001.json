@@ -1,0 +1,216 @@
+{
+  "routeId": "ACC-MF-FRAME-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-MFF-SOURCE",
+          "description": "从本案例批准参数和资料来源区分成本口径与影子比较口径",
+          "weight": 8,
+          "evidenceRequirement": "账面估值来源选择为本案例批准参数",
+          "evidenceRules": [{"fieldId": "valuation-source", "operator": "EQUALS", "expected": "APPROVED_PARAMETER"}],
+          "remediationTargetId": "R-MFF-SOURCE"
+        },
+        {
+          "criterionId": "C-MFF-NAV-RELATION",
+          "description": "理解资产、负债和NAV的数量关系",
+          "weight": 9,
+          "evidenceRequirement": "成本资产、负债和NAV均可由资料复算",
+          "evidenceRules": [
+            {"fieldId": "cost-asset-total", "operator": "NUMBER_EQUALS", "expected": 9116000, "tolerance": 0.01},
+            {"fieldId": "cost-liability-total", "operator": "NUMBER_EQUALS", "expected": 116000, "tolerance": 0.01},
+            {"fieldId": "cost-nav", "operator": "NUMBER_EQUALS", "expected": 9000000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFF-NAV"
+        },
+        {
+          "criterionId": "C-MFF-UNIT",
+          "description": "区分成本单位结果与影子单位结果",
+          "weight": 8,
+          "evidenceRequirement": "成本单位结果和影子单位结果均按已确认份额复算",
+          "evidenceRules": [
+            {"fieldId": "cost-unit-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.000001},
+            {"fieldId": "shadow-unit-nav", "operator": "NUMBER_EQUALS", "expected": 1.005778, "tolerance": 0.000001}
+          ],
+          "remediationTargetId": "R-MFF-SHADOW"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-MFF-COST",
+          "description": "完成成本口径资产、负债与NAV计算",
+          "weight": 10,
+          "evidenceRequirement": "成本资产、负债和NAV计算正确",
+          "evidenceRules": [
+            {"fieldId": "valuation-source", "operator": "EQUALS", "expected": "APPROVED_PARAMETER"},
+            {"fieldId": "cost-asset-total", "operator": "NUMBER_EQUALS", "expected": 9116000, "tolerance": 0.01},
+            {"fieldId": "cost-liability-total", "operator": "NUMBER_EQUALS", "expected": 116000, "tolerance": 0.01},
+            {"fieldId": "cost-nav", "operator": "NUMBER_EQUALS", "expected": 9000000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFF-NAV"
+        },
+        {
+          "criterionId": "P-MFF-SHADOW",
+          "description": "完成影子口径资产、NAV和差额计算",
+          "weight": 10,
+          "evidenceRequirement": "影子资产、影子NAV和与成本NAV的差额正确",
+          "evidenceRules": [
+            {"fieldId": "shadow-asset-total", "operator": "NUMBER_EQUALS", "expected": 9168000, "tolerance": 0.01},
+            {"fieldId": "shadow-nav", "operator": "NUMBER_EQUALS", "expected": 9052000, "tolerance": 0.01},
+            {"fieldId": "shadow-gap", "operator": "NUMBER_EQUALS", "expected": 52000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFF-SHADOW"
+        },
+        {
+          "criterionId": "P-MFF-TA",
+          "description": "补全已确认净申购的TA确认凭证",
+          "weight": 5,
+          "evidenceRequirement": "TA确认借贷科目方向正确",
+          "evidenceRules": [
+            {"fieldId": "ta-debit", "operator": "CONTAINS_ALL", "expected": ["应收申购款"]},
+            {"fieldId": "ta-credit", "operator": "CONTAINS_ALL", "expected": ["实收基金"]}
+          ],
+          "remediationTargetId": "R-MFF-TA"
+        },
+        {
+          "criterionId": "P-MFF-RECON",
+          "description": "用独立资料完成资产、负债、份额和NAV的跨来源勾稽",
+          "weight": 5,
+          "evidenceRequirement": "第二来源差额为零且份额乘单位结果回到成本NAV",
+          "evidenceRules": [
+            {"fieldId": "asset-cross-source", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "liability-cross-source", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "unit-value-product", "operator": "NUMBER_EQUALS", "expected": 9000000, "tolerance": 0.01},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFF-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "RISK-MFF-VERSION",
+          "description": "控制以历史规则替代本题批准口径的风险",
+          "weight": 8,
+          "evidenceRequirement": "使用批准参数并按题面记录影子差额",
+          "evidenceRules": [
+            {"fieldId": "valuation-source", "operator": "EQUALS", "expected": "APPROVED_PARAMETER"},
+            {"fieldId": "shadow-gap", "operator": "NUMBER_EQUALS", "expected": 52000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFF-SOURCE"
+        },
+        {
+          "criterionId": "RISK-MFF-TA-STATUS",
+          "description": "控制未确认TA指令提前进入份额和NAV的风险",
+          "weight": 8,
+          "evidenceRequirement": "TA确认凭证和第二来源勾稽同时成立",
+          "evidenceRules": [
+            {"fieldId": "ta-debit", "operator": "CONTAINS_ALL", "expected": ["应收申购款"]},
+            {"fieldId": "ta-credit", "operator": "CONTAINS_ALL", "expected": ["实收基金"]},
+            {"fieldId": "asset-cross-source", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "liability-cross-source", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "R-MFF-TA"
+        },
+        {
+          "criterionId": "RISK-MFF-BOUNDARY",
+          "description": "控制把影子比较结果自动改写为账面结果的风险",
+          "weight": 9,
+          "evidenceRequirement": "成本单位、影子单位和总勾稽结果保持分层且一致",
+          "evidenceRules": [
+            {"fieldId": "cost-unit-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.000001},
+            {"fieldId": "shadow-unit-nav", "operator": "NUMBER_EQUALS", "expected": 1.005778, "tolerance": 0.000001},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFF-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-MFF-RESULT",
+          "description": "形成可追溯的日终资产承接结论",
+          "weight": 20,
+          "evidenceRequirement": "短结论覆盖成本NAV、影子NAV、成本单位、份额乘单位结果和勾稽状态",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["成本NAV", "影子NAV", "1.000000", "9000000", "勾稽一致"]},
+            {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFF-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-MFF-NAV-CLOSURE",
+      "description": "成本口径资产、负债、NAV、单位结果和份额乘单位结果必须闭合",
+      "evidenceRequirement": "成本NAV和单位结果可由两类资料独立复算",
+      "evidenceRules": [
+        {"fieldId": "cost-asset-total", "operator": "NUMBER_EQUALS", "expected": 9116000, "tolerance": 0.01},
+        {"fieldId": "cost-liability-total", "operator": "NUMBER_EQUALS", "expected": 116000, "tolerance": 0.01},
+        {"fieldId": "cost-nav", "operator": "NUMBER_EQUALS", "expected": 9000000, "tolerance": 0.01},
+        {"fieldId": "cost-unit-nav", "operator": "NUMBER_EQUALS", "expected": 1, "tolerance": 0.000001},
+        {"fieldId": "unit-value-product", "operator": "NUMBER_EQUALS", "expected": 9000000, "tolerance": 0.01},
+        {"fieldId": "reconciliation-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-MFF-RECON"
+    },
+    {
+      "requirementId": "M-MFF-SHADOW-SEPARATION",
+      "description": "影子NAV、影子单位结果和成本口径必须分层记录，不得自动互换",
+      "evidenceRequirement": "影子结果完整且与成本结果分别呈现",
+      "evidenceRules": [
+        {"fieldId": "valuation-source", "operator": "EQUALS", "expected": "APPROVED_PARAMETER"},
+        {"fieldId": "shadow-asset-total", "operator": "NUMBER_EQUALS", "expected": 9168000, "tolerance": 0.01},
+        {"fieldId": "shadow-nav", "operator": "NUMBER_EQUALS", "expected": 9052000, "tolerance": 0.01},
+        {"fieldId": "shadow-unit-nav", "operator": "NUMBER_EQUALS", "expected": 1.005778, "tolerance": 0.000001},
+        {"fieldId": "shadow-gap", "operator": "NUMBER_EQUALS", "expected": 52000, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "R-MFF-SHADOW"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-MFF-SOURCE", "title": "定位账面与比较来源", "reason": "把批准参数、成本估值和影子定价的用途混在一起", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-FRAME-KC-01", "questionId": "ACC-MF-FRAME-Q-01"},
+    {"targetId": "R-MFF-NAV", "title": "复算资产负债与NAV", "reason": "资产合计、负债合计或NAV的数量关系不完整", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-FRAME-KC-02", "questionId": "ACC-MF-FRAME-Q-02"},
+    {"targetId": "R-MFF-SHADOW", "title": "区分影子NAV与成本NAV", "reason": "影子资产、影子NAV、差额或影子单位结果未完成复算", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-MF-FRAME-Q-02"},
+    {"targetId": "R-MFF-TA", "title": "识别TA确认凭证与状态", "reason": "未确认指令、应收申购款和实收基金之间的状态或方向混淆", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-01", "questionId": "ACC-MF-FRAME-Q-03"},
+    {"targetId": "R-MFF-RECON", "title": "完成跨来源勾稽", "reason": "资产、负债、份额、单位结果或NAV未能由第二来源闭合", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-FRAME-Q-04"},
+    {"targetId": "R-MFF-EXPRESSION", "title": "形成日终承接结论", "reason": "短结论没有同时说明成本、影子、份额单位和勾稽状态", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-FRAME-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "valuation-source": "APPROVED_PARAMETER",
+      "cost-asset-total": 9116000,
+      "cost-liability-total": 116000,
+      "cost-nav": 9000000,
+      "shadow-asset-total": 9168000,
+      "shadow-nav": 9052000,
+      "cost-unit-nav": 1,
+      "shadow-unit-nav": 1.005778,
+      "shadow-gap": 52000,
+      "ta-debit": "应收申购款",
+      "ta-credit": "实收基金（4001）",
+      "asset-cross-source": 0,
+      "liability-cross-source": 0,
+      "unit-value-product": 9000000,
+      "reconciliation-result": "BALANCED",
+      "result-note": "成本NAV为9,000,000元，影子NAV为9,052,000元，成本单位结果为1.000000；9,000,000份乘1.000000回到成本NAV，资产负债与TA第二来源勾稽一致，影子结果仅作比较。"
+    }
+  }
+}

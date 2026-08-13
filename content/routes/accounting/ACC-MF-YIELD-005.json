@@ -1,0 +1,297 @@
+{
+  "routeId": "ACC-MF-YIELD-005",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "偏离、期限/存续期、收益指标与节假日披露",
+  "summary": "沿同一日终资料包拆分偏离、期限/存续期和收益披露三个工作区，完成成本NAV与影子NAV比较、资产权重加权、版本化收益公式及节假日跨日披露闭合。",
+  "estimatedMinutes": 75,
+  "objectives": [
+    "从同一日终估值资料计算偏离金额和偏离度，明确方向与成本NAV分母",
+    "按T02口径区分固定利率工具到期日、浮动利率工具下次调息日，并用资产权重计算平均剩余期限和平均剩余存续期",
+    "从批准公式快照读取每万份收益和七日年化展示口径，不把历史公式或365/366写成永久制度",
+    "按批准日历完成开放日与节假日期间收益合计、签署日期、公布日期和跨来源闭合"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "MF-YIELD-KC-01",
+          "type": "CATEGORIES",
+          "title": "工作区一：偏离先看方向和分母",
+          "conclusion": "偏离金额等于影子定价NAV减摊余成本NAV；偏离度以摊余成本NAV为分母。正负方向只描述同一估值日的比较结果，不自动替代批准处置规则。",
+          "items": [
+            "影子NAV大于成本NAV时偏离金额为正，反之为负",
+            "偏离度 = 偏离金额 ÷ 摊余成本NAV",
+            "历史0.25%/0.5%仅能作为题面批准快照，不能写成永久阈值",
+            "正常资料只重出估值表并核对，不在本路线虚构估增凭证或异常处置"
+          ]
+        },
+        {
+          "cardId": "MF-YIELD-KC-02",
+          "type": "FLOW",
+          "title": "工作区二：期限口径先定属性再加权",
+          "conclusion": "平均剩余期限和平均剩余存续期都由金额权重加总；固定利率工具看终止日，浮动利率工具的剩余期限看下次调息日、剩余存续期看最终到期日。",
+          "items": [
+            "先按T02确定每项资产的剩余期限天数和剩余存续期天数",
+            "金额权重分子 = 资产金额 × 对应天数",
+            "组合平均值 = 各项权重分子合计 ÷ 题面批准的合格资产金额分母",
+            "OLE/截图只用于定位公式对象，不能绕过题面参数生成答案"
+          ]
+        },
+        {
+          "cardId": "MF-YIELD-KC-03",
+          "type": "KEY_POINT",
+          "title": "工作区三：收益公式和日历必须一起披露",
+          "conclusion": "每万份收益、七日年化公式、开放日/节假日签署和公布日期必须来自同一版本化参数与日终资料；节假日期间收益按每日数值合计后乘确认份额/10000复算。",
+          "items": [
+            "日结复利公式和月结简单公式是不同的批准公式快照",
+            "365、366、七日窗口、四舍五入和日历均由题面参数决定",
+            "开放日通常区分当日签署与次日公布；节假日收益公告区分节后首个工作日签署与第二个工作日公布",
+            "节假日每万份收益合计 × 确认份额 ÷ 10000 = 期间收益总额"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品甲的估值与披露核算人员",
+        "product": "案例产品甲 / 普通货币基金",
+        "date": "2026-09-04日终及2026-09-05至2026-09-06节假日期间",
+        "facts": [
+          "同一日终资料包给出成本NAV9,980,000.00元、影子NAV10,006,000.00元；偏离比较只使用这两个NAV，不套用历史阈值。",
+          "合格资产为固定利率工具3,200,000.00元（剩余期限45天、剩余存续期50天）、浮动利率工具2,000,000.00元（下次调息20天、到期80天）和现金类资产1,500,000.00元（0天/0天）。",
+          "本题批准收益快照为日结复利、365日、7日窗口；最近7日每万份收益为1.20、1.25、1.15、1.30、1.10、1.28、1.22元。",
+          "批准日历将2026-09-05至2026-09-06设为节假日期间，节前最后工作日为2026-09-04，节后首个工作日签署为2026-09-07，第二个工作日公布为2026-09-08；节假日每日每万份收益为2.10、2.20元，确认份额为8,400,000份。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "将同一日终资料包分为三个工作区：偏离工作区读取成本/影子NAV，期限工作区读取资产金额和T02属性，收益披露工作区读取7日收益、公式快照和批准日历",
+          "reason": "三个工作区共享同一日终截面，但字段、公式和输出不同，先分区可避免把收益或期限字段错当偏离结果。"
+        },
+        {
+          "order": 2,
+          "action": "偏离工作区计算10,006,000−9,980,000=26,000.00元，偏离度为26,000÷9,980,000×100%=0.260521%，方向为正",
+          "reason": "偏离度必须以成本NAV为分母，历史阈值只在另有批准参数时用于题面比较。"
+        },
+        {
+          "order": 3,
+          "action": "期限工作区以6,700,000.00元为分母，计算加权剩余期限184,000,000元·天、平均27.462687天；加权剩余存续期320,000,000元·天、平均47.761194天",
+          "reason": "浮动工具的剩余期限取下次调息日，剩余存续期取最终到期日，不能使用同一个天数。"
+        },
+        {
+          "order": 4,
+          "action": "收益披露工作区按日结复利快照计算7日每万份收益合计8.50元和七日年化4.531548%，保留最近日每万份收益1.22元",
+          "reason": "七日年化使用批准公式与365日快照，不能把月结简单公式或历史截图数字混入。"
+        },
+        {
+          "order": 5,
+          "action": "节假日工作区合计每万份收益4.30元，按4.30×8,400,000÷10,000=3,612.00元复核期间收益，并核对9月7日签署、9月8日公布日期",
+          "reason": "节假日期间收益在节前完成账务资料准备，节后按批准日历签署和公布，期间合计必须与份额来源闭合。"
+        }
+      ],
+      "summary": "同一日终包分三区 → 偏离方向/分母 → 期限属性/权重 → 公式快照/七日年化 → 节假日合计/签署公布"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-MF-YIELD-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把本题字段对应到偏离、期限属性和节假日披露工作区。",
+          "fieldMappings": [
+            {"fieldId": "deviation-denominator", "label": "偏离度分母", "source": "日终估值表", "options": [{"optionId": "COST_NAV", "text": "摊余成本NAV"}, {"optionId": "SHADOW_NAV", "text": "影子NAV"}]},
+            {"fieldId": "floating-term-basis", "label": "浮动利率工具剩余期限", "source": "T02属性表", "options": [{"optionId": "NEXT_RATE_RESET", "text": "计算日至下次调息日"}, {"optionId": "MATURITY_DATE", "text": "直接使用最终到期日"}]},
+            {"fieldId": "holiday-publish-date", "label": "节假日收益公告公布日期", "source": "批准日历快照", "options": [{"optionId": "SECOND_WORKDAY", "text": "节后第二个工作日"}, {"optionId": "HOLIDAY_LAST_DAY", "text": "节假日最后一日"}]}
+          ],
+          "answer": ["COST_NAV", "NEXT_RATE_RESET", "SECOND_WORKDAY"],
+          "explanation": "偏离度分母为成本NAV；浮动工具期限看下次调息日；节假日公告按批准日历在节后第二个工作日公布。",
+          "hints": ["先确定字段所属工作区，再判断属性口径和日历状态。"]
+        },
+        {
+          "questionId": "ACC-MF-YIELD-Q-02",
+          "type": "CALCULATION",
+          "prompt": "按案例甲日终资料计算偏离金额、偏离度、平均剩余期限、平均剩余存续期和日结复利七日年化。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "deviation-amount", "label": "偏离金额", "formula": "10,006,000 − 9,980,000", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "deviation-rate-percent", "label": "偏离度", "formula": "偏离金额 ÷ 9,980,000 × 100%", "placeholder": "输入百分比", "unit": "%", "precision": 6, "tolerance": 0.000001},
+              {"fieldId": "average-remaining-term", "label": "平均剩余期限", "formula": "(3,200,000×45 + 2,000,000×20) ÷ 6,700,000", "placeholder": "输入天数", "unit": "天", "precision": 6, "tolerance": 0.000001},
+              {"fieldId": "average-remaining-duration", "label": "平均剩余存续期", "formula": "(3,200,000×50 + 2,000,000×80) ÷ 6,700,000", "placeholder": "输入天数", "unit": "天", "precision": 6, "tolerance": 0.000001},
+              {"fieldId": "annualized-percent", "label": "日结复利七日年化", "formula": "((Π(1+Ri/10000))^(365/7)−1)×100%", "placeholder": "输入百分比", "unit": "%", "precision": 6, "tolerance": 0.000001}
+            ]
+          },
+          "answer": ["26000", "0.260521", "27.462687", "47.761194", "4.531548"],
+          "explanation": "偏离金额26,000.00元、偏离度0.260521%；期限/存续期分别按T02属性加权；日结复利七日年化为4.531548%。",
+          "hints": ["偏离度先确定分母；期限和存续期分别列出加权分子；年化使用批准公式。"]
+        },
+        {
+          "questionId": "ACC-MF-YIELD-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "根据正常偏离资料补全日终处理动作，不要虚构估增凭证。",
+          "ledgerEntries": [
+            {"entryId": "deviation-voucher", "direction": "处理", "label": "偏离比较正常，是否出估增凭证", "amount": "不新增资产估增凭证", "placeholder": "输入处理动作"},
+            {"entryId": "deviation-table", "direction": "处理", "label": "偏离结果的资料承载", "amount": "重出估值表并与管理公司核对", "placeholder": "输入资料动作"}
+          ],
+          "answer": ["不出估增凭证", "重出估值表"],
+          "explanation": "P201所述正常流程是重出估值表并核对，不因偏离比较另造估增凭证。",
+          "hints": ["偏离工作区是比较和披露控制，不是本题资产估值增值分录。"]
+        },
+        {
+          "questionId": "ACC-MF-YIELD-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "完成案例甲节假日收益和披露日期勾稽。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "holiday-income-total", "label": "节假日期间收益总额", "kind": "NUMBER", "formula": "(2.10+2.20)×8,400,000÷10,000", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "holiday-date-result", "label": "节假日签署/公布日期", "kind": "SELECT", "formula": "9月7日签署、9月8日公布", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "期间、份额和披露日期一致"}, {"optionId": "BROKEN", "text": "存在日期或金额差异"}]},
+              {"fieldId": "result", "label": "三工作区结果", "kind": "SELECT", "formula": "偏离、期限/存续期、收益/节假日全部有来源并闭合", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "工作区均闭合"}, {"optionId": "BROKEN", "text": "存在未解释差异"}]}
+            ]
+          },
+          "answer": ["3612", "BALANCED", "BALANCED"],
+          "explanation": "节假日每万份收益合计4.30元，对8,400,000份形成3,612.00元；签署和公布日期按批准日历闭合。",
+          "hints": ["先合计每万份收益，再乘确认份额/10000，最后核对两个工作日日期。"]
+        },
+        {
+          "questionId": "ACC-MF-YIELD-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话说明偏离、期限/存续期、收益公式和节假日披露四者如何在同一日终资料包中闭合。",
+          "textInput": {"label": "YIELD综合结论", "placeholder": "写明三个工作区、公式/分母、节假日日期和闭合"},
+          "answer": ["偏离方向", "成本NAV分母", "期限/存续期权重", "批准公式", "节假日收益合计", "签署公布", "闭合"],
+          "explanation": "结论必须能追溯到三个工作区的来源、计算和日历，不以历史阈值或升级话术代替验证。",
+          "hints": ["按偏离、期限/存续期、收益/披露三个工作区组织句子。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品乙的估值与披露核算人员",
+        "product": "案例产品乙 / 普通货币基金",
+        "date": "2026-09-30日终及2026-10-01至2026-10-04节假日期间",
+        "purpose": "使用同一套日终估值、组合属性、收益指标和批准日历资料，分三个工作区完成偏离、期限/存续期、月结收益公式和节假日披露闭合；本路线综合案例为独立脱敏批次，不承接其他路线的金额、份额或余额，三个工作区仅承接本资料包。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "MF-YIELD-C-PARAM",
+          "title": "本案例批准公式与日历参数",
+          "kind": "PARAMETER",
+          "description": "三个工作区共用的版本化参数；不把阈值、365/366、公式、精度或日历扩展成永久制度。本路线案例为独立脱敏批次，不承接其他路线的金额、份额或余额。",
+          "fields": [
+            {"fieldId": "day-end-date", "label": "日终估值日", "value": "2026-09-30"},
+            {"fieldId": "deviation-precision", "label": "偏离精度", "value": "金额保留2位；偏离度保留6位百分比；金额容差0.01元；百分比容差0.000001个百分点"},
+            {"fieldId": "term-precision", "label": "期限精度", "value": "金额权重分子保留2位；平均天数保留6位；天数容差0.000001天"},
+            {"fieldId": "yield-mode", "label": "收益公式模式", "value": "月结简单公式"},
+            {"fieldId": "yield-formula", "label": "批准七日年化快照", "value": "((ΣRi÷7)×365÷10000)×100%；365、7日窗口和展示精度仅为本题参数"},
+            {"fieldId": "calendar", "label": "批准日历快照", "value": "节假日2026-10-01至2026-10-04；节前最后工作日9月30日；节后首个工作日10月5日签署；第二个工作日10月6日公布"},
+            {"fieldId": "disclosure-precision", "label": "收益披露精度", "value": "每万份收益保留2位；七日年化保留6位百分比；期间收益金额保留2位；金额容差0.01元"}
+          ]
+        },
+        {
+          "materialId": "MF-YIELD-C-VALUATION",
+          "title": "工作区一：成本与影子估值表",
+          "kind": "STATEMENT",
+          "description": "同一日终给出成本NAV、影子NAV和偏离比较所需字段。",
+          "fields": [
+            {"fieldId": "cost-nav", "label": "摊余成本NAV", "value": "12,450,000.00", "unit": "元"},
+            {"fieldId": "shadow-nav", "label": "影子NAV", "value": "12,401,000.00", "unit": "元"},
+            {"fieldId": "valuation-status", "label": "估值状态", "value": "同一2026-09-30日终正常出表"}
+          ]
+        },
+        {
+          "materialId": "MF-YIELD-C-PORTFOLIO",
+          "title": "工作区二：组合资产属性与金额",
+          "kind": "LEDGER",
+          "description": "固定、浮动和现金类资产的金额及T02属性完整，可复算两个加权平均值。",
+          "fields": [
+            {"fieldId": "fixed-asset-amount", "label": "固定利率工具金额", "value": "4,800,000.00", "unit": "元"},
+            {"fieldId": "fixed-remaining-term", "label": "固定工具剩余期限", "value": "90", "unit": "天"},
+            {"fieldId": "fixed-remaining-duration", "label": "固定工具剩余存续期", "value": "110", "unit": "天"},
+            {"fieldId": "floating-asset-amount", "label": "浮动利率工具金额", "value": "2,700,000.00", "unit": "元"},
+            {"fieldId": "floating-next-reset", "label": "浮动工具下次调息剩余天数", "value": "30", "unit": "天"},
+            {"fieldId": "floating-maturity", "label": "浮动工具最终到期剩余天数", "value": "150", "unit": "天"},
+            {"fieldId": "cash-asset-amount", "label": "现金类资产金额", "value": "2,000,000.00", "unit": "元"},
+            {"fieldId": "eligible-asset-total", "label": "合格资产金额分母", "value": "9,500,000.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "MF-YIELD-C-YIELD",
+          "title": "工作区三：每万份收益与公式快照",
+          "kind": "STATEMENT",
+          "description": "月结简单公式使用7日每万份收益序列和最新日指标。",
+          "fields": [
+            {"fieldId": "seven-day-values", "label": "最近7日每万份收益", "value": "0.98、1.02、1.01、0.99、1.05、1.03、1.04", "unit": "元/万份"},
+            {"fieldId": "per10k-current", "label": "最近一日每万份收益", "value": "1.04", "unit": "元/万份"},
+            {"fieldId": "seven-day-sum", "label": "7日每万份收益合计", "value": "7.12", "unit": "元/万份"},
+            {"fieldId": "formula-status", "label": "公式来源状态", "value": "本题批准月结简单公式快照"}
+          ]
+        },
+        {
+          "materialId": "MF-YIELD-C-HOLIDAY",
+          "title": "工作区三：节假日期间收益资料",
+          "kind": "STATEMENT",
+          "description": "批准日历下四个节假日的每日每万份收益和确认份额。",
+          "fields": [
+            {"fieldId": "holiday-values", "label": "节假日每日每万份收益", "value": "1.10、1.20、1.15、1.05", "unit": "元/万份"},
+            {"fieldId": "holiday-per10k-total", "label": "节假日每万份收益合计", "value": "4.50", "unit": "元/万份"},
+            {"fieldId": "holiday-units", "label": "节假日期间确认份额", "value": "9,600,000", "unit": "份"},
+            {"fieldId": "holiday-income-total", "label": "节假日期间收益总额", "value": "4,320.00", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "MF-YIELD-C-DISCLOSURE",
+          "title": "工作区三：开放日与节假日披露签署表",
+          "kind": "CONFIRMATION",
+          "description": "提供正常开放日与节假日期间公告的签署、公布日期状态。",
+          "fields": [
+            {"fieldId": "open-sign-date", "label": "开放日公告签署", "value": "2026-09-29"},
+            {"fieldId": "open-publish-date", "label": "开放日公告公布", "value": "2026-09-30"},
+            {"fieldId": "holiday-sign-date", "label": "节假日公告签署", "value": "2026-10-05"},
+            {"fieldId": "holiday-publish-date", "label": "节假日公告公布", "value": "2026-10-06"},
+            {"fieldId": "disclosure-status", "label": "披露状态", "value": "开放日与节假日资料均按批准日历正常完成"}
+          ]
+        }
+      ],
+      "workItems": [
+        {"workItemId": "deviation-source", "type": "FIELD_MAP", "title": "偏离工作区：定位同一日终来源", "instruction": "选择偏离计算应使用的日终资料来源。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_DAY_END", "text": "本案例批准日终估值表"}, {"optionId": "HISTORICAL_SCREENSHOT", "text": "历史截图或未经批准默认值"}]}},
+        {"workItemId": "deviation-direction", "type": "FIELD_MAP", "title": "偏离工作区：识别方向", "instruction": "选择影子NAV低于成本NAV时的偏离方向。", "response": {"kind": "SELECT", "placeholder": "选择方向", "options": [{"optionId": "NEGATIVE", "text": "负偏离"}, {"optionId": "POSITIVE", "text": "正偏离"}]}},
+        {"workItemId": "deviation-denominator", "type": "FIELD_MAP", "title": "偏离工作区：定位分母", "instruction": "选择偏离度的批准分母。", "response": {"kind": "SELECT", "placeholder": "选择分母", "options": [{"optionId": "COST_NAV", "text": "摊余成本NAV"}, {"optionId": "SHADOW_NAV", "text": "影子NAV"}]}},
+        {"workItemId": "cost-nav", "type": "CALCULATION", "title": "偏离工作区：读取成本NAV", "instruction": "从日终估值表填写摊余成本NAV。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "shadow-nav", "type": "CALCULATION", "title": "偏离工作区：读取影子NAV", "instruction": "从日终估值表填写影子NAV。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "deviation-amount", "type": "CALCULATION", "title": "偏离工作区：计算偏离金额", "instruction": "用影子NAV减摊余成本NAV。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "deviation-rate-percent", "type": "CALCULATION", "title": "偏离工作区：计算偏离度", "instruction": "用偏离金额除以成本NAV并按批准百分比精度展示。", "response": {"kind": "NUMBER", "placeholder": "输入百分比", "unit": "%", "precision": 6}},
+        {"workItemId": "deviation-ledger-action", "type": "LEDGER_ENTRY", "title": "偏离工作区：记录正常处理动作", "instruction": "填写正常偏离资料的凭证/估值表处理动作。", "response": {"kind": "TEXT", "placeholder": "输入处理动作"}},
+        {"workItemId": "deviation-result", "type": "RECONCILIATION", "title": "偏离工作区：核对方向与结果", "instruction": "判断成本NAV、影子NAV、偏离金额和偏离度是否同向闭合。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "NEGATIVE_DEVIATION_RECORDED", "text": "负偏离方向、金额和分母一致"}, {"optionId": "BROKEN", "text": "方向或分母存在错误"}]}},
+        {"workItemId": "fixed-term-basis", "type": "FIELD_MAP", "title": "期限工作区：固定工具属性", "instruction": "选择固定利率工具的剩余期限和存续期口径。", "response": {"kind": "SELECT", "placeholder": "选择口径", "options": [{"optionId": "MATURITY_DATE", "text": "剩余期限和存续期均看最终到期日"}, {"optionId": "NEXT_RATE_RESET", "text": "两者均看下次调息日"}]}},
+        {"workItemId": "floating-term-basis", "type": "FIELD_MAP", "title": "期限工作区：浮动工具属性", "instruction": "选择浮动利率工具两个天数的口径。", "response": {"kind": "SELECT", "placeholder": "选择口径", "options": [{"optionId": "NEXT_RESET_MATURITY", "text": "期限看下次调息日，存续期看最终到期日"}, {"optionId": "MATURITY_BOTH", "text": "两者均看最终到期日"}]}},
+        {"workItemId": "term-denominator", "type": "FIELD_MAP", "title": "期限工作区：定位加权分母", "instruction": "选择平均剩余期限和存续期的金额分母。", "response": {"kind": "SELECT", "placeholder": "选择分母", "options": [{"optionId": "ELIGIBLE_ASSET_TOTAL", "text": "本题合格资产金额合计"}, {"optionId": "UNIT_COUNT", "text": "基金份额数量"}]}},
+        {"workItemId": "eligible-asset-total", "type": "CALCULATION", "title": "期限工作区：计算合格资产分母", "instruction": "汇总固定、浮动和现金类资产金额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "weighted-term-numerator", "type": "CALCULATION", "title": "期限工作区：计算期限权重分子", "instruction": "按T02口径汇总各项资产金额乘剩余期限。", "response": {"kind": "NUMBER", "placeholder": "输入金额·天", "unit": "元·天", "precision": 2}},
+        {"workItemId": "average-remaining-term", "type": "CALCULATION", "title": "期限工作区：计算平均剩余期限", "instruction": "用期限权重分子除以合格资产金额分母。", "response": {"kind": "NUMBER", "placeholder": "输入天数", "unit": "天", "precision": 6}},
+        {"workItemId": "weighted-duration-numerator", "type": "CALCULATION", "title": "期限工作区：计算存续期权重分子", "instruction": "按T02口径汇总各项资产金额乘剩余存续期。", "response": {"kind": "NUMBER", "placeholder": "输入金额·天", "unit": "元·天", "precision": 2}},
+        {"workItemId": "average-remaining-duration", "type": "CALCULATION", "title": "期限工作区：计算平均剩余存续期", "instruction": "用存续期权重分子除以合格资产金额分母。", "response": {"kind": "NUMBER", "placeholder": "输入天数", "unit": "天", "precision": 6}},
+        {"workItemId": "term-result", "type": "RECONCILIATION", "title": "期限工作区：核对权重闭合", "instruction": "确认固定/浮动属性、两个权重分子、分母和平均值相互解释。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "期限与存续期权重闭合"}, {"optionId": "BROKEN", "text": "属性或分母存在差异"}]}},
+        {"workItemId": "yield-mode", "type": "FIELD_MAP", "title": "收益工作区：识别公式模式", "instruction": "选择本题批准的七日年化公式模式。", "response": {"kind": "SELECT", "placeholder": "选择模式", "options": [{"optionId": "MONTHLY_SIMPLE", "text": "月结简单公式"}, {"optionId": "DAILY_COMPOUND", "text": "日结复利公式"}]}},
+        {"workItemId": "formula-snapshot", "type": "FIELD_MAP", "title": "收益工作区：定位公式快照", "instruction": "选择本题365日、7日窗口和展示精度是否来自批准参数。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_FORMULA_SNAPSHOT", "text": "本题批准公式、日数和精度快照"}, {"optionId": "HISTORICAL_FORMULA", "text": "未经批准的历史公式"}]}},
+        {"workItemId": "per10k-current", "type": "CALCULATION", "title": "收益工作区：读取最近日每万份收益", "instruction": "从7日收益资料填写最近一日每万份收益。", "response": {"kind": "NUMBER", "placeholder": "输入收益", "unit": "元/万份", "precision": 2}},
+        {"workItemId": "seven-day-sum", "type": "CALCULATION", "title": "收益工作区：汇总7日每万份收益", "instruction": "汇总最近7日每万份收益。", "response": {"kind": "NUMBER", "placeholder": "输入收益", "unit": "元/万份", "precision": 2}},
+        {"workItemId": "annualized-percent", "type": "CALCULATION", "title": "收益工作区：计算月结简单七日年化", "instruction": "按批准公式((ΣRi÷7)×365÷10000)×100%计算。", "response": {"kind": "NUMBER", "placeholder": "输入百分比", "unit": "%", "precision": 6}},
+        {"workItemId": "holiday-per10k-total", "type": "CALCULATION", "title": "收益工作区：汇总节假日每万份收益", "instruction": "汇总2026-10-01至2026-10-04每日每万份收益。", "response": {"kind": "NUMBER", "placeholder": "输入收益", "unit": "元/万份", "precision": 2}},
+        {"workItemId": "holiday-units", "type": "CALCULATION", "title": "收益工作区：读取节假日确认份额", "instruction": "从节假日期间收益资料读取确认份额。", "response": {"kind": "NUMBER", "placeholder": "输入份额", "unit": "份", "precision": 0}},
+        {"workItemId": "holiday-income-total", "type": "CALCULATION", "title": "收益工作区：计算节假日期间收益总额", "instruction": "用节假日每万份收益合计乘确认份额除以10000。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "open-disclosure-date", "type": "FIELD_MAP", "title": "收益工作区：定位开放日公告日期", "instruction": "选择2026-09-29开放日公告的签署和公布时序。", "response": {"kind": "SELECT", "placeholder": "选择日期时序", "options": [{"optionId": "OPEN_SIGN_NEXT_DAY_PUBLISH", "text": "9月29日签署、9月30日公布"}, {"optionId": "SAME_DAY_PUBLISH", "text": "9月29日签署并公布"}]}},
+        {"workItemId": "holiday-sign-date", "type": "FIELD_MAP", "title": "收益工作区：定位节假日签署日期", "instruction": "选择节假日期间收益公告签署日期。", "response": {"kind": "SELECT", "placeholder": "选择日期", "options": [{"optionId": "FIRST_WORKDAY_AFTER_HOLIDAY", "text": "节后首个工作日2026-10-05"}, {"optionId": "HOLIDAY_LAST_DAY", "text": "节假日最后一日"}]}},
+        {"workItemId": "holiday-publish-date", "type": "FIELD_MAP", "title": "收益工作区：定位节假日公布日期", "instruction": "选择节假日期间收益公告公布日期。", "response": {"kind": "SELECT", "placeholder": "选择日期", "options": [{"optionId": "SECOND_WORKDAY_AFTER_HOLIDAY", "text": "节后第二个工作日2026-10-06"}, {"optionId": "FIRST_WORKDAY_AFTER_HOLIDAY", "text": "节后首个工作日"}]}},
+        {"workItemId": "holiday-income-diff", "type": "RECONCILIATION", "title": "收益工作区：勾稽节假日收益金额", "instruction": "比较每万份收益乘份额/10000的结果与资料中的节假日收益总额。", "response": {"kind": "NUMBER", "placeholder": "输入差额", "unit": "元", "precision": 2}},
+        {"workItemId": "holiday-date-result", "type": "RECONCILIATION", "title": "收益工作区：勾稽披露日期", "instruction": "核对开放日、节前准备、节后签署和公布日期。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "收益期间、签署和公布日期一致"}, {"optionId": "BROKEN", "text": "存在日期错位"}]}},
+        {"workItemId": "final-result", "type": "RECONCILIATION", "title": "三工作区：选择综合闭合结论", "instruction": "核对偏离、期限/存续期、收益公式、节假日金额和披露日期。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "三个工作区均有来源且闭合"}, {"optionId": "BROKEN", "text": "存在未解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "三工作区：记录YIELD结论", "instruction": "用一句话写明偏离方向/分母、期限与存续期权重、批准公式、节假日收益及签署公布闭合。", "response": {"kind": "TEXT", "placeholder": "输入可追溯的YIELD结论"}}
+      ],
+      "submissionNote": "提交前按偏离、期限/存续期、收益指标/披露三个工作区依次复核；所有阈值、公式、日数、精度和日历均以本题批准参数为准。"
+    }
+  },
+  "references": [
+    {"referenceId": "ACC-REF-MF-MAIN-DOC-YIELD-202306", "title": "货币市场基金核算业务介绍（偏离、期限与披露）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.docx；P193-P201、P208-P249/T02/OLE-01、P251-P285；OMML2-5及P202/P216/P219/P244/P253/P256/P263/P267/P274媒体对象", "usage": "偏离金额/偏离度、固定/浮动工具期限属性、加权平均、开放日/节假日公告及跨日处理的原始定位；历史阈值、公式和截图参数不固化。"},
+    {"referenceId": "ACC-REF-MF-MAIN-PPT-YIELD-202306", "title": "货币市场基金核算业务介绍（偏离与披露结构）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.pptx；S16-S18及其媒体对象", "usage": "偏离控制、期限/存续期和开放日/节假日披露的结构证据；不将监管历史数值直接作为本题答案。"},
+    {"referenceId": "ACC-REF-MF-YIELD-CASE-PARAMETERS-202608", "title": "本路线题面批准脱敏参数", "source": "ACC-MF-YIELD-005综合实务资料包中的MF-YIELD-C-PARAM及关联资料（2026.08版本）", "usage": "只约束本案例NAV、组合金额/属性、公式模式、每万份收益、确认份额、日历、精度和容差。"}
+  ]
+}

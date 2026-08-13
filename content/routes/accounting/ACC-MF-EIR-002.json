@@ -1,0 +1,316 @@
+{
+  "routeId": "ACC-MF-EIR-002",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "资产实际利率、溢折价与摊余成本日计提",
+  "summary": "从本题批准现金流计算实际日利率和年化快照，逐日区分应收利息、实际利息收入、溢折价摊销与期末摊余成本，并在终值日闭合。",
+  "estimatedMinutes": 60,
+  "objectives": [
+    "从本题批准现金流而不是历史示例确定实际日利率和年化展示快照",
+    "区分资产交易费、运营费、应收利息、实际利息收入和溢折价摊销的所属层次",
+    "按日期完成实际利息收入、应收利息、溢折价摊销和期末摊余成本的连续滚动",
+    "用终值现金流、凭证方向和期末资产余额完成闭合复算"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "MF-EIR-KC-01",
+          "type": "CATEGORIES",
+          "title": "实际利率先由批准现金流决定",
+          "conclusion": "实际日利率是本题现金流的折现结果；现金流、到期本金、计息日数和精度必须来自本题批准参数。",
+          "items": [
+            "初始摊余成本是题面初始现金流的资产层金额",
+            "未来每日应收利息和终值本金组成现金流序列",
+            "年化只是本题展示快照，不能替代日计提实际利率"
+          ]
+        },
+        {
+          "cardId": "MF-EIR-KC-02",
+          "type": "FLOW",
+          "title": "每日计提要拆成三层金额",
+          "conclusion": "实际利息收入按期初摊余成本乘实际日利率，日应收利息按题面现金流列示，二者差额形成溢折价摊销。",
+          "items": [
+            "实际利息收入 = 期初摊余成本 × 实际日利率",
+            "溢折价摊销 = 实际利息收入 − 日应收利息",
+            "期末摊余成本 = 期初摊余成本 + 溢折价摊销"
+          ]
+        },
+        {
+          "cardId": "MF-EIR-KC-03",
+          "type": "KEY_POINT",
+          "title": "资产交易费与运营费不跨层重复",
+          "conclusion": "本题资产交易费进入初始资产现金流并影响实际利率；运营费不进入工具现金流，留在基金运营层处理。",
+          "items": [
+            "资产交易费属于取得该工具的资产层输入",
+            "运营费属于基金日常运营层，不改变本工具的批准现金流",
+            "终值日收到本金和应收利息后，摊余成本必须归零"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "案例产品甲的组合核算人员",
+        "product": "案例产品甲 / 案例短期工具甲",
+        "date": "2026-08-12 至 2026-08-15",
+        "facts": [
+          "本题批准现金流为初始摊余成本1,999,201.198562元；第1至第3日各收到应收利息1,000元，第4日收到本金2,000,000元及应收利息1,000元。",
+          "现金成交金额为1,999,021.198562元，资产交易费为180.00元，二者合计形成初始摊余成本；另有运营费45.00元，仅作层次对照，不进入本工具实际利率现金流。",
+          "按批准现金流计算实际日利率0.000600，年化快照按（1+r）^365−1并以百分比展示；本题参数只对本案例有效。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "读取批准现金流、面值、每日应收利息、到期本金、金额精度和两类费用的层次",
+          "reason": "实际利率取决于本题现金流；资产交易费与运营费若混入同一层会破坏后续结果。"
+        },
+        {
+          "order": 2,
+          "action": "用初始摊余成本与未来现金流计算实际日利率0.000600，并得到年化快照24.474953%",
+          "reason": "年化结果只是批准日数口径下的展示值，日计提仍使用实际日利率。"
+        },
+        {
+          "order": 3,
+          "action": "第1日实际利息收入为1,199.520719元，应收利息1,000.00元，溢折价摊销199.520719元，期末摊余成本1,999,400.719281元",
+          "reason": "实际利息收入与现金流应收利息的差额进入溢折价滚动，而不是再造一笔运营费。"
+        },
+        {
+          "order": 4,
+          "action": "第2日和第3日分别按前一日期末摊余成本滚动，期末余额依次为1,999,600.359712元和1,999,800.119928元",
+          "reason": "每天的利息收入基于新的期初摊余成本，不能把初始金额或历史实际利率结果重复套用。"
+        },
+        {
+          "order": 5,
+          "action": "第4日实际利息收入1,199.880072元、应收利息1,000.00元、摊余成本摊至2,000,000.000000元，收到终值后资产余额归零",
+          "reason": "终值本金和最后应收利息闭合后，逐日摊余成本链必须与到期现金流一致。"
+        }
+      ],
+      "summary": "批准现金流与费用分层 → IRR与年化快照 → 第1日分层计提 → 连续日滚动 → 终值闭合"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-MF-EIR-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把本题现金流和费用字段对应到实际利率计算的所属层次。",
+          "fieldMappings": [
+            {
+              "fieldId": "cashflow-source",
+              "label": "实际日利率的输入来源",
+              "source": "案例参数与现金流表",
+              "options": [
+                {"optionId": "APPROVED_CASH_FLOW", "text": "本案例批准现金流"},
+                {"optionId": "HISTORICAL_EXAMPLE", "text": "原材料历史示例数字"}
+              ]
+            },
+            {
+              "fieldId": "asset-fee-layer",
+              "label": "资产交易费180.00元",
+              "source": "买入确认单",
+              "options": [
+                {"optionId": "ASSET_LAYER", "text": "进入初始资产现金流并影响摊余成本"},
+                {"optionId": "OPERATING_LAYER", "text": "作为基金运营费处理"}
+              ]
+            },
+            {
+              "fieldId": "operating-fee-layer",
+              "label": "运营费45.00元",
+              "source": "运营费用提示",
+              "options": [
+                {"optionId": "OPERATING_LAYER", "text": "留在基金运营层，不进入本工具实际利率"},
+                {"optionId": "ASSET_LAYER", "text": "加入本工具批准现金流"}
+              ]
+            },
+            {
+              "fieldId": "terminal-principal",
+              "label": "第4日收到本金2,000,000元",
+              "source": "到期现金流表",
+              "options": [
+                {"optionId": "TERMINAL_CASH_FLOW", "text": "终值现金流并闭合资产余额"},
+                {"optionId": "DAILY_OPERATING_COST", "text": "日常运营费"}
+              ]
+            }
+          ],
+          "answer": ["APPROVED_CASH_FLOW", "ASSET_LAYER", "OPERATING_LAYER", "TERMINAL_CASH_FLOW"],
+          "explanation": "实际利率只基于本题批准现金流；资产交易费和运营费分别属于资产层与运营层。",
+          "hints": ["先判断输入改变的是工具现金流还是基金运营结果。"]
+        },
+        {
+          "questionId": "ACC-MF-EIR-Q-02",
+          "type": "CALCULATION",
+          "prompt": "根据案例甲批准现金流计算初始摊余成本、实际日利率和年化快照。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "initial-carrying", "label": "初始摊余成本", "formula": "1,999,021.198562 + 180.00", "placeholder": "输入金额", "unit": "元", "precision": 6, "tolerance": 0.01},
+              {"fieldId": "actual-daily-rate", "label": "实际日利率", "formula": "批准现金流的IRR", "placeholder": "输入小数利率", "unit": "日利率", "precision": 6, "tolerance": 0.0000000001},
+              {"fieldId": "annualized-rate-percent", "label": "年化快照", "formula": "((1 + r)^365 − 1) × 100", "placeholder": "输入百分比", "unit": "%", "precision": 6, "tolerance": 0.000001}
+            ]
+          },
+          "answer": ["1999201.198562", "0.000600", "24.474953"],
+          "explanation": "初始资产层金额包含交易费；实际日利率为0.000600，按本题365日展示快照为24.474953%。",
+          "hints": ["现金流的初始金额先包含资产交易费，再对未来现金流求IRR；年化只作为展示。"]
+        },
+        {
+          "questionId": "ACC-MF-EIR-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全第1日实际利息收入、应收利息和折溢价摊销的凭证科目。",
+          "ledgerEntries": [
+            {"entryId": "daily-interest-receivable", "direction": "借", "label": "第1日应收利息", "amount": "1,000.00元", "placeholder": "输入借方科目"},
+            {"entryId": "daily-interest-income", "direction": "贷", "label": "第1日实际利息收入", "amount": "1,199.520719元", "placeholder": "输入贷方科目"},
+            {"entryId": "daily-discount-amortization", "direction": "贷", "label": "第1日折溢价摊销", "amount": "199.520719元", "placeholder": "输入贷方科目"}
+          ],
+          "answer": ["应收利息", "债券利息收入", "债券溢折价"],
+          "explanation": "每日应收利息、实际利息收入与折溢价摊销分层列示；本题不把运营费塞进工具计息凭证。",
+          "hints": ["先区分应收利息与实际利息收入，再用差额定位溢折价科目。"]
+        },
+        {
+          "questionId": "ACC-MF-EIR-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "完成第1日至终值日的摊余成本滚动和终值闭合。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "day1-ending", "label": "第1日期末摊余成本", "kind": "NUMBER", "formula": "1,999,201.198562 + 199.520719", "placeholder": "输入期末金额", "precision": 6, "tolerance": 0.01},
+              {"fieldId": "day2-ending", "label": "第2日期末摊余成本", "kind": "NUMBER", "formula": "第1日期末 + 第2日摊销", "placeholder": "输入期末金额", "precision": 6, "tolerance": 0.01},
+              {"fieldId": "day3-ending", "label": "第3日期末摊余成本", "kind": "NUMBER", "formula": "第2日期末 + 第3日摊销", "placeholder": "输入期末金额", "precision": 6, "tolerance": 0.01},
+              {"fieldId": "day4-ending", "label": "终值日前摊余成本", "kind": "NUMBER", "formula": "第3日期末 + 第4日摊销", "placeholder": "输入期末金额", "precision": 6, "tolerance": 0.01},
+              {"fieldId": "terminal-closing", "label": "收到终值后的资产余额", "kind": "NUMBER", "formula": "2,000,000 − 2,000,000", "placeholder": "输入余额", "precision": 6, "tolerance": 0.01},
+              {"fieldId": "result", "label": "终值勾稽结论", "kind": "SELECT", "formula": "终值日前摊余成本等于本金且收款后余额为零", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "连续滚动且终值闭合"}, {"optionId": "BROKEN", "text": "存在未解释差异"}]}
+            ]
+          },
+          "answer": ["1999400.719281", "1999600.359712", "1999800.119928", "2000000.000000", "0.000000", "BALANCED"],
+          "explanation": "每天以新的期初摊余成本计算实际利息，终值日摊至本金并在收到本金后归零。",
+          "hints": ["每一日都从上一日期末余额开始；最后要同时检查本金和收款后的零余额。"]
+        },
+        {
+          "questionId": "ACC-MF-EIR-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话说明实际利率、折溢价摊销、费用分层和终值闭合。",
+          "textInput": {"label": "实际利率结论", "placeholder": "写明现金流来源、费用层次、每日滚动和终值"},
+          "answer": ["批准现金流", "交易费进入资产层", "运营费不进入实际利率", "折溢价摊销", "终值闭合"],
+          "explanation": "合格结论应把批准现金流、两类费用的所属层、逐日折溢价摊销和终值零余额连起来。",
+          "hints": ["不要只写实际利率数值，还要说明它如何进入每日账面滚动。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "案例产品乙的组合核算人员",
+        "product": "案例产品乙 / 案例短期工具乙",
+        "date": "2026-08-18 至 2026-08-20",
+        "purpose": "根据批准现金流和买入资料，独立完成实际日利率、年化快照、三日期末摊余成本、凭证层次及终值闭合；本路线综合案例为独立脱敏批次，不承接其他路线的金额、份额或余额，仅复用前置资产层字段定义。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "MF-EIR-C-PARAM",
+          "title": "本案例批准参数字典",
+          "kind": "PARAMETER",
+          "description": "本参数字典只约束案例产品乙的现金流、精度和费用边界；本路线案例为独立脱敏批次，不承接其他路线的金额、份额或余额。",
+          "fields": [
+            {"fieldId": "face", "label": "终值本金", "value": "1,000,000.00", "unit": "元"},
+            {"fieldId": "daily-receivable", "label": "每日应收利息", "value": "700.00", "unit": "元"},
+            {"fieldId": "term", "label": "现金流期数", "value": "3个日计提日"},
+            {"fieldId": "annualization", "label": "年化展示口径", "value": "((1+r)^365−1)×100%；365和展示精度仅为本题快照"},
+            {"fieldId": "precision", "label": "金额与判定精度", "value": "金额显示6位；金额判定容差0.01元；利率判定容差0.0000000001"},
+            {"fieldId": "fee-boundary", "label": "费用分层", "value": "资产交易费120.00元进入初始资产现金流；运营费35.00元不进入本工具实际利率，留在运营层"}
+          ]
+        },
+        {
+          "materialId": "MF-EIR-C-TRADE",
+          "title": "买入确认与资产交易费",
+          "kind": "CONFIRMATION",
+          "description": "正常买入的报价现金结算、资产交易费和初始摊余成本。",
+          "fields": [
+            {"fieldId": "quoted-settlement", "label": "报价现金结算", "value": "999,580.479361", "unit": "元"},
+            {"fieldId": "asset-trade-fee", "label": "资产交易费", "value": "120.00", "unit": "元"},
+            {"fieldId": "initial-carrying", "label": "初始摊余成本", "value": "999,700.479361", "unit": "元"},
+            {"fieldId": "trade-status", "label": "买入状态", "value": "正常完成；资产层费用已进入初始金额"}
+          ]
+        },
+        {
+          "materialId": "MF-EIR-C-CASHFLOW",
+          "title": "批准未来现金流表",
+          "kind": "STATEMENT",
+          "description": "实际日利率求解和终值闭合使用的未来现金流。",
+          "fields": [
+            {"fieldId": "day1-cashflow", "label": "第1日现金流", "value": "700.00", "unit": "元"},
+            {"fieldId": "day2-cashflow", "label": "第2日现金流", "value": "700.00", "unit": "元"},
+            {"fieldId": "day3-cashflow", "label": "第3日现金流", "value": "1,000,700.00", "unit": "元"},
+            {"fieldId": "cashflow-source", "label": "现金流来源", "value": "本案例批准现金流快照"}
+          ]
+        },
+        {
+          "materialId": "MF-EIR-C-DAILY-ROLLFORWARD",
+          "title": "三日期末摊余成本台账",
+          "kind": "LEDGER",
+          "description": "用于独立核对每日期初、实际利息、应收利息、摊销和期末余额。",
+          "fields": [
+            {"fieldId": "day1-opening", "label": "第1日期初摊余成本", "value": "999,700.479361", "unit": "元"},
+            {"fieldId": "day2-opening", "label": "第2日期初摊余成本", "value": "999,800.239744", "unit": "元"},
+            {"fieldId": "day3-opening", "label": "第3日期初摊余成本", "value": "999,900.079936", "unit": "元"},
+            {"fieldId": "day1-ending", "label": "第1日期末摊余成本", "value": "999,800.239744", "unit": "元"},
+            {"fieldId": "day2-ending", "label": "第2日期末摊余成本", "value": "999,900.079936", "unit": "元"},
+            {"fieldId": "day3-ending", "label": "第3日期末摊余成本", "value": "1,000,000.000000", "unit": "元"}
+          ]
+        },
+        {
+          "materialId": "MF-EIR-C-OPERATING-FEE",
+          "title": "运营费分层提示",
+          "kind": "PARAMETER",
+          "description": "用于防止把运营层金额重复放入本工具实际利率现金流。",
+          "fields": [
+            {"fieldId": "operating-fee", "label": "本题运营费", "value": "35.00", "unit": "元"},
+            {"fieldId": "operating-layer", "label": "所属层", "value": "基金运营层；本批不计算其结转"},
+            {"fieldId": "not-in-eir", "label": "实际利率处理", "value": "不进入案例产品乙批准现金流"}
+          ]
+        },
+        {
+          "materialId": "MF-EIR-C-TERMINAL",
+          "title": "终值收款摘要",
+          "kind": "VOUCHER",
+          "description": "第3日收到本金和最后一期应收利息，收款后工具资产余额归零。",
+          "fields": [
+            {"fieldId": "principal-receipt", "label": "本金收款", "value": "1,000,000.00", "unit": "元"},
+            {"fieldId": "final-interest-receipt", "label": "最后一期应收利息", "value": "700.00", "unit": "元"},
+            {"fieldId": "terminal-receipt", "label": "终值现金流合计", "value": "1,000,700.00", "unit": "元"},
+            {"fieldId": "post-receipt-balance", "label": "收款后资产余额", "value": "0.00", "unit": "元"}
+          ]
+        }
+      ],
+      "workItems": [
+        {"workItemId": "cashflow-source", "type": "FIELD_MAP", "title": "定位实际利率现金流来源", "instruction": "选择本题实际日利率求解应采用的现金流来源。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_CASH_FLOW", "text": "本案例批准现金流表"}, {"optionId": "HISTORICAL_EXAMPLE", "text": "历史示例或未经批准的默认值"}]}},
+        {"workItemId": "asset-fee-layer", "type": "FIELD_MAP", "title": "定位资产交易费层次", "instruction": "选择120.00元资产交易费的处理层次。", "response": {"kind": "SELECT", "placeholder": "选择层次", "options": [{"optionId": "ASSET_LAYER", "text": "进入初始资产现金流和摊余成本"}, {"optionId": "OPERATING_LAYER", "text": "进入基金运营费用结转"}]}},
+        {"workItemId": "operating-fee-layer", "type": "FIELD_MAP", "title": "定位运营费层次", "instruction": "选择35.00元运营费是否进入本工具实际利率。", "response": {"kind": "SELECT", "placeholder": "选择层次", "options": [{"optionId": "OPERATING_LAYER", "text": "留在基金运营层，不进入本题工具现金流"}, {"optionId": "ASSET_LAYER", "text": "加入本题工具实际利率现金流"}]}},
+        {"workItemId": "initial-carrying-amount", "type": "CALCULATION", "title": "复算初始摊余成本", "instruction": "用报价现金结算999,580.479361元加资产交易费120.00元。", "response": {"kind": "NUMBER", "placeholder": "输入初始金额", "unit": "元", "precision": 6}},
+        {"workItemId": "actual-daily-rate", "type": "CALCULATION", "title": "求解实际日利率", "instruction": "用初始摊余成本与700、700、1,000,700三笔未来现金流求IRR。", "response": {"kind": "NUMBER", "placeholder": "输入小数利率", "unit": "日利率", "precision": 6}},
+        {"workItemId": "annualized-rate-percent", "type": "CALCULATION", "title": "计算年化快照", "instruction": "按本题参数将实际日利率换算为((1+r)^365−1)×100%。", "response": {"kind": "NUMBER", "placeholder": "输入百分比", "unit": "%", "precision": 6}},
+        {"workItemId": "day1-interest-income", "type": "CALCULATION", "title": "第1日实际利息收入", "instruction": "用第1日期初摊余成本乘实际日利率。", "response": {"kind": "NUMBER", "placeholder": "输入实际利息", "unit": "元", "precision": 6}},
+        {"workItemId": "day1-receivable-interest", "type": "CALCULATION", "title": "第1日应收利息", "instruction": "从第1日批准现金流读取应收利息。", "response": {"kind": "NUMBER", "placeholder": "输入应收利息", "unit": "元", "precision": 2}},
+        {"workItemId": "day1-discount-amortization", "type": "CALCULATION", "title": "第1日折溢价摊销", "instruction": "用实际利息收入减应收利息。", "response": {"kind": "NUMBER", "placeholder": "输入摊销", "unit": "元", "precision": 6}},
+        {"workItemId": "day1-ending-carrying", "type": "RECONCILIATION", "title": "第1日期末摊余成本", "instruction": "用期初摊余成本加第1日折溢价摊销。", "response": {"kind": "NUMBER", "placeholder": "输入期末金额", "unit": "元", "precision": 6}},
+        {"workItemId": "day2-interest-income", "type": "CALCULATION", "title": "第2日实际利息收入", "instruction": "用第2日期初摊余成本乘实际日利率。", "response": {"kind": "NUMBER", "placeholder": "输入实际利息", "unit": "元", "precision": 6}},
+        {"workItemId": "day2-receivable-interest", "type": "CALCULATION", "title": "第2日应收利息", "instruction": "从第2日批准现金流读取应收利息。", "response": {"kind": "NUMBER", "placeholder": "输入应收利息", "unit": "元", "precision": 2}},
+        {"workItemId": "day2-discount-amortization", "type": "CALCULATION", "title": "第2日折溢价摊销", "instruction": "用第2日实际利息收入减应收利息。", "response": {"kind": "NUMBER", "placeholder": "输入摊销", "unit": "元", "precision": 6}},
+        {"workItemId": "day2-ending-carrying", "type": "RECONCILIATION", "title": "第2日期末摊余成本", "instruction": "用第1日期末摊余成本加第2日折溢价摊销。", "response": {"kind": "NUMBER", "placeholder": "输入期末金额", "unit": "元", "precision": 6}},
+        {"workItemId": "day3-interest-income", "type": "CALCULATION", "title": "第3日实际利息收入", "instruction": "用第3日期初摊余成本乘实际日利率。", "response": {"kind": "NUMBER", "placeholder": "输入实际利息", "unit": "元", "precision": 6}},
+        {"workItemId": "day3-receivable-interest", "type": "CALCULATION", "title": "第3日应收利息", "instruction": "从第3日终值现金流读取最后一期应收利息。", "response": {"kind": "NUMBER", "placeholder": "输入应收利息", "unit": "元", "precision": 2}},
+        {"workItemId": "day3-discount-amortization", "type": "CALCULATION", "title": "第3日折溢价摊销", "instruction": "用第3日实际利息收入减应收利息。", "response": {"kind": "NUMBER", "placeholder": "输入摊销", "unit": "元", "precision": 6}},
+        {"workItemId": "day3-ending-carrying", "type": "RECONCILIATION", "title": "第3日期末摊余成本", "instruction": "用第2日期末摊余成本加第3日折溢价摊销，核对是否回到本金。", "response": {"kind": "NUMBER", "placeholder": "输入期末金额", "unit": "元", "precision": 6}},
+        {"workItemId": "journal-debit", "type": "LEDGER_ENTRY", "title": "补全每日计提借方", "instruction": "填写每日应收利息的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入借方科目"}},
+        {"workItemId": "journal-credit-income", "type": "LEDGER_ENTRY", "title": "补全利息收入贷方", "instruction": "填写实际利息收入的贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}},
+        {"workItemId": "journal-credit-discount", "type": "LEDGER_ENTRY", "title": "补全折溢价摊销贷方", "instruction": "填写差额摊销的贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}},
+        {"workItemId": "terminal-cash-receipt", "type": "CALCULATION", "title": "复算终值现金流", "instruction": "用本金1,000,000元加最后一期应收利息700元。", "response": {"kind": "NUMBER", "placeholder": "输入终值现金流", "unit": "元", "precision": 2}},
+        {"workItemId": "terminal-closing-carrying", "type": "RECONCILIATION", "title": "核对收款后资产余额", "instruction": "终值日前摊余成本归本金，收到本金后资产余额应为零。", "response": {"kind": "NUMBER", "placeholder": "输入收款后余额", "unit": "元", "precision": 2}},
+        {"workItemId": "rollforward-result", "type": "RECONCILIATION", "title": "选择连续计提结论", "instruction": "核对三日实际利息、应收利息、摊销、期末摊余成本和终值收款。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "三日滚动和终值闭合"}, {"optionId": "BROKEN", "text": "存在未解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "记录实际利率结论", "instruction": "用一句话写明实际日利率、年化快照、费用分层、每日摊销和终值余额。", "response": {"kind": "TEXT", "placeholder": "输入可追溯的计提结论"}}
+      ],
+      "submissionNote": "提交前请按顺序复核现金流来源、资产交易费、运营费边界、三日期末摊余成本、凭证科目和终值收款。提交后将形成不可修改的正式训练记录。"
+    }
+  },
+  "references": [
+    {"referenceId": "ACC-REF-MF-MAIN-DOC-EIR-202306", "title": "货币市场基金核算业务介绍（实际利率证据）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.docx；P034-P039、P044-P054、P057-P081；P037/OMML1；P063-P073及drawing09-13/media image4-image8", "usage": "资产交易费冲溢折价、实际利率现金流、每日应收利息/利息收入/溢折价差额、逐日摊余成本和终值闭合的原始证据。原始示例数字不复制到本路线。"},
+    {"referenceId": "ACC-REF-MF-MAIN-PPT-EIR-202306", "title": "货币市场基金核算业务介绍（PPTX实际利率结构）", "source": "04_特殊产品区_货币基金__货币市场基金核算业务介绍202306.pptx；S12-S13", "usage": "实际利率、债券买入、TA和费用层次的连续主题证据；不把历史系统截图或参数固化为答案。"},
+    {"referenceId": "ACC-REF-MF-EIR-CASE-PARAMETERS-202608", "title": "本路线题面批准脱敏参数", "source": "ACC-MF-EIR-002 综合实务资料包中的 MF-EIR-C-PARAM、MF-EIR-C-CASHFLOW（2026.08 版本）", "usage": "只约束本题现金流、精度、年化展示和资产交易费/运营费分层，不替代当前业务规则。"}
+  ]
+}

@@ -1,0 +1,262 @@
+{
+  "routeId": "ACC-MF-YIELD-005",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-MFYIELD-SEPARATION",
+          "description": "区分偏离、固定/浮动工具期限属性和加权分母",
+          "weight": 10,
+          "evidenceRequirement": "偏离来源、方向、分母及固定/浮动工具期限口径均从同一批准日终资料包定位",
+          "evidenceRules": [
+            {"fieldId": "deviation-source", "operator": "EQUALS", "expected": "APPROVED_DAY_END"},
+            {"fieldId": "deviation-direction", "operator": "EQUALS", "expected": "NEGATIVE"},
+            {"fieldId": "deviation-denominator", "operator": "EQUALS", "expected": "COST_NAV"},
+            {"fieldId": "fixed-term-basis", "operator": "EQUALS", "expected": "MATURITY_DATE"},
+            {"fieldId": "floating-term-basis", "operator": "EQUALS", "expected": "NEXT_RESET_MATURITY"},
+            {"fieldId": "term-denominator", "operator": "EQUALS", "expected": "ELIGIBLE_ASSET_TOTAL"}
+          ],
+          "remediationTargetId": "R-MFYIELD-SEPARATION"
+        },
+        {
+          "criterionId": "C-MFYIELD-FORMULA",
+          "description": "识别批准收益公式与开放日时序",
+          "weight": 8,
+          "evidenceRequirement": "收益模式、公式快照和开放日公告签署公布时序来自题面批准参数",
+          "evidenceRules": [
+            {"fieldId": "yield-mode", "operator": "EQUALS", "expected": "MONTHLY_SIMPLE"},
+            {"fieldId": "formula-snapshot", "operator": "EQUALS", "expected": "APPROVED_FORMULA_SNAPSHOT"},
+            {"fieldId": "open-disclosure-date", "operator": "EQUALS", "expected": "OPEN_SIGN_NEXT_DAY_PUBLISH"}
+          ],
+          "remediationTargetId": "R-MFYIELD-FORMULA"
+        },
+        {
+          "criterionId": "C-MFYIELD-CALENDAR",
+          "description": "识别节假日签署与公布日期",
+          "weight": 7,
+          "evidenceRequirement": "节假日公告在批准日历下按节后首个和第二个工作日完成签署、公布",
+          "evidenceRules": [
+            {"fieldId": "holiday-sign-date", "operator": "EQUALS", "expected": "FIRST_WORKDAY_AFTER_HOLIDAY"},
+            {"fieldId": "holiday-publish-date", "operator": "EQUALS", "expected": "SECOND_WORKDAY_AFTER_HOLIDAY"}
+          ],
+          "remediationTargetId": "R-MFYIELD-CALENDAR"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-MFYIELD-DEVIATION",
+          "description": "完成成本NAV、影子NAV和偏离计算",
+          "weight": 10,
+          "evidenceRequirement": "成本NAV、影子NAV、偏离金额和以成本NAV为分母的偏离度可独立复算",
+          "evidenceRules": [
+            {"fieldId": "deviation-source", "operator": "EQUALS", "expected": "APPROVED_DAY_END"},
+            {"fieldId": "deviation-denominator", "operator": "EQUALS", "expected": "COST_NAV"},
+            {"fieldId": "cost-nav", "operator": "NUMBER_EQUALS", "expected": 12450000, "tolerance": 0.01},
+            {"fieldId": "shadow-nav", "operator": "NUMBER_EQUALS", "expected": 12401000, "tolerance": 0.01},
+            {"fieldId": "deviation-amount", "operator": "NUMBER_EQUALS", "expected": -49000, "tolerance": 0.01},
+            {"fieldId": "deviation-rate-percent", "operator": "NUMBER_EQUALS", "expected": -0.393574, "tolerance": 0.000001},
+            {"fieldId": "deviation-ledger-action", "operator": "CONTAINS_ALL", "expected": ["不出估增凭证", "重出估值表", "核对"]},
+            {"fieldId": "deviation-result", "operator": "EQUALS", "expected": "NEGATIVE_DEVIATION_RECORDED"}
+          ],
+          "remediationTargetId": "R-MFYIELD-DEVIATION"
+        },
+        {
+          "criterionId": "P-MFYIELD-TERM",
+          "description": "完成期限和存续期加权计算",
+          "weight": 10,
+          "evidenceRequirement": "资产分母、期限/存续期权重分子和两个平均天数均闭合",
+          "evidenceRules": [
+            {"fieldId": "fixed-term-basis", "operator": "EQUALS", "expected": "MATURITY_DATE"},
+            {"fieldId": "floating-term-basis", "operator": "EQUALS", "expected": "NEXT_RESET_MATURITY"},
+            {"fieldId": "term-denominator", "operator": "EQUALS", "expected": "ELIGIBLE_ASSET_TOTAL"},
+            {"fieldId": "eligible-asset-total", "operator": "NUMBER_EQUALS", "expected": 9500000, "tolerance": 0.01},
+            {"fieldId": "weighted-term-numerator", "operator": "NUMBER_EQUALS", "expected": 513000000, "tolerance": 0.01},
+            {"fieldId": "average-remaining-term", "operator": "NUMBER_EQUALS", "expected": 54, "tolerance": 0.000001},
+            {"fieldId": "weighted-duration-numerator", "operator": "NUMBER_EQUALS", "expected": 933000000, "tolerance": 0.01},
+            {"fieldId": "average-remaining-duration", "operator": "NUMBER_EQUALS", "expected": 98.210526, "tolerance": 0.000001},
+            {"fieldId": "term-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFYIELD-TERM"
+        },
+        {
+          "criterionId": "P-MFYIELD-YIELD",
+          "description": "完成七日收益、年化和节假日期间收益计算",
+          "weight": 10,
+          "evidenceRequirement": "最近日指标、7日合计、七日年化、节假日合计、确认份额和收益总额可复算",
+          "evidenceRules": [
+            {"fieldId": "yield-mode", "operator": "EQUALS", "expected": "MONTHLY_SIMPLE"},
+            {"fieldId": "formula-snapshot", "operator": "EQUALS", "expected": "APPROVED_FORMULA_SNAPSHOT"},
+            {"fieldId": "per10k-current", "operator": "NUMBER_EQUALS", "expected": 1.04, "tolerance": 0.01},
+            {"fieldId": "seven-day-sum", "operator": "NUMBER_EQUALS", "expected": 7.12, "tolerance": 0.01},
+            {"fieldId": "annualized-percent", "operator": "NUMBER_EQUALS", "expected": 3.712571, "tolerance": 0.000001},
+            {"fieldId": "holiday-per10k-total", "operator": "NUMBER_EQUALS", "expected": 4.5, "tolerance": 0.01},
+            {"fieldId": "holiday-units", "operator": "NUMBER_EQUALS", "expected": 9600000, "tolerance": 0},
+            {"fieldId": "holiday-income-total", "operator": "NUMBER_EQUALS", "expected": 4320, "tolerance": 0.01},
+            {"fieldId": "holiday-income-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "holiday-date-result", "operator": "EQUALS", "expected": "BALANCED"},
+            {"fieldId": "final-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFYIELD-YIELD"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "RISK-MFYIELD-NORMAL-ACTION",
+          "description": "控制正常偏离资料的估值表处理边界",
+          "weight": 8,
+          "evidenceRequirement": "正常资料按重出估值表并核对处理，不虚构估增凭证，偏离结论方向一致",
+          "evidenceRules": [
+            {"fieldId": "deviation-ledger-action", "operator": "CONTAINS_ALL", "expected": ["不出估增凭证", "重出估值表", "核对"]},
+            {"fieldId": "deviation-result", "operator": "EQUALS", "expected": "NEGATIVE_DEVIATION_RECORDED"}
+          ],
+          "remediationTargetId": "R-MFYIELD-DEVIATION"
+        },
+        {
+          "criterionId": "RISK-MFYIELD-CALENDAR-CLOSE",
+          "description": "控制节假日收益金额和披露日历错位",
+          "weight": 9,
+          "evidenceRequirement": "节假日收益差额为零，节后签署/公布日期和期间时序一致",
+          "evidenceRules": [
+            {"fieldId": "holiday-income-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "holiday-date-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFYIELD-CALENDAR"
+        },
+        {
+          "criterionId": "RISK-MFYIELD-THREE-WORKSPACES",
+          "description": "控制三个工作区之间的口径串用和未解释差异",
+          "weight": 8,
+          "evidenceRequirement": "偏离、期限/存续期和收益/披露三个工作区最终均有来源并闭合",
+          "evidenceRules": [
+            {"fieldId": "term-result", "operator": "EQUALS", "expected": "BALANCED"},
+            {"fieldId": "final-result", "operator": "EQUALS", "expected": "BALANCED"}
+          ],
+          "remediationTargetId": "R-MFYIELD-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-MFYIELD-RESULT",
+          "description": "形成可追溯的三工作区结论",
+          "weight": 20,
+          "evidenceRequirement": "短结论同时表达偏离分母、期限/存续期口径、批准公式、节假日收益和签署公布闭合",
+          "evidenceRules": [
+            {"fieldId": "result-note", "operator": "CONTAINS_ALL", "expected": ["负", "摊余成本NAV", "最终到期日", "下次调息", "月结简单公式", "3.712571%", "4.50", "9,600,000", "10月5日签署", "10月6日公布", "闭合"]}
+          ],
+          "remediationTargetId": "R-MFYIELD-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-MFYIELD-DEVIATION-DIRECTION",
+      "description": "偏离方向和分母必须正确，并与成本/影子NAV计算结果闭合",
+      "evidenceRequirement": "来源、负偏离方向、成本NAV分母、偏离金额和偏离度全部一致",
+      "evidenceRules": [
+        {"fieldId": "deviation-source", "operator": "EQUALS", "expected": "APPROVED_DAY_END"},
+        {"fieldId": "deviation-direction", "operator": "EQUALS", "expected": "NEGATIVE"},
+        {"fieldId": "deviation-denominator", "operator": "EQUALS", "expected": "COST_NAV"},
+        {"fieldId": "cost-nav", "operator": "NUMBER_EQUALS", "expected": 12450000, "tolerance": 0.01},
+        {"fieldId": "shadow-nav", "operator": "NUMBER_EQUALS", "expected": 12401000, "tolerance": 0.01},
+        {"fieldId": "deviation-amount", "operator": "NUMBER_EQUALS", "expected": -49000, "tolerance": 0.01},
+        {"fieldId": "deviation-rate-percent", "operator": "NUMBER_EQUALS", "expected": -0.393574, "tolerance": 0.000001},
+        {"fieldId": "deviation-result", "operator": "EQUALS", "expected": "NEGATIVE_DEVIATION_RECORDED"}
+      ],
+      "remediationTargetId": "R-MFYIELD-DEVIATION"
+    },
+    {
+      "requirementId": "M-MFYIELD-TERM-YIELD-HOLIDAY",
+      "description": "期限/存续期、收益公式和节假日时序必须共同闭合",
+      "evidenceRequirement": "固定/浮动口径、权重、批准公式、年化、节假日收益金额和签署公布日期全部闭合",
+      "evidenceRules": [
+        {"fieldId": "fixed-term-basis", "operator": "EQUALS", "expected": "MATURITY_DATE"},
+        {"fieldId": "floating-term-basis", "operator": "EQUALS", "expected": "NEXT_RESET_MATURITY"},
+        {"fieldId": "term-denominator", "operator": "EQUALS", "expected": "ELIGIBLE_ASSET_TOTAL"},
+        {"fieldId": "eligible-asset-total", "operator": "NUMBER_EQUALS", "expected": 9500000, "tolerance": 0.01},
+        {"fieldId": "weighted-term-numerator", "operator": "NUMBER_EQUALS", "expected": 513000000, "tolerance": 0.01},
+        {"fieldId": "average-remaining-term", "operator": "NUMBER_EQUALS", "expected": 54, "tolerance": 0.000001},
+        {"fieldId": "weighted-duration-numerator", "operator": "NUMBER_EQUALS", "expected": 933000000, "tolerance": 0.01},
+        {"fieldId": "average-remaining-duration", "operator": "NUMBER_EQUALS", "expected": 98.210526, "tolerance": 0.000001},
+        {"fieldId": "yield-mode", "operator": "EQUALS", "expected": "MONTHLY_SIMPLE"},
+        {"fieldId": "formula-snapshot", "operator": "EQUALS", "expected": "APPROVED_FORMULA_SNAPSHOT"},
+        {"fieldId": "annualized-percent", "operator": "NUMBER_EQUALS", "expected": 3.712571, "tolerance": 0.000001},
+        {"fieldId": "holiday-per10k-total", "operator": "NUMBER_EQUALS", "expected": 4.5, "tolerance": 0.01},
+        {"fieldId": "holiday-units", "operator": "NUMBER_EQUALS", "expected": 9600000, "tolerance": 0},
+        {"fieldId": "holiday-income-total", "operator": "NUMBER_EQUALS", "expected": 4320, "tolerance": 0.01},
+        {"fieldId": "holiday-sign-date", "operator": "EQUALS", "expected": "FIRST_WORKDAY_AFTER_HOLIDAY"},
+        {"fieldId": "holiday-publish-date", "operator": "EQUALS", "expected": "SECOND_WORKDAY_AFTER_HOLIDAY"},
+        {"fieldId": "holiday-income-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "holiday-date-result", "operator": "EQUALS", "expected": "BALANCED"},
+        {"fieldId": "term-result", "operator": "EQUALS", "expected": "BALANCED"},
+        {"fieldId": "final-result", "operator": "EQUALS", "expected": "BALANCED"}
+      ],
+      "remediationTargetId": "R-MFYIELD-TERM-YIELD-HOLIDAY"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "R-MFYIELD-DEVIATION", "title": "补学偏离方向与分母", "reason": "成本NAV、影子NAV、偏离方向、偏离金额或成本NAV分母未闭合", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-YIELD-KC-01", "questionId": "ACC-MF-YIELD-Q-01"},
+    {"targetId": "R-MFYIELD-SEPARATION", "title": "区分三工作区字段口径", "reason": "把偏离、期限属性或加权分母错配到其他工作区", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-YIELD-KC-01", "questionId": "ACC-MF-YIELD-Q-01"},
+    {"targetId": "R-MFYIELD-TERM", "title": "复算期限与存续期权重", "reason": "固定/浮动属性、权重分母、加权分子或平均天数错误", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-MF-YIELD-Q-02"},
+    {"targetId": "R-MFYIELD-FORMULA", "title": "识别批准收益公式", "reason": "把日结复利、月结简单公式或历史数字混用", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "MF-YIELD-KC-03", "questionId": "ACC-MF-YIELD-Q-01"},
+    {"targetId": "R-MFYIELD-YIELD", "title": "复算七日收益与年化", "reason": "每万份收益合计、七日年化或展示精度未按批准公式复算", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-MF-YIELD-Q-02"},
+    {"targetId": "R-MFYIELD-CALENDAR", "title": "补学节假日披露日历", "reason": "节假日收益金额或开放日/节后签署公布日期错位", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-YIELD-Q-04"},
+    {"targetId": "R-MFYIELD-RECON", "title": "完成三个工作区勾稽", "reason": "期限/存续期或三个工作区的最终结果存在未解释差异", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-YIELD-Q-05"},
+    {"targetId": "R-MFYIELD-TERM-YIELD-HOLIDAY", "title": "闭合期限、收益公式与节假日", "reason": "期限/存续期、七日年化、节假日收益和披露日期未能共同闭合", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-YIELD-Q-04"},
+    {"targetId": "R-MFYIELD-EXPRESSION", "title": "形成可追溯YIELD结论", "reason": "短结论遗漏偏离、期限/存续期、公式或节假日披露字段", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-MF-YIELD-Q-05"}
+  ],
+  "referenceAnswer": {
+    "responses": {
+      "deviation-source": "APPROVED_DAY_END",
+      "deviation-direction": "NEGATIVE",
+      "deviation-denominator": "COST_NAV",
+      "cost-nav": 12450000,
+      "shadow-nav": 12401000,
+      "deviation-amount": -49000,
+      "deviation-rate-percent": -0.393574,
+      "deviation-ledger-action": "正常资料处理：不出估增凭证，重出估值表并与管理人核对。",
+      "deviation-result": "NEGATIVE_DEVIATION_RECORDED",
+      "fixed-term-basis": "MATURITY_DATE",
+      "floating-term-basis": "NEXT_RESET_MATURITY",
+      "term-denominator": "ELIGIBLE_ASSET_TOTAL",
+      "eligible-asset-total": 9500000,
+      "weighted-term-numerator": 513000000,
+      "average-remaining-term": 54,
+      "weighted-duration-numerator": 933000000,
+      "average-remaining-duration": 98.210526,
+      "term-result": "BALANCED",
+      "yield-mode": "MONTHLY_SIMPLE",
+      "formula-snapshot": "APPROVED_FORMULA_SNAPSHOT",
+      "per10k-current": 1.04,
+      "seven-day-sum": 7.12,
+      "annualized-percent": 3.712571,
+      "holiday-per10k-total": 4.5,
+      "holiday-units": 9600000,
+      "holiday-income-total": 4320,
+      "open-disclosure-date": "OPEN_SIGN_NEXT_DAY_PUBLISH",
+      "holiday-sign-date": "FIRST_WORKDAY_AFTER_HOLIDAY",
+      "holiday-publish-date": "SECOND_WORKDAY_AFTER_HOLIDAY",
+      "holiday-income-diff": 0,
+      "holiday-date-result": "BALANCED",
+      "final-result": "BALANCED",
+      "result-note": "偏离为负，偏离度以摊余成本NAV为分母；固定工具期限和存续期均取最终到期日，浮动工具期限取下次调息、存续期取最终到期日；按批准月结简单公式计算7.12元/万份合计和3.712571%七日年化；节假日4.50×9,600,000/10,000=4,320.00元，10月5日签署、10月6日公布，三个工作区闭合。"
+    }
+  }
+}
