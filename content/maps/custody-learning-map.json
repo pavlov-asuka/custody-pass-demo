@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.7",
+  "version": "2026.08.8",
   "lines": [
     {
       "line": "CLEARING",
@@ -448,6 +448,57 @@
                   "order": 5,
                   "position": "CENTER",
                   "prerequisiteNodeIds": ["ACC-NODE-MF-CARRY-004"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "ACC-MODULE-BROKER-SETTLEMENT-FUND",
+              "name": "券结基金核算业务",
+              "order": 7,
+              "nodes": [
+                {
+                  "nodeId": "ACC-NODE-CBF-BOUNDARY-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-CBF-BOUNDARY-001",
+                  "title": "对象、账户角色、来源与责任映射",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-CBF-DATA-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-CBF-DATA-002",
+                  "title": "数据接收、解析、完整性与可启动判定",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-CBF-BOUNDARY-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-CBF-SETTLEMENT-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-CBF-SETTLEMENT-003",
+                  "title": "普通证券交易的券商交收、佣金时点与备付金结转",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-CBF-DATA-002", "ACC-NODE-STOCK-TRADE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-CBF-CLOSE-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-CBF-CLOSE-004",
+                  "title": "日终备付金、证券持仓对账与正常封账",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-CBF-SETTLEMENT-003"],
                   "contentAvailability": "PUBLISHED"
                 }
               ]

@@ -1,0 +1,233 @@
+{
+  "routeId": "ACC-CBF-SETTLEMENT-003",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CBF-SETTLEMENT-DISTINCTION",
+          "description": "区分成交总额、佣金、交收金额和备付金变化",
+          "weight": 13,
+          "evidenceRequirement": "来源映射和验证结论能把四个结果分别落到已确认交易、批准参数、交收角色和备付金角色",
+          "evidenceRules": [
+            {"fieldId": "r3-b-trade-source", "operator": "EQUALS", "expected": "CONFIRMED_TRADE_RESULT"},
+            {"fieldId": "r3-b-parameter-source", "operator": "EQUALS", "expected": "APPROVED_PARAMETER"},
+            {"fieldId": "r3-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["TRADE_OBJECT", "COMMISSION_CASH_ROLE", "CLEARING_SETTLEMENT_ROLE", "BROKER_RESERVE_ROLE"]}
+          ],
+          "remediationTargetId": "CBF-SETTLEMENT-SOURCE"
+        },
+        {
+          "criterionId": "C-CBF-SETTLEMENT-TIMING",
+          "description": "识别本案例批准佣金现金时点和同日交收时点",
+          "weight": 12,
+          "evidenceRequirement": "佣金现金时点和交收时点从本案例批准参数读取，不由历史T+0或历史费率记忆推断",
+          "evidenceRules": [
+            {"fieldId": "r3-b-parameter-source", "operator": "EQUALS", "expected": "APPROVED_PARAMETER"},
+            {"fieldId": "r3-b-validation", "operator": "CONTAINS_ALL", "expected": ["SAME_CASE_DAY_IN_CASH_CHAIN", "SAME_CASE_DAY_AFTER_TRADE", "批准"]}
+          ],
+          "remediationTargetId": "CBF-SETTLEMENT-TIMING"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CBF-SETTLEMENT-AMOUNT-CHAIN",
+          "description": "独立复算gross、commission和settlement",
+          "weight": 10,
+          "evidenceRequirement": "综合B数量14000、价格31.25和批准佣金率0.0009独立复算为437500.00、393.75和437893.75",
+          "evidenceRules": [
+            {"fieldId": "r3-b-gross", "operator": "NUMBER_EQUALS", "expected": 437500, "tolerance": 0.01},
+            {"fieldId": "r3-b-commission", "operator": "NUMBER_EQUALS", "expected": 393.75, "tolerance": 0.01},
+            {"fieldId": "r3-b-settlement", "operator": "NUMBER_EQUALS", "expected": 437893.75, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CBF-SETTLEMENT-CALC"
+        },
+        {
+          "criterionId": "P-CBF-SETTLEMENT-RESERVE-CHAIN",
+          "description": "完成备付金现金变动和期末余额计算",
+          "weight": 10,
+          "evidenceRequirement": "reserveOpen、交收现金方向、reserveMovement和reserveClose连续闭合",
+          "evidenceRules": [
+            {"fieldId": "r3-b-reserve-movement", "operator": "NUMBER_EQUALS", "expected": -437893.75, "tolerance": 0.01},
+            {"fieldId": "r3-b-reserve-close", "operator": "NUMBER_EQUALS", "expected": 912106.25, "tolerance": 0.01},
+            {"fieldId": "r3-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["reserveOpen=1350000.00", "reserveMovement=-437893.75", "reserveClose=912106.25"]}
+          ],
+          "remediationTargetId": "CBF-SETTLEMENT-RESERVE"
+        },
+        {
+          "criterionId": "P-CBF-SETTLEMENT-DOUBLE-RECON",
+          "description": "完成公式恒等式、外部备付金余额和一次结转验证",
+          "weight": 10,
+          "evidenceRequirement": "公式差、外部余额差和重复结转差均为零，两个RECONCILIATION工作项均闭合",
+          "evidenceRules": [
+            {"fieldId": "r3-b-formula-recon", "operator": "EQUALS", "expected": "FORMULAS_ZERO"},
+            {"fieldId": "r3-b-external-recon", "operator": "EQUALS", "expected": "EXTERNAL_BALANCE_ZERO"},
+            {"fieldId": "r3-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["formulaDiff=0.00", "reserveFormulaDiff=0.00", "externalBalanceDiff=0.00", "postingCount=1"]}
+          ],
+          "remediationTargetId": "CBF-SETTLEMENT-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CBF-SETTLEMENT-VERSION-DATE-DIRECTION",
+          "description": "控制业务日期、参数版本、现金方向和佣金时点",
+          "weight": 12,
+          "evidenceRequirement": "结论能回指综合B业务日期/同日键、批准参数、佣金同日现金链和备付金现金流出方向",
+          "evidenceRules": [
+            {"fieldId": "r3-b-parameter-source", "operator": "EQUALS", "expected": "APPROVED_PARAMETER"},
+            {"fieldId": "r3-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["business_date=2026-08-16", "commissionCashTiming=SAME_CASE_DAY_IN_CASH_CHAIN", "cashMovement=-437893.75"]},
+            {"fieldId": "r3-b-validation", "operator": "CONTAINS_ALL", "expected": ["MARKET_SETTLE_B", "PORTFOLIO_SETTLE_B", "SECURITY_SETTLE_B", "现金流出"]}
+          ],
+          "remediationTargetId": "CBF-SETTLEMENT-TIMING"
+        },
+        {
+          "criterionId": "R-CBF-SETTLEMENT-NO-DUPLICATE-BALANCE",
+          "description": "控制重复结转和备付金余额不完整",
+          "weight": 13,
+          "evidenceRequirement": "一次角色化结转、reserve公式差和外部余额差均为零，正常业务可以收口",
+          "evidenceRules": [
+            {"fieldId": "r3-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["postingCount=1", "不重复结转", "reserveClose=912106.25"]},
+            {"fieldId": "r3-b-external-recon", "operator": "EQUALS", "expected": "EXTERNAL_BALANCE_ZERO"},
+            {"fieldId": "r3-b-validation", "operator": "CONTAINS_ALL", "expected": ["externalBalanceDiff=0.00", "一次结转"]}
+          ],
+          "remediationTargetId": "CBF-SETTLEMENT-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CBF-SETTLEMENT-TRACEABLE-CONCLUSION",
+          "description": "形成简短且可追溯的交收结论",
+          "weight": 20,
+          "evidenceRequirement": "一句话同时表达来源、批准时点、四个金额结果、备付金链、公式/外部差额和一次结转",
+          "evidenceRules": [
+            {"fieldId": "r3-b-validation", "operator": "CONTAINS_ALL", "expected": ["已确认交易结果", "批准参数", "gross=437500.00", "commission=393.75", "settlement=437893.75", "reserveMovement=-437893.75", "reserveClose=912106.25", "formulaDiff=0.00", "externalBalanceDiff=0.00", "一次结转"]}
+          ],
+          "remediationTargetId": "CBF-SETTLEMENT-EXPRESSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CBF-SETTLEMENT-AMOUNT-TIMING",
+      "description": "gross、commission、settlement的来源、批准时点和金额必须全部正确",
+      "evidenceRequirement": "来源选择正确，批准参数来源正确，三项金额独立复算正确，结论明确佣金同日进入现金链",
+      "evidenceRules": [
+        {"fieldId": "r3-b-trade-source", "operator": "EQUALS", "expected": "CONFIRMED_TRADE_RESULT"},
+        {"fieldId": "r3-b-parameter-source", "operator": "EQUALS", "expected": "APPROVED_PARAMETER"},
+        {"fieldId": "r3-b-gross", "operator": "NUMBER_EQUALS", "expected": 437500, "tolerance": 0.01},
+        {"fieldId": "r3-b-commission", "operator": "NUMBER_EQUALS", "expected": 393.75, "tolerance": 0.01},
+        {"fieldId": "r3-b-settlement", "operator": "NUMBER_EQUALS", "expected": 437893.75, "tolerance": 0.01},
+        {"fieldId": "r3-b-validation", "operator": "CONTAINS_ALL", "expected": ["SAME_CASE_DAY_IN_CASH_CHAIN", "gross=437500.00", "commission=393.75", "settlement=437893.75"]}
+      ],
+      "remediationTargetId": "CBF-SETTLEMENT-CALC"
+    },
+    {
+      "requirementId": "M-CBF-SETTLEMENT-RESERVE-EXTERNAL",
+      "description": "reserve open→cash movement→reserve close与外部券商资金对账必须零差异",
+      "evidenceRequirement": "备付金链、角色化工作纸、公式恒等式、外部余额和一次结转全部闭合",
+      "evidenceRules": [
+        {"fieldId": "r3-b-reserve-movement", "operator": "NUMBER_EQUALS", "expected": -437893.75, "tolerance": 0.01},
+        {"fieldId": "r3-b-reserve-close", "operator": "NUMBER_EQUALS", "expected": 912106.25, "tolerance": 0.01},
+        {"fieldId": "r3-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["reserveOpen=1350000.00", "reserveMovement=-437893.75", "reserveClose=912106.25", "postingCount=1"]},
+        {"fieldId": "r3-b-formula-recon", "operator": "EQUALS", "expected": "FORMULAS_ZERO"},
+        {"fieldId": "r3-b-external-recon", "operator": "EQUALS", "expected": "EXTERNAL_BALANCE_ZERO"},
+        {"fieldId": "r3-b-validation", "operator": "CONTAINS_ALL", "expected": ["externalBalanceDiff=0.00", "不重复结转"]}
+      ],
+      "remediationTargetId": "CBF-SETTLEMENT-RESERVE"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "CBF-SETTLEMENT-SOURCE",
+      "title": "补学交收来源映射",
+      "reason": "没有区分已确认交易结果、批准参数、券商资金对账和角色化工作纸来源",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R3-KC-02",
+      "questionId": "ACC-CBF-SETTLEMENT-Q-01"
+    },
+    {
+      "targetId": "CBF-SETTLEMENT-TIMING",
+      "title": "补学佣金现金时点",
+      "reason": "用历史T+0或历史费率记忆替代本案例批准佣金时点，或现金方向记录不完整",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R3-KC-02",
+      "questionId": "ACC-CBF-SETTLEMENT-Q-05"
+    },
+    {
+      "targetId": "CBF-SETTLEMENT-CALC",
+      "title": "补学完整交收金额链",
+      "reason": "gross、commission或settlement未能按本案例参数独立复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "ACC-CBF-SETTLEMENT-Q-02"
+    },
+    {
+      "targetId": "CBF-SETTLEMENT-RESERVE",
+      "title": "补学备付金现金链",
+      "reason": "reserve movement、reserve close、外部余额或双重验证未闭合",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "ACC-CBF-SETTLEMENT-Q-04"
+    },
+    {
+      "targetId": "CBF-SETTLEMENT-RECON",
+      "title": "补学公式与外部余额勾稽",
+      "reason": "公式差、外部余额差或重复结转检查遗漏",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R3-KC-03",
+      "questionId": "ACC-CBF-SETTLEMENT-Q-04"
+    },
+    {
+      "targetId": "CBF-SETTLEMENT-EXPRESSION",
+      "title": "补写可追溯交收结论",
+      "reason": "简短结论没有同时表达来源、时点、金额链、备付金和双重验证",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R3-KC-03",
+      "questionId": "ACC-CBF-SETTLEMENT-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CBF-R3-FIXTURE-COMP-B",
+    "responses": {
+      "r3-b-trade-source": "CONFIRMED_TRADE_RESULT",
+      "r3-b-parameter-source": "APPROVED_PARAMETER",
+      "r3-b-cash-source": "BROKER_CASH_STATEMENT",
+      "r3-b-gross": 437500,
+      "r3-b-commission": 393.75,
+      "r3-b-settlement": 437893.75,
+      "r3-b-reserve-movement": -437893.75,
+      "r3-b-reserve-close": 912106.25,
+      "r3-b-role-workpaper": "business_date=2026-08-16；TRADE_OBJECT gross=437500.00；COMMISSION_CASH_ROLE commission=393.75，commissionCashTiming=SAME_CASE_DAY_IN_CASH_CHAIN；CLEARING_SETTLEMENT_ROLE settlement=437893.75，cashMovement=-437893.75；BROKER_RESERVE_ROLE reserveOpen=1350000.00，reserveMovement=-437893.75，reserveClose=912106.25；formulaDiff=0.00，reserveFormulaDiff=0.00，externalBalanceDiff=0.00，postingCount=1，不重复结转。",
+      "r3-b-formula-recon": "FORMULAS_ZERO",
+      "r3-b-external-recon": "EXTERNAL_BALANCE_ZERO",
+      "r3-b-validation": "来源为已确认交易结果和本案例批准参数，业务日期为2026-08-16，市场MARKET_SETTLE_B、组合PORTFOLIO_SETTLE_B、证券SECURITY_SETTLE_B一致；批准commissionCashTiming=SAME_CASE_DAY_IN_CASH_CHAIN、settlementTiming=SAME_CASE_DAY_AFTER_TRADE；gross=437500.00，commission=393.75，settlement=437893.75，当日现金流出；BROKER_RESERVE_ROLE reserveOpen=1350000.00、reserveMovement=-437893.75、reserveClose=912106.25，formulaDiff=0.00，reserveFormulaDiff=0.00，externalBalanceDiff=0.00，postingCount=1且一次结转、不重复结转。"
+    },
+    "decimalChain": {
+      "gross": "14000 × 31.25 = 437500.00",
+      "commission": "437500.00 × 0.0009 = 393.75",
+      "settlement": "437500.00 + 393.75 = 437893.75",
+      "reserveMovement": "−437893.75",
+      "reserveClose": "1350000.00 − 437893.75 = 912106.25",
+      "formulaDiff": "0.00",
+      "reserveFormulaDiff": "0.00",
+      "externalBalanceDiff": "0.00",
+      "duplicatePostingDiff": "0"
+    }
+  }
+}

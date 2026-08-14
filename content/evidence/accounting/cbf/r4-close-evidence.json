@@ -1,0 +1,253 @@
+{
+  "evidenceId": "CBF-EVID-R4-CLOSE-004",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "routeId": "ACC-CBF-CLOSE-004",
+  "routeCode": "R4",
+  "title": "日终备付金、证券持仓对账与正常封账证据",
+  "scopeNotice": "本文件承接R2的READY和R3的ACCOUNTED，只训练本案例日终资金、证券持仓、估值结果、CA/调度完成和复核确认的零差异收口；标识、日期、价格、余额、数量、状态和封账结论均仅适用于本案例。",
+  "sharedEvidence": [
+    "CBF-EVID-NORMAL-001",
+    "CBF-EVID-FIELDS-001",
+    "CBF-EVID-STATES-001",
+    "CBF-EVID-DEID-001"
+  ],
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "CBF-MAT-GUIDE",
+      "locators": ["B-P0054-B-P0059"],
+      "teachingUse": "抽象券结业务角色、日终台账和核算结果之间的责任承接；不复制历史菜单、权限或正式系统字段。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CBF-MAT-GUIDE",
+      "locators": ["B-P0141-B-P0181"],
+      "teachingUse": "抽象日终券商资金/证券对账资料与内部角色结果的独立来源关系；本案例只使用资料完整且可复算的正常资料。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CBF-MAT-GUIDE",
+      "locators": ["B-P0192-B-P0199"],
+      "teachingUse": "抽象估值结果、复核确认和正常封账条件之间的验证关系；不把历史流程时点写成永久规则。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CBF-MAT-GUIDE",
+      "locators": ["B-I20", "B-I24", "B-I25"],
+      "teachingUse": "作为图片/可见资料中的日终资金、估值和复核稳定定位；不复制真实账户、菜单、权限或路径。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "boundaryExclusions": {
+    "materialLocators": ["B-I26", "B-P0184"],
+    "reason": "只作为排除边界，不进入本路线正常题面；不制作强制封账、异常处置或历史系统操作题。",
+    "provenance": "MATERIAL_BOUNDARY"
+  },
+  "objectBoundary": {
+    "reusedUpstreamObjects": ["TRADE_OBJECT", "CLEARING_SETTLEMENT_ROLE", "BROKER_RESERVE_ROLE", "ROLE_SETTLEMENT_WORKPAPER"],
+    "newR4Objects": ["SECURITIES_LEDGER_ROLE", "VALUATION_RESULT_ROLE", "CA_COMPLETION_ROLE", "SCHEDULE_CONFIRMATION_ROLE", "REVIEW_CONFIRMATION_ROLE", "NORMAL_CLOSE_WORKPAPER"],
+    "notRetrained": ["GROSS_AMOUNT", "COMMISSION_AMOUNT", "SETTLEMENT_AMOUNT", "STOCK_COST", "MOVING_WEIGHTED_COST", "FORCED_CLOSE", "EXCEPTION_ESCALATION"],
+    "provenance": "CASE_POLICY"
+  },
+  "sourceMap": [
+    {
+      "sourceId": "R4_BROKER_CASH_STATEMENT",
+      "label": "日终券商资金对账单",
+      "fields": ["business_date", "market_key", "portfolio_key", "security_key", "external_reserve_closing", "same_day_data_complete"],
+      "targetRoles": ["BROKER_RESERVE_ROLE", "BANK_CUSTODY_CASH_ROLE"],
+      "teachingBoundary": "提供日终外部备付金期末余额和同日资料完整确认，作为资金三方勾稽的独立外部来源。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0141-B-P0181", "CBF-MAT-GUIDE:B-I20"]
+    },
+    {
+      "sourceId": "R4_BROKER_SECURITIES_STATEMENT",
+      "label": "日终券商证券对账单",
+      "fields": ["business_date", "market_key", "portfolio_key", "security_key", "external_position_closing", "position_unit"],
+      "targetRoles": ["SECURITIES_LEDGER_ROLE", "TRADE_OBJECT"],
+      "teachingBoundary": "提供日终外部证券持仓数量，作为持仓三方勾稽的独立外部来源；不重新训练交易方向或股票成本。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0141-B-P0181", "CBF-MAT-GUIDE:B-I20"]
+    },
+    {
+      "sourceId": "R4_ROLE_DAY_END_LEDGER",
+      "label": "券结业务角色日终台账",
+      "fields": ["ledger_reserve_closing", "securities_ledger_closing", "accounting_state", "workpaper_entry_count"],
+      "targetRoles": ["BROKER_RESERVE_ROLE", "SECURITIES_LEDGER_ROLE", "NORMAL_CLOSE_WORKPAPER"],
+      "teachingBoundary": "提供内部角色化余额、证券台账数量、ACCOUNTED前置和一次日终核对工作纸；不补造正式会计科目或借贷方向。",
+      "provenance": "CASE_POLICY",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0054-B-P0059", "CBF-MAT-GUIDE:B-P0192-B-P0199"]
+    },
+    {
+      "sourceId": "R4_VALUATION_RESULT",
+      "label": "估值结果资料",
+      "fields": ["approved_valuation_price", "valuation_quantity", "valuation_reserve", "valuation_market_value", "valuation_result_amount", "valuation_status"],
+      "targetRoles": ["VALUATION_RESULT_ROLE", "BROKER_RESERVE_ROLE", "SECURITIES_LEDGER_ROLE"],
+      "teachingBoundary": "提供本案例批准估值价、估值数量、估值备付金和估值金额结果，用于市值计算与双重验证；估值价不固化为永久制度。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0192-B-P0199", "CBF-MAT-GUIDE:B-I24"]
+    },
+    {
+      "sourceId": "R4_CA_SCHEDULE_CONFIRMATION",
+      "label": "CA与日终调度完成确认",
+      "fields": ["ca_completion", "scheduling_completion", "business_date", "object_key_status"],
+      "targetRoles": ["CA_COMPLETION_ROLE", "SCHEDULE_CONFIRMATION_ROLE"],
+      "teachingBoundary": "只证明本案例CA和日终调度完成，不制作公司行为异常、暂停或系统菜单题。",
+      "provenance": "CASE_POLICY",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0054-B-P0059", "CBF-MAT-GUIDE:B-I20"]
+    },
+    {
+      "sourceId": "R4_REVIEW_CONFIRMATION",
+      "label": "复核确认资料",
+      "fields": ["review_confirmed", "final_state", "close_decision", "review_scope"],
+      "targetRoles": ["REVIEW_CONFIRMATION_ROLE", "NORMAL_CLOSE_WORKPAPER"],
+      "teachingBoundary": "提供本案例复核已确认、状态可记录RECONCILED和正常封账结论的证据；不跳过复核。",
+      "provenance": "CASE_POLICY",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0192-B-P0199", "CBF-MAT-GUIDE:B-I25"]
+    }
+  ],
+  "approvedCaseParameters": {
+    "valuationPrice": {
+      "value": "fixture-specific",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "basis": "Demo A和综合B分别从各自题面批准估值结果资料读取估值价；不把历史估值价固化。"
+    },
+    "quantityPrecision": {"value": 0, "unit": "DECIMAL_PLACES", "provenance": "CASE_POLICY"},
+    "amountPrecision": {"value": 2, "unit": "DECIMAL_PLACES", "provenance": "CASE_POLICY"},
+    "reconciliationTolerance": {"value": "0.00", "unit": "元或份", "provenance": "CASE_POLICY"},
+    "requiredUpstreamStates": {
+      "value": ["READY", "ACCOUNTED"],
+      "provenance": "CASE_POLICY",
+      "basis": "R4只在R2可启动证据链已READY且R3结果已ACCOUNTED后进入日终勾稽。"
+    },
+    "requiredCompletionConfirmations": {
+      "value": ["CA_COMPLETED", "SCHEDULE_COMPLETED", "REVIEW_CONFIRMED"],
+      "provenance": "CASE_POLICY"
+    },
+    "normalCloseRule": {
+      "value": "ALL_REQUIRED_ZERO_AND_RECONCILED",
+      "provenance": "CASE_POLICY",
+      "basis": "资金、持仓、估值和状态条件全部闭合后，本案例才可记录RECONCILED并得出NORMAL_CLOSE。"
+    }
+  },
+  "reconciliationFormulas": {
+    "reserveExternalLedgerDifference": "externalReserveClosing − ledgerReserveClosing",
+    "reserveLedgerValuationDifference": "ledgerReserveClosing − valuationReserve",
+    "reserveExternalValuationDifference": "externalReserveClosing − valuationReserve",
+    "positionExternalLedgerDifference": "externalPositionClosing − securitiesLedgerClosing",
+    "positionLedgerValuationDifference": "securitiesLedgerClosing − valuationQuantity",
+    "positionExternalValuationDifference": "externalPositionClosing − valuationQuantity",
+    "valuationMarketValue": "valuationQuantity × approvedValuationPrice",
+    "valuationResultAmountDifference": "valuationMarketValue − valuationResultAmount"
+  },
+  "fixtures": {
+    "demonstrationA": {
+      "fixtureId": "CBF-R4-FIXTURE-DEMO-A",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "businessDate": "2026-08-17",
+      "marketKey": "MARKET_CLOSE_A",
+      "portfolioKey": "PORTFOLIO_CLOSE_A",
+      "securityKey": "SECURITY_CLOSE_A",
+      "brokerKey": "BROKER_CASE_01",
+      "dataState": "READY",
+      "accountingState": "ACCOUNTED",
+      "sameDayDataComplete": "YES",
+      "externalReserveClosing": "860000.00",
+      "ledgerReserveClosing": "860000.00",
+      "valuationReserve": "860000.00",
+      "reserveExternalLedgerDifference": "0.00",
+      "reserveLedgerValuationDifference": "0.00",
+      "reserveExternalValuationDifference": "0.00",
+      "externalPositionClosing": "16000",
+      "securitiesLedgerClosing": "16000",
+      "valuationQuantity": "16000",
+      "positionExternalLedgerDifference": "0",
+      "positionLedgerValuationDifference": "0",
+      "positionExternalValuationDifference": "0",
+      "approvedValuationPrice": "48.75",
+      "valuationMarketValue": "780000.00",
+      "valuationResultAmount": "780000.00",
+      "valuationResultAmountDifference": "0.00",
+      "valuationStatus": "CONFIRMED",
+      "caCompletion": "YES",
+      "schedulingCompletion": "YES",
+      "reviewConfirmed": "YES",
+      "finalState": "RECONCILED",
+      "closeDecision": "NORMAL_CLOSE",
+      "workpaperEntryCount": "1",
+      "answerChain": {
+        "reserveThreeWay": "860000.00 − 860000.00 = 0.00；860000.00 − 860000.00 = 0.00；860000.00 − 860000.00 = 0.00",
+        "positionThreeWay": "16000 − 16000 = 0；16000 − 16000 = 0；16000 − 16000 = 0",
+        "valuation": "16000 × 48.75 = 780000.00；780000.00 − 780000.00 = 0.00",
+        "status": "READY + ACCOUNTED + CA=YES + SCHEDULE=YES + REVIEW=YES → RECONCILED → NORMAL_CLOSE"
+      }
+    },
+    "comprehensiveB": {
+      "fixtureId": "CBF-R4-FIXTURE-COMP-B",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "businessDate": "2026-08-18",
+      "marketKey": "MARKET_CLOSE_B",
+      "portfolioKey": "PORTFOLIO_CLOSE_B",
+      "securityKey": "SECURITY_CLOSE_B",
+      "brokerKey": "BROKER_CASE_01",
+      "dataState": "READY",
+      "accountingState": "ACCOUNTED",
+      "sameDayDataComplete": "YES",
+      "externalReserveClosing": "1275000.00",
+      "ledgerReserveClosing": "1275000.00",
+      "valuationReserve": "1275000.00",
+      "reserveExternalLedgerDifference": "0.00",
+      "reserveLedgerValuationDifference": "0.00",
+      "reserveExternalValuationDifference": "0.00",
+      "externalPositionClosing": "23500",
+      "securitiesLedgerClosing": "23500",
+      "valuationQuantity": "23500",
+      "positionExternalLedgerDifference": "0",
+      "positionLedgerValuationDifference": "0",
+      "positionExternalValuationDifference": "0",
+      "approvedValuationPrice": "62.40",
+      "valuationMarketValue": "1466400.00",
+      "valuationResultAmount": "1466400.00",
+      "valuationResultAmountDifference": "0.00",
+      "valuationStatus": "CONFIRMED",
+      "caCompletion": "YES",
+      "schedulingCompletion": "YES",
+      "reviewConfirmed": "YES",
+      "finalState": "RECONCILED",
+      "closeDecision": "NORMAL_CLOSE",
+      "workpaperEntryCount": "1",
+      "answerChain": {
+        "reserveThreeWay": "1275000.00 − 1275000.00 = 0.00；1275000.00 − 1275000.00 = 0.00；1275000.00 − 1275000.00 = 0.00",
+        "positionThreeWay": "23500 − 23500 = 0；23500 − 23500 = 0；23500 − 23500 = 0",
+        "valuation": "23500 × 62.40 = 1466400.00；1466400.00 − 1466400.00 = 0.00",
+        "status": "READY + ACCOUNTED + CA=YES + SCHEDULE=YES + REVIEW=YES → RECONCILED → NORMAL_CLOSE"
+      }
+    }
+  },
+  "continuity": {
+    "sharedObjectModel": [
+      "TRADE_OBJECT",
+      "CLEARING_SETTLEMENT_ROLE",
+      "BROKER_RESERVE_ROLE",
+      "ROLE_SETTLEMENT_WORKPAPER",
+      "SECURITIES_LEDGER_ROLE",
+      "VALUATION_RESULT_ROLE",
+      "CA_COMPLETION_ROLE",
+      "SCHEDULE_CONFIRMATION_ROLE",
+      "REVIEW_CONFIRMATION_ROLE",
+      "NORMAL_CLOSE_WORKPAPER"
+    ],
+    "sharedBrokerKey": "BROKER_CASE_01",
+    "upstreamRoute": "ACC-CBF-SETTLEMENT-003",
+    "requiredUpstreamStates": ["READY", "ACCOUNTED"],
+    "finalState": "RECONCILED",
+    "nextRoute": null,
+    "notCovered": ["forced_close", "exception_escalation", "historical_menu", "permission_matrix", "system_field_permanence"],
+    "provenance": "MATERIAL_ABSTRACTION"
+  },
+  "historyBoundary": {
+    "notPermanentRules": ["历史菜单", "权限", "强制封账", "系统字段", "正式会计科目名称", "账户路径", "历史估值价"],
+    "caseAnswerUses": ["READY", "ACCOUNTED", "RECONCILED", "fixture-specific approved valuation price", "zero-difference three-way checks", "CA/schedule/review confirmations"],
+    "excludedMaterialLocators": ["B-I26", "B-P0184"],
+    "provenance": "CASE_POLICY"
+  }
+}

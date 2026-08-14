@@ -1,0 +1,223 @@
+{
+  "evidenceId": "CBF-EVID-R2-DATA-002",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "routeId": "ACC-CBF-DATA-002",
+  "routeCode": "R2",
+  "title": "数据接收、解析、完整性与可启动判定证据",
+  "scopeNotice": "本文件是两个资料完整、正常闭合的脱敏教学批次；文件组、版本、键值、行数、控制总额和状态结果均为本案例事实，不是生产文件格式、接口字段或永久规则。",
+  "sharedEvidence": [
+    "CBF-EVID-NORMAL-001",
+    "CBF-EVID-FIELDS-001",
+    "CBF-EVID-STATES-001",
+    "CBF-EVID-DEID-001"
+  ],
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "CBF-MAT-AUTO-PARSE",
+      "locators": ["A-P0007-A-P0010", "A-P0016-A-P0020"],
+      "teachingUse": "定位交易资料组、券商对账资料组、资料接收和解析字段边界；不复制历史文件名或生产字段。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CBF-MAT-GUIDE",
+      "locators": ["B-P0015-B-P0020", "B-P0065-B-P0105", "B-P0110-B-P0169", "B-P0171-B-P0199"],
+      "teachingUse": "定位资料接收、配置/映射、日间与日终流程、完整性检查和复核收口的抽象证据。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "stateProofMap": [
+    {
+      "stateCode": "RECEIVED",
+      "proofFields": ["business_date", "market_key", "portfolio_key", "security_key", "file_group_id", "file_group_version", "record_count"],
+      "learnerAction": "从接收登记和文件组字段确认资料已收到、批次可识别、记录数可读。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "stateCode": "PARSED",
+      "proofFields": ["record_count", "parsed_rows", "parse_status"],
+      "learnerAction": "比较记录数和解析行数，并从解析状态字段证明结构读取完成。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "stateCode": "MAPPED",
+      "proofFields": ["parsed_rows", "mapped_rows", "mapping_status"],
+      "learnerAction": "比较解析行数和映射行数，并从映射状态证明字段已关联本案例字段字典。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "stateCode": "COMPLETE",
+      "proofFields": ["required_field_check", "same_day_key_check", "quantity_control_total", "amount_control_total"],
+      "learnerAction": "确认必需字段齐全、同日键一致、数量和金额控制总额可从明细复算。",
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "stateCode": "READY",
+      "proofFields": ["day_eod_record_diff", "day_eod_quantity_diff", "day_eod_amount_diff", "readiness_result"],
+      "learnerAction": "完成日间/日终双源控制总额勾稽后，才选择可启动。收到或解析状态本身不能替代READY。",
+      "provenance": "CASE_POLICY"
+    }
+  ],
+  "fixtures": {
+    "demonstrationA": {
+      "fixtureId": "CBF-R2-FIXTURE-DEMO-A",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "businessDate": "2026-08-13",
+      "marketKey": "MARKET_DATA_A",
+      "portfolioKey": "PORTFOLIO_DATA_A",
+      "securityKey": "SECURITY_DATA_A",
+      "fileGroups": {
+        "day": {
+          "fileGroupId": "CASE_DAY_DATA_A",
+          "fileGroupVersion": "CASE-FORMAT-A-01",
+          "receivedStatus": "RECEIVED",
+          "recordCount": "3",
+          "quantityControlTotal": "15000",
+          "amountControlTotal": "625000.00",
+          "parsedRows": "3",
+          "parseStatus": "PASS",
+          "mappedRows": "3",
+          "mappingStatus": "PASS",
+          "requiredFieldCheck": "PASS",
+          "sameDayKeyCheck": "PASS"
+        },
+        "eod": {
+          "fileGroupId": "CASE_EOD_DATA_A",
+          "fileGroupVersion": "CASE-FORMAT-A-01",
+          "receivedStatus": "RECEIVED",
+          "recordCount": "3",
+          "quantityControlTotal": "15000",
+          "amountControlTotal": "625000.00",
+          "parsedRows": "3",
+          "parseStatus": "PASS",
+          "mappedRows": "3",
+          "mappingStatus": "PASS",
+          "requiredFieldCheck": "PASS",
+          "sameDayKeyCheck": "PASS"
+        }
+      },
+      "rows": {
+        "day": [
+          {"rowId": "A-D-01", "quantity": "5000", "amount": "210000.00"},
+          {"rowId": "A-D-02", "quantity": "4000", "amount": "165000.00"},
+          {"rowId": "A-D-03", "quantity": "6000", "amount": "250000.00"}
+        ],
+        "eod": [
+          {"rowId": "A-E-01", "quantity": "5000", "amount": "210000.00"},
+          {"rowId": "A-E-02", "quantity": "4000", "amount": "165000.00"},
+          {"rowId": "A-E-03", "quantity": "6000", "amount": "250000.00"}
+        ]
+      },
+      "requiredFieldCheck": "PASS",
+      "sameDayKeyCheck": "PASS",
+      "stateObservations": {
+        "RECEIVED": {"dayFileGroupVersion": "CASE-FORMAT-A-01", "eodFileGroupVersion": "CASE-FORMAT-A-01", "recordCounts": "3/3"},
+        "PARSED": {"day": "recordCount=3; parsedRows=3; parseStatus=PASS", "eod": "recordCount=3; parsedRows=3; parseStatus=PASS"},
+        "MAPPED": {"day": "parsedRows=3; mappedRows=3; mappingStatus=PASS", "eod": "parsedRows=3; mappedRows=3; mappingStatus=PASS"},
+        "COMPLETE": {"requiredFieldCheck": "PASS", "sameDayKeyCheck": "PASS", "dayControl": "quantity=15000; amount=625000.00", "eodControl": "quantity=15000; amount=625000.00"},
+        "READY": {"recordDiff": "0", "quantityDiff": "0", "amountDiff": "0.00", "result": "READY"}
+      },
+      "answerChain": {
+        "dayRecordCount": "3",
+        "eodRecordCount": "3",
+        "dayQuantityTotal": "5000 + 4000 + 6000 = 15000",
+        "eodQuantityTotal": "5000 + 4000 + 6000 = 15000",
+        "dayAmountTotal": "210000.00 + 165000.00 + 250000.00 = 625000.00",
+        "eodAmountTotal": "210000.00 + 165000.00 + 250000.00 = 625000.00",
+        "parsedRowDiff": "3 - 3 = 0",
+        "mappedRowDiff": "3 - 3 = 0",
+        "dayEodRecordDiff": "3 - 3 = 0",
+        "dayEodQuantityDiff": "15000 - 15000 = 0",
+        "dayEodAmountDiff": "625000.00 - 625000.00 = 0.00",
+        "readinessConclusion": "同日键、字段映射、记录/数量/金额完整性和日间/日终双源勾稽均闭合，因此READY"
+      }
+    },
+    "comprehensiveB": {
+      "fixtureId": "CBF-R2-FIXTURE-COMP-B",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "businessDate": "2026-08-14",
+      "marketKey": "MARKET_DATA_B",
+      "portfolioKey": "PORTFOLIO_DATA_B",
+      "securityKey": "SECURITY_DATA_B",
+      "fileGroups": {
+        "day": {
+          "fileGroupId": "CASE_DAY_DATA_B",
+          "fileGroupVersion": "CASE-FORMAT-B-02",
+          "receivedStatus": "RECEIVED",
+          "recordCount": "4",
+          "quantityControlTotal": "22000",
+          "amountControlTotal": "995000.00",
+          "parsedRows": "4",
+          "parseStatus": "PASS",
+          "mappedRows": "4",
+          "mappingStatus": "PASS",
+          "requiredFieldCheck": "PASS",
+          "sameDayKeyCheck": "PASS"
+        },
+        "eod": {
+          "fileGroupId": "CASE_EOD_DATA_B",
+          "fileGroupVersion": "CASE-FORMAT-B-02",
+          "receivedStatus": "RECEIVED",
+          "recordCount": "4",
+          "quantityControlTotal": "22000",
+          "amountControlTotal": "995000.00",
+          "parsedRows": "4",
+          "parseStatus": "PASS",
+          "mappedRows": "4",
+          "mappingStatus": "PASS",
+          "requiredFieldCheck": "PASS",
+          "sameDayKeyCheck": "PASS"
+        }
+      },
+      "rows": {
+        "day": [
+          {"rowId": "B-D-01", "quantity": "7200", "amount": "318000.00"},
+          {"rowId": "B-D-02", "quantity": "6800", "amount": "302000.00"},
+          {"rowId": "B-D-03", "quantity": "5000", "amount": "225000.00"},
+          {"rowId": "B-D-04", "quantity": "3000", "amount": "150000.00"}
+        ],
+        "eod": [
+          {"rowId": "B-E-01", "quantity": "7200", "amount": "318000.00"},
+          {"rowId": "B-E-02", "quantity": "6800", "amount": "302000.00"},
+          {"rowId": "B-E-03", "quantity": "5000", "amount": "225000.00"},
+          {"rowId": "B-E-04", "quantity": "3000", "amount": "150000.00"}
+        ]
+      },
+      "requiredFieldCheck": "PASS",
+      "sameDayKeyCheck": "PASS",
+      "stateObservations": {
+        "RECEIVED": {"dayFileGroupVersion": "CASE-FORMAT-B-02", "eodFileGroupVersion": "CASE-FORMAT-B-02", "recordCounts": "4/4"},
+        "PARSED": {"day": "recordCount=4; parsedRows=4; parseStatus=PASS", "eod": "recordCount=4; parsedRows=4; parseStatus=PASS"},
+        "MAPPED": {"day": "parsedRows=4; mappedRows=4; mappingStatus=PASS", "eod": "parsedRows=4; mappedRows=4; mappingStatus=PASS"},
+        "COMPLETE": {"requiredFieldCheck": "PASS", "sameDayKeyCheck": "PASS", "dayControl": "quantity=22000; amount=995000.00", "eodControl": "quantity=22000; amount=995000.00"},
+        "READY": {"recordDiff": "0", "quantityDiff": "0", "amountDiff": "0.00", "result": "READY"}
+      },
+      "answerChain": {
+        "dayRecordCount": "4",
+        "eodRecordCount": "4",
+        "dayQuantityTotal": "7200 + 6800 + 5000 + 3000 = 22000",
+        "eodQuantityTotal": "7200 + 6800 + 5000 + 3000 = 22000",
+        "dayAmountTotal": "318000.00 + 302000.00 + 225000.00 + 150000.00 = 995000.00",
+        "eodAmountTotal": "318000.00 + 302000.00 + 225000.00 + 150000.00 = 995000.00",
+        "parsedRowDiff": "4 - 4 = 0",
+        "mappedRowDiff": "4 - 4 = 0",
+        "dayEodRecordDiff": "4 - 4 = 0",
+        "dayEodQuantityDiff": "22000 - 22000 = 0",
+        "dayEodAmountDiff": "995000.00 - 995000.00 = 0.00",
+        "readinessConclusion": "同日键、字段映射、记录/数量/金额完整性和日间/日终双源勾稽均闭合，因此READY"
+      }
+    }
+  },
+  "independentDecimalChecks": {
+    "allowedCalculations": ["记录数计数", "数量控制总额", "金额控制总额", "解析行数差", "映射行数差", "日间/日终差额"],
+    "excludedCalculations": ["佣金主金额链", "交收金额主金额链", "备付金余额主金额链", "正式会计科目金额"],
+    "provenance": "CASE_POLICY"
+  },
+  "continuity": {
+    "sharedObjectModel": ["TRADE_OBJECT", "CLEARING_SETTLEMENT_ROLE", "BROKER_RESERVE_ROLE", "SECURITIES_LEDGER_ROLE", "VALUATION_RESULT_ROLE"],
+    "sharedStateTable": "CBF-EVID-STATES-001",
+    "nextRoute": "ACC-CBF-SETTLEMENT-003",
+    "dependency": "ACC-CBF-BOUNDARY-001",
+    "provenance": "MATERIAL_ABSTRACTION"
+  }
+}

@@ -342,6 +342,27 @@
       "locator": "5 条路线各自综合实务资料包与 evidence.md，2026.08 版本",
       "contentUse": "普通货币基金模块全部 5 条路线",
       "reviewNote": "仅约束各独立脱敏案例明确给出的现金流、利率、份额、费用、结转模式、收益公式、日历、精度和容差，不外推为现行统一制度。"
+    },
+    {
+      "referenceId": "ACC-REF-CBF-MATERIALS-202411",
+      "title": "券结模式自动解析与券商模式组合核算指引",
+      "locator": "自动解析 DOCX A-P0007-A-P0020/A-I01-A-I06；业务指引 DOCX B-P0005-B-P0199、B-I01-B-I25 及嵌入交易单元维护表",
+      "contentUse": "路线 ACC-CBF-BOUNDARY-001、ACC-CBF-DATA-002、ACC-CBF-SETTLEMENT-003、ACC-CBF-CLOSE-004",
+      "reviewNote": "支持责任和账户边界、资料接收与状态、券商交收/佣金/备付金、日终资金持仓和估值勾稽。历史文件名、格式版本、字段、账户、菜单、路径、费率、时点和权限不固化为永久规则。"
+    },
+    {
+      "referenceId": "ACC-REF-CBF-ROUTE-DECISIONS-202608",
+      "title": "券结基金高保真路线施工与验收决定",
+      "locator": "阶段 5 教学有效性复核、券结基金对象级材料审计与四批 Luna Max 受控施工验收",
+      "contentUse": "券结基金模块全部 4 条路线",
+      "reviewNote": "冻结 4 条 REQUIRED 连续主链，不设阶段闸门；自动解析版本切换、提前到账权益/税费、迟到重复错配、重跑回滚、多券商、跨市场和场外扩展继续 DEFER。"
+    },
+    {
+      "referenceId": "ACC-REF-CBF-CASE-PARAMETERS-202608",
+      "title": "券结基金路线题面批准合成参数",
+      "locator": "content/evidence/accounting/cbf 共享快照、字段字典、状态表和 4 条路线证据文件",
+      "contentUse": "券结基金模块全部 4 条路线",
+      "reviewNote": "仅约束案例明确给出的参与方责任、账户角色、文件组、状态词、费率、交收时点、余额、数量、估值价格、精度、容差和正常封账条件，不外推为现行生产制度。"
     }
   ]
 }

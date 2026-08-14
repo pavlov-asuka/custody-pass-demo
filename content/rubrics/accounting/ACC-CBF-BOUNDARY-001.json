@@ -1,0 +1,223 @@
+{
+  "routeId": "ACC-CBF-BOUNDARY-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CBF-R1-OBJECT-SOURCE",
+          "description": "区分交易、对账、估值资料来源及其业务对象",
+          "weight": 13,
+          "evidenceRequirement": "交易资料组、日终券商对账资料组和估值结果资料组分别映射到对应对象和角色",
+          "evidenceRules": [
+            {"fieldId": "r1-b-trade-source", "operator": "EQUALS", "expected": "TRADE_DATA_TO_TRADE_ROLE"},
+            {"fieldId": "r1-b-statement-source", "operator": "EQUALS", "expected": "STATEMENT_TO_RESERVE_POSITION"}
+          ],
+          "remediationTargetId": "CBF-R1-OBJECT"
+        },
+        {
+          "criterionId": "C-CBF-R1-ROLE-BOUNDARY",
+          "description": "区分业务角色和责任角色",
+          "weight": 12,
+          "evidenceRequirement": "责任链和券商备付金、证券持仓、估值结果三个角色在工作纸中清楚分层",
+          "evidenceRules": [
+            {"fieldId": "r1-b-responsibility", "operator": "EQUALS", "expected": "BROKER_TO_ACCOUNTING_TO_REVIEW"},
+            {"fieldId": "r1-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["BROKER_RESERVE_ROLE", "SECURITIES_LEDGER_ROLE", "VALUATION_RESULT_ROLE"]}
+          ],
+          "remediationTargetId": "CBF-R1-RESPONSIBILITY"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CBF-R1-FIELD-READ",
+          "description": "从来源资料读取并映射字段",
+          "weight": 10,
+          "evidenceRequirement": "来源、业务角色和责任链均来自本案例资料组与字段字典",
+          "evidenceRules": [
+            {"fieldId": "r1-b-trade-source", "operator": "EQUALS", "expected": "TRADE_DATA_TO_TRADE_ROLE"},
+            {"fieldId": "r1-b-statement-source", "operator": "EQUALS", "expected": "STATEMENT_TO_RESERVE_POSITION"},
+            {"fieldId": "r1-b-responsibility", "operator": "EQUALS", "expected": "BROKER_TO_ACCOUNTING_TO_REVIEW"}
+          ],
+          "remediationTargetId": "CBF-R1-OBJECT"
+        },
+        {
+          "criterionId": "P-CBF-R1-DECIMAL-CALC",
+          "description": "独立复算成交总额、佣金和交收金额",
+          "weight": 10,
+          "evidenceRequirement": "综合B的数量、价格和佣金率可复算为成交总额450000.00、佣金360.00和交收金额450360.00",
+          "evidenceRules": [
+            {"fieldId": "r1-b-gross", "operator": "NUMBER_EQUALS", "expected": 450000, "tolerance": 0.01},
+            {"fieldId": "r1-b-commission", "operator": "NUMBER_EQUALS", "expected": 360, "tolerance": 0.01},
+            {"fieldId": "r1-b-settlement", "operator": "NUMBER_EQUALS", "expected": 450360, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CBF-R1-CALC"
+        },
+        {
+          "criterionId": "P-CBF-R1-WORKPAPER-RECON",
+          "description": "补全业务角色工作纸、完成零差异勾稽并写出验证",
+          "weight": 10,
+          "evidenceRequirement": "角色工作纸记录备付金、持仓和估值结果，综合结论为四项差额均为零且复核已确认",
+          "evidenceRules": [
+            {"fieldId": "r1-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["资金减少450360.00", "期末749640.00", "期末13500", "市值510300.00"]},
+            {"fieldId": "r1-b-reconciliation", "operator": "EQUALS", "expected": "ALL_ZERO_AND_REVIEW_CONFIRMED"},
+            {"fieldId": "r1-b-validation", "operator": "CONTAINS_ALL", "expected": ["Decimal", "0.00", "复核已确认"]}
+          ],
+          "remediationTargetId": "CBF-R1-WORKPAPER"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CBF-R1-KEY-BOUNDARY",
+          "description": "控制跨来源同日键和业务角色边界",
+          "weight": 13,
+          "evidenceRequirement": "结论能指出同一业务日期、市场、组合和证券键，并避免把交易、备付金、持仓和估值结果混为一体",
+          "evidenceRules": [
+            {"fieldId": "r1-b-validation", "operator": "CONTAINS_ALL", "expected": ["同一业务日期", "MARKET_CASE_01", "PORTFOLIO_CASE_01", "SECURITY_CASE_01", "角色"]},
+            {"fieldId": "r1-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["BROKER_RESERVE_ROLE", "SECURITIES_LEDGER_ROLE", "VALUATION_RESULT_ROLE"]}
+          ],
+          "remediationTargetId": "CBF-R1-RESPONSIBILITY"
+        },
+        {
+          "criterionId": "R-CBF-R1-CLOSE-CONTROL",
+          "description": "控制收口前的计算、四项差额和复核条件",
+          "weight": 12,
+          "evidenceRequirement": "金额计算闭合、资金/持仓/估值数量/备付金差额均为零且复核已确认",
+          "evidenceRules": [
+            {"fieldId": "r1-b-reconciliation", "operator": "EQUALS", "expected": "ALL_ZERO_AND_REVIEW_CONFIRMED"},
+            {"fieldId": "r1-b-validation", "operator": "CONTAINS_ALL", "expected": ["450360.00", "0.00", "复核已确认"]}
+          ],
+          "remediationTargetId": "CBF-R1-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CBF-R1-TRACEABLE-CONCLUSION",
+          "description": "形成可追溯、可复核的R1结论",
+          "weight": 20,
+          "evidenceRequirement": "一句话同时表达同日键、来源/责任、角色工作纸、Decimal计算、资金持仓估值验证和复核结果",
+          "evidenceRules": [
+            {"fieldId": "r1-b-validation", "operator": "CONTAINS_ALL", "expected": ["同一业务日期", "来源与责任映射", "角色工作纸", "Decimal", "资金", "持仓", "估值", "0.00", "复核已确认"]}
+          ],
+          "remediationTargetId": "CBF-R1-VALIDATION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CBF-R1-CORRECT-MAPPING",
+      "description": "交易、对账和估值资料必须映射到正确对象/业务角色，并保持责任链分层",
+      "evidenceRequirement": "三项来源/角色选择正确，责任链为BROKER_DATA_PROVIDER→ACCOUNTING_WORKER→复核角色，工作纸包含三个核心业务角色",
+      "evidenceRules": [
+        {"fieldId": "r1-b-trade-source", "operator": "EQUALS", "expected": "TRADE_DATA_TO_TRADE_ROLE"},
+        {"fieldId": "r1-b-statement-source", "operator": "EQUALS", "expected": "STATEMENT_TO_RESERVE_POSITION"},
+        {"fieldId": "r1-b-responsibility", "operator": "EQUALS", "expected": "BROKER_TO_ACCOUNTING_TO_REVIEW"},
+        {"fieldId": "r1-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["BROKER_RESERVE_ROLE", "SECURITIES_LEDGER_ROLE", "VALUATION_RESULT_ROLE"]}
+      ],
+      "remediationTargetId": "CBF-R1-OBJECT"
+    },
+    {
+      "requirementId": "M-CBF-R1-CALC-AND-VERIFY",
+      "description": "交易链、角色工作纸和零差异验证必须同时闭合",
+      "evidenceRequirement": "成交总额、佣金、交收金额、角色结果、四项差额和复核状态全部一致",
+      "evidenceRules": [
+        {"fieldId": "r1-b-gross", "operator": "NUMBER_EQUALS", "expected": 450000, "tolerance": 0.01},
+        {"fieldId": "r1-b-commission", "operator": "NUMBER_EQUALS", "expected": 360, "tolerance": 0.01},
+        {"fieldId": "r1-b-settlement", "operator": "NUMBER_EQUALS", "expected": 450360, "tolerance": 0.01},
+        {"fieldId": "r1-b-role-workpaper", "operator": "CONTAINS_ALL", "expected": ["期末749640.00", "期末13500", "市值510300.00"]},
+        {"fieldId": "r1-b-reconciliation", "operator": "EQUALS", "expected": "ALL_ZERO_AND_REVIEW_CONFIRMED"},
+        {"fieldId": "r1-b-validation", "operator": "CONTAINS_ALL", "expected": ["0.00", "复核已确认"]}
+      ],
+      "remediationTargetId": "CBF-R1-CALC"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "CBF-R1-OBJECT",
+      "title": "补学来源与对象映射",
+      "reason": "不能把交易资料、日终对账资料和估值结果资料映射到正确业务角色",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R1-KC-01",
+      "questionId": "ACC-CBF-BOUNDARY-Q-01"
+    },
+    {
+      "targetId": "CBF-R1-RESPONSIBILITY",
+      "title": "补学责任和账户角色边界",
+      "reason": "混淆资料提供、核算、估值复核和托管复核责任，或把多个业务角色合并",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R1-KC-02",
+      "questionId": "ACC-CBF-BOUNDARY-Q-05"
+    },
+    {
+      "targetId": "CBF-R1-CALC",
+      "title": "补学交易金额Decimal链",
+      "reason": "成交总额、佣金或交收金额未按本案例参数独立复算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "ACC-CBF-BOUNDARY-Q-02"
+    },
+    {
+      "targetId": "CBF-R1-WORKPAPER",
+      "title": "补全业务角色工作纸",
+      "reason": "计算结果没有落到券商备付金、证券持仓和估值结果角色",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R1-KC-03",
+      "questionId": "ACC-CBF-BOUNDARY-Q-03"
+    },
+    {
+      "targetId": "CBF-R1-RECON",
+      "title": "补学四项零差异验证",
+      "reason": "未完成资金、持仓、估值数量和备付金的独立勾稽或遗漏复核确认",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-CBF-BOUNDARY-Q-04"
+    },
+    {
+      "targetId": "CBF-R1-VALIDATION",
+      "title": "补写可追溯验证结论",
+      "reason": "结论没有同时表达来源、责任、角色、计算和验证结果",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R1-KC-03",
+      "questionId": "ACC-CBF-BOUNDARY-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CBF-FIXTURE-COMP-B",
+    "responses": {
+      "r1-b-trade-source": "TRADE_DATA_TO_TRADE_ROLE",
+      "r1-b-statement-source": "STATEMENT_TO_RESERVE_POSITION",
+      "r1-b-responsibility": "BROKER_TO_ACCOUNTING_TO_REVIEW",
+      "r1-b-gross": 450000,
+      "r1-b-commission": 360,
+      "r1-b-settlement": 450360,
+      "r1-b-role-workpaper": "BROKER_RESERVE_ROLE：资金减少450360.00，期末749640.00；SECURITIES_LEDGER_ROLE：数量增加12000，期末13500；VALUATION_RESULT_ROLE：数量13500，价格37.80，市值510300.00；ACCOUNTING_WORKER记录，复核角色确认。",
+      "r1-b-reconciliation": "ALL_ZERO_AND_REVIEW_CONFIRMED",
+      "r1-b-validation": "同一业务日期2026-08-12、市场MARKET_CASE_01、组合PORTFOLIO_CASE_01和证券SECURITY_CASE_01一致；来源与责任映射为BROKER_DATA_PROVIDER提供交易/对账资料、ACCOUNTING_WORKER读字段计算并补角色工作纸、复核角色确认；Decimal计算450000.00+360.00=450360.00，资金、持仓、估值数量和备付金均为0.00差异，复核已确认。"
+    },
+    "decimalChain": {
+      "gross": "12000 × 37.50 = 450000.00",
+      "commission": "450000.00 × 0.0008 = 360.00",
+      "settlement": "450000.00 + 360.00 = 450360.00",
+      "reserve": "1200000.00 - 450360.00 = 749640.00",
+      "position": "1500 + 12000 = 13500",
+      "valuation": "13500 × 37.80 = 510300.00",
+      "reconciliation": "cashDiff=0.00; positionDiff=0; valuationQuantityDiff=0; reserveDiff=0.00; reviewConfirmed=YES"
+    }
+  }
+}

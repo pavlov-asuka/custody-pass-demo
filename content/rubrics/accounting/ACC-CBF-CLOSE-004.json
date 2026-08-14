@@ -1,0 +1,198 @@
+{
+  "routeId": "ACC-CBF-CLOSE-004",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CBF-CLOSE-SOURCE",
+          "description": "建立外部资金、外部证券、内部角色台账、估值和完成/复核资料的职责映射",
+          "weight": 13,
+          "evidenceRequirement": "五类来源均定位正确，外部、内部和状态证据不互相替代",
+          "evidenceRules": [
+            {"fieldId": "r4-b-cash-source", "operator": "EQUALS", "expected": "BROKER_CASH_STATEMENT"},
+            {"fieldId": "r4-b-securities-source", "operator": "EQUALS", "expected": "BROKER_SECURITIES_STATEMENT"},
+            {"fieldId": "r4-b-role-ledger-source", "operator": "EQUALS", "expected": "ROLE_DAY_END_LEDGER"},
+            {"fieldId": "r4-b-valuation-source", "operator": "EQUALS", "expected": "VALUATION_RESULT"},
+            {"fieldId": "r4-b-control-source", "operator": "EQUALS", "expected": "CA_SCHEDULE_REVIEW_CONFIRMATION"}
+          ],
+          "remediationTargetId": "CBF-CLOSE-SOURCE"
+        },
+        {
+          "criterionId": "C-CBF-CLOSE-SCOPE",
+          "description": "理解三方余额、三方数量、估值金额和状态条件的独立验证关系",
+          "weight": 12,
+          "evidenceRequirement": "工作纸能把同一日期/对象、资金三方、持仓三方、估值结果和状态条件分别记录",
+          "evidenceRules": [
+            {"fieldId": "r4-b-close-workpaper", "operator": "CONTAINS_ALL", "expected": ["MARKET_CLOSE_B", "PORTFOLIO_CLOSE_B", "SECURITY_CLOSE_B", "BROKER_RESERVE_ROLE", "SECURITIES_LEDGER_ROLE", "VALUATION_RESULT_ROLE", "NORMAL_CLOSE_WORKPAPER"]},
+            {"fieldId": "r4-b-reserve-recon", "operator": "EQUALS", "expected": "RESERVE_ALL_ZERO"},
+            {"fieldId": "r4-b-position-recon", "operator": "EQUALS", "expected": "POSITION_ALL_ZERO"}
+          ],
+          "remediationTargetId": "CBF-CLOSE-SCOPE"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CBF-CLOSE-VALUATION-MARKET",
+          "description": "按估值数量和批准估值价复算估值市值",
+          "weight": 8,
+          "evidenceRequirement": "23500×62.40独立复算为1466400.00",
+          "evidenceRules": [
+            {"fieldId": "r4-b-valuation-market-value", "operator": "NUMBER_EQUALS", "expected": 1466400, "tolerance": 0.01},
+            {"fieldId": "r4-b-valuation-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CBF-CLOSE-VALUE"
+        },
+        {
+          "criterionId": "P-CBF-CLOSE-RESERVE",
+          "description": "完成备付金外部、角色台账和估值三方金额勾稽",
+          "weight": 8,
+          "evidenceRequirement": "三项备付金金额差均为0.00并选择RESERVE_ALL_ZERO",
+          "evidenceRules": [
+            {"fieldId": "r4-b-reserve-diffs", "operator": "CONTAINS_ALL", "expected": ["reserveExternalLedgerDiff=0.00", "reserveLedgerValuationDiff=0.00", "reserveExternalValuationDiff=0.00"]},
+            {"fieldId": "r4-b-reserve-recon", "operator": "EQUALS", "expected": "RESERVE_ALL_ZERO"}
+          ],
+          "remediationTargetId": "CBF-CLOSE-RESERVE"
+        },
+        {
+          "criterionId": "P-CBF-CLOSE-POSITION",
+          "description": "完成外部证券、证券台账和估值数量三方勾稽",
+          "weight": 8,
+          "evidenceRequirement": "三项持仓数量差均为0并选择POSITION_ALL_ZERO",
+          "evidenceRules": [
+            {"fieldId": "r4-b-position-diffs", "operator": "CONTAINS_ALL", "expected": ["positionExternalLedgerDiff=0", "positionLedgerValuationDiff=0", "positionExternalValuationDiff=0"]},
+            {"fieldId": "r4-b-position-recon", "operator": "EQUALS", "expected": "POSITION_ALL_ZERO"}
+          ],
+          "remediationTargetId": "CBF-CLOSE-POSITION"
+        },
+        {
+          "criterionId": "P-CBF-CLOSE-RESULT-STATUS",
+          "description": "完成估值结果金额和状态条件的结构化验证",
+          "weight": 6,
+          "evidenceRequirement": "估值市值与结果金额差为0.00，且状态勾稽选择RECONCILED_NORMAL_CLOSE",
+          "evidenceRules": [
+            {"fieldId": "r4-b-valuation-recon", "operator": "EQUALS", "expected": "VALUATION_ALL_ZERO"},
+            {"fieldId": "r4-b-status-recon", "operator": "EQUALS", "expected": "RECONCILED_NORMAL_CLOSE"}
+          ],
+          "remediationTargetId": "CBF-CLOSE-STATUS"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CBF-CLOSE-IDENTITY-SOURCE",
+          "description": "控制业务日期、对象键、来源独立性和估值公式",
+          "weight": 12,
+          "evidenceRequirement": "结论回指综合B日期/键值，使用独立资料并明确估值市值公式",
+          "evidenceRules": [
+            {"fieldId": "r4-b-close-workpaper", "operator": "CONTAINS_ALL", "expected": ["business_date=2026-08-18", "MARKET_CLOSE_B", "PORTFOLIO_CLOSE_B", "SECURITY_CLOSE_B", "approvedValuationPrice=62.40", "valuationMarketValue=1466400.00"]},
+            {"fieldId": "r4-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["同一业务日期", "独立来源"]}
+          ],
+          "remediationTargetId": "CBF-CLOSE-SCOPE"
+        },
+        {
+          "criterionId": "R-CBF-CLOSE-NO-EARLY-CLOSE",
+          "description": "控制前置状态、完成确认、复核纪律和一次日终工作纸记录",
+          "weight": 13,
+          "evidenceRequirement": "READY、ACCOUNTED、同日完整、CA、调度、复核和一次工作纸记录均完成后才记录RECONCILED/NORMAL_CLOSE",
+          "evidenceRules": [
+            {"fieldId": "r4-b-close-workpaper", "operator": "CONTAINS_ALL", "expected": ["READY", "ACCOUNTED", "sameDayDataComplete=YES", "CA=YES", "SCHEDULE=YES", "REVIEW=YES", "workpaperEntryCount=1", "RECONCILED", "NORMAL_CLOSE"]},
+            {"fieldId": "r4-b-status-recon", "operator": "EQUALS", "expected": "RECONCILED_NORMAL_CLOSE"}
+          ],
+          "remediationTargetId": "CBF-CLOSE-STATUS"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CBF-CLOSE-CONCLUSION",
+          "description": "形成简短、完整且可追溯的正常封账结论",
+          "weight": 20,
+          "evidenceRequirement": "一句话同时表达对象、三方差额、市值/估值金额差、前置状态、完成确认、复核和最终结论",
+          "evidenceRules": [
+            {"fieldId": "r4-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["同一业务日期", "MARKET_CLOSE_B", "PORTFOLIO_CLOSE_B", "SECURITY_CLOSE_B", "资金三方", "reserveExternalLedgerDiff=0.00", "reserveLedgerValuationDiff=0.00", "positionExternalLedgerDiff=0", "positionLedgerValuationDiff=0", "valuationMarketValue=1466400.00", "valuationResultAmountDiff=0.00", "READY", "ACCOUNTED", "CA=YES", "SCHEDULE=YES", "REVIEW=YES", "RECONCILED", "NORMAL_CLOSE"]}
+          ],
+          "remediationTargetId": "CBF-CLOSE-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CBF-CLOSE-THREE-WAY",
+      "description": "备付金、证券数量和估值市值的规定三方或双重勾稽必须全部为零差异",
+      "evidenceRequirement": "备付金三项差、证券持仓三项差、估值市值与估值结果金额差均为零，且三个勾稽结论均闭合",
+      "evidenceRules": [
+        {"fieldId": "r4-b-reserve-diffs", "operator": "CONTAINS_ALL", "expected": ["reserveExternalLedgerDiff=0.00", "reserveLedgerValuationDiff=0.00", "reserveExternalValuationDiff=0.00"]},
+        {"fieldId": "r4-b-position-diffs", "operator": "CONTAINS_ALL", "expected": ["positionExternalLedgerDiff=0", "positionLedgerValuationDiff=0", "positionExternalValuationDiff=0"]},
+        {"fieldId": "r4-b-valuation-market-value", "operator": "NUMBER_EQUALS", "expected": 1466400, "tolerance": 0.01},
+        {"fieldId": "r4-b-valuation-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "r4-b-reserve-recon", "operator": "EQUALS", "expected": "RESERVE_ALL_ZERO"},
+        {"fieldId": "r4-b-position-recon", "operator": "EQUALS", "expected": "POSITION_ALL_ZERO"},
+        {"fieldId": "r4-b-valuation-recon", "operator": "EQUALS", "expected": "VALUATION_ALL_ZERO"}
+      ],
+      "remediationTargetId": "CBF-CLOSE-RESERVE"
+    },
+    {
+      "requirementId": "M-CBF-CLOSE-PREREQUISITES",
+      "description": "READY/ACCOUNTED前置、CA、调度、复核均完成后才能记录RECONCILED并正常封账",
+      "evidenceRequirement": "工作纸和状态结论同时证明READY、ACCOUNTED、同日资料完整、CA完成、调度完成、复核确认、一次记录和RECONCILED/NORMAL_CLOSE",
+      "evidenceRules": [
+        {"fieldId": "r4-b-close-workpaper", "operator": "CONTAINS_ALL", "expected": ["READY", "ACCOUNTED", "sameDayDataComplete=YES", "CA=YES", "SCHEDULE=YES", "REVIEW=YES", "workpaperEntryCount=1", "RECONCILED", "NORMAL_CLOSE"]},
+        {"fieldId": "r4-b-status-recon", "operator": "EQUALS", "expected": "RECONCILED_NORMAL_CLOSE"},
+        {"fieldId": "r4-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["前置条件完成", "复核已确认", "可正常封账"]}
+      ],
+      "remediationTargetId": "CBF-CLOSE-STATUS"
+    }
+  ],
+  "remediationTargets": [
+    {"targetId": "CBF-CLOSE-SOURCE", "title": "重建日终来源映射", "reason": "外部资金、证券、角色台账、估值或状态确认来源混淆。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CBF-R4-KC-01", "questionId": "ACC-CBF-CLOSE-Q-01"},
+    {"targetId": "CBF-CLOSE-SCOPE", "title": "重新锁定对象与来源边界", "reason": "日期/键值不一致，或将余额、数量、估值和状态证据混为一个来源。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CBF-R4-KC-01", "questionId": "ACC-CBF-CLOSE-Q-01"},
+    {"targetId": "CBF-CLOSE-VALUE", "title": "补学估值市值与结果金额", "reason": "估值数量、批准估值价、市值或估值结果金额差复算错误。", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "ACC-CBF-CLOSE-Q-02"},
+    {"targetId": "CBF-CLOSE-RESERVE", "title": "补学备付金三方勾稽", "reason": "外部、角色台账和估值备付金差额未分别闭合。", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-02", "questionId": "ACC-CBF-CLOSE-Q-04"},
+    {"targetId": "CBF-CLOSE-POSITION", "title": "补学证券持仓三方勾稽", "reason": "外部证券、证券台账和估值数量差额未分别闭合。", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "ACC-CBF-CLOSE-Q-04"},
+    {"targetId": "CBF-CLOSE-STATUS", "title": "补学前置与正常封账条件", "reason": "READY/ACCOUNTED、CA、调度、复核或RECONCILED/NORMAL_CLOSE条件遗漏或顺序错误。", "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CBF-R4-KC-03", "questionId": "ACC-CBF-CLOSE-Q-04"},
+    {"targetId": "CBF-CLOSE-CONCLUSION", "title": "补写可追溯正常封账结论", "reason": "结论遗漏对象、三方差额、市值或状态条件。", "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "ACC-CBF-CLOSE-Q-05"}
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CBF-R4-FIXTURE-COMP-B",
+    "responses": {
+      "r4-b-cash-source": "BROKER_CASH_STATEMENT",
+      "r4-b-securities-source": "BROKER_SECURITIES_STATEMENT",
+      "r4-b-role-ledger-source": "ROLE_DAY_END_LEDGER",
+      "r4-b-valuation-source": "VALUATION_RESULT",
+      "r4-b-control-source": "CA_SCHEDULE_REVIEW_CONFIRMATION",
+      "r4-b-valuation-market-value": 1466400,
+      "r4-b-reserve-diffs": "reserveExternalLedgerDiff=0.00；reserveLedgerValuationDiff=0.00；reserveExternalValuationDiff=0.00",
+      "r4-b-position-diffs": "positionExternalLedgerDiff=0；positionLedgerValuationDiff=0；positionExternalValuationDiff=0",
+      "r4-b-valuation-diff": 0,
+      "r4-b-close-workpaper": "business_date=2026-08-18；MARKET_CLOSE_B；PORTFOLIO_CLOSE_B；SECURITY_CLOSE_B；READY；ACCOUNTED；sameDayDataComplete=YES；BROKER_RESERVE_ROLE externalReserve=1275000.00，ledgerReserve=1275000.00，valuationReserve=1275000.00，reserveExternalLedgerDiff=0.00，reserveLedgerValuationDiff=0.00，reserveExternalValuationDiff=0.00；SECURITIES_LEDGER_ROLE externalPosition=23500，ledgerPosition=23500，valuationQuantity=23500，positionExternalLedgerDiff=0，positionLedgerValuationDiff=0，positionExternalValuationDiff=0；VALUATION_RESULT_ROLE approvedValuationPrice=62.40，valuationMarketValue=1466400.00，valuationResultAmount=1466400.00，valuationResultAmountDiff=0.00；CA=YES；SCHEDULE=YES；REVIEW=YES；workpaperEntryCount=1；NORMAL_CLOSE_WORKPAPER；RECONCILED；NORMAL_CLOSE。",
+      "r4-b-reserve-recon": "RESERVE_ALL_ZERO",
+      "r4-b-position-recon": "POSITION_ALL_ZERO",
+      "r4-b-valuation-recon": "VALUATION_ALL_ZERO",
+      "r4-b-status-recon": "RECONCILED_NORMAL_CLOSE",
+      "r4-b-conclusion": "综合B同一业务日期2026-08-18、市场MARKET_CLOSE_B、组合PORTFOLIO_CLOSE_B、证券SECURITY_CLOSE_B和券商BROKER_CASE_01使用独立来源；资金三方reserveExternalLedgerDiff=0.00、reserveLedgerValuationDiff=0.00，持仓三方positionExternalLedgerDiff=0、positionLedgerValuationDiff=0，valuationMarketValue=1466400.00且valuationResultAmountDiff=0.00；READY、ACCOUNTED、CA=YES、SCHEDULE=YES、REVIEW=YES，前置条件完成、复核已确认，可记录RECONCILED，可正常封账NORMAL_CLOSE。"
+    },
+    "decimalChain": {
+      "reserveThreeWay": "1275000.00−1275000.00=0.00；1275000.00−1275000.00=0.00；1275000.00−1275000.00=0.00",
+      "positionThreeWay": "23500−23500=0；23500−23500=0；23500−23500=0",
+      "valuationMarketValue": "23500×62.40=1466400.00",
+      "valuationResultAmountDifference": "1466400.00−1466400.00=0.00",
+      "stateClose": "READY+ACCOUNTED+CA=YES+SCHEDULE=YES+REVIEW=YES+ALL_ZERO→RECONCILED→NORMAL_CLOSE"
+    }
+  }
+}

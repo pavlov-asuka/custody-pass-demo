@@ -1,0 +1,118 @@
+{
+  "evidenceId": "CBF-EVID-R1-BOUNDARY-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "routeId": "ACC-CBF-BOUNDARY-001",
+  "routeCode": "R1",
+  "title": "R1对象、账户角色、来源与责任映射证据",
+  "scopeNotice": "本文件只为R1提供本案例的稳定证据入口和答案链；它不登记生产sources，不改变通用契约，也不替代主控对后续路线的验收。",
+  "sharedEvidence": [
+    "CBF-EVID-NORMAL-001",
+    "CBF-EVID-FIELDS-001",
+    "CBF-EVID-STATES-001",
+    "CBF-EVID-DEID-001"
+  ],
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "CBF-MAT-AUTO-PARSE",
+      "locators": ["A-P0007-A-P0010", "A-P0016-A-P0020"],
+      "teachingUse": "定位日内交易资料组、日终对账资料组及资料读取边界；不复制原始文件名和生产字段。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CBF-MAT-GUIDE",
+      "locators": ["B-P0005-B-P0020", "B-P0027-B-P0059", "B-P0110-B-P0169", "B-P0171-B-P0199"],
+      "teachingUse": "定位责任角色、账户/对象关系、交易核算、工作流程、复核与正常收口动作。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "mappingClaims": [
+    {
+      "claimId": "R1-CLAIM-01",
+      "claim": "日内交易资料组首先映射到交易对象和清算交收角色，不直接当作估值结果。",
+      "sourceGroups": ["CASE_TRADE_DATA_GROUP"],
+      "targetRoles": ["TRADE_OBJECT", "CLEARING_SETTLEMENT_ROLE"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "claimId": "R1-CLAIM-02",
+      "claim": "日终券商对账资料组分别承载券商备付金角色和证券持仓角色，估值资料组独立承载估值结果角色。",
+      "sourceGroups": ["CASE_BROKER_STATEMENT_GROUP", "CASE_VALUATION_GROUP"],
+      "targetRoles": ["BROKER_RESERVE_ROLE", "SECURITIES_LEDGER_ROLE", "VALUATION_RESULT_ROLE"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "claimId": "R1-CLAIM-03",
+      "claim": "同一业务日期、市场键、组合键和证券键是跨来源关联前提；本案例所有键均为合成键。",
+      "sourceGroups": ["CASE_TRADE_DATA_GROUP", "CASE_BROKER_STATEMENT_GROUP", "CASE_VALUATION_GROUP"],
+      "targetRoles": ["CASE_IDENTITY"],
+      "provenance": "CASE_POLICY"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "CBF-FIXTURE-DEMO-A",
+      "sourceToRole": [
+        {"sourceGroupId": "CASE_TRADE_DATA_GROUP", "roleId": "TRADE_OBJECT", "reason": "读取BUY、8000份、42.50元和成交金额字段。"},
+        {"sourceGroupId": "CASE_BROKER_STATEMENT_GROUP", "roleId": "BROKER_RESERVE_ROLE", "reason": "读取800000.00元期初和459592.00元期末备付金。"},
+        {"sourceGroupId": "CASE_BROKER_STATEMENT_GROUP", "roleId": "SECURITIES_LEDGER_ROLE", "reason": "读取2000份期初和10000份期末持仓。"},
+        {"sourceGroupId": "CASE_VALUATION_GROUP", "roleId": "VALUATION_RESULT_ROLE", "reason": "读取42.80元估值价格、10000份估值数量和428000.00元估值市值。"}
+      ],
+      "responsibilityMap": [
+        {"roleId": "BROKER_DATA_PROVIDER", "sourceGroups": ["CASE_TRADE_DATA_GROUP", "CASE_BROKER_STATEMENT_GROUP"]},
+        {"roleId": "ACCOUNTING_WORKER", "actions": ["FIELD_READ", "ROLE_MAPPING", "WORKPAPER_ENTRY"]},
+        {"roleId": "CUSTODY_REVIEWER", "sourceGroups": ["CASE_REVIEW_GROUP"], "actions": ["REVIEW_CONFIRMATION"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "gross_amount", "formula": "8000 × 42.50", "result": "340000.00"},
+        {"fieldId": "commission_amount", "formula": "340000.00 × 0.0012", "result": "408.00"},
+        {"fieldId": "settlement_amount", "formula": "340000.00 + 408.00", "result": "340408.00"},
+        {"fieldId": "reserve_closing", "formula": "800000.00 - 340408.00", "result": "459592.00"},
+        {"fieldId": "position_closing_quantity", "formula": "2000 + 8000", "result": "10000"},
+        {"fieldId": "valuation_market_value", "formula": "10000 × 42.80", "result": "428000.00"}
+      ],
+      "roleWorkpaper": {
+        "BROKER_RESERVE_ROLE": "资金减少340408.00，期末459592.00",
+        "SECURITIES_LEDGER_ROLE": "数量增加8000，期末10000",
+        "VALUATION_RESULT_ROLE": "数量10000，价格42.80，市值428000.00"
+      },
+      "reconciliation": {"cashDiff": "0.00", "positionDiff": "0", "valuationQuantityDiff": "0", "reserveDiff": "0.00", "reviewConfirmed": "YES"}
+    },
+    "comprehensiveB": {
+      "fixtureId": "CBF-FIXTURE-COMP-B",
+      "sourceToRole": [
+        {"sourceGroupId": "CASE_TRADE_DATA_GROUP", "roleId": "TRADE_OBJECT", "reason": "读取BUY、12000份、37.50元和成交金额字段。"},
+        {"sourceGroupId": "CASE_BROKER_STATEMENT_GROUP", "roleId": "BROKER_RESERVE_ROLE", "reason": "读取1200000.00元期初和749640.00元期末备付金。"},
+        {"sourceGroupId": "CASE_BROKER_STATEMENT_GROUP", "roleId": "SECURITIES_LEDGER_ROLE", "reason": "读取1500份期初和13500份期末持仓。"},
+        {"sourceGroupId": "CASE_VALUATION_GROUP", "roleId": "VALUATION_RESULT_ROLE", "reason": "读取37.80元估值价格、13500份估值数量和510300.00元估值市值。"}
+      ],
+      "responsibilityMap": [
+        {"roleId": "BROKER_DATA_PROVIDER", "sourceGroups": ["CASE_TRADE_DATA_GROUP", "CASE_BROKER_STATEMENT_GROUP"]},
+        {"roleId": "ACCOUNTING_WORKER", "actions": ["FIELD_READ", "ROLE_MAPPING", "WORKPAPER_ENTRY"]},
+        {"roleId": "VALUATION_REVIEWER", "sourceGroups": ["CASE_VALUATION_GROUP"], "actions": ["VALUATION_CONFIRMATION"]},
+        {"roleId": "CUSTODY_REVIEWER", "sourceGroups": ["CASE_REVIEW_GROUP"], "actions": ["THREE_WAY_REVIEW"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "gross_amount", "formula": "12000 × 37.50", "result": "450000.00"},
+        {"fieldId": "commission_amount", "formula": "450000.00 × 0.0008", "result": "360.00"},
+        {"fieldId": "settlement_amount", "formula": "450000.00 + 360.00", "result": "450360.00"},
+        {"fieldId": "reserve_closing", "formula": "1200000.00 - 450360.00", "result": "749640.00"},
+        {"fieldId": "position_closing_quantity", "formula": "1500 + 12000", "result": "13500"},
+        {"fieldId": "valuation_market_value", "formula": "13500 × 37.80", "result": "510300.00"}
+      ],
+      "roleWorkpaper": {
+        "BROKER_RESERVE_ROLE": "资金减少450360.00，期末749640.00",
+        "SECURITIES_LEDGER_ROLE": "数量增加12000，期末13500",
+        "VALUATION_RESULT_ROLE": "数量13500，价格37.80，市值510300.00"
+      },
+      "reconciliation": {"cashDiff": "0.00", "positionDiff": "0", "valuationQuantityDiff": "0", "reserveDiff": "0.00", "reviewConfirmed": "YES"}
+    }
+  },
+  "coverage": {
+    "FIELD_READ": ["r1-b-trade-source", "r1-b-statement-source", "r1-b-role-workpaper"],
+    "CALCULATION": ["r1-b-gross", "r1-b-commission", "r1-b-settlement"],
+    "WORKPAPER": ["r1-b-role-workpaper"],
+    "RECONCILIATION": ["r1-b-reconciliation"],
+    "VALIDATION": ["r1-b-validation"]
+  }
+}

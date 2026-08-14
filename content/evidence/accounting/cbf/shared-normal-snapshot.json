@@ -1,0 +1,312 @@
+{
+  "evidenceId": "CBF-EVID-NORMAL-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "title": "券结基金四路线共享正常案例快照",
+  "scopeNotice": "本文件是脱敏教学题面事实，仅适用于本案例；其中的标识、日期、数值、费率、时点、精度、容差、状态和封账条件均不得解释为生产制度或永久规则。",
+  "provenanceLegend": {
+    "MATERIAL_ABSTRACTION": "从已审阅原材料抽象出资料类别、责任角色、对象关系、状态边界或勾稽动作；不等同于生产字段、制度或系统实现。",
+    "SYNTHETIC_EDUCATIONAL": "为本案例合成的脱敏标识、日期、数量、价格、金额和结果。",
+    "CASE_POLICY": "为使本案例自足而明确的题面约束；只约束本案例，不主张为现行制度。"
+  },
+  "businessStory": {
+    "businessDate": "2026-08-12",
+    "businessDateProvenance": "SYNTHETIC_EDUCATIONAL",
+    "description": "单券商、单市场、单组合、单日、一笔普通证券买入；从日内交易资料、日终券商对账资料、估值结果资料和复核确认资料完成角色映射、金额计算、工作纸补全和零差异验证。",
+    "brokerKey": "BROKER_CASE_01",
+    "marketKey": "MARKET_CASE_01",
+    "portfolioKey": "PORTFOLIO_CASE_01",
+    "securityKey": "SECURITY_CASE_01",
+    "tradeDirection": "BUY",
+    "objectBoundary": "普通证券交易对象；不重复训练股票、固定收益或ETF基础资产特征。",
+    "allKeysAreSynthetic": true
+  },
+  "responsibilityRoles": [
+    {
+      "roleId": "BROKER_DATA_PROVIDER",
+      "label": "券商资料提供角色",
+      "responsibility": "提供本案例日内交易资料组和日终对账资料组。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-AUTO-PARSE:A-P0007-A-P0020", "CBF-MAT-GUIDE:B-P0005-B-P0020"]
+    },
+    {
+      "roleId": "ACCOUNTING_WORKER",
+      "label": "核算工作角色",
+      "responsibility": "读取来源字段、建立角色映射、计算交易金额并填写业务角色工作纸。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0027-B-P0059", "CBF-MAT-GUIDE:B-P0110-B-P0169"]
+    },
+    {
+      "roleId": "VALUATION_REVIEWER",
+      "label": "估值复核角色",
+      "responsibility": "确认估值价格、估值数量和备付金结果可与日终资料对应。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0110-B-P0169", "CBF-MAT-GUIDE:B-P0171-B-P0199"]
+    },
+    {
+      "roleId": "CUSTODY_REVIEWER",
+      "label": "托管复核角色",
+      "responsibility": "确认同日资金、持仓、估值结果和复核状态满足本案例收口条件。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0171-B-P0199"]
+    }
+  ],
+  "accountRoles": [
+    {
+      "roleId": "BROKER_RESERVE_ROLE",
+      "label": "券商备付金角色",
+      "businessMeaning": "承载本案例证券买入结算导致的资金减少及期末余额。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0027-B-P0059", "CBF-MAT-GUIDE:B-P0110-B-P0169"]
+    },
+    {
+      "roleId": "BANK_CUSTODY_CASH_ROLE",
+      "label": "托管银行资金角色",
+      "businessMeaning": "作为资金来源/复核边界的业务角色，不在R1虚构正式科目名称。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0027-B-P0059"]
+    },
+    {
+      "roleId": "CLEARING_SETTLEMENT_ROLE",
+      "label": "清算交收角色",
+      "businessMeaning": "承载成交总额、佣金和交收金额之间的业务关系。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0027-B-P0059"]
+    },
+    {
+      "roleId": "SECURITIES_LEDGER_ROLE",
+      "label": "证券持仓角色",
+      "businessMeaning": "承载买入数量和期末持仓数量。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0110-B-P0169", "CBF-MAT-GUIDE:B-P0171-B-P0199"]
+    },
+    {
+      "roleId": "VALUATION_RESULT_ROLE",
+      "label": "估值结果角色",
+      "businessMeaning": "承载估值价格、估值数量、估值市值和备付金复核结果。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0110-B-P0169", "CBF-MAT-GUIDE:B-P0171-B-P0199"]
+    }
+  ],
+  "sourceGroups": [
+    {
+      "fileGroupId": "CASE_TRADE_DATA_GROUP",
+      "label": "日内交易资料组",
+      "artifactId": "CBF-SRC-TRADE-CASE",
+      "responsibleRole": "BROKER_DATA_PROVIDER",
+      "fieldsFromDictionary": ["business_date", "market_key", "portfolio_key", "security_key", "trade_side", "quantity", "trade_price", "gross_amount", "commission_rate", "commission_amount", "settlement_amount"],
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-AUTO-PARSE:A-P0007-A-P0010"]
+    },
+    {
+      "fileGroupId": "CASE_BROKER_STATEMENT_GROUP",
+      "label": "日终券商对账资料组",
+      "artifactId": "CBF-SRC-STATEMENT-CASE",
+      "responsibleRole": "BROKER_DATA_PROVIDER",
+      "fieldsFromDictionary": ["business_date", "market_key", "portfolio_key", "security_key", "reserve_opening", "reserve_closing", "position_opening_quantity", "position_closing_quantity"],
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-AUTO-PARSE:A-P0016-A-P0020", "CBF-MAT-GUIDE:B-P0110-B-P0169"]
+    },
+    {
+      "fileGroupId": "CASE_VALUATION_GROUP",
+      "label": "估值结果资料组",
+      "artifactId": "CBF-SRC-VALUATION-CASE",
+      "responsibleRole": "VALUATION_REVIEWER",
+      "fieldsFromDictionary": ["valuation_price", "valuation_quantity", "valuation_market_value", "valuation_reserve"],
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0110-B-P0169", "CBF-MAT-GUIDE:B-P0171-B-P0199"]
+    },
+    {
+      "fileGroupId": "CASE_REVIEW_GROUP",
+      "label": "复核确认资料组",
+      "artifactId": "CBF-SRC-REVIEW-CASE",
+      "responsibleRole": "CUSTODY_REVIEWER",
+      "fieldsFromDictionary": ["review_confirmed", "close_decision"],
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0171-B-P0199"]
+    }
+  ],
+  "approvedCaseParameters": {
+    "settlementTiming": {
+      "value": "SAME_CASE_DAY_AFTER_TRADE",
+      "provenance": "CASE_POLICY",
+      "basis": "原材料涉及T+0/当日资料处理时点；本案例只冻结同日交收事实，不把任何时点写成永久制度。",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0015-B-P0020", "CBF-MAT-GUIDE:B-P0110-B-P0169"]
+    },
+    "commissionRate": {
+      "valueSource": "fixture-specific",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "basis": "两套题面使用不同脱敏费率，均仅适用于对应资料包。"
+    },
+    "amountPrecision": {
+      "value": 2,
+      "unit": "DECIMAL_PLACES",
+      "provenance": "CASE_POLICY"
+    },
+    "quantityPrecision": {
+      "value": 0,
+      "unit": "DECIMAL_PLACES",
+      "provenance": "CASE_POLICY"
+    },
+    "ratePrecision": {
+      "value": 4,
+      "unit": "DECIMAL_PLACES",
+      "provenance": "CASE_POLICY"
+    },
+    "reconciliationTolerance": {
+      "value": "0.00",
+      "unit": "元或份额",
+      "provenance": "CASE_POLICY",
+      "basis": "本案例要求差额精确为零；该数值不外推至其他案例。"
+    },
+    "reviewRequirement": {
+      "value": "REVIEW_CONFIRMED",
+      "provenance": "CASE_POLICY",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0171-B-P0199"]
+    },
+    "closeRequirement": {
+      "value": "NORMAL_CLOSE_ONLY",
+      "provenance": "CASE_POLICY",
+      "conditions": ["同日资料完整", "资金差为0.00", "持仓差为0份", "估值数量差为0份", "备付金差为0.00", "复核已确认"],
+      "excludedActions": ["强制封账", "跳过复核", "异常升级话术"]
+    }
+  },
+  "fixtures": {
+    "demonstrationA": {
+      "fixtureId": "CBF-FIXTURE-DEMO-A",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "businessDate": "2026-08-12",
+      "brokerKey": "BROKER_CASE_01",
+      "marketKey": "MARKET_CASE_01",
+      "portfolioKey": "PORTFOLIO_CASE_01",
+      "securityKey": "SECURITY_CASE_01",
+      "tradeSide": "BUY",
+      "quantity": "8000",
+      "tradePrice": "42.50",
+      "grossAmount": "340000.00",
+      "commissionRate": "0.0012",
+      "commissionAmount": "408.00",
+      "settlementAmount": "340408.00",
+      "reserveOpening": "800000.00",
+      "reserveClosing": "459592.00",
+      "positionOpeningQuantity": "2000",
+      "positionClosingQuantity": "10000",
+      "valuationPrice": "42.80",
+      "valuationQuantity": "10000",
+      "valuationMarketValue": "428000.00",
+      "valuationReserve": "459592.00",
+      "reviewConfirmed": "YES",
+      "closeDecision": "NORMAL_CLOSE",
+      "answerChain": {
+        "gross": "8000 × 42.50 = 340000.00",
+        "commission": "340000.00 × 0.0012 = 408.00",
+        "settlement": "340000.00 + 408.00 = 340408.00",
+        "reserve": "800000.00 - 340408.00 = 459592.00",
+        "position": "2000 + 8000 = 10000",
+        "valuation": "10000 × 42.80 = 428000.00",
+        "reconciliation": "cashDiff=0.00; positionDiff=0; valuationQuantityDiff=0; reserveDiff=0.00"
+      }
+    },
+    "comprehensiveB": {
+      "fixtureId": "CBF-FIXTURE-COMP-B",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "businessDate": "2026-08-12",
+      "brokerKey": "BROKER_CASE_01",
+      "marketKey": "MARKET_CASE_01",
+      "portfolioKey": "PORTFOLIO_CASE_01",
+      "securityKey": "SECURITY_CASE_01",
+      "tradeSide": "BUY",
+      "quantity": "12000",
+      "tradePrice": "37.50",
+      "grossAmount": "450000.00",
+      "commissionRate": "0.0008",
+      "commissionAmount": "360.00",
+      "settlementAmount": "450360.00",
+      "reserveOpening": "1200000.00",
+      "reserveClosing": "749640.00",
+      "positionOpeningQuantity": "1500",
+      "positionClosingQuantity": "13500",
+      "valuationPrice": "37.80",
+      "valuationQuantity": "13500",
+      "valuationMarketValue": "510300.00",
+      "valuationReserve": "749640.00",
+      "reviewConfirmed": "YES",
+      "closeDecision": "NORMAL_CLOSE",
+      "answerChain": {
+        "gross": "12000 × 37.50 = 450000.00",
+        "commission": "450000.00 × 0.0008 = 360.00",
+        "settlement": "450000.00 + 360.00 = 450360.00",
+        "reserve": "1200000.00 - 450360.00 = 749640.00",
+        "position": "1500 + 12000 = 13500",
+        "valuation": "13500 × 37.80 = 510300.00",
+        "reconciliation": "cashDiff=0.00; positionDiff=0; valuationQuantityDiff=0; reserveDiff=0.00"
+      }
+    }
+  },
+  "reconciliationFormulas": {
+    "grossAmount": "quantity × tradePrice",
+    "commissionAmount": "grossAmount × commissionRate",
+    "settlementAmount": "grossAmount + commissionAmount",
+    "cashDiff": "reserveClosing - (reserveOpening - settlementAmount)",
+    "positionDiff": "positionClosingQuantity - (positionOpeningQuantity + quantity)",
+    "valuationQuantityDiff": "positionClosingQuantity - valuationQuantity",
+    "reserveDiff": "reserveClosing - valuationReserve",
+    "valuationMarketValue": "valuationQuantity × valuationPrice"
+  },
+  "stateChain": {
+    "stateCodes": ["RECEIVED", "PARSED", "MAPPED", "COMPLETE", "READY", "ACCOUNTED", "RECONCILED"],
+    "provenance": "MATERIAL_ABSTRACTION",
+    "caseOnlyNotice": "七状态只作为本案例证据链，用于证明资料从收到到可复核收口的观察点，不是系统永久状态枚举。",
+    "readyCondition": [
+      "四个必需资料组均处于COMPLETE或更后状态",
+      "业务日期、市场、组合和证券键在来源之间一致",
+      "必需字段均存在且数据类型可读",
+      "文件组版本、记录数、解析/映射行数、数量/金额控制总额和完整性字段可由Decimal独立复算",
+      "日间/日终记录数、数量和金额控制总额可相互勾稽",
+      "来源角色边界已明确，可进入后续角色工作纸"
+    ],
+    "normalCloseCondition": [
+      "同日资料完整",
+      "cashDiff=0.00",
+      "positionDiff=0",
+      "valuationQuantityDiff=0",
+      "reserveDiff=0.00",
+      "reviewConfirmed=YES",
+      "closeDecision=NORMAL_CLOSE"
+    ]
+  },
+  "routeChain": [
+    {
+      "routeId": "ACC-CBF-BOUNDARY-001",
+      "routeCode": "R1",
+      "focus": "对象、账户角色、来源和责任映射",
+      "dependsOn": [],
+      "status": "APPROVED_FOR_THIS_BATCH"
+    },
+    {
+      "routeId": "ACC-CBF-DATA-002",
+      "routeCode": "R2",
+      "focus": "数据接收、解析、完整性与可启动判定",
+      "dependsOn": ["ACC-CBF-BOUNDARY-001"],
+      "status": "APPROVED_SERIAL_FOLLOWUP"
+    },
+    {
+      "routeId": "ACC-CBF-SETTLEMENT-003",
+      "routeCode": "R3",
+      "focus": "gross、commission、settlement和reserve",
+      "dependsOn": ["ACC-CBF-DATA-002"],
+      "status": "APPROVED_SERIAL_FOLLOWUP"
+    },
+    {
+      "routeId": "ACC-CBF-RECON-004",
+      "routeCode": "R4",
+      "focus": "资金、持仓、估值三方勾稽",
+      "dependsOn": ["ACC-CBF-SETTLEMENT-003"],
+      "status": "APPROVED_SERIAL_FOLLOWUP"
+    }
+  ],
+  "scopeExclusions": {
+    "notMadeInThisBatch": ["A1", "A2", "DEFER"],
+    "notRepresented": ["多券商", "跨市场", "复杂权益", "自动解析版本切换", "重跑", "回滚", "强制封账", "正式会计科目名称", "真实账户或路径"]
+  }
+}

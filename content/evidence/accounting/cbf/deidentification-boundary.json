@@ -1,0 +1,41 @@
+{
+  "evidenceId": "CBF-EVID-DEID-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "title": "券结基金案例去敏边界",
+  "scopeNotice": "本边界用于本批教学内容的脱敏和审阅，不代表生产数据治理规范。",
+  "sourceMaterialCodes": ["CBF-MAT-AUTO-PARSE", "CBF-MAT-GUIDE"],
+  "allowedInLearnerMaterials": [
+    "CASE_前缀的合成业务日期、市场键、组合键、券商角色键和证券键",
+    "业务角色化名称：券商资料提供角色、核算工作角色、券商备付金角色、证券持仓角色、估值结果角色",
+    "案例资料组名称和字段标签，不出现真实文件名、路径、菜单或系统按钮",
+    "为本案例合成的数量、价格、佣金率、金额、估值价格、精度、容差和零差异结果",
+    "原材料的稳定定位码CBF-MAT-AUTO-PARSE/CBF-MAT-GUIDE及A-P/B-P段落定位"
+  ],
+  "mustNotEnterLearnerMaterials": [
+    "真实券商、管理人、托管人、交易单元、组合、账户号码或证券代码",
+    "真实人员姓名、手机号、邮箱、身份证件、凭证号或登录信息",
+    "生产文件名、绝对路径、共享盘路径、菜单名、权限名、接口地址或系统截图水印",
+    "历史资料中的具体字段名、旧版本号、旧参数、历史费率、历史时点或历史金额作为永久事实",
+    "正式会计科目名称、借贷方向或未被材料闭合的制度推断",
+    "多券商、跨市场、复杂权益、解析版本切换、重跑、回滚和强制封账的异常题面"
+  ],
+  "replacementPolicy": [
+    {"realDataClass": "机构和账户标识", "replacement": "BROKER_CASE_01 / PORTFOLIO_CASE_01 / *_ROLE", "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"realDataClass": "文件和字段标识", "replacement": "CASE_*_GROUP / field-dictionary fieldId", "provenance": "CASE_POLICY"},
+    {"realDataClass": "金额、费率、日期和数量", "replacement": "demonstrationA 或 comprehensiveB fixture", "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"realDataClass": "生产状态和制度结论", "replacement": "ONLY_THIS_CASE 七状态/封账条件", "provenance": "CASE_POLICY"}
+  ],
+  "materialLocatorPolicy": {
+    "use": "只用CBF-MAT-AUTO-PARSE/CBF-MAT-GUIDE和A-P/B-P稳定定位支持教学来源追溯。",
+    "doNotUse": ["原始材料文件名作为学员答案", "原始绝对路径", "截图中的真实标识", "联网补造规则"],
+    "provenance": "MATERIAL_ABSTRACTION"
+  },
+  "reviewChecklist": [
+    "所有ID不含真实机构、账户、路径或人员信息",
+    "所有数值能在shared-normal-snapshot的fixture中找到来源",
+    "所有七状态、ready和封账条件均明确标注ONLY_THIS_CASE",
+    "route/rubric只引用本案例证据与稳定材料定位，不登记sources或release",
+    "没有把异常或升级话术写入正常综合实务"
+  ]
+}

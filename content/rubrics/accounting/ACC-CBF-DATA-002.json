@@ -1,0 +1,221 @@
+{
+  "routeId": "ACC-CBF-DATA-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CBF-DATA-STATE-PROOF",
+          "description": "区分并证明RECEIVED、PARSED、MAPPED、COMPLETE、READY",
+          "weight": 13,
+          "evidenceRequirement": "五个状态分别绑定接收字段、解析行数、映射行数、完整性/同日键和双源控制证据",
+          "evidenceRules": [
+            {"fieldId": "r2-b-received-proof", "operator": "EQUALS", "expected": "RECEIVED_FROM_INTAKE_KEYS"},
+            {"fieldId": "r2-b-parsed-proof", "operator": "EQUALS", "expected": "PARSED_ROWS_EQUAL_RECORDS"},
+            {"fieldId": "r2-b-mapped-proof", "operator": "EQUALS", "expected": "MAPPED_ROWS_EQUAL_PARSED"},
+            {"fieldId": "r2-b-complete-proof", "operator": "EQUALS", "expected": "COMPLETE_KEYS_FIELDS_CONTROLS"},
+            {"fieldId": "r2-b-ready-proof", "operator": "EQUALS", "expected": "READY_ALL_CONTROLS_ZERO"}
+          ],
+          "remediationTargetId": "CBF-DATA-STATE"
+        },
+        {
+          "criterionId": "C-CBF-DATA-READY-BOUNDARY",
+          "description": "理解收到/解析与可启动之间的边界",
+          "weight": 12,
+          "evidenceRequirement": "结论明确收到或解析不等于READY，READY需要完整性和双源控制总额全部闭合",
+          "evidenceRules": [
+            {"fieldId": "r2-b-ready-proof", "operator": "EQUALS", "expected": "READY_ALL_CONTROLS_ZERO"},
+            {"fieldId": "r2-b-validation", "operator": "CONTAINS_ALL", "expected": ["收到/解析不等于READY", "COMPLETE", "READY"]}
+          ],
+          "remediationTargetId": "CBF-DATA-VALIDATION"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CBF-DATA-FIELD-READ",
+          "description": "读取同日键、文件组版本和状态字段",
+          "weight": 8,
+          "evidenceRequirement": "从接收、解析、映射和完整性资料定位综合B的状态字段",
+          "evidenceRules": [
+            {"fieldId": "r2-b-received-proof", "operator": "EQUALS", "expected": "RECEIVED_FROM_INTAKE_KEYS"},
+            {"fieldId": "r2-b-parsed-proof", "operator": "EQUALS", "expected": "PARSED_ROWS_EQUAL_RECORDS"},
+            {"fieldId": "r2-b-mapped-proof", "operator": "EQUALS", "expected": "MAPPED_ROWS_EQUAL_PARSED"},
+            {"fieldId": "r2-b-complete-proof", "operator": "EQUALS", "expected": "COMPLETE_KEYS_FIELDS_CONTROLS"}
+          ],
+          "remediationTargetId": "CBF-DATA-STATE"
+        },
+        {
+          "criterionId": "P-CBF-DATA-CONTROL-TOTAL",
+          "description": "独立复算记录、数量和金额控制总额",
+          "weight": 10,
+          "evidenceRequirement": "综合B日间四条明细独立复算为数量22000和金额995000.00",
+          "evidenceRules": [
+            {"fieldId": "r2-b-quantity-total", "operator": "NUMBER_EQUALS", "expected": 22000, "tolerance": 0},
+            {"fieldId": "r2-b-amount-total", "operator": "NUMBER_EQUALS", "expected": 995000, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CBF-DATA-CONTROL"
+        },
+        {
+          "criterionId": "P-CBF-DATA-WORKPAPER-RECON",
+          "description": "补全状态工作纸、完成双源勾稽并形成验证",
+          "weight": 12,
+          "evidenceRequirement": "工作纸记录五状态及其字段依据，日间/日终记录、数量和金额差均为零，并写出Decimal验证",
+          "evidenceRules": [
+            {"fieldId": "r2-b-status-workpaper", "operator": "CONTAINS_ALL", "expected": ["RECEIVED", "PARSED", "MAPPED", "COMPLETE", "READY", "CASE-FORMAT-B-02", "22000", "995000.00"]},
+            {"fieldId": "r2-b-two-source-recon", "operator": "EQUALS", "expected": "ALL_ZERO_READY"},
+            {"fieldId": "r2-b-validation", "operator": "CONTAINS_ALL", "expected": ["记录", "数量", "金额", "0.00", "Decimal"]}
+          ],
+          "remediationTargetId": "CBF-DATA-WORKPAPER"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CBF-DATA-BATCH-BOUNDARY",
+          "description": "控制批次、同日键和文件组版本边界",
+          "weight": 13,
+          "evidenceRequirement": "结论可追溯到综合B业务日期、市场/组合/证券键、两个文件组ID和版本",
+          "evidenceRules": [
+            {"fieldId": "r2-b-status-workpaper", "operator": "CONTAINS_ALL", "expected": ["2026-08-14", "MARKET_DATA_B", "PORTFOLIO_DATA_B", "SECURITY_DATA_B", "CASE_DAY_DATA_B", "CASE_EOD_DATA_B", "CASE-FORMAT-B-02"]},
+            {"fieldId": "r2-b-validation", "operator": "CONTAINS_ALL", "expected": ["同日键", "字段映射"]}
+          ],
+          "remediationTargetId": "CBF-DATA-STATE"
+        },
+        {
+          "criterionId": "R-CBF-DATA-READY-CONTROL",
+          "description": "控制READY判定不得被收到或解析状态提前触发",
+          "weight": 12,
+          "evidenceRequirement": "READY必须建立在完整性、映射和双源零差异基础上，结论为正常可启动",
+          "evidenceRules": [
+            {"fieldId": "r2-b-ready-proof", "operator": "EQUALS", "expected": "READY_ALL_CONTROLS_ZERO"},
+            {"fieldId": "r2-b-two-source-recon", "operator": "EQUALS", "expected": "ALL_ZERO_READY"},
+            {"fieldId": "r2-b-validation", "operator": "CONTAINS_ALL", "expected": ["收到/解析不等于READY", "零差", "READY"]}
+          ],
+          "remediationTargetId": "CBF-DATA-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CBF-DATA-TRACEABLE-CONCLUSION",
+          "description": "形成可追溯的数据可启动结论",
+          "weight": 20,
+          "evidenceRequirement": "一句话同时表达五状态、同日键、字段映射、记录/数量/金额控制、双源零差异和READY边界",
+          "evidenceRules": [
+            {"fieldId": "r2-b-validation", "operator": "CONTAINS_ALL", "expected": ["RECEIVED", "PARSED", "MAPPED", "COMPLETE", "READY", "同日键", "字段映射", "记录", "数量", "金额", "22000", "995000.00", "0.00", "收到/解析不等于READY"]}
+          ],
+          "remediationTargetId": "CBF-DATA-VALIDATION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CBF-DATA-STATE-BOUNDARY",
+      "description": "必须用字段证据区分五个状态，并明确收到/解析不等于READY",
+      "evidenceRequirement": "RECEIVED、PARSED、MAPPED、COMPLETE、READY五项选择正确，状态工作纸完整，结论写出边界",
+      "evidenceRules": [
+        {"fieldId": "r2-b-received-proof", "operator": "EQUALS", "expected": "RECEIVED_FROM_INTAKE_KEYS"},
+        {"fieldId": "r2-b-parsed-proof", "operator": "EQUALS", "expected": "PARSED_ROWS_EQUAL_RECORDS"},
+        {"fieldId": "r2-b-mapped-proof", "operator": "EQUALS", "expected": "MAPPED_ROWS_EQUAL_PARSED"},
+        {"fieldId": "r2-b-complete-proof", "operator": "EQUALS", "expected": "COMPLETE_KEYS_FIELDS_CONTROLS"},
+        {"fieldId": "r2-b-ready-proof", "operator": "EQUALS", "expected": "READY_ALL_CONTROLS_ZERO"},
+        {"fieldId": "r2-b-validation", "operator": "CONTAINS_ALL", "expected": ["收到/解析不等于READY", "COMPLETE", "READY"]}
+      ],
+      "remediationTargetId": "CBF-DATA-STATE"
+    },
+    {
+      "requirementId": "M-CBF-DATA-COMPLETE-READY",
+      "description": "同日键、字段映射、记录/数量/金额完整性和双源勾稽必须全部闭合后才能READY",
+      "evidenceRequirement": "数量22000、金额995000.00、双源三项差额为零，工作纸和最终结论均指向READY",
+      "evidenceRules": [
+        {"fieldId": "r2-b-quantity-total", "operator": "NUMBER_EQUALS", "expected": 22000, "tolerance": 0},
+        {"fieldId": "r2-b-amount-total", "operator": "NUMBER_EQUALS", "expected": 995000, "tolerance": 0.01},
+        {"fieldId": "r2-b-status-workpaper", "operator": "CONTAINS_ALL", "expected": ["同日键", "required_field_check=PASS", "mappedRows=4", "READY"]},
+        {"fieldId": "r2-b-two-source-recon", "operator": "EQUALS", "expected": "ALL_ZERO_READY"},
+        {"fieldId": "r2-b-validation", "operator": "CONTAINS_ALL", "expected": ["记录", "数量", "金额", "0.00", "READY"]}
+      ],
+      "remediationTargetId": "CBF-DATA-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "CBF-DATA-STATE",
+      "title": "补学五状态字段证明",
+      "reason": "把接收、解析、映射、完整和可启动混为同一状态，或不能回指资料字段",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R2-KC-01",
+      "questionId": "ACC-CBF-DATA-Q-01"
+    },
+    {
+      "targetId": "CBF-DATA-CONTROL",
+      "title": "补学控制总额与行数复算",
+      "reason": "记录数、数量控制总额、金额控制总额或解析/映射行数差未能独立复算",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R2-KC-02",
+      "questionId": "ACC-CBF-DATA-Q-02"
+    },
+    {
+      "targetId": "CBF-DATA-WORKPAPER",
+      "title": "补全数据状态工作纸",
+      "reason": "未将字段证据和状态结果记录到数据接收与可启动状态工作纸",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R2-KC-03",
+      "questionId": "ACC-CBF-DATA-Q-03"
+    },
+    {
+      "targetId": "CBF-DATA-RECON",
+      "title": "补学双源控制总额勾稽",
+      "reason": "未完成日间/日终记录、数量和金额控制总额差额验证，或提前判定READY",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "ACC-CBF-DATA-Q-04"
+    },
+    {
+      "targetId": "CBF-DATA-VALIDATION",
+      "title": "补写可启动边界结论",
+      "reason": "结论未表达收到/解析与READY的边界，或缺少同日键、映射和完整性证据",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CBF-R2-KC-03",
+      "questionId": "ACC-CBF-DATA-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CBF-R2-FIXTURE-COMP-B",
+    "responses": {
+      "r2-b-received-proof": "RECEIVED_FROM_INTAKE_KEYS",
+      "r2-b-parsed-proof": "PARSED_ROWS_EQUAL_RECORDS",
+      "r2-b-mapped-proof": "MAPPED_ROWS_EQUAL_PARSED",
+      "r2-b-complete-proof": "COMPLETE_KEYS_FIELDS_CONTROLS",
+      "r2-b-ready-proof": "READY_ALL_CONTROLS_ZERO",
+      "r2-b-quantity-total": 22000,
+      "r2-b-amount-total": 995000,
+      "r2-b-status-workpaper": "RECEIVED：business_date=2026-08-14；MARKET_DATA_B、PORTFOLIO_DATA_B、SECURITY_DATA_B一致；同日键已确认；CASE_DAY_DATA_B/CASE_EOD_DATA_B，版本CASE-FORMAT-B-02，recordCount=4。PARSED：两组parsedRows=4=recordCount且parseStatus=PASS。MAPPED：两组mappedRows=4=parsedRows且mappingStatus=PASS。COMPLETE：required_field_check=PASS、same_day_key_check=PASS，数量22000、金额995000.00可由明细复算。READY：日间/日终记录差0、数量差0、金额差0.00，结论READY。",
+      "r2-b-two-source-recon": "ALL_ZERO_READY",
+      "r2-b-validation": "RECEIVED、PARSED、MAPPED、COMPLETE、READY均由字段逐步证明：同日键为2026-08-14、MARKET_DATA_B、PORTFOLIO_DATA_B、SECURITY_DATA_B，字段映射完成；记录4/4、数量控制总额22000、金额控制总额995000.00，Decimal复算和日间/日终双源记录/数量/金额差均为0.00，形成零差，因此收到/解析不等于READY，只有完整性闭合后才能READY。"
+    },
+    "decimalChain": {
+      "dayQuantity": "7200 + 6800 + 5000 + 3000 = 22000",
+      "dayAmount": "318000.00 + 302000.00 + 225000.00 + 150000.00 = 995000.00",
+      "parsedRowDiff": "4 - 4 = 0",
+      "mappedRowDiff": "4 - 4 = 0",
+      "dayEodRecordDiff": "4 - 4 = 0",
+      "dayEodQuantityDiff": "22000 - 22000 = 0",
+      "dayEodAmountDiff": "995000.00 - 995000.00 = 0.00"
+    }
+  }
+}

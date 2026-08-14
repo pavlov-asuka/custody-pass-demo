@@ -1,0 +1,213 @@
+{
+  "evidenceId": "CBF-EVID-R3-SETTLEMENT-003",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "routeId": "ACC-CBF-SETTLEMENT-003",
+  "routeCode": "R3",
+  "title": "普通证券交易的券商交收、佣金现金时点与备付金证据",
+  "scopeNotice": "本文件使用已确认的普通证券交易结果，只训练本案例批准的券商交收、佣金现金时点、券商备付金变动和角色化结转工作纸；标识、日期、费率、时点、金额、精度和容差均仅适用于本案例。",
+  "sharedEvidence": [
+    "CBF-EVID-NORMAL-001",
+    "CBF-EVID-FIELDS-001",
+    "CBF-EVID-STATES-001",
+    "CBF-EVID-DEID-001"
+  ],
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "CBF-MAT-GUIDE",
+      "locators": ["B-P0018-B-P0019"],
+      "teachingUse": "抽象本案例交收时点和同日资料处理关系；历史T+0表述不作为永久规则，实际答案以本案例批准时点字段为准。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CBF-MAT-GUIDE",
+      "locators": ["B-P0027-B-P0032"],
+      "teachingUse": "抽象普通证券交易的成交、佣金、交收和资金关系；不重新训练买卖方向、股票成本或正式凭证科目。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CBF-MAT-GUIDE",
+      "locators": ["B-P0077-B-P0084", "B-I01-B-I03"],
+      "teachingUse": "抽象佣金/交收参数与券商资金、备付金对账资料之间的定位关系；图片只作为稳定定位证据，不复制真实账户、菜单或文件名。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "objectBoundary": {
+    "reusedUpstreamObject": "CONFIRMED_ORDINARY_SECURITY_TRADE_RESULT",
+    "newR3Objects": ["APPROVED_BROKER_SETTLEMENT", "COMMISSION_CASH_TIMING", "BROKER_RESERVE_MOVEMENT", "ROLE_SETTLEMENT_WORKPAPER"],
+    "notRetrained": ["BUY_OR_SELL_DIRECTION", "STOCK_COST", "MOVING_WEIGHTED_COST", "VALUATION_GAIN", "STOCK_VOUCHER"],
+    "provenance": "CASE_POLICY"
+  },
+  "sourceMap": [
+    {
+      "sourceId": "R3_CONFIRMED_TRADE_RESULT",
+      "label": "已确认交易结果资料",
+      "fields": ["business_date", "market_key", "portfolio_key", "security_key", "quantity", "trade_price", "gross_amount", "trade_result_status"],
+      "targetRoles": ["TRADE_OBJECT", "CLEARING_SETTLEMENT_ROLE"],
+      "teachingBoundary": "交易方向和股票成本已由前置结果确认，本路线只读取数量、价格和成交总额。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0027-B-P0032"]
+    },
+    {
+      "sourceId": "R3_APPROVED_PARAMETER",
+      "label": "本案例批准参数快照",
+      "fields": ["commission_rate", "commission_cash_timing", "amount_precision", "reconciliation_tolerance", "business_date_scope"],
+      "targetRoles": ["CLEARING_SETTLEMENT_ROLE", "COMMISSION_CASH_ROLE"],
+      "teachingBoundary": "佣金率和现金时点均由本案例批准参数给出，不由历史T+0、历史费率或记忆推断。",
+      "provenance": "CASE_POLICY",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0018-B-P0019", "CBF-MAT-GUIDE:B-P0077-B-P0084"]
+    },
+    {
+      "sourceId": "R3_BROKER_CASH_STATEMENT",
+      "label": "券商资金对账资料",
+      "fields": ["business_date", "market_key", "portfolio_key", "reserve_opening", "cash_movement", "reserve_closing", "external_balance_status"],
+      "targetRoles": ["BROKER_RESERVE_ROLE", "BANK_CUSTODY_CASH_ROLE"],
+      "teachingBoundary": "只作为本案例外部余额来源和独立勾稽来源，不补造正式会计科目或借贷方向。",
+      "provenance": "MATERIAL_ABSTRACTION",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0077-B-P0084", "CBF-MAT-GUIDE:B-I01-B-I03"]
+    },
+    {
+      "sourceId": "R3_RESERVE_WORKPAPER",
+      "label": "券结业务角色结转工作纸",
+      "fields": ["gross_amount", "commission_amount", "settlement_amount", "reserve_movement", "reserve_closing", "posting_count"],
+      "targetRoles": ["ROLE_SETTLEMENT_WORKPAPER", "BROKER_RESERVE_ROLE"],
+      "teachingBoundary": "以业务角色、现金方向和金额关系记录一次结转，不写正式科目名、借贷方向或系统字段。",
+      "provenance": "CASE_POLICY",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0027-B-P0032", "CBF-MAT-GUIDE:B-P0077-B-P0084"]
+    }
+  ],
+  "approvedCaseParameters": {
+    "commissionCashTiming": {
+      "value": "SAME_CASE_DAY_IN_CASH_CHAIN",
+      "provenance": "CASE_POLICY",
+      "basis": "本案例明确佣金在同日现金链中计入交收金额；不以历史T+0记忆推断。",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0018-B-P0019", "CBF-MAT-GUIDE:B-P0027-B-P0032"]
+    },
+    "settlementTiming": {
+      "value": "SAME_CASE_DAY_AFTER_TRADE",
+      "provenance": "CASE_POLICY",
+      "basis": "本案例批准的同日券商交收时点，只约束本案例。",
+      "materialLocators": ["CBF-MAT-GUIDE:B-P0018-B-P0019"]
+    },
+    "commissionRate": {
+      "value": "fixture-specific",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "basis": "Demo A和综合B各自使用题面批准费率；历史费率不固化。"
+    },
+    "amountPrecision": {"value": 2, "unit": "DECIMAL_PLACES", "provenance": "CASE_POLICY"},
+    "reconciliationTolerance": {"value": "0.00", "unit": "元", "provenance": "CASE_POLICY"},
+    "postingRule": {
+      "value": "ONE_ROLE_WORKPAPER_ENTRY_FOR_CASE_SETTLEMENT",
+      "provenance": "CASE_POLICY",
+      "basis": "本案例要求记录一次角色化结转，防止同一交收金额重复进入备付金现金链。"
+    }
+  },
+  "distinctionRules": [
+    {"item": "gross_amount", "meaning": "成交数量×成交价格的成交总额", "cashDirection": "NOT_YET_CASH_MOVEMENT", "provenance": "MATERIAL_ABSTRACTION"},
+    {"item": "commission_amount", "meaning": "本案例批准佣金率作用于成交总额的佣金金额", "cashDirection": "SAME_CASE_DAY_CASH_OUT", "provenance": "CASE_POLICY"},
+    {"item": "settlement_amount", "meaning": "成交总额+佣金金额的券商交收金额", "cashDirection": "SAME_CASE_DAY_CASH_OUT", "provenance": "CASE_POLICY"},
+    {"item": "reserve_movement", "meaning": "备付金因交收发生的现金变动，等于−交收金额", "cashDirection": "CASH_OUT", "provenance": "CASE_POLICY"}
+  ],
+  "fixtures": {
+    "demonstrationA": {
+      "fixtureId": "CBF-R3-FIXTURE-DEMO-A",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "businessDate": "2026-08-15",
+      "marketKey": "MARKET_SETTLE_A",
+      "portfolioKey": "PORTFOLIO_SETTLE_A",
+      "securityKey": "SECURITY_SETTLE_A",
+      "brokerKey": "BROKER_CASE_01",
+      "tradeResultStatus": "CONFIRMED",
+      "quantity": "9000",
+      "tradePrice": "28.40",
+      "grossAmount": "255600.00",
+      "commissionRate": "0.0011",
+      "commissionAmount": "281.16",
+      "commissionCashTiming": "SAME_CASE_DAY_IN_CASH_CHAIN",
+      "settlementTiming": "SAME_CASE_DAY_AFTER_TRADE",
+      "settlementAmount": "255881.16",
+      "reserveOpening": "700000.00",
+      "reserveMovement": "-255881.16",
+      "reserveClosing": "444118.84",
+      "externalStatementOpening": "700000.00",
+      "externalStatementCashMovement": "-255881.16",
+      "externalStatementClosing": "444118.84",
+      "postingCount": "1",
+      "formulaDifference": "0.00",
+      "reserveFormulaDifference": "0.00",
+      "externalBalanceDifference": "0.00",
+      "answerChain": {
+        "gross": "9000 × 28.40 = 255600.00",
+        "commission": "255600.00 × 0.0011 = 281.16",
+        "settlement": "255600.00 + 281.16 = 255881.16",
+        "reserveMovement": "−255881.16",
+        "reserveClose": "700000.00 − 255881.16 = 444118.84",
+        "formulaDiff": "255600.00 + 281.16 − 255881.16 = 0.00",
+        "reserveFormulaDiff": "700000.00 − 255881.16 − 444118.84 = 0.00",
+        "externalBalanceDiff": "444118.84 − 444118.84 = 0.00"
+      }
+    },
+    "comprehensiveB": {
+      "fixtureId": "CBF-R3-FIXTURE-COMP-B",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "businessDate": "2026-08-16",
+      "marketKey": "MARKET_SETTLE_B",
+      "portfolioKey": "PORTFOLIO_SETTLE_B",
+      "securityKey": "SECURITY_SETTLE_B",
+      "brokerKey": "BROKER_CASE_01",
+      "tradeResultStatus": "CONFIRMED",
+      "quantity": "14000",
+      "tradePrice": "31.25",
+      "grossAmount": "437500.00",
+      "commissionRate": "0.0009",
+      "commissionAmount": "393.75",
+      "commissionCashTiming": "SAME_CASE_DAY_IN_CASH_CHAIN",
+      "settlementTiming": "SAME_CASE_DAY_AFTER_TRADE",
+      "settlementAmount": "437893.75",
+      "reserveOpening": "1350000.00",
+      "reserveMovement": "-437893.75",
+      "reserveClosing": "912106.25",
+      "externalStatementOpening": "1350000.00",
+      "externalStatementCashMovement": "-437893.75",
+      "externalStatementClosing": "912106.25",
+      "postingCount": "1",
+      "formulaDifference": "0.00",
+      "reserveFormulaDifference": "0.00",
+      "externalBalanceDifference": "0.00",
+      "answerChain": {
+        "gross": "14000 × 31.25 = 437500.00",
+        "commission": "437500.00 × 0.0009 = 393.75",
+        "settlement": "437500.00 + 393.75 = 437893.75",
+        "reserveMovement": "−437893.75",
+        "reserveClose": "1350000.00 − 437893.75 = 912106.25",
+        "formulaDiff": "437500.00 + 393.75 − 437893.75 = 0.00",
+        "reserveFormulaDiff": "1350000.00 − 437893.75 − 912106.25 = 0.00",
+        "externalBalanceDiff": "912106.25 − 912106.25 = 0.00"
+      }
+    }
+  },
+  "reconciliationFormulas": {
+    "grossAmount": "quantity × tradePrice",
+    "commissionAmount": "grossAmount × commissionRate",
+    "settlementAmount": "grossAmount + commissionAmount",
+    "reserveMovement": "−settlementAmount",
+    "reserveClosing": "reserveOpening − settlementAmount",
+    "formulaDifference": "grossAmount + commissionAmount − settlementAmount",
+    "reserveFormulaDifference": "reserveOpening − settlementAmount − reserveClosing",
+    "externalBalanceDifference": "externalStatementClosing − reserveClosing",
+    "duplicatePostingCheck": "postingCount − 1"
+  },
+  "historyBoundary": {
+    "notPermanentRules": ["历史T+0表述", "历史佣金费率", "正式会计科目名称", "借贷方向", "系统菜单/权限/文件名"],
+    "caseAnswerUses": ["SAME_CASE_DAY_IN_CASH_CHAIN", "SAME_CASE_DAY_AFTER_TRADE", "fixture-specific commissionRate", "role-based workpaper", "Decimal zero-difference checks"],
+    "provenance": "CASE_POLICY"
+  },
+  "continuity": {
+    "sharedObjectModel": ["TRADE_OBJECT", "CLEARING_SETTLEMENT_ROLE", "BROKER_RESERVE_ROLE", "COMMISSION_CASH_ROLE", "ROLE_SETTLEMENT_WORKPAPER"],
+    "sharedBrokerKey": "BROKER_CASE_01",
+    "upstreamRoute": "ACC-CBF-DATA-002",
+    "nextRoute": "ACC-CBF-RECON-004",
+    "notCovered": ["position_reconciliation", "valuation_three_way_close"],
+    "provenance": "MATERIAL_ABSTRACTION"
+  }
+}

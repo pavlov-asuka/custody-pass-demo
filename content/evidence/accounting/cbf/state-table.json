@@ -1,0 +1,46 @@
+{
+  "evidenceId": "CBF-EVID-STATES-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "title": "券结基金共享案例七状态表",
+  "scopeNotice": "七状态是本案例的可观察证据链，不是生产系统状态枚举；进入、退出和READY/封账条件均只约束本案例。",
+  "sourceMaterialCodes": ["CBF-MAT-AUTO-PARSE", "CBF-MAT-GUIDE"],
+  "stateOrder": ["RECEIVED", "PARSED", "MAPPED", "COMPLETE", "READY", "ACCOUNTED", "RECONCILED"],
+  "states": [
+    {"stateCode": "RECEIVED", "label": "资料已收到", "entryEvidence": ["四个案例资料组均已收到"], "exitCriteria": ["资料组可被读取"], "nextState": "PARSED", "provenance": "MATERIAL_ABSTRACTION", "materialLocators": ["CBF-MAT-GUIDE:B-P0015-B-P0020"]},
+    {"stateCode": "PARSED", "label": "结构已解析", "entryEvidence": ["资料组结构和字段行可读"], "exitCriteria": ["业务字段可以被定位"], "nextState": "MAPPED", "provenance": "MATERIAL_ABSTRACTION", "materialLocators": ["CBF-MAT-AUTO-PARSE:A-P0007-A-P0020"]},
+    {"stateCode": "MAPPED", "label": "角色映射已完成", "entryEvidence": ["每个来源字段已关联对象、责任和业务角色"], "exitCriteria": ["来源组、字段组和角色映射无空项"], "nextState": "COMPLETE", "provenance": "MATERIAL_ABSTRACTION", "materialLocators": ["CBF-MAT-GUIDE:B-P0005-B-P0013", "CBF-MAT-GUIDE:B-P0065-B-P0105"]},
+    {"stateCode": "COMPLETE", "label": "业务数据完整", "entryEvidence": ["必需字段齐全", "业务日期、市场、组合和证券键一致"], "exitCriteria": ["文件组版本、记录数、解析/映射行数、数量/金额控制总额和完整性字段均可读取"], "nextState": "READY", "provenance": "CASE_POLICY", "materialLocators": ["CBF-MAT-GUIDE:B-P0110-B-P0169"]},
+    {"stateCode": "READY", "label": "可启动核算", "entryEvidence": ["完整性通过", "Decimal计算关系可复算", "来源角色边界已明确"], "exitCriteria": ["可以按角色工作纸记录核算结果"], "nextState": "ACCOUNTED", "provenance": "MATERIAL_ABSTRACTION", "materialLocators": ["CBF-MAT-GUIDE:B-P0110-B-P0169"]},
+    {"stateCode": "ACCOUNTED", "label": "核算结果已记录", "entryEvidence": ["成交总额、佣金、交收金额和角色工作纸已记录"], "exitCriteria": ["资金、持仓和估值字段可用于勾稽"], "nextState": "RECONCILED", "provenance": "MATERIAL_ABSTRACTION", "materialLocators": ["CBF-MAT-GUIDE:B-P0110-B-P0169"]},
+    {"stateCode": "RECONCILED", "label": "勾稽已完成", "entryEvidence": ["资金差、持仓差、估值数量差、备付金差均为零", "复核已确认"], "exitCriteria": ["本案例满足NORMAL_CLOSE条件"], "nextState": null, "provenance": "CASE_POLICY", "materialLocators": ["CBF-MAT-GUIDE:B-P0171-B-P0199"]}
+  ],
+  "readyCondition": {
+    "all": [
+      "四个必需资料组均已达到COMPLETE或更后状态",
+      "business_date、market_key、portfolio_key、security_key在相关来源一致",
+      "字段字典中required=true的字段全部存在",
+      "record_count = 明细行数",
+      "parsed_rows = record_count",
+      "mapped_rows = parsed_rows",
+      "quantity_control_total和amount_control_total可由明细Decimal合计复算",
+      "日间/日终记录数、数量和金额控制总额差均为零",
+      "角色边界已区分交易来源、备付金、证券持仓和估值结果"
+    ],
+    "result": "READY",
+    "provenance": "CASE_POLICY"
+  },
+  "normalCloseCondition": {
+    "all": [
+      "同日资料完整",
+      "cash_diff = 0.00",
+      "position_diff = 0",
+      "valuation_quantity_diff = 0",
+      "reserve_diff = 0.00",
+      "review_confirmed = YES"
+    ],
+    "result": "NORMAL_CLOSE",
+    "provenance": "CASE_POLICY",
+    "excluded": ["强制封账", "跳过复核", "异常升级题"]
+  }
+}
