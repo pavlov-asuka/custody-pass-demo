@@ -1,0 +1,113 @@
+{
+  "evidenceId": "FOF-EVID-MATERIAL-AUDIT-001",
+  "version": "1.0.0",
+  "scope": "FOF-MODULE",
+  "title": "FOF 六个物理文件与五组独立证据审计",
+  "scopeNotice": "文件对象审计只记录材料结构、稳定定位和可支持的教学落点；不把历史操作和特殊合同自动升级为当前业务规则。",
+  "physicalFileCount": 6,
+  "independentEvidenceGroupCount": 5,
+  "effectiveSourceCount": 5,
+  "duplicateRule": "两份内容完全相同的 DOCX 按一个证据来源计权；别名保留用于物理审计，但不得双重计权。",
+  "physicalFiles": [
+    {
+      "physicalFileId": "FOF-PHY-01",
+      "sourceMaterialCode": "FOF-MAT-T0-DOCX-A",
+      "relativePath": "project_materials/新人陪练案例库/核算/04_特殊产品区_FOF__FOF-非FOF基金持有基金特殊核算流程(T+0).docx",
+      "format": "DOCX",
+      "sizeBytes": 68730,
+      "sha256": "C599AD9046B870F564EFB996EF49161E1161E4389700547AEDCC0C1CD9423E9F",
+      "duplicateOf": null,
+      "objectAudit": {"zipEntries": 16, "paragraphs": 20, "tables": 2, "inlineImages": 1, "formulas": 0, "textboxes": 0, "embeddedObjects": 0, "relationships": 10},
+      "stableLocators": ["P001-P020", "T01", "T02", "IMG01"],
+      "teachingConclusion": "单一历史合同特定的非FOF/T+0流程和持仓对账证据；可支持适用范围与风险边界提示，不支持当前通用规则。"
+    },
+    {
+      "physicalFileId": "FOF-PHY-02",
+      "sourceMaterialCode": "FOF-MAT-T0-DOCX-B",
+      "relativePath": "project_materials/新人陪练案例库/核算/04_特殊产品区_FOF__非FOF基金持有基金特殊核算流程(T+0).docx",
+      "format": "DOCX",
+      "sizeBytes": 68730,
+      "sha256": "C599AD9046B870F564EFB996EF49161E1161E4389700547AEDCC0C1CD9423E9F",
+      "duplicateOf": "FOF-PHY-01",
+      "objectAudit": {"zipEntries": 16, "paragraphs": 20, "tables": 2, "inlineImages": 1, "formulas": 0, "textboxes": 0, "embeddedObjects": 0, "relationships": 10},
+      "stableLocators": ["P001-P020", "T01", "T02", "IMG01"],
+      "teachingConclusion": "与 FOF-PHY-01 字节级重复，不增加独立证据权重。"
+    },
+    {
+      "physicalFileId": "FOF-PHY-03",
+      "sourceMaterialCode": "FOF-MAT-MAIN-PPT",
+      "relativePath": "project_materials/新人陪练案例库/核算/04_特殊产品区_FOF__FOF-基金核算要点和业务操作流程介绍-建行大学版2021.pptx",
+      "format": "PPTX",
+      "sizeBytes": 4350682,
+      "sha256": "605c131804e35ba8e652acebb10d9f985d468899959fe43a362a5527deb10bc3",
+      "duplicateOf": null,
+      "objectAudit": {"slides": 44, "shapes": 871, "textShapes": 525, "groups": 131, "livePictures": 55, "tables": 2, "charts": 1, "embeddedObjects": 1, "usableEmbeddedWorkbooks": 0, "mediaFiles": 61},
+      "stableLocators": ["S03-S06", "S08-S18", "S19-S34", "S36-S43", "S44"],
+      "defects": ["S23 chart1.xml references missing embeddings/Workbook1.xlsx; cached generic chart is not evidence."],
+      "teachingConclusion": "主要 FOF 定义、对象、指令、确认、资金/份额、费用/红利/赎回和历史计算结构；本批只抽象对象与正常指令链。"
+    },
+    {
+      "physicalFileId": "FOF-PHY-04",
+      "sourceMaterialCode": "FOF-MAT-INSTRUCTION-PPT",
+      "relativePath": "project_materials/新人陪练案例库/核算/04_特殊产品区_FOF__FOF-FOF指令、开基、持仓要点.pptx",
+      "format": "PPTX",
+      "sizeBytes": 101372,
+      "sha256": "580ad5c9e90ecdb42d92a61b48bb445b53339df7dee08b01db601c69dd95c0d2",
+      "duplicateOf": null,
+      "objectAudit": {"slides": 5, "shapes": 17, "textShapes": 17, "livePictures": 0, "orphanedMediaFiles": 1, "tables": 0, "charts": 0, "embeddedObjects": 0},
+      "stableLocators": ["S03", "S04", "S05"],
+      "teachingConclusion": "可支持指令类型、付款对应、渠道确认和持仓核对抽象；历史时间表达不固化。"
+    },
+    {
+      "physicalFileId": "FOF-PHY-05",
+      "sourceMaterialCode": "FOF-MAT-HOLDING-PPT",
+      "relativePath": "project_materials/新人陪练案例库/核算/04_特殊产品区_FOF__开放式基金持仓核对流程变更（陆熠庭）(1).pptx",
+      "format": "PPTX",
+      "sizeBytes": 531875,
+      "sha256": "F1EA9BAEB299B69F2624857BD3CFB3E6368D1BBBC1CD2A2DF6283709DE9678D2",
+      "duplicateOf": null,
+      "objectAudit": {"slides": 9, "shapes": 48, "textShapes": 34, "livePictures": 8, "tables": 0, "charts": 0, "embeddedObjects": 0},
+      "stableLocators": ["S02", "S03-S05", "S06-S08"],
+      "teachingConclusion": "可支持持仓核对、资料交接和归档对象抽象；部分内容转入未来 FOF-05，存款利息内容不进入本批。"
+    },
+    {
+      "physicalFileId": "FOF-PHY-06",
+      "sourceMaterialCode": "FOF-MAT-MUTUAL-PPT",
+      "relativePath": "project_materials/新人陪练案例库/核算/04_特殊产品区_FOF__FOF持有互认基金估值风险提示.pptx",
+      "format": "PPTX",
+      "sizeBytes": 2196415,
+      "sha256": "BAE12FD1167E4947E380E8DC22DC0D84BCFDCF21F5A796EA58841CBE05C9D63F",
+      "duplicateOf": null,
+      "objectAudit": {"slides": 10, "shapes": 79, "textShapes": 50, "livePictures": 11, "mediaFiles": 13, "tables": 0, "charts": 0, "embeddedObjects": 0},
+      "stableLocators": ["S04-S06", "S08-S09"],
+      "teachingConclusion": "仅支持互认基金来源时滞和风险提示；跨境日历、时区、来源优先级和人工维护规则保持 DEFER。"
+    }
+  ],
+  "evidenceGroups": [
+    {"evidenceGroupId": "FOF-EG-01-CORE-OBJECT", "physicalFileIds": ["FOF-PHY-03"], "locators": ["S03-S06", "S08-S18"], "supports": ["FOF定义抽象", "母基金/被投基金对象关系", "正常业务链上下文"], "activityLanding": ["FOF-01"], "provenance": "MATERIAL_ABSTRACTION"},
+    {"evidenceGroupId": "FOF-EG-02-SUBSCRIPTION-FLOW", "physicalFileIds": ["FOF-PHY-03", "FOF-PHY-04"], "locators": ["S18-S22", "S03-S04"], "supports": ["指令", "管理人/TA确认", "付款和份额确认关系"], "activityLanding": ["FOF-02"], "provenance": "MATERIAL_ABSTRACTION"},
+    {"evidenceGroupId": "FOF-EG-03-T0-SPECIAL", "physicalFileIds": ["FOF-PHY-01", "FOF-PHY-02"], "locators": ["P001-P020", "T01", "T02", "IMG01"], "supports": ["单一历史合同特殊流程", "T+0风险边界", "持仓对账提示"], "activityLanding": ["DEFER"], "provenance": "MATERIAL_ABSTRACTION"},
+    {"evidenceGroupId": "FOF-EG-04-HOLDING-HANDOFF", "physicalFileIds": ["FOF-PHY-04", "FOF-PHY-05"], "locators": ["S05", "S02-S05"], "supports": ["开基持仓资料交接", "持仓核对对象抽象"], "activityLanding": ["FOF-01", "FOF-02", "FOF-05-FUTURE"], "provenance": "MATERIAL_ABSTRACTION"},
+    {"evidenceGroupId": "FOF-EG-05-MUTUAL-RISK", "physicalFileIds": ["FOF-PHY-06"], "locators": ["S04-S06", "S08-S09"], "supports": ["互认基金来源时滞与风险提示"], "activityLanding": ["DEFER"], "provenance": "MATERIAL_ABSTRACTION"}
+  ],
+  "businessConclusions": [
+    {"conclusionId": "FOF-CONCLUSION-01", "claim": "对象、指令、管理人确认、TA确认、到账和份额是不同状态与证据对象。", "supportsRoutes": ["FOF-01", "FOF-02"], "activity": ["FIELD_MAP", "RECONCILIATION"], "sourceGroups": ["FOF-EG-01-CORE-OBJECT", "FOF-EG-02-SUBSCRIPTION-FLOW"]},
+    {"conclusionId": "FOF-CONCLUSION-02", "claim": "本批可用合成正常快照承载 confirmedShares=confirmedAmount/subscriptionNAV 和台账份额承接。", "supportsRoutes": ["FOF-01", "FOF-02"], "activity": ["CALCULATION", "LEDGER_ENTRY"], "sourceGroups": ["FOF-EG-02-SUBSCRIPTION-FLOW"]},
+    {"conclusionId": "FOF-CONCLUSION-03", "claim": "T+0、非FOF、互认基金和人工操作材料不足以支撑本批当前规则教学。", "supportsRoutes": [], "activity": ["DEFER"], "sourceGroups": ["FOF-EG-03-T0-SPECIAL", "FOF-EG-05-MUTUAL-RISK"]}
+  ],
+  "activityLanding": {
+    "FOF-01": {"routeFile": "content/routes/accounting/ACC-FOF-BOUNDARY-001.json", "evidenceFile": "content/evidence/accounting/fof/r1-boundary-evidence.json", "activities": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"]},
+    "FOF-02": {"routeFile": "content/routes/accounting/ACC-FOF-SUBSCRIPTION-002.json", "evidenceFile": "content/evidence/accounting/fof/r2-subscription-evidence.json", "activities": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"]}
+  },
+  "syntheticFixtures": [
+    {"fixtureId": "FOF01-FIXTURE-DEMO-A", "routeId": "ACC-FOF-BOUNDARY-001", "answerChain": "shared-normal-snapshot.json#/fixtures/0/answerChain"},
+    {"fixtureId": "FOF01-FIXTURE-COMP-B", "routeId": "ACC-FOF-BOUNDARY-001", "answerChain": "shared-normal-snapshot.json#/fixtures/1/answerChain"},
+    {"fixtureId": "FOF02-FIXTURE-DEMO-A", "routeId": "ACC-FOF-SUBSCRIPTION-002", "answerChain": "shared-normal-snapshot.json#/fixtures/2/answerChain"},
+    {"fixtureId": "FOF02-FIXTURE-COMP-B", "routeId": "ACC-FOF-SUBSCRIPTION-002", "answerChain": "shared-normal-snapshot.json#/fixtures/3/answerChain"}
+  ],
+  "exclusionBoundary": {
+    "status": "DEFER",
+    "topics": ["互认基金", "非 FOF 特殊合同", "转换/转托管/强制调整", "具体 T+0", "迟到重复错配", "多应收合并到账", "人工凭证", "重跑回滚", "重估重披露", "强制关闭"],
+    "reason": "仅有历史操作痕迹、风险提示或单一合同案例，缺当前版本规则、权限 SOP、来源优先级和可验证正常资料包。"
+  }
+}

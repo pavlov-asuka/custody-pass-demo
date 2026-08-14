@@ -363,6 +363,27 @@
       "locator": "content/evidence/accounting/cbf 共享快照、字段字典、状态表和 4 条路线证据文件",
       "contentUse": "券结基金模块全部 4 条路线",
       "reviewNote": "仅约束案例明确给出的参与方责任、账户角色、文件组、状态词、费率、交收时点、余额、数量、估值价格、精度、容差和正常封账条件，不外推为现行生产制度。"
+    },
+    {
+      "referenceId": "ACC-REF-FOF-MATERIALS-202608",
+      "title": "FOF 核算、指令、持仓与估值培训材料",
+      "locator": "FOF 核算要点 PPTX S03、S08—S43；指令/开基/持仓 PPTX S03—S05；持仓核对 PPTX S02—S05；T+0 DOCX P001—P020/T01—T02；互认基金 PPTX S04—S09",
+      "contentUse": "路线 ACC-FOF-BOUNDARY-001、ACC-FOF-SUBSCRIPTION-002、ACC-FOF-VALUATION-003、ACC-FOF-RETURN-004、ACC-FOF-REDEMPTION-005",
+      "reviewNote": "支持境内普通开放式基金的对象与证据链、申购确认、资金与份额、批准 NAV 估值、返还/红利再投、赎回及持仓结果勾稽。两份 T+0 DOCX 内容相同，仅按一个证据族计权；历史费率、菜单、固定时点和特殊合同规则不固化。"
+    },
+    {
+      "referenceId": "ACC-REF-FOF-ROUTE-DECISIONS-202608",
+      "title": "FOF 高保真路线施工与验收决定",
+      "locator": "阶段 5 教学有效性复核、FOF 六份材料对象级审计与 B0—B3 Luna Max 受控施工验收",
+      "contentUse": "FOF 模块全部 5 条路线",
+      "reviewNote": "冻结 5 条 REQUIRED 连续主链，不设阶段闸门；互认/跨境、非 FOF 特殊合同、转换/转托管、T+0 特殊处理、多笔匹配、人工凭证、重跑回滚、重估重披露和强制关闭继续 DEFER。"
+    },
+    {
+      "referenceId": "ACC-REF-FOF-CASE-PARAMETERS-202608",
+      "title": "FOF 路线题面批准合成参数",
+      "locator": "content/evidence/accounting/fof 共享快照、字段字典、来源状态矩阵和 5 条路线证据文件",
+      "contentUse": "FOF 模块全部 5 条路线",
+      "reviewNote": "仅约束各独立脱敏案例明确给出的对象键、业务日、金额、份额、NAV、返还率、状态、来源版本、精度、容差和正常关闭条件，不外推为现行生产制度。"
     }
   ]
 }

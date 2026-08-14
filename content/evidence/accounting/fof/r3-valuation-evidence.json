@@ -1,0 +1,68 @@
+{
+  "evidenceId": "FOF-EVID-R3-VALUATION-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "routeId": "ACC-FOF-VALUATION-003",
+  "routeCode": "FOF-03",
+  "title": "FOF-03 当前批准 NAV、持仓与三方估值勾稽证据",
+  "scopeNotice": "本文件只承载 FOF-03 的独立教学证据、合成正常答案链和材料边界；不登记地图、发布清单、生产来源或永久估值规则。",
+  "sharedEvidence": 5,
+  "materialAnchors": [
+    {"anchorId": "FOF03-MAT-01", "physicalFileId": "FOF-PHY-01", "locator": "FOF-MAT-MAIN:S14-S18 / paragraph=approved-price-source", "objectType": "paragraph+table", "supports": ["current source snapshot", "sourceId", "sourceVersion", "valuationDate", "availableAt", "approved NAV"]},
+    {"anchorId": "FOF03-MAT-02", "physicalFileId": "FOF-PHY-03", "locator": "FOF-MAT-HOLDING:S08-S11 / table=ta-internal-closing-holding", "objectType": "table", "supports": ["TA closing shares", "internal closing shares"]},
+    {"anchorId": "FOF03-MAT-03", "physicalFileId": "FOF-PHY-01", "locator": "FOF-MAT-MAIN:S14-S18 / formula=approvedShares*approvedNAV", "objectType": "formula", "supports": ["marketValue", "Decimal calculation"]},
+    {"anchorId": "FOF03-MAT-04", "physicalFileId": "FOF-PHY-04", "locator": "FOF-EG-03-VALUATION-RECON / paragraph=three-way-zero-diff", "objectType": "paragraph+worksheet", "supports": ["holdingDiff", "valuationDiff", "NAV_CONFIRMED", "HOLDING_RECONCILED"]}
+  ],
+  "mappingClaims": [
+    {"claimId": "FOF03-MAP-01", "sourceMaterialId": "FOF03-B-SOURCE-SNAPSHOT", "fields": ["sourceId", "sourceVersion", "availableAt", "approvedNAV"], "businessConclusion": "当前案例批准 NAV 必须由版本化 source snapshot 支持。", "activityLanding": "FOF-03 / source-and-date-read"},
+    {"claimId": "FOF03-MAP-02", "sourceMaterialId": "FOF03-B-OBJECT", "fields": ["valuationDate", "fofFundKey", "underlyingFundKey"], "businessConclusion": "估值日和两个对象键限定同一案例。", "activityLanding": "FOF-03 / object-boundary"},
+    {"claimId": "FOF03-MAP-03", "sourceMaterialId": "FOF03-B-TA-HOLDING+FOF03-B-INTERNAL-HOLDING", "fields": ["taClosingShares", "internalClosingShares"], "businessConclusion": "TA 与内部份额必须分别登记。", "activityLanding": "FOF-03 / holding-ledger"},
+    {"claimId": "FOF03-MAP-04", "sourceMaterialId": "FOF03-B-VALUATION+FOF03-B-RECON", "fields": ["valuationResult", "holdingDiff", "valuationDiff", "states"], "businessConclusion": "市值、估值结果和两个差额形成正常三方勾稽。", "activityLanding": "FOF-03 / three-way-reconciliation"}
+  ],
+  "activityLanding": {
+    "routeFocus": "当前案例批准 NAV 来源→已确认份额→市值→TA/内部/估值结果三方勾稽",
+    "knowledgeCards": ["FOF03-KC-01", "FOF03-KC-02", "FOF03-KC-03"],
+    "demonstrationSteps": [1, 2, 3, 4, 5],
+    "basicQuestionTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+    "structuredWorkItems": ["source", "date", "object", "NAV", "TA shares", "internal shares", "marketValue", "holdingDiff", "valuationDiff", "states", "short conclusion"]
+  },
+  "fixturePolicy": {
+    "provenance": ["MATERIAL_ABSTRACTION", "SYNTHETIC_EDUCATIONAL", "CASE_POLICY"],
+    "demonstrationA": {"fixtureId": "FOF03-FIXTURE-DEMO-A", "caseVersion": "FOF03-A-EDU-01", "sourceSnapshot": "SRC-FOF03-A-NAV-001 / NAV-SNAPSHOT-A-20300618", "independentFromComprehensive": true, "numbers": {"approvedNAV": "1.2345", "taShares": "840000.00", "marketValue": "1036980.00"}},
+    "comprehensiveB": {"fixtureId": "FOF03-FIXTURE-COMP-B", "caseVersion": "FOF03-B-EDU-01", "sourceSnapshot": "SRC-FOF03-B-NAV-001 / NAV-SNAPSHOT-B-20300619", "independentFromDemonstration": true, "numbers": {"approvedNAV": "0.9876", "taShares": "1275000.00", "marketValue": "1259190.00"}},
+    "decimalPolicy": {"engine": "Decimal", "money": {"unit": "元", "precision": 2, "tolerance": "0.01"}, "shares": {"unit": "份", "precision": 2, "tolerance": "0.01"}, "approvedNAV": {"unit": "元/份", "precision": 4, "tolerance": "0.00005"}}
+  },
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "FOF03-FIXTURE-DEMO-A",
+      "sourceToField": [{"sourceMaterialId": "FOF03-B-SOURCE-SNAPSHOT", "fields": ["sourceId=SRC-FOF03-A-NAV-001", "sourceVersion=NAV-SNAPSHOT-A-20300618", "availableAt=2030-06-18T18:20:00+08:00", "approvedNAV=1.2345"]}, {"sourceMaterialId": "FOF03-B-OBJECT", "fields": ["valuationDate=2030-06-18", "fofFundKey=FOF-EDU-E-01", "underlyingFundKey=FUND-EDU-E-01"]}, {"sourceMaterialId": "FOF03-B-TA-HOLDING+FOF03-B-INTERNAL-HOLDING", "fields": ["taClosingShares=840000.00", "internalClosingShares=840000.00"]}],
+      "decimalSteps": [{"formula": "Decimal('840000.00') * Decimal('1.2345')", "result": "1036980.00", "unit": "元", "precision": 2, "tolerance": "0.01"}, {"formula": "Decimal('840000.00') - Decimal('840000.00')", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"}, {"formula": "Decimal('1036980.00') - Decimal('1036980.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}],
+      "reconciliation": {"holdingDiff": "0.00", "valuationDiff": "0.00", "states": ["NAV_CONFIRMED", "HOLDING_RECONCILED"]},
+      "expectedConclusion": "SRC-FOF03-A-NAV-001 的当前批准 NAV 1.2345 对应840000.00份，市值1036980.00元，TA/内部和估值结果均零差异。"
+    },
+    "comprehensiveB": {
+      "fixtureId": "FOF03-FIXTURE-COMP-B",
+      "sourceToField": [{"sourceMaterialId": "FOF03-B-SOURCE-SNAPSHOT", "fields": ["sourceId=SRC-FOF03-B-NAV-001", "sourceVersion=NAV-SNAPSHOT-B-20300619", "availableAt=2030-06-19T18:15:00+08:00", "approvedNAV=0.9876"]}, {"sourceMaterialId": "FOF03-B-OBJECT", "fields": ["valuationDate=2030-06-19", "fofFundKey=FOF-EDU-F-01", "underlyingFundKey=FUND-EDU-F-01"]}, {"sourceMaterialId": "FOF03-B-TA-HOLDING+FOF03-B-INTERNAL-HOLDING", "fields": ["taClosingShares=1275000.00", "internalClosingShares=1275000.00"]}, {"sourceMaterialId": "FOF03-B-VALUATION+FOF03-B-RECON", "fields": ["valuationResult=1259190.00", "states=NAV_CONFIRMED/HOLDING_RECONCILED"]}],
+      "decimalSteps": [{"formula": "Decimal('1275000.00') * Decimal('0.9876')", "result": "1259190.00", "unit": "元", "precision": 2, "tolerance": "0.01"}, {"formula": "Decimal('1275000.00') - Decimal('1275000.00')", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"}, {"formula": "Decimal('1259190.00') - Decimal('1259190.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}],
+      "reconciliation": {"holdingDiff": "0.00", "valuationDiff": "0.00", "states": ["NAV_CONFIRMED", "HOLDING_RECONCILED"]},
+      "expectedConclusion": "当前版本 SRC-FOF03-B-NAV-001 的 approved NAV 0.9876 与1275000.00份形成1259190.00元市值，三方数量金额零差异。"
+    }
+  },
+  "atomicWorkItems": [
+    {"workItemId": "fof03-b-nav-source-id", "responseKind": "SELECT", "observableAction": "定位当前批准 NAV sourceId", "fixtureValue": "FOF03_B_APPROVED_NAV_SOURCE", "sourceMaterialIds": ["FOF03-B-SOURCE-SNAPSHOT"], "scoreTargets": ["C-FOF03-CURRENT-SOURCE-OBJECT", "M-FOF03-SOURCE-VERSION-OBJECT-DATE"], "remediationTargetId": "FOF03-TARGET-SOURCE-ID"},
+    {"workItemId": "fof03-b-nav-source-version", "responseKind": "SELECT", "observableAction": "定位当前 sourceVersion", "fixtureValue": "FOF03_B_SOURCE_VERSION_CURRENT", "sourceMaterialIds": ["FOF03-B-SOURCE-SNAPSHOT"], "scoreTargets": ["C-FOF03-CURRENT-SOURCE-OBJECT", "P-FOF03-SOURCE-DATE", "M-FOF03-SOURCE-VERSION-OBJECT-DATE"], "remediationTargetId": "FOF03-TARGET-SOURCE-VERSION"},
+    {"workItemId": "fof03-b-valuation-date", "responseKind": "SELECT", "observableAction": "读取估值日和 availableAt", "fixtureValue": "FOF03_B_DATE_AND_AVAILABLE_AT", "sourceMaterialIds": ["FOF03-B-SOURCE-SNAPSHOT", "FOF03-B-OBJECT"], "scoreTargets": ["C-FOF03-CURRENT-SOURCE-OBJECT", "P-FOF03-SOURCE-DATE", "M-FOF03-SOURCE-VERSION-OBJECT-DATE"], "remediationTargetId": "FOF03-TARGET-DATE"},
+    {"workItemId": "fof03-b-object-keys", "responseKind": "SELECT", "observableAction": "定位 FOF 母基金与被投基金对象键", "fixtureValue": "FOF03_B_OBJECT_KEYS", "sourceMaterialIds": ["FOF03-B-OBJECT"], "scoreTargets": ["C-FOF03-CURRENT-SOURCE-OBJECT", "M-FOF03-SOURCE-VERSION-OBJECT-DATE"], "remediationTargetId": "FOF03-TARGET-OBJECT"},
+    {"workItemId": "fof03-b-approved-nav", "responseKind": "NUMBER", "observableAction": "读取 approved NAV", "fixtureValue": "0.9876", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "sourceMaterialIds": ["FOF03-B-SOURCE-SNAPSHOT"], "scoreTargets": ["C-FOF03-APPROVED-NAV"], "remediationTargetId": "FOF03-TARGET-APPROVED-NAV"},
+    {"workItemId": "fof03-b-ta-closing-shares", "responseKind": "NUMBER", "observableAction": "登记 TA closing shares", "fixtureValue": "1275000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF03-B-TA-HOLDING"], "scoreTargets": ["P-FOF03-TA-INTERNAL-HOLDING", "M-FOF03-THREE-WAY-ZERO-DIFF"], "remediationTargetId": "FOF03-TARGET-TA-HOLDING"},
+    {"workItemId": "fof03-b-internal-closing-shares", "responseKind": "NUMBER", "observableAction": "登记内部 closing shares", "fixtureValue": "1275000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF03-B-INTERNAL-HOLDING"], "scoreTargets": ["P-FOF03-TA-INTERNAL-HOLDING", "M-FOF03-THREE-WAY-ZERO-DIFF"], "remediationTargetId": "FOF03-TARGET-INTERNAL-HOLDING"},
+    {"workItemId": "fof03-b-market-value", "responseKind": "NUMBER", "observableAction": "计算 marketValue", "fixtureValue": "1259190.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF03-B-SOURCE-SNAPSHOT", "FOF03-B-TA-HOLDING"], "scoreTargets": ["P-FOF03-MARKET-VALUE", "R-FOF03-VALUE-ZERO", "M-FOF03-THREE-WAY-ZERO-DIFF"], "remediationTargetId": "FOF03-TARGET-MARKET-VALUE"},
+    {"workItemId": "fof03-b-holding-diff", "responseKind": "NUMBER", "observableAction": "计算 holdingDiff", "fixtureValue": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF03-B-TA-HOLDING", "FOF03-B-INTERNAL-HOLDING"], "scoreTargets": ["R-FOF03-HOLDING-ZERO", "M-FOF03-THREE-WAY-ZERO-DIFF"], "remediationTargetId": "FOF03-TARGET-HOLDING-DIFF"},
+    {"workItemId": "fof03-b-valuation-diff", "responseKind": "NUMBER", "observableAction": "计算 valuationDiff", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF03-B-VALUATION", "FOF03-B-RECON"], "scoreTargets": ["R-FOF03-VALUE-ZERO", "M-FOF03-THREE-WAY-ZERO-DIFF"], "remediationTargetId": "FOF03-TARGET-VALUATION-DIFF"},
+    {"workItemId": "fof03-b-nav-confirmed-state", "responseKind": "SELECT", "observableAction": "确认 NAV_CONFIRMED", "fixtureValue": "FOF03_B_NAV_CONFIRMED", "sourceMaterialIds": ["FOF03-B-SOURCE-SNAPSHOT", "FOF03-B-RECON"], "scoreTargets": ["P-FOF03-STATE-BOUNDARY", "M-FOF03-SOURCE-VERSION-OBJECT-DATE"], "remediationTargetId": "FOF03-TARGET-NAV-STATE"},
+    {"workItemId": "fof03-b-holding-reconciled-state", "responseKind": "SELECT", "observableAction": "确认 HOLDING_RECONCILED", "fixtureValue": "FOF03_B_HOLDING_RECONCILED", "sourceMaterialIds": ["FOF03-B-RECON"], "scoreTargets": ["P-FOF03-STATE-BOUNDARY", "R-FOF03-HOLDING-ZERO", "M-FOF03-THREE-WAY-ZERO-DIFF"], "remediationTargetId": "FOF03-TARGET-STATE"},
+    {"workItemId": "fof03-b-conclusion", "responseKind": "TEXT", "observableAction": "形成一句三方勾稽结论", "fixtureValue": "source/version/date/object/NAV/holding/value/state conclusion", "sourceMaterialIds": ["FOF03-B-SOURCE-SNAPSHOT", "FOF03-B-OBJECT", "FOF03-B-RECON"], "scoreTargets": ["E-FOF03-TRACEABLE-CONCLUSION"], "remediationTargetId": "FOF03-TARGET-CONCLUSION"}
+  ],
+  "dependencyPolicy": {"hardPrerequisiteNodeIds": ["ACC-NODE-DAILY-003"], "dependsOnRouteIds": ["ACC-FOF-SUBSCRIPTION-002"], "serialOrder": 3, "stageGate": false, "releaseRegistration": "NOT_REGISTERED_IN_B2", "status": "BUILDING_UNTIL_BUSINESS_ACCEPTANCE"},
+  "exclusionBoundary": ["只做境内普通开放式基金正常案例", "不把互认、跨境、停牌、无报价或 T+0 临时行情写入题面", "不把 FOF-02 的申购确认、到账或 confirmedShares 再演示成估值主链", "approved NAV、费率和可用时间均为题面当前版本化快照，不能泛化为永久规则"]
+}

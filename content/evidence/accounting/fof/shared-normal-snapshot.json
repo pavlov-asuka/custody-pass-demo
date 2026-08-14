@@ -1,0 +1,475 @@
+{
+  "evidenceId": "FOF-EVID-NORMAL-001",
+  "version": "1.2.0",
+  "scope": "FOF-01-05",
+  "title": "FOF B3 共享正常资料快照与 Decimal 答案链",
+  "scopeNotice": "十个 fixture 是五条路线各自独立的合成正常案例；所有数字、日期、对象键、来源版本、费率、NAV 和 archiveId 只在对应案例快照有效。",
+  "normalBoundary": {
+    "productType": "DOMESTIC_ORDINARY_OPEN_ENDED_FUND",
+    "participants": ["SYNTHETIC_MANAGER", "SYNTHETIC_TA", "CUSTODY_ACCOUNTING"],
+    "transactionShape": "single_instruction_single_confirmation_single_cash_receipt",
+    "excludedStates": ["late", "duplicate", "mismatch", "rights_event", "cross_border", "manual_voucher", "rerun", "rollback", "revaluation", "redisclosure", "forced_close"],
+    "lastTeachableState": "RESULT_RECONCILED",
+    "futureStateBoundary": []
+  },
+  "precisionPolicy": {
+    "money": {"unit": "元", "precision": 2, "tolerance": "0.01", "rounding": "final_display_only"},
+    "shares": {"unit": "份", "precision": 2, "tolerance": "0.01", "rounding": "final_display_only"},
+    "subscriptionNAV": {"unit": "元/份", "precision": 4, "tolerance": "0.00005", "rounding": "final_display_only"},
+    "approvedNAV": {"unit": "元/份", "precision": 4, "tolerance": "0.00005", "rounding": "final_display_only"},
+    "returnRate": {"unit": "比例", "precision": 6, "tolerance": "0.000001", "rounding": "final_display_only"},
+    "calculationEngine": "Decimal"
+  },
+  "fixtures": [
+    {
+      "fixtureId": "FOF01-FIXTURE-DEMO-A",
+      "routeId": "ACC-FOF-BOUNDARY-001",
+      "fixtureType": "DEMONSTRATION_A",
+      "caseVersion": "FOF01-A-EDU-01",
+      "businessDate": "2030-06-12",
+      "objectKeys": {"fofFundKey": "FOF-EDU-A-01", "underlyingFundKey": "FUND-EDU-A-01", "instructionKey": "INS-FOF01-A-001"},
+      "sourceGroups": ["FOF-SRC-INSTRUCTION", "FOF-SRC-MANAGER-CONFIRMATION", "FOF-SRC-TA-CONFIRMATION", "FOF-SRC-SHARE-LEDGER"],
+      "fields": [
+        {"fieldId": "instruction_amount", "value": "612000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-INSTRUCTION"},
+        {"fieldId": "manager_confirmed_amount", "value": "612000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION"},
+        {"fieldId": "ta_confirmed_amount", "value": "612000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "subscription_nav", "value": "1.0200", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "confirmed_shares", "value": "600000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "opening_shares", "value": "80000.00", "unit": "份", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "closing_shares", "value": "680000.00", "unit": "份", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "identity_match", "value": "YES", "unit": "YES/NO", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-INSTRUCTION"},
+        {"fieldId": "state_complete", "value": "SHARES_POSTED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-INSTRUCTION", "fields": ["case_version", "business_date", "fof_fund_key", "underlying_fund_key", "instruction_key", "instruction_amount"]},
+          {"sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION", "fields": ["manager_confirmed_amount"]},
+          {"sourceGroupId": "FOF-SRC-TA-CONFIRMATION", "fields": ["ta_confirmed_amount", "subscription_nav", "confirmed_shares"]},
+          {"sourceGroupId": "FOF-SRC-SHARE-LEDGER", "fields": ["opening_shares", "closing_shares"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "confirmed_shares", "formula": "Decimal('612000.00') / Decimal('1.0200')", "result": "600000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "closing_shares", "formula": "Decimal('80000.00') + Decimal('600000.00')", "result": "680000.00", "unit": "份", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"identityMatch": "YES", "amountDiff": "0.00", "sharesDiff": "0.00", "finalState": "SHARES_POSTED"},
+        "expectedConclusion": "FOF母基金键、被投基金键和指令键在各来源一致；TA确认金额经申购NAV复算为600000.00份，承接至680000.00份台账，状态完成至SHARES_POSTED。"
+      }
+    },
+    {
+      "fixtureId": "FOF01-FIXTURE-COMP-B",
+      "routeId": "ACC-FOF-BOUNDARY-001",
+      "fixtureType": "COMPREHENSIVE_B",
+      "caseVersion": "FOF01-B-EDU-01",
+      "businessDate": "2030-06-13",
+      "objectKeys": {"fofFundKey": "FOF-EDU-B-01", "underlyingFundKey": "FUND-EDU-B-01", "instructionKey": "INS-FOF01-B-001"},
+      "sourceGroups": ["FOF-SRC-INSTRUCTION", "FOF-SRC-MANAGER-CONFIRMATION", "FOF-SRC-TA-CONFIRMATION", "FOF-SRC-SHARE-LEDGER"],
+      "fields": [
+        {"fieldId": "instruction_amount", "value": "540000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-INSTRUCTION"},
+        {"fieldId": "manager_confirmed_amount", "value": "540000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION"},
+        {"fieldId": "ta_confirmed_amount", "value": "540000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "subscription_nav", "value": "1.0800", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "confirmed_shares", "value": "500000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "opening_shares", "value": "130000.00", "unit": "份", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "closing_shares", "value": "630000.00", "unit": "份", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "identity_match", "value": "YES", "unit": "YES/NO", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-INSTRUCTION"},
+        {"fieldId": "state_complete", "value": "SHARES_POSTED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-INSTRUCTION", "fields": ["case_version", "business_date", "fof_fund_key", "underlying_fund_key", "instruction_key", "instruction_amount"]},
+          {"sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION", "fields": ["manager_confirmed_amount"]},
+          {"sourceGroupId": "FOF-SRC-TA-CONFIRMATION", "fields": ["ta_confirmed_amount", "subscription_nav", "confirmed_shares"]},
+          {"sourceGroupId": "FOF-SRC-SHARE-LEDGER", "fields": ["opening_shares", "closing_shares"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "confirmed_shares", "formula": "Decimal('540000.00') / Decimal('1.0800')", "result": "500000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "closing_shares", "formula": "Decimal('130000.00') + Decimal('500000.00')", "result": "630000.00", "unit": "份", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"identityMatch": "YES", "amountDiff": "0.00", "sharesDiff": "0.00", "finalState": "SHARES_POSTED"},
+        "expectedConclusion": "独立资料组中的对象键和日期一致；540000.00元除以1.0800得到500000.00份，期初130000.00份承接为630000.00份，未跨入估值状态。"
+      }
+    },
+    {
+      "fixtureId": "FOF02-FIXTURE-DEMO-A",
+      "routeId": "ACC-FOF-SUBSCRIPTION-002",
+      "fixtureType": "DEMONSTRATION_A",
+      "caseVersion": "FOF02-A-EDU-01",
+      "businessDate": "2030-06-16",
+      "objectKeys": {"fofFundKey": "FOF-EDU-C-01", "underlyingFundKey": "FUND-EDU-C-01", "instructionKey": "INS-FOF02-A-001"},
+      "sourceGroups": ["FOF-SRC-INSTRUCTION", "FOF-SRC-MANAGER-CONFIRMATION", "FOF-SRC-TA-CONFIRMATION", "FOF-SRC-CASH-RECEIPT", "FOF-SRC-SHARE-LEDGER"],
+      "fields": [
+        {"fieldId": "instruction_amount", "value": "875000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-INSTRUCTION"},
+        {"fieldId": "manager_confirmed_amount", "value": "875000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION"},
+        {"fieldId": "ta_confirmed_amount", "value": "875000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "subscription_nav", "value": "1.2500", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "confirmed_shares", "value": "700000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "cash_received_amount", "value": "875000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-CASH-RECEIPT"},
+        {"fieldId": "opening_shares", "value": "420000.00", "unit": "份", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "closing_shares", "value": "1120000.00", "unit": "份", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "cash_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-CASH-RECEIPT"},
+        {"fieldId": "shares_diff", "value": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "identity_match", "value": "YES", "unit": "YES/NO", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-INSTRUCTION"},
+        {"fieldId": "state_complete", "value": "SHARES_POSTED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-INSTRUCTION", "fields": ["case_version", "business_date", "fof_fund_key", "underlying_fund_key", "instruction_key", "instruction_amount"]},
+          {"sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION", "fields": ["manager_confirmed_amount"]},
+          {"sourceGroupId": "FOF-SRC-TA-CONFIRMATION", "fields": ["ta_confirmed_amount", "subscription_nav", "confirmed_shares"]},
+          {"sourceGroupId": "FOF-SRC-CASH-RECEIPT", "fields": ["cash_received_amount"]},
+          {"sourceGroupId": "FOF-SRC-SHARE-LEDGER", "fields": ["opening_shares", "closing_shares"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "confirmed_shares", "formula": "Decimal('875000.00') / Decimal('1.2500')", "result": "700000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "closing_shares", "formula": "Decimal('420000.00') + Decimal('700000.00')", "result": "1120000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "cash_diff", "formula": "Decimal('875000.00') - Decimal('875000.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "shares_diff", "formula": "Decimal('1120000.00') - (Decimal('420000.00') + Decimal('700000.00'))", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"identityMatch": "YES", "cashDiff": "0.00", "sharesDiff": "0.00", "finalState": "SHARES_POSTED"},
+        "expectedConclusion": "875000.00元指令经管理人和TA确认，TA以1.2500元/份确认700000.00份，到账与确认金额一致，期初420000.00份承接为1120000.00份；本批只收口到SHARES_POSTED，不提前做估值。"
+      }
+    },
+    {
+      "fixtureId": "FOF02-FIXTURE-COMP-B",
+      "routeId": "ACC-FOF-SUBSCRIPTION-002",
+      "fixtureType": "COMPREHENSIVE_B",
+      "caseVersion": "FOF02-B-EDU-01",
+      "businessDate": "2030-06-17",
+      "objectKeys": {"fofFundKey": "FOF-EDU-D-01", "underlyingFundKey": "FUND-EDU-D-01", "instructionKey": "INS-FOF02-B-001"},
+      "sourceGroups": ["FOF-SRC-INSTRUCTION", "FOF-SRC-MANAGER-CONFIRMATION", "FOF-SRC-TA-CONFIRMATION", "FOF-SRC-CASH-RECEIPT", "FOF-SRC-SHARE-LEDGER"],
+      "fields": [
+        {"fieldId": "instruction_amount", "value": "1536000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-INSTRUCTION"},
+        {"fieldId": "manager_confirmed_amount", "value": "1536000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION"},
+        {"fieldId": "ta_confirmed_amount", "value": "1536000.00", "unit": "元", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "subscription_nav", "value": "1.2800", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "confirmed_shares", "value": "1200000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CONFIRMATION"},
+        {"fieldId": "cash_received_amount", "value": "1536000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-CASH-RECEIPT"},
+        {"fieldId": "opening_shares", "value": "275000.00", "unit": "份", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "closing_shares", "value": "1475000.00", "unit": "份", "precision": 2, "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "cash_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-CASH-RECEIPT"},
+        {"fieldId": "shares_diff", "value": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"},
+        {"fieldId": "identity_match", "value": "YES", "unit": "YES/NO", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-INSTRUCTION"},
+        {"fieldId": "state_complete", "value": "SHARES_POSTED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-SHARE-LEDGER"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-INSTRUCTION", "fields": ["case_version", "business_date", "fof_fund_key", "underlying_fund_key", "instruction_key", "instruction_amount"]},
+          {"sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION", "fields": ["manager_confirmed_amount"]},
+          {"sourceGroupId": "FOF-SRC-TA-CONFIRMATION", "fields": ["ta_confirmed_amount", "subscription_nav", "confirmed_shares"]},
+          {"sourceGroupId": "FOF-SRC-CASH-RECEIPT", "fields": ["cash_received_amount"]},
+          {"sourceGroupId": "FOF-SRC-SHARE-LEDGER", "fields": ["opening_shares", "closing_shares"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "confirmed_shares", "formula": "Decimal('1536000.00') / Decimal('1.2800')", "result": "1200000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "closing_shares", "formula": "Decimal('275000.00') + Decimal('1200000.00')", "result": "1475000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "cash_diff", "formula": "Decimal('1536000.00') - Decimal('1536000.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "shares_diff", "formula": "Decimal('1475000.00') - (Decimal('275000.00') + Decimal('1200000.00'))", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"identityMatch": "YES", "cashDiff": "0.00", "sharesDiff": "0.00", "finalState": "SHARES_POSTED"},
+        "expectedConclusion": "1536000.00元指令经管理人和TA确认，TA以1.2800元/份确认1200000.00份，资金到账一致，期初275000.00份承接为1475000.00份；未引入估值、T+0或特殊处置。"
+      }
+    },
+    {
+      "fixtureId": "FOF03-FIXTURE-DEMO-A",
+      "routeId": "ACC-FOF-VALUATION-003",
+      "fixtureType": "DEMONSTRATION_A",
+      "caseVersion": "FOF03-A-EDU-01",
+      "businessDate": "2030-06-18",
+      "objectKeys": {"fofFundKey": "FOF-EDU-E-01", "underlyingFundKey": "FUND-EDU-E-01"},
+      "sourceGroups": ["FOF-SRC-VALUATION-SNAPSHOT", "FOF-SRC-VALUATION-OBJECT", "FOF-SRC-TA-CLOSING", "FOF-SRC-INTERNAL-HOLDING", "FOF-SRC-VALUATION-RESULT"],
+      "fields": [
+        {"fieldId": "source_id", "value": "SRC-FOF03-A-NAV-001", "unit": "sourceId", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "source_version", "value": "NAV-SNAPSHOT-A-20300618", "unit": "version", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "valuation_date", "value": "2030-06-18", "unit": "date", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-OBJECT"},
+        {"fieldId": "available_at", "value": "2030-06-18T18:20:00+08:00", "unit": "timestamp", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "fof_fund_key", "value": "FOF-EDU-E-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-OBJECT"},
+        {"fieldId": "underlying_fund_key", "value": "FUND-EDU-E-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-OBJECT"},
+        {"fieldId": "approved_nav", "value": "1.2345", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "ta_closing_shares", "value": "840000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CLOSING"},
+        {"fieldId": "internal_closing_shares", "value": "840000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-INTERNAL-HOLDING"},
+        {"fieldId": "calculated_market_value", "value": "1036980.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"},
+        {"fieldId": "valuation_result", "value": "1036980.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"},
+        {"fieldId": "holding_diff", "value": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"},
+        {"fieldId": "valuation_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"},
+        {"fieldId": "nav_state", "value": "NAV_CONFIRMED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "holding_state", "value": "HOLDING_RECONCILED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT", "fields": ["source_id", "source_version", "available_at", "approved_nav", "nav_state"]},
+          {"sourceGroupId": "FOF-SRC-VALUATION-OBJECT", "fields": ["valuation_date", "fof_fund_key", "underlying_fund_key"]},
+          {"sourceGroupId": "FOF-SRC-TA-CLOSING", "fields": ["ta_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-INTERNAL-HOLDING", "fields": ["internal_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-VALUATION-RESULT", "fields": ["calculated_market_value", "valuation_result", "holding_diff", "valuation_diff", "holding_state"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "calculated_market_value", "formula": "Decimal('840000.00') * Decimal('1.2345')", "result": "1036980.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "holding_diff", "formula": "Decimal('840000.00') - Decimal('840000.00')", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "valuation_diff", "formula": "Decimal('1036980.00') - Decimal('1036980.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"sourceId": "SRC-FOF03-A-NAV-001", "valuationDate": "2030-06-18", "holdingDiff": "0.00", "valuationDiff": "0.00", "finalState": "HOLDING_RECONCILED"},
+        "expectedConclusion": "当前案例批准 NAV 来源为 SRC-FOF03-A-NAV-001；840000.00份×1.2345元/份=1036980.00元，TA与内部份额一致，估值结果差额为0.00元，完成 HOLDING_RECONCILED。"
+      }
+    },
+    {
+      "fixtureId": "FOF03-FIXTURE-COMP-B",
+      "routeId": "ACC-FOF-VALUATION-003",
+      "fixtureType": "COMPREHENSIVE_B",
+      "caseVersion": "FOF03-B-EDU-01",
+      "businessDate": "2030-06-19",
+      "objectKeys": {"fofFundKey": "FOF-EDU-F-01", "underlyingFundKey": "FUND-EDU-F-01"},
+      "sourceGroups": ["FOF-SRC-VALUATION-SNAPSHOT", "FOF-SRC-VALUATION-OBJECT", "FOF-SRC-TA-CLOSING", "FOF-SRC-INTERNAL-HOLDING", "FOF-SRC-VALUATION-RESULT"],
+      "fields": [
+        {"fieldId": "source_id", "value": "SRC-FOF03-B-NAV-001", "unit": "sourceId", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "source_version", "value": "NAV-SNAPSHOT-B-20300619", "unit": "version", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "valuation_date", "value": "2030-06-19", "unit": "date", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-OBJECT"},
+        {"fieldId": "available_at", "value": "2030-06-19T18:15:00+08:00", "unit": "timestamp", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "fof_fund_key", "value": "FOF-EDU-F-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-OBJECT"},
+        {"fieldId": "underlying_fund_key", "value": "FUND-EDU-F-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-OBJECT"},
+        {"fieldId": "approved_nav", "value": "0.9876", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "ta_closing_shares", "value": "1275000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-TA-CLOSING"},
+        {"fieldId": "internal_closing_shares", "value": "1275000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-INTERNAL-HOLDING"},
+        {"fieldId": "calculated_market_value", "value": "1259190.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"},
+        {"fieldId": "valuation_result", "value": "1259190.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"},
+        {"fieldId": "holding_diff", "value": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"},
+        {"fieldId": "valuation_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"},
+        {"fieldId": "nav_state", "value": "NAV_CONFIRMED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT"},
+        {"fieldId": "holding_state", "value": "HOLDING_RECONCILED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-VALUATION-RESULT"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT", "fields": ["source_id", "source_version", "available_at", "approved_nav", "nav_state"]},
+          {"sourceGroupId": "FOF-SRC-VALUATION-OBJECT", "fields": ["valuation_date", "fof_fund_key", "underlying_fund_key"]},
+          {"sourceGroupId": "FOF-SRC-TA-CLOSING", "fields": ["ta_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-INTERNAL-HOLDING", "fields": ["internal_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-VALUATION-RESULT", "fields": ["calculated_market_value", "valuation_result", "holding_diff", "valuation_diff", "holding_state"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "calculated_market_value", "formula": "Decimal('1275000.00') * Decimal('0.9876')", "result": "1259190.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "holding_diff", "formula": "Decimal('1275000.00') - Decimal('1275000.00')", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "valuation_diff", "formula": "Decimal('1259190.00') - Decimal('1259190.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"sourceId": "SRC-FOF03-B-NAV-001", "valuationDate": "2030-06-19", "holdingDiff": "0.00", "valuationDiff": "0.00", "finalState": "HOLDING_RECONCILED"},
+        "expectedConclusion": "当前案例使用 SRC-FOF03-B-NAV-001 的版本化批准 NAV 0.9876；1275000.00份×0.9876元/份=1259190.00元，TA、内部持仓和估值结果三方零差异。"
+      }
+    },
+    {
+      "fixtureId": "FOF04-FIXTURE-DEMO-A",
+      "routeId": "ACC-FOF-RETURN-004",
+      "fixtureType": "DEMONSTRATION_A",
+      "caseVersion": "FOF04-A-EDU-01",
+      "businessDate": "2030-06-20",
+      "objectKeys": {"fofFundKey": "FOF-EDU-G-01", "underlyingFundKey": "FUND-EDU-G-01"},
+      "sourceGroups": ["FOF-SRC-RETURN-PARAMETER", "FOF-SRC-RETURN-CASH", "FOF-SRC-DIVIDEND-CONFIRMATION", "FOF-SRC-REINVEST-PARAMETER", "FOF-SRC-RETURN-LEDGER", "FOF-SRC-RETURN-RECON"],
+      "fields": [
+        {"fieldId": "return_event_key", "value": "RET-FOF04-A-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-PARAMETER"},
+        {"fieldId": "approved_return_base", "value": "420000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-PARAMETER"},
+        {"fieldId": "approved_return_rate", "value": "0.012500", "unit": "比例", "precision": 6, "tolerance": "0.000001", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-PARAMETER"},
+        {"fieldId": "confirmed_return_amount", "value": "5250.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-PARAMETER"},
+        {"fieldId": "actual_return_cash", "value": "5250.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-CASH"},
+        {"fieldId": "return_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-RECON"},
+        {"fieldId": "dividend_event_key", "value": "DIV-FOF04-A-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-DIVIDEND-CONFIRMATION"},
+        {"fieldId": "confirmed_dividend_amount", "value": "48000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-DIVIDEND-CONFIRMATION"},
+        {"fieldId": "approved_reinvest_nav", "value": "1.2000", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REINVEST-PARAMETER"},
+        {"fieldId": "reinvest_shares", "value": "40000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REINVEST-PARAMETER"},
+        {"fieldId": "return_opening_shares", "value": "310000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-LEDGER"},
+        {"fieldId": "return_closing_shares", "value": "350000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-LEDGER"},
+        {"fieldId": "return_shares_diff", "value": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-RECON"},
+        {"fieldId": "return_event_state", "value": "RETURN_AND_REINVEST_RECONCILED", "unit": "caseLocalEventState", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-RECON"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-RETURN-PARAMETER", "fields": ["return_event_key", "approved_return_base", "approved_return_rate", "confirmed_return_amount"]},
+          {"sourceGroupId": "FOF-SRC-RETURN-CASH", "fields": ["actual_return_cash"]},
+          {"sourceGroupId": "FOF-SRC-DIVIDEND-CONFIRMATION", "fields": ["dividend_event_key", "confirmed_dividend_amount"]},
+          {"sourceGroupId": "FOF-SRC-REINVEST-PARAMETER", "fields": ["approved_reinvest_nav", "reinvest_shares"]},
+          {"sourceGroupId": "FOF-SRC-RETURN-LEDGER", "fields": ["return_opening_shares", "return_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-RETURN-RECON", "fields": ["return_diff", "return_shares_diff", "return_event_state"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "confirmed_return_amount", "formula": "Decimal('420000.00') * Decimal('0.012500')", "result": "5250.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "return_diff", "formula": "Decimal('5250.00') - Decimal('5250.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "reinvest_shares", "formula": "Decimal('48000.00') / Decimal('1.2000')", "result": "40000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "closing_shares", "formula": "Decimal('310000.00') + Decimal('40000.00')", "result": "350000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "return_shares_diff", "formula": "Decimal('350000.00') - (Decimal('310000.00') + Decimal('40000.00'))", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"returnDiff": "0.00", "sharesDiff": "0.00", "cashEvent": "CASH_RETURN_RECONCILED", "reinvestEvent": "DIVIDEND_REINVEST_RECONCILED", "finalState": "RETURN_AND_REINVEST_RECONCILED"},
+        "expectedConclusion": "本案例按 case-local approved base 420000.00元×0.012500 得返还5250.00元，银行实收一致；48000.00元红利÷1.2000元/份得40000.00份，期末350000.00份且 sharesDiff=0.00。"
+      }
+    },
+    {
+      "fixtureId": "FOF04-FIXTURE-COMP-B",
+      "routeId": "ACC-FOF-RETURN-004",
+      "fixtureType": "COMPREHENSIVE_B",
+      "caseVersion": "FOF04-B-EDU-01",
+      "businessDate": "2030-06-21",
+      "objectKeys": {"fofFundKey": "FOF-EDU-H-01", "underlyingFundKey": "FUND-EDU-H-01"},
+      "sourceGroups": ["FOF-SRC-RETURN-PARAMETER", "FOF-SRC-RETURN-CASH", "FOF-SRC-DIVIDEND-CONFIRMATION", "FOF-SRC-REINVEST-PARAMETER", "FOF-SRC-RETURN-LEDGER", "FOF-SRC-RETURN-RECON"],
+      "fields": [
+        {"fieldId": "return_event_key", "value": "RET-FOF04-B-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-PARAMETER"},
+        {"fieldId": "approved_return_base", "value": "735000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-PARAMETER"},
+        {"fieldId": "approved_return_rate", "value": "0.008000", "unit": "比例", "precision": 6, "tolerance": "0.000001", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-PARAMETER"},
+        {"fieldId": "confirmed_return_amount", "value": "5880.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-PARAMETER"},
+        {"fieldId": "actual_return_cash", "value": "5880.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-CASH"},
+        {"fieldId": "return_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-RECON"},
+        {"fieldId": "dividend_event_key", "value": "DIV-FOF04-B-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-DIVIDEND-CONFIRMATION"},
+        {"fieldId": "confirmed_dividend_amount", "value": "92500.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-DIVIDEND-CONFIRMATION"},
+        {"fieldId": "approved_reinvest_nav", "value": "1.2500", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REINVEST-PARAMETER"},
+        {"fieldId": "reinvest_shares", "value": "74000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REINVEST-PARAMETER"},
+        {"fieldId": "return_opening_shares", "value": "456000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-RETURN-LEDGER"},
+        {"fieldId": "return_closing_shares", "value": "530000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-LEDGER"},
+        {"fieldId": "return_shares_diff", "value": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-RECON"},
+        {"fieldId": "return_event_state", "value": "RETURN_AND_REINVEST_RECONCILED", "unit": "caseLocalEventState", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-RETURN-RECON"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-RETURN-PARAMETER", "fields": ["return_event_key", "approved_return_base", "approved_return_rate", "confirmed_return_amount"]},
+          {"sourceGroupId": "FOF-SRC-RETURN-CASH", "fields": ["actual_return_cash"]},
+          {"sourceGroupId": "FOF-SRC-DIVIDEND-CONFIRMATION", "fields": ["dividend_event_key", "confirmed_dividend_amount"]},
+          {"sourceGroupId": "FOF-SRC-REINVEST-PARAMETER", "fields": ["approved_reinvest_nav", "reinvest_shares"]},
+          {"sourceGroupId": "FOF-SRC-RETURN-LEDGER", "fields": ["return_opening_shares", "return_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-RETURN-RECON", "fields": ["return_diff", "return_shares_diff", "return_event_state"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "confirmed_return_amount", "formula": "Decimal('735000.00') * Decimal('0.008000')", "result": "5880.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "return_diff", "formula": "Decimal('5880.00') - Decimal('5880.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "reinvest_shares", "formula": "Decimal('92500.00') / Decimal('1.2500')", "result": "74000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "closing_shares", "formula": "Decimal('456000.00') + Decimal('74000.00')", "result": "530000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "return_shares_diff", "formula": "Decimal('530000.00') - (Decimal('456000.00') + Decimal('74000.00'))", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"returnDiff": "0.00", "sharesDiff": "0.00", "cashEvent": "CASH_RETURN_RECONCILED", "reinvestEvent": "DIVIDEND_REINVEST_RECONCILED", "finalState": "RETURN_AND_REINVEST_RECONCILED"},
+        "expectedConclusion": "本案例 case-local 返还基数735000.00元×0.008000=5880.00元且银行实收一致；红利92500.00元÷1.2500元/份=74000.00份，456000.00份承接为530000.00份，两个差额均为0.00。"
+      }
+    },
+    {
+      "fixtureId": "FOF05-FIXTURE-DEMO-A",
+      "routeId": "ACC-FOF-REDEMPTION-005",
+      "fixtureType": "DEMONSTRATION_A",
+      "caseVersion": "FOF05-A-EDU-01",
+      "businessDate": "2030-06-22",
+      "objectKeys": {"fofFundKey": "FOF-EDU-I-01", "underlyingFundKey": "FUND-EDU-I-01", "redemptionKey": "RED-FOF05-A-001"},
+      "sourceGroups": ["FOF-SRC-REDEMPTION-CONFIRM", "FOF-SRC-REDEMPTION-RECEIVABLE", "FOF-SRC-REDEMPTION-CASH", "FOF-SRC-REDEMPTION-TA-HOLDING", "FOF-SRC-REDEMPTION-INTERNAL", "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT", "FOF-SRC-REDEMPTION-RESULT", "FOF-SRC-REDEMPTION-ARCHIVE"],
+      "fields": [
+        {"fieldId": "redemption_event_key", "value": "RED-FOF05-A-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_date", "value": "2030-06-22", "unit": "date", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_fof_fund_key", "value": "FOF-EDU-I-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_underlying_fund_key", "value": "FUND-EDU-I-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "confirmed_redemption_shares", "value": "125000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_nav", "value": "1.0800", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_gross", "value": "135000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE"},
+        {"fieldId": "redemption_fee_amount", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE"},
+        {"fieldId": "fee_policy", "value": "NO_FEE_IN_CASE", "unit": "casePolicy", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE"},
+        {"fieldId": "receivable_amount", "value": "135000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE"},
+        {"fieldId": "actual_redemption_cash", "value": "135000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CASH"},
+        {"fieldId": "cash_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "redemption_opening_shares", "value": "640000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-TA-HOLDING"},
+        {"fieldId": "redemption_shares_deducted", "value": "125000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_closing_shares", "value": "515000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-TA-HOLDING"},
+        {"fieldId": "ta_closing_shares", "value": "515000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-TA-HOLDING"},
+        {"fieldId": "internal_closing_shares", "value": "515000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-INTERNAL"},
+        {"fieldId": "holding_diff", "value": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "valuation_source_id", "value": "SRC-FOF05-A-NAV-001", "unit": "sourceId", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT"},
+        {"fieldId": "valuation_source_version", "value": "NAV-SNAPSHOT-FOF05-A-20300622", "unit": "version", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT"},
+        {"fieldId": "approved_valuation_nav", "value": "1.1200", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT"},
+        {"fieldId": "post_redemption_market_value", "value": "576800.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "valuation_result", "value": "576800.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "valuation_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "archive_id", "value": "ARCH-FOF05-A-001", "unit": "archiveId", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-ARCHIVE"},
+        {"fieldId": "archive_status", "value": "NORMAL_CLOSED", "unit": "archiveStatus", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-ARCHIVE"},
+        {"fieldId": "normal_close_state", "value": "RESULT_RECONCILED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-ARCHIVE"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM", "fields": ["redemption_event_key", "redemption_date", "redemption_fof_fund_key", "redemption_underlying_fund_key", "confirmed_redemption_shares", "redemption_nav", "redemption_shares_deducted"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE", "fields": ["redemption_gross", "redemption_fee_amount", "fee_policy", "receivable_amount"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-CASH", "fields": ["actual_redemption_cash"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-TA-HOLDING", "fields": ["redemption_opening_shares", "redemption_closing_shares", "ta_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-INTERNAL", "fields": ["internal_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT", "fields": ["valuation_source_id", "valuation_source_version", "approved_valuation_nav"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-RESULT", "fields": ["cash_diff", "holding_diff", "post_redemption_market_value", "valuation_result", "valuation_diff"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-ARCHIVE", "fields": ["archive_id", "archive_status", "normal_close_state"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "redemption_gross", "formula": "Decimal('125000.00') * Decimal('1.0800')", "result": "135000.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "receivable_amount", "formula": "Decimal('135000.00') - Decimal('0.00')", "result": "135000.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "cash_diff", "formula": "Decimal('135000.00') - Decimal('135000.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "redemption_closing_shares", "formula": "Decimal('640000.00') - Decimal('125000.00')", "result": "515000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "holding_diff", "formula": "Decimal('515000.00') - Decimal('515000.00')", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "post_redemption_market_value", "formula": "Decimal('515000.00') * Decimal('1.1200')", "result": "576800.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "valuation_diff", "formula": "Decimal('576800.00') - Decimal('576800.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"cashDiff": "0.00", "holdingDiff": "0.00", "valuationDiff": "0.00", "archiveId": "ARCH-FOF05-A-001", "archiveStatus": "NORMAL_CLOSED", "finalState": "RESULT_RECONCILED"},
+        "expectedConclusion": "RED-FOF05-A-001确认125000.00份、NAV1.0800，应收135000.00元且实收一致；期初640000.00份扣减为515000.00份，TA/内部一致；515000.00份×1.1200=576800.00元，资金、份额、持仓和估值均零差异，以ARCH-FOF05-A-001正常归档。"
+      }
+    },
+    {
+      "fixtureId": "FOF05-FIXTURE-COMP-B",
+      "routeId": "ACC-FOF-REDEMPTION-005",
+      "fixtureType": "COMPREHENSIVE_B",
+      "caseVersion": "FOF05-B-EDU-01",
+      "businessDate": "2030-06-23",
+      "objectKeys": {"fofFundKey": "FOF-EDU-J-01", "underlyingFundKey": "FUND-EDU-J-01", "redemptionKey": "RED-FOF05-B-001"},
+      "sourceGroups": ["FOF-SRC-REDEMPTION-CONFIRM", "FOF-SRC-REDEMPTION-RECEIVABLE", "FOF-SRC-REDEMPTION-CASH", "FOF-SRC-REDEMPTION-TA-HOLDING", "FOF-SRC-REDEMPTION-INTERNAL", "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT", "FOF-SRC-REDEMPTION-RESULT", "FOF-SRC-REDEMPTION-ARCHIVE"],
+      "fields": [
+        {"fieldId": "redemption_event_key", "value": "RED-FOF05-B-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_date", "value": "2030-06-23", "unit": "date", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_fof_fund_key", "value": "FOF-EDU-J-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_underlying_fund_key", "value": "FUND-EDU-J-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "confirmed_redemption_shares", "value": "275000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_nav", "value": "0.9600", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_gross", "value": "264000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE"},
+        {"fieldId": "redemption_fee_amount", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE"},
+        {"fieldId": "fee_policy", "value": "NO_FEE_IN_CASE", "unit": "casePolicy", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE"},
+        {"fieldId": "receivable_amount", "value": "264000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE"},
+        {"fieldId": "actual_redemption_cash", "value": "264000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CASH"},
+        {"fieldId": "cash_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "redemption_opening_shares", "value": "910000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-TA-HOLDING"},
+        {"fieldId": "redemption_shares_deducted", "value": "275000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM"},
+        {"fieldId": "redemption_closing_shares", "value": "635000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-TA-HOLDING"},
+        {"fieldId": "ta_closing_shares", "value": "635000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-TA-HOLDING"},
+        {"fieldId": "internal_closing_shares", "value": "635000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-INTERNAL"},
+        {"fieldId": "holding_diff", "value": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "valuation_source_id", "value": "SRC-FOF05-B-NAV-001", "unit": "sourceId", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT"},
+        {"fieldId": "valuation_source_version", "value": "NAV-SNAPSHOT-FOF05-B-20300623", "unit": "version", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT"},
+        {"fieldId": "approved_valuation_nav", "value": "1.1500", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT"},
+        {"fieldId": "post_redemption_market_value", "value": "730250.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "valuation_result", "value": "730250.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "valuation_diff", "value": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT"},
+        {"fieldId": "archive_id", "value": "ARCH-FOF05-B-001", "unit": "archiveId", "provenance": "SYNTHETIC_EDUCATIONAL", "sourceGroupId": "FOF-SRC-REDEMPTION-ARCHIVE"},
+        {"fieldId": "archive_status", "value": "NORMAL_CLOSED", "unit": "archiveStatus", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-ARCHIVE"},
+        {"fieldId": "normal_close_state", "value": "RESULT_RECONCILED", "unit": "state", "provenance": "CASE_POLICY", "sourceGroupId": "FOF-SRC-REDEMPTION-ARCHIVE"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM", "fields": ["redemption_event_key", "redemption_date", "redemption_fof_fund_key", "redemption_underlying_fund_key", "confirmed_redemption_shares", "redemption_nav", "redemption_shares_deducted"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE", "fields": ["redemption_gross", "redemption_fee_amount", "fee_policy", "receivable_amount"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-CASH", "fields": ["actual_redemption_cash"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-TA-HOLDING", "fields": ["redemption_opening_shares", "redemption_closing_shares", "ta_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-INTERNAL", "fields": ["internal_closing_shares"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT", "fields": ["valuation_source_id", "valuation_source_version", "approved_valuation_nav"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-RESULT", "fields": ["cash_diff", "holding_diff", "post_redemption_market_value", "valuation_result", "valuation_diff"]},
+          {"sourceGroupId": "FOF-SRC-REDEMPTION-ARCHIVE", "fields": ["archive_id", "archive_status", "normal_close_state"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "redemption_gross", "formula": "Decimal('275000.00') * Decimal('0.9600')", "result": "264000.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "receivable_amount", "formula": "Decimal('264000.00') - Decimal('0.00')", "result": "264000.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "cash_diff", "formula": "Decimal('264000.00') - Decimal('264000.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "redemption_closing_shares", "formula": "Decimal('910000.00') - Decimal('275000.00')", "result": "635000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "holding_diff", "formula": "Decimal('635000.00') - Decimal('635000.00')", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "post_redemption_market_value", "formula": "Decimal('635000.00') * Decimal('1.1500')", "result": "730250.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "valuation_diff", "formula": "Decimal('730250.00') - Decimal('730250.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"cashDiff": "0.00", "holdingDiff": "0.00", "valuationDiff": "0.00", "archiveId": "ARCH-FOF05-B-001", "archiveStatus": "NORMAL_CLOSED", "finalState": "RESULT_RECONCILED"},
+        "expectedConclusion": "RED-FOF05-B-001确认275000.00份、NAV0.9600，应收264000.00元且实收一致；期初910000.00份扣减为635000.00份，TA/内部一致；635000.00份×1.1500=730250.00元，所有结果零差异并以ARCH-FOF05-B-001正常归档。"
+      }
+    }
+  ],
+  "answerChainRules": [
+    "所有金额、份额和申购NAV先按来源字段读取，再用 Decimal 计算",
+    "confirmed_shares = ta_confirmed_amount / subscription_nav",
+    "closing_shares = opening_shares + confirmed_shares",
+    "cash_diff = ta_confirmed_amount - cash_received_amount",
+    "shares_diff = closing_shares - (opening_shares + confirmed_shares)",
+    "FOF-01/02 的最终教学状态为 SHARES_POSTED；FOF-03 才使用当前案例批准 NAV 完成三方持仓与金额勾稽；FOF-04 的返还和红利状态只属于本案例事件字段"
+  ]
+}

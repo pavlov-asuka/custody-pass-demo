@@ -1,0 +1,104 @@
+{
+  "routeId": "ACC-FOF-RETURN-004",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FOF04-TWO-EVENT-SOURCES", "description": "理解返还现金链与红利再投链的参数、实收、确认和台账来源不同", "weight": 13, "evidenceRequirement": "分别定位返还参数、银行实收、红利确认和再投参数资料", "evidenceRules": [{"fieldId": "fof04-b-return-parameter-source", "operator": "EQUALS", "expected": "FOF04_B_RETURN_PARAMETER_SOURCE"}, {"fieldId": "fof04-b-return-cash-source", "operator": "EQUALS", "expected": "FOF04_B_RETURN_CASH_SOURCE"}, {"fieldId": "fof04-b-dividend-reinvest-source", "operator": "EQUALS", "expected": "FOF04_B_DIVIDEND_REINVEST_SOURCE"}], "remediationTargetId": "FOF04-TARGET-RETURN-SOURCE"},
+        {"criterionId": "C-FOF04-RETURN-PARAMETERS", "description": "理解本案例 approved base 与 approved rate 共同形成返还确认金额", "weight": 12, "evidenceRequirement": "按本案例精度读取735000.00元和0.008000比例", "evidenceRules": [{"fieldId": "fof04-b-approved-return-base", "operator": "NUMBER_EQUALS", "expected": 735000, "tolerance": 0.01}, {"fieldId": "fof04-b-approved-return-rate", "operator": "NUMBER_EQUALS", "expected": 0.008, "tolerance": 0.000001}], "remediationTargetId": "FOF04-TARGET-RETURN-BASE"}
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {"criterionId": "P-FOF04-RETURN-CASH-CALC", "description": "计算返还确认金额并登记独立银行实收", "weight": 8, "evidenceRequirement": "735000.00×0.008000=5880.00元，实际到账单元为5880.00元", "evidenceRules": [{"fieldId": "fof04-b-confirmed-return", "operator": "NUMBER_EQUALS", "expected": 5880, "tolerance": 0.01}, {"fieldId": "fof04-b-actual-return-cash", "operator": "NUMBER_EQUALS", "expected": 5880, "tolerance": 0.01}], "remediationTargetId": "FOF04-TARGET-CONFIRMED-RETURN"},
+        {"criterionId": "P-FOF04-REINVEST-CALC", "description": "读取红利金额和再投 NAV 并计算再投份额", "weight": 8, "evidenceRequirement": "92500.00元÷1.2500元/份=74000.00份", "evidenceRules": [{"fieldId": "fof04-b-confirmed-dividend-amount", "operator": "NUMBER_EQUALS", "expected": 92500, "tolerance": 0.01}, {"fieldId": "fof04-b-approved-reinvest-nav", "operator": "NUMBER_EQUALS", "expected": 1.25, "tolerance": 0.00005}, {"fieldId": "fof04-b-reinvest-shares", "operator": "NUMBER_EQUALS", "expected": 74000, "tolerance": 0.01}], "remediationTargetId": "FOF04-TARGET-REINVEST-SHARES"},
+        {"criterionId": "P-FOF04-SHARE-LEDGER", "description": "登记期初份额并承接到期末份额", "weight": 7, "evidenceRequirement": "期初456000.00份、期末530000.00份分别可追踪", "evidenceRules": [{"fieldId": "fof04-b-opening-shares", "operator": "NUMBER_EQUALS", "expected": 456000, "tolerance": 0.01}, {"fieldId": "fof04-b-closing-shares", "operator": "NUMBER_EQUALS", "expected": 530000, "tolerance": 0.01}], "remediationTargetId": "FOF04-TARGET-OPENING-SHARES"},
+        {"criterionId": "P-FOF04-EVENT-STATES", "description": "分别确认现金返还和红利再投的案例本地事件状态", "weight": 7, "evidenceRequirement": "两条正常事件链分别落到各自闭环状态", "evidenceRules": [{"fieldId": "fof04-b-return-event-state", "operator": "EQUALS", "expected": "FOF04_B_RETURN_CASH_RECONCILED"}, {"fieldId": "fof04-b-reinvest-event-state", "operator": "EQUALS", "expected": "FOF04_B_DIVIDEND_REINVEST_RECONCILED"}], "remediationTargetId": "FOF04-TARGET-EVENT-STATES"}
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "R-FOF04-RETURN-CASH-ZERO", "description": "控制确认返还与银行实收必须零差异", "weight": 13, "evidenceRequirement": "returnDiff=confirmedReturn−actualCash=0.00元，并确认现金链状态", "evidenceRules": [{"fieldId": "fof04-b-return-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof04-b-return-event-state", "operator": "EQUALS", "expected": "FOF04_B_RETURN_CASH_RECONCILED"}], "remediationTargetId": "FOF04-TARGET-RETURN-DIFF"},
+        {"criterionId": "R-FOF04-REINVEST-SHARES-ZERO", "description": "控制红利再投份额必须正确承接并零差异", "weight": 12, "evidenceRequirement": "closingShares=openingShares+reinvestShares，sharesDiff=0.00，最终状态可承接", "evidenceRules": [{"fieldId": "fof04-b-shares-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof04-b-reinvest-event-state", "operator": "EQUALS", "expected": "FOF04_B_DIVIDEND_REINVEST_RECONCILED"}, {"fieldId": "fof04-b-final-handoff-state", "operator": "EQUALS", "expected": "FOF04_B_BOTH_EVENTS_READY"}], "remediationTargetId": "FOF04-TARGET-SHARES-DIFF"}
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {"criterionId": "E-FOF04-TWO-CHAIN-CONCLUSION", "description": "用一条短句同时表达返还现金和红利再投份额结果", "weight": 20, "evidenceRequirement": "短结论包含两条链的输入、计算结果、期末份额、两个差额和最终案例本地状态", "evidenceRules": [{"fieldId": "fof04-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["735000.00", "0.008000", "5880.00", "returnDiff", "92500.00", "1.2500", "74000.00", "456000.00", "530000.00", "sharesDiff", "0.00", "RETURN_AND_REINVEST_RECONCILED"]}], "remediationTargetId": "FOF04-TARGET-CONCLUSION"}
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FOF04-RETURN-CASH-CLOSURE", "description": "费用或服务返还现金链必须完整闭合", "evidenceRequirement": "返还参数来源、base、rate、confirmed return、银行实收、returnDiff和现金事件状态均正确", "evidenceRules": [{"fieldId": "fof04-b-return-parameter-source", "operator": "EQUALS", "expected": "FOF04_B_RETURN_PARAMETER_SOURCE"}, {"fieldId": "fof04-b-return-cash-source", "operator": "EQUALS", "expected": "FOF04_B_RETURN_CASH_SOURCE"}, {"fieldId": "fof04-b-approved-return-base", "operator": "NUMBER_EQUALS", "expected": 735000, "tolerance": 0.01}, {"fieldId": "fof04-b-approved-return-rate", "operator": "NUMBER_EQUALS", "expected": 0.008, "tolerance": 0.000001}, {"fieldId": "fof04-b-confirmed-return", "operator": "NUMBER_EQUALS", "expected": 5880, "tolerance": 0.01}, {"fieldId": "fof04-b-actual-return-cash", "operator": "NUMBER_EQUALS", "expected": 5880, "tolerance": 0.01}, {"fieldId": "fof04-b-return-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof04-b-return-event-state", "operator": "EQUALS", "expected": "FOF04_B_RETURN_CASH_RECONCILED"}], "remediationTargetId": "FOF04-TARGET-RETURN-DIFF"},
+    {"requirementId": "M-FOF04-DIVIDEND-REINVEST-CLOSURE", "description": "红利再投资份额链必须完整闭合", "evidenceRequirement": "红利来源、金额、再投 NAV、再投份额、期初/期末份额、sharesDiff和最终承接状态均正确", "evidenceRules": [{"fieldId": "fof04-b-dividend-reinvest-source", "operator": "EQUALS", "expected": "FOF04_B_DIVIDEND_REINVEST_SOURCE"}, {"fieldId": "fof04-b-confirmed-dividend-amount", "operator": "NUMBER_EQUALS", "expected": 92500, "tolerance": 0.01}, {"fieldId": "fof04-b-approved-reinvest-nav", "operator": "NUMBER_EQUALS", "expected": 1.25, "tolerance": 0.00005}, {"fieldId": "fof04-b-reinvest-shares", "operator": "NUMBER_EQUALS", "expected": 74000, "tolerance": 0.01}, {"fieldId": "fof04-b-opening-shares", "operator": "NUMBER_EQUALS", "expected": 456000, "tolerance": 0.01}, {"fieldId": "fof04-b-closing-shares", "operator": "NUMBER_EQUALS", "expected": 530000, "tolerance": 0.01}, {"fieldId": "fof04-b-shares-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof04-b-reinvest-event-state", "operator": "EQUALS", "expected": "FOF04_B_DIVIDEND_REINVEST_RECONCILED"}, {"fieldId": "fof04-b-final-handoff-state", "operator": "EQUALS", "expected": "FOF04_B_BOTH_EVENTS_READY"}], "remediationTargetId": "FOF04-TARGET-SHARES-DIFF"}
+  ],
+  "remediationTargets": [
+    {"targetId": "FOF04-TARGET-RETURN-SOURCE", "title": "补学返还参数来源", "reason": "不能从本案例参数资料定位返还事件和参数", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-return-parameter-source", "questionId": "ACC-FOF-RETURN-Q-01"},
+    {"targetId": "FOF04-TARGET-CASH-SOURCE", "title": "补学银行返还实收来源", "reason": "把参数确认金额当成银行实收来源", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-return-cash-source", "questionId": "ACC-FOF-RETURN-Q-01"},
+    {"targetId": "FOF04-TARGET-DIVIDEND-SOURCE", "title": "补学红利与再投参数来源", "reason": "不能分别定位红利确认和再投 NAV 资料", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-dividend-reinvest-source", "questionId": "ACC-FOF-RETURN-Q-01"},
+    {"targetId": "FOF04-TARGET-RETURN-BASE", "title": "补学返还批准基数", "reason": "approved base 读取或单位错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-approved-return-base", "questionId": "ACC-FOF-RETURN-Q-02"},
+    {"targetId": "FOF04-TARGET-RETURN-RATE", "title": "补学返还批准比例", "reason": "approved rate 读取或六位精度错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-approved-return-rate", "questionId": "ACC-FOF-RETURN-Q-02"},
+    {"targetId": "FOF04-TARGET-CONFIRMED-RETURN", "title": "补学返还金额计算", "reason": "不能用 base×rate 得到 confirmed return", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-confirmed-return", "questionId": "ACC-FOF-RETURN-Q-02"},
+    {"targetId": "FOF04-TARGET-ACTUAL-CASH", "title": "补学返还银行实收", "reason": "实际返还现金未独立登记", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-actual-return-cash", "questionId": "ACC-FOF-RETURN-Q-03"},
+    {"targetId": "FOF04-TARGET-RETURN-DIFF", "title": "补学返还现金勾稽", "reason": "returnDiff 计算或现金闭环判断错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-return-diff", "questionId": "ACC-FOF-RETURN-Q-04"},
+    {"targetId": "FOF04-TARGET-DIVIDEND-AMOUNT", "title": "补学确认红利金额", "reason": "确认红利金额读取或单位错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-confirmed-dividend-amount", "questionId": "ACC-FOF-RETURN-Q-02"},
+    {"targetId": "FOF04-TARGET-REINVEST-NAV", "title": "补学批准再投 NAV", "reason": "再投 NAV 读取或四位精度错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-approved-reinvest-nav", "questionId": "ACC-FOF-RETURN-Q-02"},
+    {"targetId": "FOF04-TARGET-REINVEST-SHARES", "title": "补学红利再投份额计算", "reason": "不能用红利金额除以再投 NAV 得到份额", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-reinvest-shares", "questionId": "ACC-FOF-RETURN-Q-02"},
+    {"targetId": "FOF04-TARGET-OPENING-SHARES", "title": "补学再投事件期初份额", "reason": "期初份额读取或登记错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-opening-shares", "questionId": "ACC-FOF-RETURN-Q-03"},
+    {"targetId": "FOF04-TARGET-CLOSING-SHARES", "title": "补学再投事件期末份额", "reason": "不能用期初份额加再投份额承接期末", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-closing-shares", "questionId": "ACC-FOF-RETURN-Q-03"},
+    {"targetId": "FOF04-TARGET-SHARES-DIFF", "title": "补学红利再投份额勾稽", "reason": "sharesDiff 计算或零差异判断错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-shares-diff", "questionId": "ACC-FOF-RETURN-Q-04"},
+    {"targetId": "FOF04-TARGET-RETURN-STATE", "title": "补学现金返还事件状态", "reason": "现金链闭合后不能判断案例本地状态", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-return-event-state", "questionId": "ACC-FOF-RETURN-Q-04"},
+    {"targetId": "FOF04-TARGET-REINVEST-STATE", "title": "补学红利再投事件状态", "reason": "份额链闭合后不能判断案例本地状态", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-reinvest-event-state", "questionId": "ACC-FOF-RETURN-Q-04"},
+    {"targetId": "FOF04-TARGET-EVENT-STATES", "title": "补学两条事件状态", "reason": "不能分别确认现金链和再投链均已闭合", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-reinvest-event-state", "questionId": "ACC-FOF-RETURN-Q-04"},
+    {"targetId": "FOF04-TARGET-FINAL-STATE", "title": "补学最终承接状态", "reason": "两个正常事件链完成后仍不能选择最终承接状态", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-final-handoff-state", "questionId": "ACC-FOF-RETURN-Q-04"},
+    {"targetId": "FOF04-TARGET-CONCLUSION", "title": "补写两链闭环短结论", "reason": "短结论缺少金额、份额、差额或最终状态", "materialStep": "DEMONSTRATION", "materialItemId": "fof04-b-conclusion", "questionId": "ACC-FOF-RETURN-Q-05"}
+  ],
+  "referenceAnswer": {
+    "fixtureId": "FOF04-FIXTURE-COMP-B",
+    "responses": {
+      "fof04-b-return-parameter-source": "FOF04_B_RETURN_PARAMETER_SOURCE",
+      "fof04-b-return-cash-source": "FOF04_B_RETURN_CASH_SOURCE",
+      "fof04-b-dividend-reinvest-source": "FOF04_B_DIVIDEND_REINVEST_SOURCE",
+      "fof04-b-approved-return-base": 735000,
+      "fof04-b-approved-return-rate": 0.008,
+      "fof04-b-confirmed-return": 5880,
+      "fof04-b-actual-return-cash": 5880,
+      "fof04-b-return-diff": 0,
+      "fof04-b-confirmed-dividend-amount": 92500,
+      "fof04-b-approved-reinvest-nav": 1.25,
+      "fof04-b-reinvest-shares": 74000,
+      "fof04-b-opening-shares": 456000,
+      "fof04-b-closing-shares": 530000,
+      "fof04-b-shares-diff": 0,
+      "fof04-b-return-event-state": "FOF04_B_RETURN_CASH_RECONCILED",
+      "fof04-b-reinvest-event-state": "FOF04_B_DIVIDEND_REINVEST_RECONCILED",
+      "fof04-b-final-handoff-state": "FOF04_B_BOTH_EVENTS_READY",
+      "fof04-b-conclusion": "approved base 735000.00元 rate 0.008000 得 confirmed return 5880.00元，actual cash一致且returnDiff=0.00；confirmed dividend 92500.00元按 approved reinvest NAV 1.2500元/份得到74000.00份，opening 456000.00份承接为530000.00份，sharesDiff=0.00，最终 RETURN_AND_REINVEST_RECONCILED。"
+    },
+    "responseMeta": {
+      "fof04-b-approved-return-base": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof04-b-approved-return-rate": {"kind": "NUMBER", "unit": "比例", "precision": 6, "tolerance": 0.000001},
+      "fof04-b-confirmed-return": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof04-b-actual-return-cash": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof04-b-return-diff": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof04-b-confirmed-dividend-amount": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof04-b-approved-reinvest-nav": {"kind": "NUMBER", "unit": "元/份", "precision": 4, "tolerance": 0.00005},
+      "fof04-b-reinvest-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof04-b-opening-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof04-b-closing-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof04-b-shares-diff": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01}
+    },
+    "decimalChain": {"confirmedReturn": "735000.00 × 0.008000 = 5880.00", "returnDiff": "5880.00 − 5880.00 = 0.00", "reinvestShares": "92500.00 ÷ 1.2500 = 74000.00", "closingShares": "456000.00 + 74000.00 = 530000.00", "sharesDiff": "530000.00 − (456000.00 + 74000.00) = 0.00"},
+    "reconciliation": {"returnDiff": "0.00", "sharesDiff": "0.00", "cashState": "CASH_RETURN_RECONCILED", "reinvestState": "DIVIDEND_REINVEST_RECONCILED", "state": "RETURN_AND_REINVEST_RECONCILED"}
+  }
+}

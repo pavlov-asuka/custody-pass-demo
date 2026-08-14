@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.8",
+  "version": "2026.08.9",
   "lines": [
     {
       "line": "CLEARING",
@@ -499,6 +499,68 @@
                   "order": 4,
                   "position": "CENTER",
                   "prerequisiteNodeIds": ["ACC-NODE-CBF-SETTLEMENT-003"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "ACC-MODULE-FOF",
+              "name": "FOF 核算业务",
+              "order": 8,
+              "nodes": [
+                {
+                  "nodeId": "ACC-NODE-FOF-BOUNDARY-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FOF-BOUNDARY-001",
+                  "title": "看清 FOF 母基金、被投基金与证据链",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FOF-SUBSCRIPTION-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FOF-SUBSCRIPTION-002",
+                  "title": "把申购指令推进到资金与份额确认",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FOF-BOUNDARY-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FOF-VALUATION-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FOF-VALUATION-003",
+                  "title": "按当前批准 NAV 完成 FOF 持仓估值勾稽",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FOF-SUBSCRIPTION-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FOF-RETURN-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FOF-RETURN-004",
+                  "title": "完成 FOF 返还现金与红利再投资份额闭环",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FOF-VALUATION-003"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-FOF-REDEMPTION-005",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-FOF-REDEMPTION-005",
+                  "title": "完成 FOF 正常赎回、结果勾稽与归档",
+                  "pathType": "REQUIRED",
+                  "order": 5,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-FOF-RETURN-004"],
                   "contentAvailability": "PUBLISHED"
                 }
               ]

@@ -1,0 +1,310 @@
+{
+  "evidenceId": "FOF-EVID-SOURCE-STATE-001",
+  "version": "1.2.0",
+  "scope": "FOF-01-05",
+  "title": "FOF B3 来源、状态与活动落点矩阵",
+  "scopeNotice": "FOF-01/02 收口到 SHARES_POSTED；FOF-03 教学 NAV_CONFIRMED 与 HOLDING_RECONCILED；FOF-04 只使用案例本地返还/再投事件字段；FOF-05 增量教学赎回结果勾稽、RESULT_RECONCILED 与合成正常归档。",
+  "sourcePriority": [
+    {"priority": 1, "sourceKind": "CURRENT_VERSIONED_POLICY", "status": "BUSINESS_REVIEW_REQUIRED"},
+    {"priority": 2, "sourceKind": "MANAGER_OR_TA_CURRENT_CONFIRMATION", "status": "BUSINESS_REVIEW_REQUIRED"},
+    {"priority": 3, "sourceKind": "APPROVED_EDUCATIONAL_SNAPSHOT", "status": "USED_IN_B0_B3"},
+    {"priority": 4, "sourceKind": "PUBLIC_SOURCE", "status": "NOT_USED_FOR_FOF-01-02"},
+    {"priority": 5, "sourceKind": "HISTORICAL_TRAINING_MATERIAL", "status": "ABSTRACTION_ONLY"}
+  ],
+  "sourceGroups": [
+    {
+      "sourceGroupId": "FOF-SRC-INSTRUCTION",
+      "label": "指令与对象登记资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S03-S06", "FOF-MAT-INSTRUCTION:S03-S04"],
+      "provides": ["fof_fund_key", "underlying_fund_key", "instruction_key", "business_date", "instruction_amount", "currency"],
+      "activityLanding": ["FOF-01", "FOF-02"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION",
+      "label": "管理人确认资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S18-S20"],
+      "provides": ["manager_confirmed_amount", "manager_confirmation_state", "manager_confirmation_key"],
+      "activityLanding": ["FOF-01", "FOF-02"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-TA-CONFIRMATION",
+      "label": "TA确认与份额资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S18-S22", "FOF-MAT-MAIN:S36-S43"],
+      "provides": ["ta_confirmed_amount", "subscription_nav", "confirmed_shares", "ta_confirmation_state"],
+      "activityLanding": ["FOF-01", "FOF-02"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-CASH-RECEIPT",
+      "label": "资金到账资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S19-S22", "FOF-MAT-INSTRUCTION:S03-S04"],
+      "provides": ["cash_received_amount", "cash_received_state", "receipt_key"],
+      "activityLanding": ["FOF-02"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-SHARE-LEDGER",
+      "label": "份额确认与业务台账资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S18-S22", "FOF-MAT-HOLDING:S02-S05"],
+      "provides": ["opening_shares", "confirmed_shares", "closing_shares", "shares_posted_state"],
+      "activityLanding": ["FOF-01", "FOF-02"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-VALUATION-SNAPSHOT",
+      "label": "当前案例批准 NAV 来源快照",
+      "materialAnchors": ["FOF-MAT-MAIN:S14-S18"],
+      "provides": ["source_id", "source_version", "available_at", "approved_nav", "nav_state"],
+      "activityLanding": ["FOF-03"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-VALUATION-OBJECT",
+      "label": "估值日与对象键资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S14-S18"],
+      "provides": ["valuation_date", "fof_fund_key", "underlying_fund_key"],
+      "activityLanding": ["FOF-03"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-TA-CLOSING",
+      "label": "TA 期末持仓资料组",
+      "materialAnchors": ["FOF-MAT-HOLDING:S08-S11"],
+      "provides": ["ta_closing_shares"],
+      "activityLanding": ["FOF-03"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-INTERNAL-HOLDING",
+      "label": "内部期末持仓资料组",
+      "materialAnchors": ["FOF-MAT-HOLDING:S08-S11"],
+      "provides": ["internal_closing_shares"],
+      "activityLanding": ["FOF-03"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-VALUATION-RESULT",
+      "label": "市值与估值结果资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S14-S18"],
+      "provides": ["calculated_market_value", "valuation_result", "holding_diff", "valuation_diff", "holding_state"],
+      "activityLanding": ["FOF-03"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-RETURN-PARAMETER",
+      "label": "案例本地返还参数资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S23-S28"],
+      "provides": ["return_event_key", "approved_return_base", "approved_return_rate", "confirmed_return_amount"],
+      "activityLanding": ["FOF-04"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-RETURN-CASH",
+      "label": "返还银行实收资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S23-S28"],
+      "provides": ["actual_return_cash"],
+      "activityLanding": ["FOF-04"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-DIVIDEND-CONFIRMATION",
+      "label": "红利确认资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S29-S34"],
+      "provides": ["dividend_event_key", "confirmed_dividend_amount"],
+      "activityLanding": ["FOF-04"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-REINVEST-PARAMETER",
+      "label": "案例本地再投参数资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S29-S34"],
+      "provides": ["approved_reinvest_nav", "reinvest_shares"],
+      "activityLanding": ["FOF-04"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-RETURN-LEDGER",
+      "label": "返还与再投份额台账资料组",
+      "materialAnchors": ["FOF-MAT-HOLDING:S12-S15"],
+      "provides": ["return_opening_shares", "return_closing_shares"],
+      "activityLanding": ["FOF-04"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-RETURN-RECON",
+      "label": "返还与再投结果勾稽资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S23-S34", "FOF-MAT-HOLDING:S12-S15"],
+      "provides": ["return_diff", "return_shares_diff", "return_event_state"],
+      "activityLanding": ["FOF-04"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-REDEMPTION-CONFIRM",
+      "label": "赎回确认与扣减份额资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S44-S49"],
+      "provides": ["redemption_event_key", "redemption_date", "redemption_fof_fund_key", "redemption_underlying_fund_key", "confirmed_redemption_shares", "redemption_nav", "redemption_shares_deducted"],
+      "activityLanding": ["FOF-05"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-REDEMPTION-RECEIVABLE",
+      "label": "赎回毛额、费用边界与应收资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S50-S54"],
+      "provides": ["redemption_gross", "redemption_fee_amount", "fee_policy", "receivable_amount"],
+      "activityLanding": ["FOF-05"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-REDEMPTION-CASH",
+      "label": "赎回银行实收资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S55-S58"],
+      "provides": ["actual_redemption_cash"],
+      "activityLanding": ["FOF-05"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-REDEMPTION-TA-HOLDING",
+      "label": "赎回后 TA 份额台账资料组",
+      "materialAnchors": ["FOF-MAT-HOLDING:S16-S19"],
+      "provides": ["redemption_opening_shares", "redemption_closing_shares", "ta_closing_shares"],
+      "activityLanding": ["FOF-05"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-REDEMPTION-INTERNAL",
+      "label": "赎回后内部持仓资料组",
+      "materialAnchors": ["FOF-MAT-HOLDING:S20-S23"],
+      "provides": ["internal_closing_shares"],
+      "activityLanding": ["FOF-05"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-REDEMPTION-VALUATION-SNAPSHOT",
+      "label": "赎回后批准估值来源快照",
+      "materialAnchors": ["FOF-MAT-MAIN:S59-S64"],
+      "provides": ["valuation_source_id", "valuation_source_version", "approved_valuation_nav"],
+      "activityLanding": ["FOF-05"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-REDEMPTION-RESULT",
+      "label": "赎回后资金、份额、持仓与估值结果资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S55-S64", "FOF-MAT-HOLDING:S20-S23"],
+      "provides": ["cash_diff", "holding_diff", "post_redemption_market_value", "valuation_result", "valuation_diff"],
+      "activityLanding": ["FOF-05"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "sourceGroupId": "FOF-SRC-REDEMPTION-ARCHIVE",
+      "label": "合成正常归档资料组",
+      "materialAnchors": ["FOF-MAT-MAIN:S65-S68"],
+      "provides": ["archive_id", "archive_status", "normal_close_state"],
+      "activityLanding": ["FOF-05"],
+      "provenance": "CASE_POLICY"
+    }
+  ],
+  "stateChain": [
+    {
+      "stateId": "INSTRUCTION_CREATED",
+      "entrySourceGroups": ["FOF-SRC-INSTRUCTION"],
+      "requiredFields": ["case_version", "fof_fund_key", "underlying_fund_key", "instruction_key", "business_date", "instruction_amount"],
+      "teachableIn": ["FOF-01", "FOF-02"],
+      "notSufficientFor": ["TA_CONFIRMED", "CASH_RECEIVED", "SHARES_POSTED"]
+    },
+    {
+      "stateId": "MANAGER_CONFIRMED",
+      "entrySourceGroups": ["FOF-SRC-MANAGER-CONFIRMATION"],
+      "requiredFields": ["manager_confirmed_amount", "manager_confirmation_key", "manager_confirmation_state"],
+      "teachableIn": ["FOF-01", "FOF-02"],
+      "notSufficientFor": ["TA_CONFIRMED", "CASH_RECEIVED", "SHARES_POSTED"]
+    },
+    {
+      "stateId": "TA_CONFIRMED",
+      "entrySourceGroups": ["FOF-SRC-TA-CONFIRMATION"],
+      "requiredFields": ["ta_confirmed_amount", "subscription_nav", "confirmed_shares", "ta_confirmation_state"],
+      "teachableIn": ["FOF-01", "FOF-02"],
+      "note": "这里的 NAV 仅是 TA 确认份额所需的合成申购 NAV，不进入估值价格主链。"
+    },
+    {
+      "stateId": "CASH_RECEIVED",
+      "entrySourceGroups": ["FOF-SRC-CASH-RECEIPT"],
+      "requiredFields": ["cash_received_amount", "cash_received_state", "receipt_key"],
+      "teachableIn": ["FOF-02"],
+      "control": "cash_received_amount 与 ta_confirmed_amount 在本正常案例中差额为 0.00。"
+    },
+    {
+      "stateId": "SHARES_POSTED",
+      "entrySourceGroups": ["FOF-SRC-SHARE-LEDGER", "FOF-SRC-TA-CONFIRMATION"],
+      "requiredFields": ["opening_shares", "confirmed_shares", "closing_shares", "shares_posted_state"],
+      "teachableIn": ["FOF-01", "FOF-02"],
+      "control": "closing_shares = opening_shares + confirmed_shares。"
+    },
+    {
+      "stateId": "NAV_CONFIRMED",
+      "entrySourceGroups": ["FOF-SRC-VALUATION-SNAPSHOT", "FOF-SRC-VALUATION-OBJECT"],
+      "requiredFields": ["valuation_source_id", "valuation_source_version", "valuation_date", "valuation_available_at", "approved_nav"],
+      "teachableIn": ["FOF-03"],
+      "status": "FUTURE_ROUTE_BOUNDARY_ONLY"
+    },
+    {
+      "stateId": "HOLDING_RECONCILED",
+      "entrySourceGroups": ["FOF-SRC-TA-CLOSING", "FOF-SRC-INTERNAL-HOLDING", "FOF-SRC-VALUATION-RESULT"],
+      "requiredFields": ["ta_closing_shares", "internal_closing_shares", "calculated_market_value", "valuation_result", "holding_diff", "valuation_diff", "holding_state"],
+      "teachableIn": ["FOF-03", "FOF-05"],
+      "status": "FUTURE_ROUTE_BOUNDARY_ONLY"
+    },
+    {
+      "stateId": "RESULT_RECONCILED",
+      "entrySourceGroups": ["FOF-SRC-REDEMPTION-RESULT", "FOF-SRC-REDEMPTION-ARCHIVE"],
+      "requiredFields": ["cash_diff", "holding_diff", "valuation_diff", "archive_id", "archive_status", "normal_close_state"],
+      "teachableIn": ["FOF-05"],
+      "status": "ACTIVE_B3_ROUTE_BOUNDARY"
+    }
+  ],
+  "activityLanding": {
+    "FOF-01": {
+      "focus": "母基金、被投基金、指令和来源证据的结构化边界",
+      "stepTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+      "states": ["INSTRUCTION_CREATED", "MANAGER_CONFIRMED", "TA_CONFIRMED", "SHARES_POSTED"],
+      "futureStatesExcluded": ["NAV_CONFIRMED", "HOLDING_RECONCILED", "RESULT_RECONCILED"]
+    },
+    "FOF-02": {
+      "focus": "指令、管理人确认、TA确认、到账、份额确认和台账承接",
+      "stepTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+      "states": ["INSTRUCTION_CREATED", "MANAGER_CONFIRMED", "TA_CONFIRMED", "CASH_RECEIVED", "SHARES_POSTED"],
+      "futureStatesExcluded": ["NAV_CONFIRMED", "HOLDING_RECONCILED", "RESULT_RECONCILED"]
+    },
+    "FOF-03": {
+      "focus": "当前案例批准 NAV 来源、已确认持仓、市值与 TA/内部/估值结果三方勾稽",
+      "stepTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+      "states": ["NAV_CONFIRMED", "HOLDING_RECONCILED"],
+      "futureStatesExcluded": ["RESULT_RECONCILED"]
+    },
+    "FOF-04": {
+      "focus": "返还现金闭环与红利再投资份额闭环的两条案例本地正常事件链",
+      "stepTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+      "states": [],
+      "caseLocalEventFields": ["return_event_key", "dividend_event_key", "return_diff", "return_shares_diff", "return_event_state"],
+      "futureStatesExcluded": ["NAV_CONFIRMED", "HOLDING_RECONCILED", "RESULT_RECONCILED"]
+    },
+    "FOF-05": {
+      "focus": "单一赎回确认、应收、单一实收、份额扣减、TA/内部持仓、赎回后估值结果与合成正常归档",
+      "stepTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+      "states": ["SHARES_POSTED", "NAV_CONFIRMED", "HOLDING_RECONCILED", "RESULT_RECONCILED"],
+      "caseLocalArchiveFields": ["archive_id", "archive_status"],
+      "futureStatesExcluded": []
+    }
+  },
+  "deferBoundary": [
+    "互认基金",
+    "非 FOF 特殊合同",
+    "转换/转托管/强制调整",
+    "具体 T+0 时点和重估",
+    "迟到重复错配和多应收合并到账",
+    "人工凭证、重跑、回滚、重估、重披露、强制关闭",
+    "互认、跨境、停牌、无报价和 T+0 临时行情",
+    "历史费率、正式会计科目、税费和永久化事件状态"
+  ]
+}

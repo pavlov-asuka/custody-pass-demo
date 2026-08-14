@@ -1,0 +1,171 @@
+{
+  "routeId": "ACC-FOF-REDEMPTION-005",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "完成 FOF 正常赎回、结果勾稽与归档",
+  "summary": "从单一赎回确认承接应收和单一实收，扣减份额，复核 TA/内部持仓与赎回后估值结果，完成资金、份额、持仓和估值零差异后正常归档。",
+  "estimatedMinutes": 46,
+  "objectives": [
+    "能从当前案例赎回确认、应收工作纸和银行资料分别读取赎回份额、赎回 NAV、应收金额和实际到账。",
+    "能用 Decimal 计算赎回毛额、应收、cashDiff、份额扣减后的期末份额和 holdingDiff。",
+    "能从赎回后批准估值来源计算 post-redemption market value，核对 valuationDiff，并以合成 archiveId/status 完成正常关闭。"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "FOF05-KC-01",
+          "type": "FLOW",
+          "title": "赎回确认先形成应收再核实实收",
+          "conclusion": "一笔正常赎回确认先给出确认份额和赎回 NAV，再计算 redemptionGross；本案例费用为0.00，receivable=redemptionGross，最后用独立银行实收计算 cashDiff。",
+          "items": [
+            "赎回确认资料、应收工作纸和银行实收资料分别定位。",
+            "redemptionGross=confirmedRedemptionShares×redemptionNAV。",
+            "cashDiff=receivableAmount−actualCash，零差异才可进入结果复核。"
+          ]
+        },
+        {
+          "cardId": "FOF05-KC-02",
+          "type": "KEY_POINT",
+          "title": "赎回份额从台账中扣减",
+          "conclusion": "closingShares=openingShares−confirmedRedemptionShares；TA 期末份额和内部期末份额分别读取，holdingDiff=internalClosingShares−TAClosingShares。",
+          "items": [
+            "赎回扣减份额与赎回应收金额是同一确认事件的两个不同结果。",
+            "期初、扣减、期末和 TA/内部期末份额均为独立工作纸单元。",
+            "份额扣减完成不等于资金、持仓和估值全部复核完成。"
+          ]
+        },
+        {
+          "cardId": "FOF05-KC-03",
+          "type": "CATEGORIES",
+          "title": "赎回后结果验证与正常归档",
+          "conclusion": "批准估值 NAV 只用于赎回后结果验证：postRedemptionMarketValue=closingShares×approvedValuationNAV，valuationDiff=calculatedMarketValue−valuationResult；四项差异均为零并有完整归档证据，才进入 RESULT_RECONCILED。",
+          "items": [
+            "估值来源必须是当前案例赎回后的批准估值快照。",
+            "资金、份额、TA/内部持仓和估值四个控制结果分别为零。",
+            "归档只记录合成 archiveId 和 archiveStatus，不引入真实路径或外部地址。"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "caseVersion": "FOF05-A-EDU-01",
+        "redemptionKey": "RED-FOF05-A-001",
+        "redemptionDate": "2030-06-22",
+        "fofFundKey": "FOF-EDU-I-01",
+        "underlyingFundKey": "FUND-EDU-I-01",
+        "confirmedRedemptionShares": "125000.00",
+        "redemptionNAV": "1.0800",
+        "actualCash": "135000.00",
+        "openingShares": "640000.00",
+        "approvedValuationSource": "SRC-FOF05-A-NAV-001 / NAV-SNAPSHOT-FOF05-A-20300622",
+        "approvedValuationNAV": "1.1200"
+      },
+      "steps": [
+        {"order": 1, "action": "从赎回确认资料读取 RED-FOF05-A-001、2030-06-22、FOF-EDU-I-01/FUND-EDU-I-01、确认赎回125000.00份和赎回 NAV 1.0800。", "reason": "先锁定单一正常赎回事件和对象，保证应收、份额和后续结果属于同一案例。"},
+        {"order": 2, "action": "从应收工作纸读取本案例费用0.00元，计算 redemptionGross=125000.00×1.0800=135000.00元，并确认 receivableAmount=135000.00元。", "reason": "应收金额必须有可复算公式和明确净额边界。"},
+        {"order": 3, "action": "从银行资料读取 actual cash 135000.00元，计算 cashDiff=0.00元；同时登记期初640000.00份、扣减125000.00份和期末515000.00份。", "reason": "一笔实收和一笔赎回扣减分别闭合现金与份额链。"},
+        {"order": 4, "action": "分别读取 TA 与内部期末515000.00份；从当前批准估值快照读取 sourceId SRC-FOF05-A-NAV-001、版本和 approved valuation NAV 1.1200，计算赎回后市值576800.00元。", "reason": "赎回后估值只验证结果，TA/内部持仓仍需独立读取。"},
+        {"order": 5, "action": "计算 holdingDiff=0.00份、valuationDiff=0.00元，核对资金/份额/持仓/估值证据，记录 ARCH-FOF05-A-001、NORMAL_CLOSED 和 RESULT_RECONCILED。", "reason": "只有全部控制结果和合成归档证据齐全，正常赎回才可结束。"}
+      ],
+      "summary": "示范完成赎回确认→应收→单一实收→份额扣减→TA/内部持仓→赎回后估值→四项零差异→合成归档。"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-FOF-REDEMPTION-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "选择分别承载赎回确认、应收工作纸、银行实收、TA/内部持仓和批准估值来源的资料组。",
+          "fieldMappings": [{"fieldId": "fof05-a-source-map", "label": "赎回全链来源", "source": "FOF05 Demo A 正常资料组", "options": [{"optionId": "REDEMPTION_COMPLETE_SOURCE_SET", "text": "赎回确认+应收+银行实收+TA/内部持仓+估值+归档资料组"}, {"optionId": "REDEMPTION_RESULT_ONLY", "text": "只选择最终结果资料"}]}],
+          "answer": ["REDEMPTION_COMPLETE_SOURCE_SET"],
+          "explanation": "正常赎回结果需要多来源证据，不能只凭最终状态。",
+          "hints": ["按确认、应收、实收、持仓、估值和归档角色逐一定位。"]
+        },
+        {
+          "questionId": "ACC-FOF-REDEMPTION-Q-02",
+          "type": "CALCULATION",
+          "prompt": "用确认赎回份额125000.00份、赎回 NAV1.0800元/份和费用0.00元，计算赎回毛额与应收金额。",
+          "calculation": {"fields": [{"fieldId": "fof05-a-redemption-gross", "label": "redemptionGross", "formula": "125000.00×1.0800", "placeholder": "输入赎回毛额", "unit": "元", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof05-a-receivable", "label": "receivableAmount", "formula": "135000.00−0.00", "placeholder": "输入应收金额", "unit": "元", "precision": 2, "tolerance": 0.01}]},
+          "answer": ["135000.00", "135000.00"],
+          "explanation": "本案例无费用，赎回毛额与应收金额均为135000.00元。",
+          "hints": ["先乘份额和赎回 NAV，再按题面费用边界计算应收。"]
+        },
+        {
+          "questionId": "ACC-FOF-REDEMPTION-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "分别登记银行实收、期初份额、扣减份额、TA 期末份额和内部期末份额。",
+          "ledgerEntries": [{"entryId": "ACTUAL_CASH", "direction": "RECEIPT", "label": "实际到账", "amount": "135000.00", "placeholder": "输入实收"}, {"entryId": "OPENING_SHARES", "direction": "CARRY_FORWARD", "label": "期初份额", "amount": "640000.00", "placeholder": "输入期初份额"}, {"entryId": "REDEEMED_SHARES", "direction": "DEDUCT", "label": "扣减份额", "amount": "125000.00", "placeholder": "输入扣减份额"}, {"entryId": "TA_CLOSING", "direction": "READ", "label": "TA期末份额", "amount": "515000.00", "placeholder": "输入TA份额"}, {"entryId": "INTERNAL_CLOSING", "direction": "READ", "label": "内部期末份额", "amount": "515000.00", "placeholder": "输入内部份额"}],
+          "answer": ["ACTUAL_CASH=135000.00", "OPENING_SHARES=640000.00", "REDEEMED_SHARES=125000.00", "TA_CLOSING=515000.00", "INTERNAL_CLOSING=515000.00"],
+          "explanation": "现金、扣减、TA 和内部持仓均为独立结构化台账单元。",
+          "hints": ["不要把实收、份额和状态写进一段自由文本。"]
+        },
+        {
+          "questionId": "ACC-FOF-REDEMPTION-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "完成资金、份额、持仓和赎回后估值结果勾稽，并选择正常关闭状态。",
+          "reconciliation": {"fields": [{"fieldId": "fof05-a-cash-diff", "label": "cashDiff", "kind": "NUMBER", "formula": "135000.00−135000.00", "placeholder": "输入现金差额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof05-a-closing-shares", "label": "closingShares", "kind": "NUMBER", "formula": "640000.00−125000.00", "placeholder": "输入期末份额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof05-a-holding-diff", "label": "holdingDiff", "kind": "NUMBER", "formula": "515000.00−515000.00", "placeholder": "输入持仓差额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof05-a-valuation-diff", "label": "valuationDiff", "kind": "NUMBER", "formula": "576800.00−576800.00", "placeholder": "输入估值差额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof05-a-close-state", "label": "正常关闭状态", "kind": "SELECT", "formula": "四项结果均为零且归档证据齐全", "placeholder": "选择状态", "options": [{"optionId": "RESULT_RECONCILED", "text": "RESULT_RECONCILED"}, {"optionId": "NOT_READY", "text": "尚不能关闭"}]}]},
+          "answer": ["0.00", "515000.00", "0.00", "0.00", "RESULT_RECONCILED"],
+          "explanation": "资金、份额、TA/内部持仓和估值结果全部闭合后才可正常关闭。",
+          "hints": ["分别计算四个结果，不要用状态选择替代数字勾稽。"]
+        },
+        {
+          "questionId": "ACC-FOF-REDEMPTION-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出赎回确认、应收实收、份额扣减、TA/内部持仓、估值和归档的正常结论。",
+          "textInput": {"label": "一句正常结论", "placeholder": "输入不超过一句的结构化结论"},
+          "answer": ["确认125000.00份按1.0800得到应收135000.00元且实收一致，640000.00份扣减为515000.00份，TA/内部和估值均零差异，ARCH-FOF05-A-001为NORMAL_CLOSED并完成RESULT_RECONCILED。"],
+          "explanation": "短句只汇总已经提交的原子结果和合成归档证据。",
+          "hints": ["包含确认、应收实收、份额、持仓、估值和 archiveId/status。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {"role": "FOF赎回结果复核岗", "product": "境内普通开放式基金单一赎回正常案例", "date": "2030-06-23", "purpose": "闭合单一赎回确认、应收实收、份额扣减、持仓与估值结果并完成合成正常归档"},
+      "sourceMaterials": [
+        {"materialId": "FOF05-B-REDEMPTION-CONFIRM", "title": "赎回确认与扣减份额资料", "kind": "CONFIRMATION", "description": "单一正常赎回事件，包含事件键、日期、对象键、确认赎回份额、赎回 NAV 和扣减份额。", "fields": [{"fieldId": "redemptionEventKey", "label": "赎回事件键", "value": "RED-FOF05-B-001"}, {"fieldId": "redemptionDate", "label": "赎回日期", "value": "2030-06-23"}, {"fieldId": "fofFundKey", "label": "FOF母基金键", "value": "FOF-EDU-J-01"}, {"fieldId": "underlyingFundKey", "label": "被投基金键", "value": "FUND-EDU-J-01"}, {"fieldId": "confirmedRedemptionShares", "label": "确认赎回份额", "value": "275000.00", "unit": "份"}, {"fieldId": "redemptionNAV", "label": "赎回NAV", "value": "0.9600", "unit": "元/份"}]},
+        {"materialId": "FOF05-B-RECEIVABLE", "title": "赎回应收工作纸", "kind": "STATEMENT", "description": "本案例明确 NO_FEE_IN_CASE，receivableAmount=redemptionGross。", "fields": [{"fieldId": "redemptionGross", "label": "赎回毛额", "value": "264000.00", "unit": "元"}, {"fieldId": "feeAmount", "label": "本案例费用", "value": "0.00", "unit": "元"}, {"fieldId": "feePolicy", "label": "净额规则", "value": "NO_FEE_IN_CASE"}, {"fieldId": "receivableAmount", "label": "应收金额", "value": "264000.00", "unit": "元"}]},
+        {"materialId": "FOF05-B-CASH", "title": "赎回银行实收资料", "kind": "STATEMENT", "description": "对应单一赎回确认的单一实际到账。", "fields": [{"fieldId": "actualCash", "label": "实际到账", "value": "264000.00", "unit": "元"}]},
+        {"materialId": "FOF05-B-TA-HOLDING", "title": "TA 赎回后份额台账", "kind": "LEDGER", "description": "TA 工作纸中的赎回期初、扣减和期末份额。", "fields": [{"fieldId": "openingShares", "label": "期初份额", "value": "910000.00", "unit": "份"}, {"fieldId": "redeemedShares", "label": "扣减份额", "value": "275000.00", "unit": "份"}, {"fieldId": "taClosingShares", "label": "TA期末份额", "value": "635000.00", "unit": "份"}]},
+        {"materialId": "FOF05-B-INTERNAL-HOLDING", "title": "内部赎回后持仓台账", "kind": "LEDGER", "description": "内部持仓工作纸中的同一案例期末份额。", "fields": [{"fieldId": "internalClosingShares", "label": "内部期末份额", "value": "635000.00", "unit": "份"}]},
+        {"materialId": "FOF05-B-VALUATION-SNAPSHOT", "title": "赎回后批准估值来源快照", "kind": "PARAMETER", "description": "当前案例赎回后批准估值来源，包含 sourceId、版本和批准估值 NAV。", "fields": [{"fieldId": "sourceId", "label": "估值sourceId", "value": "SRC-FOF05-B-NAV-001"}, {"fieldId": "sourceVersion", "label": "估值来源版本", "value": "NAV-SNAPSHOT-FOF05-B-20300623"}, {"fieldId": "approvedValuationNAV", "label": "批准估值NAV", "value": "1.1500", "unit": "元/份"}]},
+        {"materialId": "FOF05-B-VALUATION-RESULT", "title": "赎回后估值结果资料", "kind": "VALUATION", "description": "资料中的赎回后估值结果，供 post-redemption market value 和 valuationDiff 勾稽。", "fields": [{"fieldId": "valuationResult", "label": "估值结果", "value": "730250.00", "unit": "元"}]},
+        {"materialId": "FOF05-B-RESULT-ARCHIVE", "title": "最终勾稽与正常归档证据", "kind": "RECONCILIATION", "description": "承载 cashDiff、holdingDiff、valuationDiff、合成 archiveId/status 和 RESULT_RECONCILED。", "fields": [{"fieldId": "cashDiff", "label": "现金差额", "value": "0.00", "unit": "元"}, {"fieldId": "holdingDiff", "label": "持仓差额", "value": "0.00", "unit": "份"}, {"fieldId": "valuationDiff", "label": "估值差额", "value": "0.00", "unit": "元"}, {"fieldId": "archiveId", "label": "归档ID", "value": "ARCH-FOF05-B-001"}, {"fieldId": "archiveStatus", "label": "归档状态", "value": "NORMAL_CLOSED"}, {"fieldId": "normalCloseState", "label": "正常关闭状态", "value": "RESULT_RECONCILED"}]}
+      ],
+      "workItems": [
+        {"workItemId": "fof05-b-redemption-confirm-source", "type": "FIELD_MAP", "title": "定位赎回确认来源", "instruction": "选择承载 RED-FOF05-B-001、日期、对象键、确认赎回份额和赎回 NAV 的资料。", "response": {"kind": "SELECT", "placeholder": "选择赎回确认来源", "options": [{"optionId": "FOF05_B_REDEMPTION_CONFIRM_SOURCE", "text": "FOF05-B-REDEMPTION-CONFIRM→event/shares/NAV"}, {"optionId": "FOF05_B_RESULT_SOURCE", "text": "FOF05-B-RESULT-ARCHIVE→赎回确认"}]}},
+        {"workItemId": "fof05-b-receivable-source", "type": "FIELD_MAP", "title": "定位应收与净额规则来源", "instruction": "选择承载 redemptionGross、费用0.00、NO_FEE_IN_CASE 和 receivableAmount 的应收工作纸。", "response": {"kind": "SELECT", "placeholder": "选择应收来源", "options": [{"optionId": "FOF05_B_RECEIVABLE_SOURCE", "text": "FOF05-B-RECEIVABLE→gross/fee/receivable"}, {"optionId": "FOF05_B_CASH_SOURCE_AS_RECEIVABLE", "text": "FOF05-B-CASH→receivable"}]}},
+        {"workItemId": "fof05-b-cash-source", "type": "FIELD_MAP", "title": "定位单一银行实收来源", "instruction": "选择承载与本笔赎回确认对应的实际到账264000.00元的银行资料。", "response": {"kind": "SELECT", "placeholder": "选择银行实收来源", "options": [{"optionId": "FOF05_B_CASH_SOURCE", "text": "FOF05-B-CASH→actualCash"}, {"optionId": "FOF05_B_RECEIVABLE_AS_CASH", "text": "FOF05-B-RECEIVABLE→actualCash"}]}},
+        {"workItemId": "fof05-b-ta-holding-source", "type": "FIELD_MAP", "title": "定位 TA 赎回后台账来源", "instruction": "选择承载期初910000.00份、扣减275000.00份和 TA 期末635000.00份的资料。", "response": {"kind": "SELECT", "placeholder": "选择TA台账来源", "options": [{"optionId": "FOF05_B_TA_HOLDING_SOURCE", "text": "FOF05-B-TA-HOLDING→opening/redeemed/TA closing"}, {"optionId": "FOF05_B_INTERNAL_AS_TA_SOURCE", "text": "FOF05-B-INTERNAL-HOLDING→TA closing"}]}},
+        {"workItemId": "fof05-b-internal-holding-source", "type": "FIELD_MAP", "title": "定位内部期末持仓来源", "instruction": "选择承载内部期末635000.00份的独立内部持仓台账。", "response": {"kind": "SELECT", "placeholder": "选择内部持仓来源", "options": [{"optionId": "FOF05_B_INTERNAL_HOLDING_SOURCE", "text": "FOF05-B-INTERNAL-HOLDING→internal closing"}, {"optionId": "FOF05_B_TA_AS_INTERNAL_SOURCE", "text": "FOF05-B-TA-HOLDING→internal closing"}]}},
+        {"workItemId": "fof05-b-valuation-source", "type": "FIELD_MAP", "title": "定位赎回后批准估值来源", "instruction": "选择承载 sourceId SRC-FOF05-B-NAV-001、版本和 approved valuation NAV1.1500的当前案例快照。", "response": {"kind": "SELECT", "placeholder": "选择估值来源", "options": [{"optionId": "FOF05_B_VALUATION_SOURCE", "text": "FOF05-B-VALUATION-SNAPSHOT→sourceId/version/NAV"}, {"optionId": "FOF05_B_VALUATION_RESULT_AS_SOURCE", "text": "FOF05-B-VALUATION-RESULT→approved NAV"}]}},
+        {"workItemId": "fof05-b-archive-source", "type": "FIELD_MAP", "title": "定位最终归档证据来源", "instruction": "选择承载 archiveId ARCH-FOF05-B-001、NORMAL_CLOSED 和 RESULT_RECONCILED 的最终勾稽资料。", "response": {"kind": "SELECT", "placeholder": "选择归档证据来源", "options": [{"optionId": "FOF05_B_ARCHIVE_SOURCE", "text": "FOF05-B-RESULT-ARCHIVE→archiveId/status/state"}, {"optionId": "FOF05_B_CASH_SOURCE_AS_ARCHIVE", "text": "FOF05-B-CASH→archiveId/status/state"}]}},
+        {"workItemId": "fof05-b-confirmed-redemption-shares", "type": "CALCULATION", "title": "读取确认赎回份额", "instruction": "从赎回确认资料读取 confirmed redemption shares 275000.00份。", "response": {"kind": "NUMBER", "placeholder": "输入确认赎回份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof05-b-redemption-nav", "type": "CALCULATION", "title": "读取赎回确认 NAV", "instruction": "从赎回确认资料读取 redemption NAV 0.9600元/份。", "response": {"kind": "NUMBER", "placeholder": "输入赎回NAV", "unit": "元/份", "precision": 4}},
+        {"workItemId": "fof05-b-redemption-gross", "type": "CALCULATION", "title": "计算赎回毛额", "instruction": "用 confirmed redemption shares 275000.00份×redemption NAV 0.9600元/份，以 Decimal 计算 redemptionGross。", "response": {"kind": "NUMBER", "placeholder": "输入redemptionGross", "unit": "元", "precision": 2}},
+        {"workItemId": "fof05-b-receivable-amount", "type": "CALCULATION", "title": "计算赎回应收金额", "instruction": "本案例费用为0.00元；用 redemptionGross 264000.00元−费用0.00元，输入 receivableAmount。", "response": {"kind": "NUMBER", "placeholder": "输入receivableAmount", "unit": "元", "precision": 2}},
+        {"workItemId": "fof05-b-actual-cash", "type": "LEDGER_ENTRY", "title": "登记赎回银行实收", "instruction": "从独立银行资料登记 actual cash 264000.00元。", "response": {"kind": "NUMBER", "placeholder": "输入实际到账", "unit": "元", "precision": 2}},
+        {"workItemId": "fof05-b-cash-diff", "type": "RECONCILIATION", "title": "勾稽应收与实收", "instruction": "用 receivableAmount 264000.00元−actualCash 264000.00元，输入 cashDiff。", "response": {"kind": "NUMBER", "placeholder": "输入cashDiff", "unit": "元", "precision": 2}},
+        {"workItemId": "fof05-b-opening-shares", "type": "LEDGER_ENTRY", "title": "登记赎回期初份额", "instruction": "从 TA 赎回后台账登记 opening shares 910000.00份。", "response": {"kind": "NUMBER", "placeholder": "输入期初份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof05-b-redeemed-shares", "type": "LEDGER_ENTRY", "title": "登记赎回扣减份额", "instruction": "把赎回确认的275000.00份作为独立扣减台账单元登记。", "response": {"kind": "NUMBER", "placeholder": "输入扣减份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof05-b-closing-shares", "type": "CALCULATION", "title": "计算赎回后期末份额", "instruction": "用 opening shares 910000.00份−confirmed redemption shares 275000.00份，输入 closing shares。", "response": {"kind": "NUMBER", "placeholder": "输入期末份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof05-b-ta-closing-shares", "type": "LEDGER_ENTRY", "title": "登记 TA 期末份额", "instruction": "从 TA 赎回后台账独立登记 TA closing shares 635000.00份。", "response": {"kind": "NUMBER", "placeholder": "输入TA期末份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof05-b-internal-closing-shares", "type": "LEDGER_ENTRY", "title": "登记内部期末份额", "instruction": "从内部持仓台账独立登记 internal closing shares 635000.00份。", "response": {"kind": "NUMBER", "placeholder": "输入内部期末份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof05-b-holding-diff", "type": "RECONCILIATION", "title": "勾稽 TA 与内部持仓", "instruction": "用 internal closing shares 635000.00份−TA closing shares 635000.00份，输入 holdingDiff。", "response": {"kind": "NUMBER", "placeholder": "输入holdingDiff", "unit": "份", "precision": 2}},
+        {"workItemId": "fof05-b-approved-valuation-nav", "type": "CALCULATION", "title": "读取赎回后批准估值 NAV", "instruction": "从当前案例批准估值快照读取 approved valuation NAV 1.1500元/份。", "response": {"kind": "NUMBER", "placeholder": "输入批准估值NAV", "unit": "元/份", "precision": 4}},
+        {"workItemId": "fof05-b-post-redemption-market-value", "type": "CALCULATION", "title": "计算赎回后持仓市值", "instruction": "用 closing shares 635000.00份×approved valuation NAV 1.1500元/份，以 Decimal 计算 post-redemption market value。", "response": {"kind": "NUMBER", "placeholder": "输入赎回后市值", "unit": "元", "precision": 2}},
+        {"workItemId": "fof05-b-valuation-result", "type": "LEDGER_ENTRY", "title": "登记资料估值结果", "instruction": "从赎回后估值结果资料独立登记 valuation result 730250.00元。", "response": {"kind": "NUMBER", "placeholder": "输入资料估值结果", "unit": "元", "precision": 2}},
+        {"workItemId": "fof05-b-valuation-diff", "type": "RECONCILIATION", "title": "勾稽赎回后估值结果", "instruction": "用 calculated market value 730250.00元−valuation result 730250.00元，输入 valuationDiff。", "response": {"kind": "NUMBER", "placeholder": "输入valuationDiff", "unit": "元", "precision": 2}},
+        {"workItemId": "fof05-b-archive-status", "type": "RECONCILIATION", "title": "确认合成归档状态", "instruction": "当资金、份额、TA/内部持仓和估值结果均为零差异且归档证据齐全时，选择 NORMAL_CLOSED。", "response": {"kind": "SELECT", "placeholder": "选择归档状态", "options": [{"optionId": "FOF05_B_ARCHIVE_NORMAL_CLOSED", "text": "NORMAL_CLOSED"}, {"optionId": "FOF05_B_ARCHIVE_NOT_READY", "text": "尚不能归档"}]}},
+        {"workItemId": "fof05-b-normal-close-state", "type": "RECONCILIATION", "title": "确认正常关闭状态", "instruction": "完整结果证据与合成 archiveId/status 均齐全时，选择 RESULT_RECONCILED。", "response": {"kind": "SELECT", "placeholder": "选择正常关闭状态", "options": [{"optionId": "FOF05_B_RESULT_RECONCILED", "text": "RESULT_RECONCILED"}, {"optionId": "FOF05_B_RESULT_NOT_READY", "text": "尚不能关闭"}]}},
+        {"workItemId": "fof05-b-conclusion", "type": "SHORT_TEXT", "title": "写出赎回结果与归档结论", "instruction": "用一句短结论说明赎回确认、应收实收、份额扣减、TA/内部持仓、批准估值、四项差额和 archiveId/status；不得用短句替代前面的结构化字段。", "response": {"kind": "TEXT", "placeholder": "输入一句结构化正常结论"}}
+      ],
+      "submissionNote": "逐项提交赎回确认/应收/实收/TA/内部/估值/归档来源、赎回份额、NAV、毛额、应收、实收、cashDiff、期初/扣减/期末份额、holdingDiff、批准估值 NAV、赎回后市值、估值结果、valuationDiff、NORMAL_CLOSED、RESULT_RECONCILED 和一句结论。"
+    }
+  },
+  "references": [
+    {"referenceId": "FOF-REF-REDEMPTION-CONFIRM", "title": "FOF 单一赎回确认与应收实收抽象", "source": "FOF-MAT-MAIN:S44-S58；FOF-EG-05-REDEMPTION-CASH", "usage": "支持确认赎回份额、赎回 NAV、redemptionGross、receivableAmount、单一 actual cash 和 cashDiff。"},
+    {"referenceId": "FOF-REF-REDEMPTION-HOLDING", "title": "FOF 赎回后份额与持仓抽象", "source": "FOF-MAT-HOLDING:S16-S23；FOF-EG-05-REDEMPTION-HOLDING", "usage": "支持 opening/redeemed/closing shares、TA/internal closing shares 和 holdingDiff。"},
+    {"referenceId": "FOF-REF-REDEMPTION-CLOSE", "title": "FOF 赎回后估值结果与合成归档抽象", "source": "FOF-MAT-MAIN:S59-S68；FOF-EG-05-REDEMPTION-CLOSE", "usage": "支持赎回后批准估值 NAV、post-redemption market value、valuationDiff、archiveId/status 和 RESULT_RECONCILED。"}
+  ]
+}

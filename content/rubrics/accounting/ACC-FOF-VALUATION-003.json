@@ -1,0 +1,88 @@
+{
+  "routeId": "ACC-FOF-VALUATION-003",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FOF03-CURRENT-SOURCE-OBJECT", "description": "理解当前案例 sourceId、来源版本、估值日和对象键共同限定批准 NAV 来源", "weight": 13, "evidenceRequirement": "sourceId、sourceVersion、valuationDate 和 FOF/被投基金对象键均来自当前案例资料", "evidenceRules": [{"fieldId": "fof03-b-nav-source-id", "operator": "EQUALS", "expected": "FOF03_B_APPROVED_NAV_SOURCE"}, {"fieldId": "fof03-b-nav-source-version", "operator": "EQUALS", "expected": "FOF03_B_SOURCE_VERSION_CURRENT"}, {"fieldId": "fof03-b-valuation-date", "operator": "EQUALS", "expected": "FOF03_B_DATE_AND_AVAILABLE_AT"}, {"fieldId": "fof03-b-object-keys", "operator": "EQUALS", "expected": "FOF03_B_OBJECT_KEYS"}], "remediationTargetId": "FOF03-TARGET-SOURCE-ID"},
+        {"criterionId": "C-FOF03-APPROVED-NAV", "description": "理解批准 NAV 是当前来源快照的数量定价输入", "weight": 12, "evidenceRequirement": "按四位精度读取本案例 approved NAV 0.9876 元/份", "evidenceRules": [{"fieldId": "fof03-b-approved-nav", "operator": "NUMBER_EQUALS", "expected": 0.9876, "tolerance": 0.00005}], "remediationTargetId": "FOF03-TARGET-APPROVED-NAV"}
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {"criterionId": "P-FOF03-SOURCE-DATE", "description": "按当前案例版本读取 sourceId、版本、估值日和 availableAt", "weight": 7, "evidenceRequirement": "日期与可用时间字段均由当前案例来源组支持", "evidenceRules": [{"fieldId": "fof03-b-nav-source-id", "operator": "EQUALS", "expected": "FOF03_B_APPROVED_NAV_SOURCE"}, {"fieldId": "fof03-b-nav-source-version", "operator": "EQUALS", "expected": "FOF03_B_SOURCE_VERSION_CURRENT"}, {"fieldId": "fof03-b-valuation-date", "operator": "EQUALS", "expected": "FOF03_B_DATE_AND_AVAILABLE_AT"}], "remediationTargetId": "FOF03-TARGET-DATE"},
+        {"criterionId": "P-FOF03-TA-INTERNAL-HOLDING", "description": "分别读取 TA 与内部期末持仓份额", "weight": 8, "evidenceRequirement": "TA closing shares 与 internal closing shares 均为1275000.00份", "evidenceRules": [{"fieldId": "fof03-b-ta-closing-shares", "operator": "NUMBER_EQUALS", "expected": 1275000, "tolerance": 0.01}, {"fieldId": "fof03-b-internal-closing-shares", "operator": "NUMBER_EQUALS", "expected": 1275000, "tolerance": 0.01}], "remediationTargetId": "FOF03-TARGET-TA-HOLDING"},
+        {"criterionId": "P-FOF03-MARKET-VALUE", "description": "用已确认份额和批准 NAV 计算市值", "weight": 8, "evidenceRequirement": "1275000.00份×0.9876元/份=1259190.00元", "evidenceRules": [{"fieldId": "fof03-b-market-value", "operator": "NUMBER_EQUALS", "expected": 1259190, "tolerance": 0.01}], "remediationTargetId": "FOF03-TARGET-MARKET-VALUE"},
+        {"criterionId": "P-FOF03-STATE-BOUNDARY", "description": "在来源确认和三方结果完成后落到两个正常状态", "weight": 7, "evidenceRequirement": "分别选择 NAV_CONFIRMED 和 HOLDING_RECONCILED", "evidenceRules": [{"fieldId": "fof03-b-nav-confirmed-state", "operator": "EQUALS", "expected": "FOF03_B_NAV_CONFIRMED"}, {"fieldId": "fof03-b-holding-reconciled-state", "operator": "EQUALS", "expected": "FOF03_B_HOLDING_RECONCILED"}], "remediationTargetId": "FOF03-TARGET-STATE"}
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "R-FOF03-HOLDING-ZERO", "description": "控制 TA 与内部份额必须零差异后才承接持仓状态", "weight": 13, "evidenceRequirement": "holdingDiff=internalShares−TAShares=0.00份", "evidenceRules": [{"fieldId": "fof03-b-holding-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof03-b-holding-reconciled-state", "operator": "EQUALS", "expected": "FOF03_B_HOLDING_RECONCILED"}], "remediationTargetId": "FOF03-TARGET-HOLDING-DIFF"},
+        {"criterionId": "R-FOF03-VALUE-ZERO", "description": "控制计算市值与资料估值结果必须零差异", "weight": 12, "evidenceRequirement": "valuationDiff=calculatedMarketValue−valuationResult=0.00元", "evidenceRules": [{"fieldId": "fof03-b-valuation-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof03-b-market-value", "operator": "NUMBER_EQUALS", "expected": 1259190, "tolerance": 0.01}], "remediationTargetId": "FOF03-TARGET-VALUATION-DIFF"}
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {"criterionId": "E-FOF03-TRACEABLE-CONCLUSION", "description": "用一条短句汇总当前来源、对象、数量、金额和状态边界", "weight": 20, "evidenceRequirement": "短结论包含 sourceId、版本、估值日、对象键、approved NAV、份额、市值、两个差额和两个状态", "evidenceRules": [{"fieldId": "fof03-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["SRC-FOF03-B-NAV-001", "NAV-SNAPSHOT-B-20300619", "2030-06-19", "FOF-EDU-F-01", "FUND-EDU-F-01", "0.9876", "1275000.00", "1259190.00", "0.00", "NAV_CONFIRMED", "HOLDING_RECONCILED"]}], "remediationTargetId": "FOF03-TARGET-CONCLUSION"}
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FOF03-SOURCE-VERSION-OBJECT-DATE", "description": "当前案例批准 NAV 来源版本、对象键和估值日必须全部正确", "evidenceRequirement": "sourceId、当前 sourceVersion、估值日与 FOF/被投基金对象键形成同一案例来源链", "evidenceRules": [{"fieldId": "fof03-b-nav-source-id", "operator": "EQUALS", "expected": "FOF03_B_APPROVED_NAV_SOURCE"}, {"fieldId": "fof03-b-nav-source-version", "operator": "EQUALS", "expected": "FOF03_B_SOURCE_VERSION_CURRENT"}, {"fieldId": "fof03-b-valuation-date", "operator": "EQUALS", "expected": "FOF03_B_DATE_AND_AVAILABLE_AT"}, {"fieldId": "fof03-b-object-keys", "operator": "EQUALS", "expected": "FOF03_B_OBJECT_KEYS"}], "remediationTargetId": "FOF03-TARGET-SOURCE-ID"},
+    {"requirementId": "M-FOF03-THREE-WAY-ZERO-DIFF", "description": "TA、内部持仓和估值结果三方数量金额必须零差异", "evidenceRequirement": "TA/内部份额、marketValue、holdingDiff、valuationDiff 均按当前案例答案链闭合", "evidenceRules": [{"fieldId": "fof03-b-ta-closing-shares", "operator": "NUMBER_EQUALS", "expected": 1275000, "tolerance": 0.01}, {"fieldId": "fof03-b-internal-closing-shares", "operator": "NUMBER_EQUALS", "expected": 1275000, "tolerance": 0.01}, {"fieldId": "fof03-b-market-value", "operator": "NUMBER_EQUALS", "expected": 1259190, "tolerance": 0.01}, {"fieldId": "fof03-b-holding-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof03-b-valuation-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof03-b-holding-reconciled-state", "operator": "EQUALS", "expected": "FOF03_B_HOLDING_RECONCILED"}], "remediationTargetId": "FOF03-TARGET-HOLDING-DIFF"}
+  ],
+  "remediationTargets": [
+    {"targetId": "FOF03-TARGET-SOURCE-ID", "title": "补学当前批准 NAV 来源 ID", "reason": "不能从当前案例快照定位 sourceId", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-nav-source-id", "questionId": "ACC-FOF-VALUATION-Q-01"},
+    {"targetId": "FOF03-TARGET-SOURCE-VERSION", "title": "补学来源版本", "reason": "把非当前版本当成批准 NAV 来源", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-nav-source-version", "questionId": "ACC-FOF-VALUATION-Q-01"},
+    {"targetId": "FOF03-TARGET-DATE", "title": "补学估值日与可用时间", "reason": "不能把估值日和 availableAt 绑定到当前案例", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-valuation-date", "questionId": "ACC-FOF-VALUATION-Q-01"},
+    {"targetId": "FOF03-TARGET-OBJECT", "title": "补学估值对象键", "reason": "FOF 母基金键或被投基金键读取错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-object-keys", "questionId": "ACC-FOF-VALUATION-Q-01"},
+    {"targetId": "FOF03-TARGET-APPROVED-NAV", "title": "补学批准 NAV 读取", "reason": "批准 NAV 数值或精度读取错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-approved-nav", "questionId": "ACC-FOF-VALUATION-Q-02"},
+    {"targetId": "FOF03-TARGET-TA-HOLDING", "title": "补学 TA 期末份额", "reason": "TA closing shares 读取或登记错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-ta-closing-shares", "questionId": "ACC-FOF-VALUATION-Q-03"},
+    {"targetId": "FOF03-TARGET-INTERNAL-HOLDING", "title": "补学内部期末份额", "reason": "内部 closing shares 读取或登记错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-internal-closing-shares", "questionId": "ACC-FOF-VALUATION-Q-03"},
+    {"targetId": "FOF03-TARGET-MARKET-VALUE", "title": "补学市值计算", "reason": "不能用已确认份额和批准 NAV 复算 marketValue", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-market-value", "questionId": "ACC-FOF-VALUATION-Q-02"},
+    {"targetId": "FOF03-TARGET-HOLDING-DIFF", "title": "补学持仓数量勾稽", "reason": "holdingDiff 计算或零差异判断错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-holding-diff", "questionId": "ACC-FOF-VALUATION-Q-04"},
+    {"targetId": "FOF03-TARGET-VALUATION-DIFF", "title": "补学估值金额勾稽", "reason": "valuationDiff 计算或零差异判断错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-valuation-diff", "questionId": "ACC-FOF-VALUATION-Q-04"},
+    {"targetId": "FOF03-TARGET-NAV-STATE", "title": "补学 NAV_CONFIRMED 状态", "reason": "来源条件完整后仍不能判断 NAV_CONFIRMED", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-nav-confirmed-state", "questionId": "ACC-FOF-VALUATION-Q-04"},
+    {"targetId": "FOF03-TARGET-STATE", "title": "补学 HOLDING_RECONCILED 状态", "reason": "三方零差异后不能判断正常持仓承接状态", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-holding-reconciled-state", "questionId": "ACC-FOF-VALUATION-Q-04"},
+    {"targetId": "FOF03-TARGET-CONCLUSION", "title": "补写估值三方短结论", "reason": "短结论缺少来源、对象、数量、金额或状态", "materialStep": "DEMONSTRATION", "materialItemId": "fof03-b-conclusion", "questionId": "ACC-FOF-VALUATION-Q-05"}
+  ],
+  "referenceAnswer": {
+    "fixtureId": "FOF03-FIXTURE-COMP-B",
+    "responses": {
+      "fof03-b-nav-source-id": "FOF03_B_APPROVED_NAV_SOURCE",
+      "fof03-b-nav-source-version": "FOF03_B_SOURCE_VERSION_CURRENT",
+      "fof03-b-valuation-date": "FOF03_B_DATE_AND_AVAILABLE_AT",
+      "fof03-b-object-keys": "FOF03_B_OBJECT_KEYS",
+      "fof03-b-approved-nav": 0.9876,
+      "fof03-b-ta-closing-shares": 1275000,
+      "fof03-b-internal-closing-shares": 1275000,
+      "fof03-b-market-value": 1259190,
+      "fof03-b-holding-diff": 0,
+      "fof03-b-valuation-diff": 0,
+      "fof03-b-nav-confirmed-state": "FOF03_B_NAV_CONFIRMED",
+      "fof03-b-holding-reconciled-state": "FOF03_B_HOLDING_RECONCILED",
+      "fof03-b-conclusion": "sourceId SRC-FOF03-B-NAV-001 version NAV-SNAPSHOT-B-20300619 valuationDate 2030-06-19 availableAt 2030-06-19T18:15:00+08:00 object FOF-EDU-F-01 FUND-EDU-F-01 approved NAV 0.9876 TA 1275000.00 internal 1275000.00 marketValue 1259190.00 holdingDiff 0.00 valuationDiff 0.00 NAV_CONFIRMED HOLDING_RECONCILED。"
+    },
+    "responseMeta": {
+      "fof03-b-approved-nav": {"kind": "NUMBER", "unit": "元/份", "precision": 4, "tolerance": 0.00005},
+      "fof03-b-ta-closing-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof03-b-internal-closing-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof03-b-market-value": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof03-b-holding-diff": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof03-b-valuation-diff": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01}
+    },
+    "decimalChain": {"marketValue": "1275000.00 × 0.9876 = 1259190.00", "holdingDiff": "1275000.00 − 1275000.00 = 0.00", "valuationDiff": "1259190.00 − 1259190.00 = 0.00"},
+    "reconciliation": {"sourceId": "SRC-FOF03-B-NAV-001", "valuationDate": "2030-06-19", "navState": "NAV_CONFIRMED", "holdingState": "HOLDING_RECONCILED"}
+  }
+}

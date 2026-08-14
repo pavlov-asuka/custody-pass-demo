@@ -129,7 +129,11 @@ class LearningFlowApplicationTests {
                 .andExpect(jsonPath("$.regions[0].modules[4].nodes.length()").value(5))
                 .andExpect(jsonPath("$.regions[0].modules[4].nodes[0].routeId").value("ACC-ED-WORKPAPER-001"))
                 .andExpect(jsonPath("$.regions[0].modules[4].nodes[4].routeId").value("ACC-ED-UPDATES-005"))
-                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(30));
+                .andExpect(jsonPath("$.regions[0].modules[7].moduleId").value("ACC-MODULE-FOF"))
+                .andExpect(jsonPath("$.regions[0].modules[7].nodes.length()").value(5))
+                .andExpect(jsonPath("$.regions[0].modules[7].nodes[0].routeId").value("ACC-FOF-BOUNDARY-001"))
+                .andExpect(jsonPath("$.regions[0].modules[7].nodes[4].routeId").value("ACC-FOF-REDEMPTION-005"))
+                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(35));
     }
 
     @Test

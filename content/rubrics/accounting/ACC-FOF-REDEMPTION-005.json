@@ -1,0 +1,124 @@
+{
+  "routeId": "ACC-FOF-REDEMPTION-005",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FOF05-SOURCE-ROLES", "description": "理解赎回确认、应收、单一实收、TA、内部、估值和归档资料各自的业务角色", "weight": 13, "evidenceRequirement": "七个来源映射分别正确，不能用结果资料替代原始资料", "evidenceRules": [{"fieldId": "fof05-b-redemption-confirm-source", "operator": "EQUALS", "expected": "FOF05_B_REDEMPTION_CONFIRM_SOURCE"}, {"fieldId": "fof05-b-receivable-source", "operator": "EQUALS", "expected": "FOF05_B_RECEIVABLE_SOURCE"}, {"fieldId": "fof05-b-cash-source", "operator": "EQUALS", "expected": "FOF05_B_CASH_SOURCE"}, {"fieldId": "fof05-b-ta-holding-source", "operator": "EQUALS", "expected": "FOF05_B_TA_HOLDING_SOURCE"}, {"fieldId": "fof05-b-internal-holding-source", "operator": "EQUALS", "expected": "FOF05_B_INTERNAL_HOLDING_SOURCE"}, {"fieldId": "fof05-b-valuation-source", "operator": "EQUALS", "expected": "FOF05_B_VALUATION_SOURCE"}, {"fieldId": "fof05-b-archive-source", "operator": "EQUALS", "expected": "FOF05_B_ARCHIVE_SOURCE"}], "remediationTargetId": "FOF05-TARGET-REDEMPTION-SOURCE"},
+        {"criterionId": "C-FOF05-REDEMPTION-PARAMETERS", "description": "理解确认赎回份额和赎回 NAV 是应收与份额扣减的共同输入", "weight": 12, "evidenceRequirement": "按题面精度读取275000.00份和0.9600元/份", "evidenceRules": [{"fieldId": "fof05-b-confirmed-redemption-shares", "operator": "NUMBER_EQUALS", "expected": 275000, "tolerance": 0.01}, {"fieldId": "fof05-b-redemption-nav", "operator": "NUMBER_EQUALS", "expected": 0.96, "tolerance": 0.00005}], "remediationTargetId": "FOF05-TARGET-REDEMPTION-SHARES"}
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {"criterionId": "P-FOF05-RECEIVABLE-CASH", "description": "计算赎回毛额和应收并登记独立实收", "weight": 8, "evidenceRequirement": "275000.00×0.9600=264000.00元，费用0.00元，应收264000.00元，实收264000.00元", "evidenceRules": [{"fieldId": "fof05-b-redemption-gross", "operator": "NUMBER_EQUALS", "expected": 264000, "tolerance": 0.01}, {"fieldId": "fof05-b-receivable-amount", "operator": "NUMBER_EQUALS", "expected": 264000, "tolerance": 0.01}, {"fieldId": "fof05-b-actual-cash", "operator": "NUMBER_EQUALS", "expected": 264000, "tolerance": 0.01}], "remediationTargetId": "FOF05-TARGET-REDEMPTION-GROSS"},
+        {"criterionId": "P-FOF05-SHARE-DEDUCTION", "description": "完成赎回份额扣减并得到期末份额", "weight": 8, "evidenceRequirement": "opening910000.00份−redeemed275000.00份=closing635000.00份", "evidenceRules": [{"fieldId": "fof05-b-opening-shares", "operator": "NUMBER_EQUALS", "expected": 910000, "tolerance": 0.01}, {"fieldId": "fof05-b-redeemed-shares", "operator": "NUMBER_EQUALS", "expected": 275000, "tolerance": 0.01}, {"fieldId": "fof05-b-closing-shares", "operator": "NUMBER_EQUALS", "expected": 635000, "tolerance": 0.01}], "remediationTargetId": "FOF05-TARGET-CLOSING-SHARES"},
+        {"criterionId": "P-FOF05-TA-INTERNAL-HOLDING", "description": "分别登记赎回后 TA 与内部期末持仓", "weight": 7, "evidenceRequirement": "TA closing shares 与 internal closing shares 均为635000.00份", "evidenceRules": [{"fieldId": "fof05-b-ta-closing-shares", "operator": "NUMBER_EQUALS", "expected": 635000, "tolerance": 0.01}, {"fieldId": "fof05-b-internal-closing-shares", "operator": "NUMBER_EQUALS", "expected": 635000, "tolerance": 0.01}], "remediationTargetId": "FOF05-TARGET-TA-HOLDING"},
+        {"criterionId": "P-FOF05-POST-REDEMPTION-VALUATION", "description": "读取批准估值 NAV、资料估值结果并计算赎回后市值", "weight": 7, "evidenceRequirement": "1.1500元/份×635000.00份=730250.00元，并独立读取资料估值结果", "evidenceRules": [{"fieldId": "fof05-b-approved-valuation-nav", "operator": "NUMBER_EQUALS", "expected": 1.15, "tolerance": 0.00005}, {"fieldId": "fof05-b-post-redemption-market-value", "operator": "NUMBER_EQUALS", "expected": 730250, "tolerance": 0.01}, {"fieldId": "fof05-b-valuation-result", "operator": "NUMBER_EQUALS", "expected": 730250, "tolerance": 0.01}], "remediationTargetId": "FOF05-TARGET-MARKET-VALUE"}
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "R-FOF05-CASH-CLOSE", "description": "控制赎回应收与单一实收零差异后才可正常关闭", "weight": 13, "evidenceRequirement": "cashDiff=0.00且归档状态为NORMAL_CLOSED", "evidenceRules": [{"fieldId": "fof05-b-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof05-b-archive-status", "operator": "EQUALS", "expected": "FOF05_B_ARCHIVE_NORMAL_CLOSED"}], "remediationTargetId": "FOF05-TARGET-CASH-DIFF"},
+        {"criterionId": "R-FOF05-ALL-RESULTS-CLOSE", "description": "控制 TA/内部持仓、赎回后估值和归档证据全部零差异后才进入结果状态", "weight": 12, "evidenceRequirement": "holdingDiff、valuationDiff为0.00，归档证据齐全并选择RESULT_RECONCILED", "evidenceRules": [{"fieldId": "fof05-b-holding-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof05-b-valuation-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof05-b-normal-close-state", "operator": "EQUALS", "expected": "FOF05_B_RESULT_RECONCILED"}], "remediationTargetId": "FOF05-TARGET-NORMAL-CLOSE"}
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {"criterionId": "E-FOF05-TRACEABLE-CONCLUSION", "description": "用一句短结论汇总赎回、四项结果控制和合成归档", "weight": 20, "evidenceRequirement": "短结论包含确认、NAV、应收实收、期初/扣减/期末份额、TA/内部、估值、四项差额和archiveId/status", "evidenceRules": [{"fieldId": "fof05-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["RED-FOF05-B-001", "275000.00", "0.9600", "264000.00", "cashDiff", "910000.00", "635000.00", "holdingDiff", "SRC-FOF05-B-NAV-001", "1.1500", "730250.00", "valuationDiff", "0.00", "ARCH-FOF05-B-001", "NORMAL_CLOSED", "RESULT_RECONCILED"]}], "remediationTargetId": "FOF05-TARGET-CONCLUSION"}
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FOF05-REDEMPTION-CASH-SHARES", "description": "赎回确认、应收、单一实收与份额扣减必须完整闭合", "evidenceRequirement": "确认来源、应收来源、实收来源、确认份额、赎回 NAV、毛额、应收、实际到账、cashDiff、期初/扣减/期末份额均正确", "evidenceRules": [{"fieldId": "fof05-b-redemption-confirm-source", "operator": "EQUALS", "expected": "FOF05_B_REDEMPTION_CONFIRM_SOURCE"}, {"fieldId": "fof05-b-receivable-source", "operator": "EQUALS", "expected": "FOF05_B_RECEIVABLE_SOURCE"}, {"fieldId": "fof05-b-cash-source", "operator": "EQUALS", "expected": "FOF05_B_CASH_SOURCE"}, {"fieldId": "fof05-b-confirmed-redemption-shares", "operator": "NUMBER_EQUALS", "expected": 275000, "tolerance": 0.01}, {"fieldId": "fof05-b-redemption-nav", "operator": "NUMBER_EQUALS", "expected": 0.96, "tolerance": 0.00005}, {"fieldId": "fof05-b-redemption-gross", "operator": "NUMBER_EQUALS", "expected": 264000, "tolerance": 0.01}, {"fieldId": "fof05-b-receivable-amount", "operator": "NUMBER_EQUALS", "expected": 264000, "tolerance": 0.01}, {"fieldId": "fof05-b-actual-cash", "operator": "NUMBER_EQUALS", "expected": 264000, "tolerance": 0.01}, {"fieldId": "fof05-b-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof05-b-opening-shares", "operator": "NUMBER_EQUALS", "expected": 910000, "tolerance": 0.01}, {"fieldId": "fof05-b-redeemed-shares", "operator": "NUMBER_EQUALS", "expected": 275000, "tolerance": 0.01}, {"fieldId": "fof05-b-closing-shares", "operator": "NUMBER_EQUALS", "expected": 635000, "tolerance": 0.01}], "remediationTargetId": "FOF05-TARGET-CLOSING-SHARES"},
+    {"requirementId": "M-FOF05-ALL-RESULTS-CLOSE", "description": "TA/内部持仓、赎回后估值、资金和归档证据必须全部零差异后正常结束", "evidenceRequirement": "TA/内部来源、估值来源、TA/internal closing shares、批准估值 NAV、市值、资料估值结果、holdingDiff、valuationDiff、归档来源、NORMAL_CLOSED 和 RESULT_RECONCILED 均正确", "evidenceRules": [{"fieldId": "fof05-b-ta-holding-source", "operator": "EQUALS", "expected": "FOF05_B_TA_HOLDING_SOURCE"}, {"fieldId": "fof05-b-internal-holding-source", "operator": "EQUALS", "expected": "FOF05_B_INTERNAL_HOLDING_SOURCE"}, {"fieldId": "fof05-b-valuation-source", "operator": "EQUALS", "expected": "FOF05_B_VALUATION_SOURCE"}, {"fieldId": "fof05-b-archive-source", "operator": "EQUALS", "expected": "FOF05_B_ARCHIVE_SOURCE"}, {"fieldId": "fof05-b-ta-closing-shares", "operator": "NUMBER_EQUALS", "expected": 635000, "tolerance": 0.01}, {"fieldId": "fof05-b-internal-closing-shares", "operator": "NUMBER_EQUALS", "expected": 635000, "tolerance": 0.01}, {"fieldId": "fof05-b-holding-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof05-b-approved-valuation-nav", "operator": "NUMBER_EQUALS", "expected": 1.15, "tolerance": 0.00005}, {"fieldId": "fof05-b-post-redemption-market-value", "operator": "NUMBER_EQUALS", "expected": 730250, "tolerance": 0.01}, {"fieldId": "fof05-b-valuation-result", "operator": "NUMBER_EQUALS", "expected": 730250, "tolerance": 0.01}, {"fieldId": "fof05-b-valuation-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof05-b-archive-status", "operator": "EQUALS", "expected": "FOF05_B_ARCHIVE_NORMAL_CLOSED"}, {"fieldId": "fof05-b-normal-close-state", "operator": "EQUALS", "expected": "FOF05_B_RESULT_RECONCILED"}], "remediationTargetId": "FOF05-TARGET-NORMAL-CLOSE"}
+  ],
+  "remediationTargets": [
+    {"targetId": "FOF05-TARGET-REDEMPTION-SOURCE", "title": "补学赎回确认来源", "reason": "不能从赎回确认资料定位事件、对象、份额和 NAV", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-redemption-confirm-source", "questionId": "ACC-FOF-REDEMPTION-Q-01"},
+    {"targetId": "FOF05-TARGET-RECEIVABLE-SOURCE", "title": "补学应收工作纸来源", "reason": "不能定位毛额、费用边界和应收金额资料", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-receivable-source", "questionId": "ACC-FOF-REDEMPTION-Q-01"},
+    {"targetId": "FOF05-TARGET-CASH-SOURCE", "title": "补学单一实收来源", "reason": "把应收金额当成银行实际到账来源", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-cash-source", "questionId": "ACC-FOF-REDEMPTION-Q-01"},
+    {"targetId": "FOF05-TARGET-TA-SOURCE", "title": "补学 TA 台账来源", "reason": "不能从 TA 台账定位期初、扣减和期末份额", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-ta-holding-source", "questionId": "ACC-FOF-REDEMPTION-Q-01"},
+    {"targetId": "FOF05-TARGET-INTERNAL-SOURCE", "title": "补学内部持仓来源", "reason": "不能从独立内部台账定位期末份额", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-internal-holding-source", "questionId": "ACC-FOF-REDEMPTION-Q-01"},
+    {"targetId": "FOF05-TARGET-VALUATION-SOURCE", "title": "补学赎回后估值来源", "reason": "不能定位当前案例批准估值 sourceId、版本和 NAV", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-valuation-source", "questionId": "ACC-FOF-REDEMPTION-Q-01"},
+    {"targetId": "FOF05-TARGET-ARCHIVE-SOURCE", "title": "补学归档证据来源", "reason": "不能定位合成 archiveId/status 和结果状态资料", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-archive-source", "questionId": "ACC-FOF-REDEMPTION-Q-01"},
+    {"targetId": "FOF05-TARGET-REDEMPTION-SHARES", "title": "补学确认赎回份额", "reason": "确认赎回份额读取或单位错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-confirmed-redemption-shares", "questionId": "ACC-FOF-REDEMPTION-Q-02"},
+    {"targetId": "FOF05-TARGET-REDEMPTION-NAV", "title": "补学赎回确认 NAV", "reason": "赎回 NAV 读取或精度错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-redemption-nav", "questionId": "ACC-FOF-REDEMPTION-Q-02"},
+    {"targetId": "FOF05-TARGET-REDEMPTION-GROSS", "title": "补学赎回毛额计算", "reason": "不能用确认份额×赎回 NAV 计算毛额", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-redemption-gross", "questionId": "ACC-FOF-REDEMPTION-Q-02"},
+    {"targetId": "FOF05-TARGET-RECEIVABLE", "title": "补学赎回应收计算", "reason": "费用边界或应收金额计算错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-receivable-amount", "questionId": "ACC-FOF-REDEMPTION-Q-02"},
+    {"targetId": "FOF05-TARGET-ACTUAL-CASH", "title": "补学银行实收登记", "reason": "实际到账没有独立落到账务工作纸", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-actual-cash", "questionId": "ACC-FOF-REDEMPTION-Q-03"},
+    {"targetId": "FOF05-TARGET-CASH-DIFF", "title": "补学应收实收勾稽", "reason": "cashDiff 计算或零差异判断错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-cash-diff", "questionId": "ACC-FOF-REDEMPTION-Q-04"},
+    {"targetId": "FOF05-TARGET-OPENING-SHARES", "title": "补学赎回期初份额", "reason": "期初份额读取或登记错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-opening-shares", "questionId": "ACC-FOF-REDEMPTION-Q-03"},
+    {"targetId": "FOF05-TARGET-REDEEMED-SHARES", "title": "补学赎回扣减份额", "reason": "确认赎回份额没有作为独立扣减单元登记", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-redeemed-shares", "questionId": "ACC-FOF-REDEMPTION-Q-03"},
+    {"targetId": "FOF05-TARGET-CLOSING-SHARES", "title": "补学赎回后期末份额", "reason": "不能用期初份额减赎回份额得到期末份额", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-closing-shares", "questionId": "ACC-FOF-REDEMPTION-Q-04"},
+    {"targetId": "FOF05-TARGET-TA-HOLDING", "title": "补学 TA 期末持仓", "reason": "TA closing shares 读取或登记错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-ta-closing-shares", "questionId": "ACC-FOF-REDEMPTION-Q-03"},
+    {"targetId": "FOF05-TARGET-INTERNAL-HOLDING", "title": "补学内部期末持仓", "reason": "内部 closing shares 读取或登记错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-internal-closing-shares", "questionId": "ACC-FOF-REDEMPTION-Q-03"},
+    {"targetId": "FOF05-TARGET-HOLDING-DIFF", "title": "补学 TA/内部持仓勾稽", "reason": "holdingDiff 计算或零差异判断错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-holding-diff", "questionId": "ACC-FOF-REDEMPTION-Q-04"},
+    {"targetId": "FOF05-TARGET-VALUATION-NAV", "title": "补学赎回后批准估值 NAV", "reason": "批准估值 NAV 读取或精度错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-approved-valuation-nav", "questionId": "ACC-FOF-REDEMPTION-Q-04"},
+    {"targetId": "FOF05-TARGET-MARKET-VALUE", "title": "补学赎回后市值计算", "reason": "不能用期末份额×批准估值 NAV 计算赎回后市值", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-post-redemption-market-value", "questionId": "ACC-FOF-REDEMPTION-Q-04"},
+    {"targetId": "FOF05-TARGET-VALUATION-RESULT", "title": "补学资料估值结果登记", "reason": "资料估值结果没有独立登记", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-valuation-result", "questionId": "ACC-FOF-REDEMPTION-Q-04"},
+    {"targetId": "FOF05-TARGET-VALUATION-DIFF", "title": "补学赎回后估值勾稽", "reason": "valuationDiff 计算或零差异判断错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-valuation-diff", "questionId": "ACC-FOF-REDEMPTION-Q-04"},
+    {"targetId": "FOF05-TARGET-ARCHIVE-STATUS", "title": "补学正常归档状态", "reason": "完整结果证据齐全后不能判断 NORMAL_CLOSED", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-archive-status", "questionId": "ACC-FOF-REDEMPTION-Q-04"},
+    {"targetId": "FOF05-TARGET-NORMAL-CLOSE", "title": "补学 RESULT_RECONCILED 状态", "reason": "四项结果和归档证据齐全后不能判断正常关闭", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-normal-close-state", "questionId": "ACC-FOF-REDEMPTION-Q-04"},
+    {"targetId": "FOF05-TARGET-CONCLUSION", "title": "补写赎回归档短结论", "reason": "短结论缺少赎回、差额或归档信息", "materialStep": "DEMONSTRATION", "materialItemId": "fof05-b-conclusion", "questionId": "ACC-FOF-REDEMPTION-Q-05"}
+  ],
+  "referenceAnswer": {
+    "fixtureId": "FOF05-FIXTURE-COMP-B",
+    "responses": {
+      "fof05-b-redemption-confirm-source": "FOF05_B_REDEMPTION_CONFIRM_SOURCE",
+      "fof05-b-receivable-source": "FOF05_B_RECEIVABLE_SOURCE",
+      "fof05-b-cash-source": "FOF05_B_CASH_SOURCE",
+      "fof05-b-ta-holding-source": "FOF05_B_TA_HOLDING_SOURCE",
+      "fof05-b-internal-holding-source": "FOF05_B_INTERNAL_HOLDING_SOURCE",
+      "fof05-b-valuation-source": "FOF05_B_VALUATION_SOURCE",
+      "fof05-b-archive-source": "FOF05_B_ARCHIVE_SOURCE",
+      "fof05-b-confirmed-redemption-shares": 275000,
+      "fof05-b-redemption-nav": 0.96,
+      "fof05-b-redemption-gross": 264000,
+      "fof05-b-receivable-amount": 264000,
+      "fof05-b-actual-cash": 264000,
+      "fof05-b-cash-diff": 0,
+      "fof05-b-opening-shares": 910000,
+      "fof05-b-redeemed-shares": 275000,
+      "fof05-b-closing-shares": 635000,
+      "fof05-b-ta-closing-shares": 635000,
+      "fof05-b-internal-closing-shares": 635000,
+      "fof05-b-holding-diff": 0,
+      "fof05-b-approved-valuation-nav": 1.15,
+      "fof05-b-post-redemption-market-value": 730250,
+      "fof05-b-valuation-result": 730250,
+      "fof05-b-valuation-diff": 0,
+      "fof05-b-archive-status": "FOF05_B_ARCHIVE_NORMAL_CLOSED",
+      "fof05-b-normal-close-state": "FOF05_B_RESULT_RECONCILED",
+      "fof05-b-conclusion": "RED-FOF05-B-001 confirmed 275000.00份 at redemption NAV 0.9600, receivable and actual cash 264000.00元 with cashDiff=0.00; opening 910000.00份 less redeemed 275000.00份 gives closing 635000.00份, TA/internal holdingDiff=0.00; sourceId SRC-FOF05-B-NAV-001 approved valuation NAV 1.1500 gives post-redemption market value 730250.00元, valuationDiff=0.00, archiveId ARCH-FOF05-B-001 NORMAL_CLOSED RESULT_RECONCILED。"
+    },
+    "responseMeta": {
+      "fof05-b-confirmed-redemption-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof05-b-redemption-nav": {"kind": "NUMBER", "unit": "元/份", "precision": 4, "tolerance": 0.00005},
+      "fof05-b-redemption-gross": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof05-b-receivable-amount": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof05-b-actual-cash": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof05-b-cash-diff": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof05-b-opening-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof05-b-redeemed-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof05-b-closing-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof05-b-ta-closing-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof05-b-internal-closing-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof05-b-holding-diff": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof05-b-approved-valuation-nav": {"kind": "NUMBER", "unit": "元/份", "precision": 4, "tolerance": 0.00005},
+      "fof05-b-post-redemption-market-value": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof05-b-valuation-result": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof05-b-valuation-diff": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01}
+    },
+    "decimalChain": {"redemptionGross": "275000.00 × 0.9600 = 264000.00", "receivableAmount": "264000.00 − 0.00 = 264000.00", "cashDiff": "264000.00 − 264000.00 = 0.00", "closingShares": "910000.00 − 275000.00 = 635000.00", "holdingDiff": "635000.00 − 635000.00 = 0.00", "postRedemptionMarketValue": "635000.00 × 1.1500 = 730250.00", "valuationDiff": "730250.00 − 730250.00 = 0.00"},
+    "reconciliation": {"cashDiff": "0.00", "holdingDiff": "0.00", "valuationDiff": "0.00", "archiveId": "ARCH-FOF05-B-001", "archiveStatus": "NORMAL_CLOSED", "state": "RESULT_RECONCILED"}
+  }
+}

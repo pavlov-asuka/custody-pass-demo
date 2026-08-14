@@ -1,0 +1,94 @@
+{
+  "routeId": "ACC-FOF-SUBSCRIPTION-002",
+  "rubricVersion": "1.1.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "C-FOF02-FIVE-STATE-SOURCES", "description": "理解指令、管理人确认、TA确认、资金到账和份额台账的五段状态来源", "weight": 13, "evidenceRequirement": "五个状态来源分别映射到正确资料组", "evidenceRules": [{"fieldId": "fof02-b-instruction-state-source", "operator": "EQUALS", "expected": "FOF02_B_INSTRUCTION_SOURCE"}, {"fieldId": "fof02-b-manager-state-source", "operator": "EQUALS", "expected": "FOF02_B_MANAGER_SOURCE"}, {"fieldId": "fof02-b-ta-state-source", "operator": "EQUALS", "expected": "FOF02_B_TA_SOURCE"}, {"fieldId": "fof02-b-cash-state-source", "operator": "EQUALS", "expected": "FOF02_B_CASH_SOURCE"}, {"fieldId": "fof02-b-shares-state-source", "operator": "EQUALS", "expected": "FOF02_B_LEDGER_SOURCE"}], "remediationTargetId": "FOF02-TARGET-INSTRUCTION-SOURCE"},
+        {"criterionId": "C-FOF02-AMOUNT-SHARE-BOUNDARY", "description": "理解管理人/TA金额对齐和确认份额计算的关系", "weight": 12, "evidenceRequirement": "管理人/TA金额差额为0.00，并用TA确认金额和申购NAV得到确认份额", "evidenceRules": [{"fieldId": "fof02-b-amount-alignment", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof02-b-confirmed-shares", "operator": "NUMBER_EQUALS", "expected": 1200000, "tolerance": 0.01}], "remediationTargetId": "FOF02-TARGET-AMOUNT-ALIGNMENT"}
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {"criterionId": "P-FOF02-SOURCE-MAPPING", "description": "从五组资料读取并映射状态来源", "weight": 8, "evidenceRequirement": "指令、管理人、TA、资金和份额台账五个来源选择均正确", "evidenceRules": [{"fieldId": "fof02-b-instruction-state-source", "operator": "EQUALS", "expected": "FOF02_B_INSTRUCTION_SOURCE"}, {"fieldId": "fof02-b-manager-state-source", "operator": "EQUALS", "expected": "FOF02_B_MANAGER_SOURCE"}, {"fieldId": "fof02-b-ta-state-source", "operator": "EQUALS", "expected": "FOF02_B_TA_SOURCE"}, {"fieldId": "fof02-b-cash-state-source", "operator": "EQUALS", "expected": "FOF02_B_CASH_SOURCE"}, {"fieldId": "fof02-b-shares-state-source", "operator": "EQUALS", "expected": "FOF02_B_LEDGER_SOURCE"}], "remediationTargetId": "FOF02-TARGET-TA-SOURCE"},
+        {"criterionId": "P-FOF02-AMOUNT-ALIGNMENT", "description": "复算管理人与TA确认金额的对齐差额", "weight": 7, "evidenceRequirement": "1536000.00元减1536000.00元为0.00元", "evidenceRules": [{"fieldId": "fof02-b-amount-alignment", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "FOF02-TARGET-AMOUNT-ALIGNMENT"},
+        {"criterionId": "P-FOF02-CONFIRMED-SHARES", "description": "用确认金额和申购NAV复算确认份额", "weight": 8, "evidenceRequirement": "1536000.00 ÷ 1.2800 = 1200000.00份", "evidenceRules": [{"fieldId": "fof02-b-confirmed-shares", "operator": "NUMBER_EQUALS", "expected": 1200000, "tolerance": 0.01}], "remediationTargetId": "FOF02-TARGET-CONFIRMED-SHARES"},
+        {"criterionId": "P-FOF02-LEDGER-VALUES", "description": "分别登记到账、期初/确认份额并计算期末份额", "weight": 7, "evidenceRequirement": "到账1536000.00元、期初275000.00份、确认1200000.00份、期末1475000.00份分别可追踪", "evidenceRules": [{"fieldId": "fof02-b-cash-received-ledger", "operator": "NUMBER_EQUALS", "expected": 1536000, "tolerance": 0.01}, {"fieldId": "fof02-b-opening-shares-ledger", "operator": "NUMBER_EQUALS", "expected": 275000, "tolerance": 0.01}, {"fieldId": "fof02-b-confirmed-shares-ledger", "operator": "NUMBER_EQUALS", "expected": 1200000, "tolerance": 0.01}, {"fieldId": "fof02-b-closing-shares", "operator": "NUMBER_EQUALS", "expected": 1475000, "tolerance": 0.01}], "remediationTargetId": "FOF02-TARGET-CLOSING-SHARES"}
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {"criterionId": "R-FOF02-INDEPENDENT-CASH", "description": "控制实际到账必须由独立资金资料支持", "weight": 13, "evidenceRequirement": "资金来源、到账台账和cashDiff分别正确，不能用指令金额代替到账", "evidenceRules": [{"fieldId": "fof02-b-cash-state-source", "operator": "EQUALS", "expected": "FOF02_B_CASH_SOURCE"}, {"fieldId": "fof02-b-cash-received-ledger", "operator": "NUMBER_EQUALS", "expected": 1536000, "tolerance": 0.01}, {"fieldId": "fof02-b-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "FOF02-TARGET-CASH-DIFF"},
+        {"criterionId": "R-FOF02-SHARES-READY", "description": "控制份额承接差额为零后才到SHARES_POSTED", "weight": 12, "evidenceRequirement": "sharesDiff为0.00且最终状态选择SHARES_POSTED", "evidenceRules": [{"fieldId": "fof02-b-shares-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof02-b-state-recon", "operator": "EQUALS", "expected": "FOF02_B_CASH_AND_SHARES_ZERO"}], "remediationTargetId": "FOF02-TARGET-SHARES-DIFF"}
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {"criterionId": "E-FOF02-TRACEABLE-CONCLUSION", "description": "形成只保留一个短句的正常申购结论", "weight": 20, "evidenceRequirement": "短句表达五段状态、金额对齐、到账、Decimal份额、台账、两项差额和SHARES_POSTED边界", "evidenceRules": [{"fieldId": "fof02-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["五段", "1536000.00", "到账", "Decimal", "1200000.00", "1475000.00", "0.00", "SHARES_POSTED"]}], "remediationTargetId": "FOF02-TARGET-CONCLUSION"}
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {"requirementId": "M-FOF02-COMPLETE-SOURCE-CHAIN", "description": "五段状态来源和最终SHARES_POSTED状态必须完整", "evidenceRequirement": "五个来源映射正确，最终状态可承接", "evidenceRules": [{"fieldId": "fof02-b-instruction-state-source", "operator": "EQUALS", "expected": "FOF02_B_INSTRUCTION_SOURCE"}, {"fieldId": "fof02-b-manager-state-source", "operator": "EQUALS", "expected": "FOF02_B_MANAGER_SOURCE"}, {"fieldId": "fof02-b-ta-state-source", "operator": "EQUALS", "expected": "FOF02_B_TA_SOURCE"}, {"fieldId": "fof02-b-cash-state-source", "operator": "EQUALS", "expected": "FOF02_B_CASH_SOURCE"}, {"fieldId": "fof02-b-shares-state-source", "operator": "EQUALS", "expected": "FOF02_B_LEDGER_SOURCE"}, {"fieldId": "fof02-b-state-recon", "operator": "EQUALS", "expected": "FOF02_B_CASH_AND_SHARES_ZERO"}], "remediationTargetId": "FOF02-TARGET-STATE"},
+    {"requirementId": "M-FOF02-NUMERIC-CASH-SHARES", "description": "金额、份额、到账和两项差额必须分别闭合", "evidenceRequirement": "金额对齐0.00、确认份额1200000.00、到账1536000.00、期初275000.00、期末1475000.00、cashDiff和sharesDiff均0.00", "evidenceRules": [{"fieldId": "fof02-b-amount-alignment", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof02-b-confirmed-shares", "operator": "NUMBER_EQUALS", "expected": 1200000, "tolerance": 0.01}, {"fieldId": "fof02-b-cash-received-ledger", "operator": "NUMBER_EQUALS", "expected": 1536000, "tolerance": 0.01}, {"fieldId": "fof02-b-opening-shares-ledger", "operator": "NUMBER_EQUALS", "expected": 275000, "tolerance": 0.01}, {"fieldId": "fof02-b-confirmed-shares-ledger", "operator": "NUMBER_EQUALS", "expected": 1200000, "tolerance": 0.01}, {"fieldId": "fof02-b-closing-shares", "operator": "NUMBER_EQUALS", "expected": 1475000, "tolerance": 0.01}, {"fieldId": "fof02-b-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}, {"fieldId": "fof02-b-shares-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}], "remediationTargetId": "FOF02-TARGET-CONFIRMED-SHARES"}
+  ],
+  "remediationTargets": [
+    {"targetId": "FOF02-TARGET-INSTRUCTION-SOURCE", "title": "补学指令状态来源", "reason": "不能从指令资料定位INSTRUCTION_CREATED", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-instruction-state-source", "questionId": "ACC-FOF-SUBSCRIPTION-Q-01"},
+    {"targetId": "FOF02-TARGET-MANAGER-SOURCE", "title": "补学管理人确认来源", "reason": "不能从管理人资料定位MANAGER_CONFIRMED", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-manager-state-source", "questionId": "ACC-FOF-SUBSCRIPTION-Q-01"},
+    {"targetId": "FOF02-TARGET-TA-SOURCE", "title": "补学TA确认来源", "reason": "不能从TA资料定位TA_CONFIRMED和确认参数", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-ta-state-source", "questionId": "ACC-FOF-SUBSCRIPTION-Q-01"},
+    {"targetId": "FOF02-TARGET-CASH-SOURCE", "title": "补学资金到账来源", "reason": "不能从资金资料定位CASH_RECEIVED", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-cash-state-source", "questionId": "ACC-FOF-SUBSCRIPTION-Q-01"},
+    {"targetId": "FOF02-TARGET-SHARES-SOURCE", "title": "补学份额台账来源", "reason": "不能从份额台账定位SHARES_POSTED", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-shares-state-source", "questionId": "ACC-FOF-SUBSCRIPTION-Q-01"},
+    {"targetId": "FOF02-TARGET-AMOUNT-ALIGNMENT", "title": "补学管理人TA金额对齐", "reason": "管理人与TA确认金额差额计算错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-amount-alignment", "questionId": "ACC-FOF-SUBSCRIPTION-Q-04"},
+    {"targetId": "FOF02-TARGET-CONFIRMED-SHARES", "title": "补学confirmedShares计算", "reason": "不能用TA确认金额除以申购NAV得到确认份额", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-confirmed-shares", "questionId": "ACC-FOF-SUBSCRIPTION-Q-02"},
+    {"targetId": "FOF02-TARGET-OPENING-SHARES", "title": "补学期初份额台账", "reason": "期初份额读取或登记错误", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-opening-shares-ledger", "questionId": "ACC-FOF-SUBSCRIPTION-Q-03"},
+    {"targetId": "FOF02-TARGET-LEDGER-SHARES", "title": "补学确认份额台账", "reason": "确认份额未作为独立台账单元登记", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-confirmed-shares-ledger", "questionId": "ACC-FOF-SUBSCRIPTION-Q-03"},
+    {"targetId": "FOF02-TARGET-CASH-LEDGER", "title": "补学到账台账", "reason": "实际到账金额没有独立落到账务工作纸", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-cash-received-ledger", "questionId": "ACC-FOF-SUBSCRIPTION-Q-03"},
+    {"targetId": "FOF02-TARGET-CLOSING-SHARES", "title": "补学期末份额计算", "reason": "不能用期初份额加确认份额得到期末份额", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-closing-shares", "questionId": "ACC-FOF-SUBSCRIPTION-Q-02"},
+    {"targetId": "FOF02-TARGET-CASH-DIFF", "title": "补学cashDiff勾稽", "reason": "没有独立验证TA确认金额与实际到账差额", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-cash-diff", "questionId": "ACC-FOF-SUBSCRIPTION-Q-04"},
+    {"targetId": "FOF02-TARGET-SHARES-DIFF", "title": "补学sharesDiff勾稽", "reason": "没有独立验证期末份额承接差额", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-shares-diff", "questionId": "ACC-FOF-SUBSCRIPTION-Q-04"},
+    {"targetId": "FOF02-TARGET-STATE", "title": "补学SHARES_POSTED状态判断", "reason": "零差异后仍不能判断最终可承接状态", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-state-recon", "questionId": "ACC-FOF-SUBSCRIPTION-Q-04"},
+    {"targetId": "FOF02-TARGET-CONCLUSION", "title": "补写唯一正常链短结论", "reason": "短结论缺少状态、金额、到账、份额或勾稽边界", "materialStep": "DEMONSTRATION", "materialItemId": "fof02-b-conclusion", "questionId": "ACC-FOF-SUBSCRIPTION-Q-05"}
+  ],
+  "referenceAnswer": {
+    "fixtureId": "FOF02-FIXTURE-COMP-B",
+    "responses": {
+      "fof02-b-instruction-state-source": "FOF02_B_INSTRUCTION_SOURCE",
+      "fof02-b-manager-state-source": "FOF02_B_MANAGER_SOURCE",
+      "fof02-b-ta-state-source": "FOF02_B_TA_SOURCE",
+      "fof02-b-cash-state-source": "FOF02_B_CASH_SOURCE",
+      "fof02-b-shares-state-source": "FOF02_B_LEDGER_SOURCE",
+      "fof02-b-amount-alignment": 0,
+      "fof02-b-confirmed-shares": 1200000,
+      "fof02-b-opening-shares-ledger": 275000,
+      "fof02-b-confirmed-shares-ledger": 1200000,
+      "fof02-b-cash-received-ledger": 1536000,
+      "fof02-b-closing-shares": 1475000,
+      "fof02-b-cash-diff": 0,
+      "fof02-b-shares-diff": 0,
+      "fof02-b-state-recon": "FOF02_B_CASH_AND_SHARES_ZERO",
+      "fof02-b-conclusion": "五段状态来源分别为指令、管理人确认、TA确认、资金到账和份额台账；管理人与TA金额差额0.00元，1536000.00元到账，Decimal计算1536000.00÷1.2800=1200000.00份，期初275000.00份承接为1475000.00份，cashDiff和sharesDiff均为0.00，状态为SHARES_POSTED。"
+    },
+    "responseMeta": {
+      "fof02-b-amount-alignment": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof02-b-confirmed-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof02-b-opening-shares-ledger": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof02-b-confirmed-shares-ledger": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof02-b-cash-received-ledger": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof02-b-closing-shares": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01},
+      "fof02-b-cash-diff": {"kind": "NUMBER", "unit": "元", "precision": 2, "tolerance": 0.01},
+      "fof02-b-shares-diff": {"kind": "NUMBER", "unit": "份", "precision": 2, "tolerance": 0.01}
+    },
+    "decimalChain": {"amountAlignment": "1536000.00 - 1536000.00 = 0.00", "confirmedShares": "1536000.00 / 1.2800 = 1200000.00", "closingShares": "275000.00 + 1200000.00 = 1475000.00", "cashDiff": "1536000.00 - 1536000.00 = 0.00", "sharesDiff": "1475000.00 - (275000.00 + 1200000.00) = 0.00"},
+    "reconciliation": {"cashDiff": "0.00", "sharesDiff": "0.00", "state": "SHARES_POSTED"}
+  }
+}

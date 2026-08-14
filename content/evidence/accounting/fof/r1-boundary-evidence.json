@@ -1,0 +1,84 @@
+{
+  "evidenceId": "FOF-EVID-R1-BOUNDARY-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "routeId": "ACC-FOF-BOUNDARY-001",
+  "routeCode": "FOF-01",
+  "title": "FOF-01 对象、来源与状态边界证据",
+  "scopeNotice": "本文件为 FOF-01 的独立证据和答案链；它不登记地图、发布清单、生产 sources 或通用契约。",
+  "sharedEvidence": ["FOF-EVID-MATERIAL-AUDIT-001", "FOF-EVID-FIELDS-001", "FOF-EVID-SOURCE-STATE-001", "FOF-EVID-NORMAL-001", "FOF-EVID-DEID-001"],
+  "materialAnchors": [
+    {"sourceMaterialCode": "FOF-MAT-MAIN-PPT", "locators": ["S03-S06", "S08-S18"], "teachingUse": "抽象 FOF 母基金、被投基金、指令和来源证据的对象层级；不复制历史产品和规则。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "FOF-MAT-INSTRUCTION-PPT", "locators": ["S03-S05"], "teachingUse": "抽象指令、开基对象和持仓资料交接的证据边界；历史时点不进入题面。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "FOF-MAT-HOLDING-PPT", "locators": ["S02-S05"], "teachingUse": "支持业务台账和份额承接的材料角色；不提前承载封账。", "provenance": "MATERIAL_ABSTRACTION"}
+  ],
+  "mappingClaims": [
+    {"claimId": "FOF01-CLAIM-01", "claim": "指令资料组承载母基金键、被投基金键、指令键和日期，TA资料组承载确认金额、申购NAV和确认份额。", "sourceGroups": ["FOF-SRC-INSTRUCTION", "FOF-SRC-TA-CONFIRMATION"], "activity": "FIELD_MAP", "provenance": "MATERIAL_ABSTRACTION"},
+    {"claimId": "FOF01-CLAIM-02", "claim": "管理人确认、TA确认和业务台账是不同证据对象，不能把状态或角色合并。", "sourceGroups": ["FOF-SRC-MANAGER-CONFIRMATION", "FOF-SRC-TA-CONFIRMATION", "FOF-SRC-SHARE-LEDGER"], "activity": "LEDGER_ENTRY", "provenance": "MATERIAL_ABSTRACTION"},
+    {"claimId": "FOF01-CLAIM-03", "claim": "对象键一致、确认份额可用Decimal复算且份额差额为零时，本案例可到SHARES_POSTED；NAV_CONFIRMED及之后不在本路线。", "sourceGroups": ["FOF-SRC-INSTRUCTION", "FOF-SRC-TA-CONFIRMATION", "FOF-SRC-SHARE-LEDGER"], "activity": "RECONCILIATION", "provenance": "CASE_POLICY"}
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "FOF01-FIXTURE-DEMO-A",
+      "sourceToField": [
+        {"sourceGroupId": "FOF-SRC-INSTRUCTION", "fields": ["FOF-EDU-A-01", "FUND-EDU-A-01", "INS-FOF01-A-001", "2030-06-12", "612000.00"]},
+        {"sourceGroupId": "FOF-SRC-MANAGER-CONFIRMATION", "fields": ["manager_confirmed_amount=612000.00"]},
+        {"sourceGroupId": "FOF-SRC-TA-CONFIRMATION", "fields": ["ta_confirmed_amount=612000.00", "subscription_nav=1.0200", "confirmed_shares=600000.00"]},
+        {"sourceGroupId": "FOF-SRC-SHARE-LEDGER", "fields": ["opening_shares=80000.00", "closing_shares=680000.00", "state=SHARES_POSTED"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "fof01-a-confirmed-shares", "formula": "Decimal('612000.00') / Decimal('1.0200')", "result": "600000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "fof01-a-closing-shares", "formula": "Decimal('80000.00') + Decimal('600000.00')", "result": "680000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "fof01-a-shares-diff", "formula": "Decimal('680000.00') - (Decimal('80000.00') + Decimal('600000.00'))", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"}
+      ],
+      "reconciliation": {"identityMatch": "YES", "amountDiff": "0.00", "sharesDiff": "0.00", "state": "SHARES_POSTED"}
+    },
+    "comprehensiveB": {
+      "fixtureId": "FOF01-FIXTURE-COMP-B",
+      "sourceToField": [
+        {"sourceMaterialId": "FOF01-B-INSTRUCTION", "role": "INSTRUCTION_OBJECT", "fields": ["FOF-EDU-B-01", "FUND-EDU-B-01", "INS-FOF01-B-001", "2030-06-13", "540000.00"]},
+        {"sourceMaterialId": "FOF01-B-CONFIRMATION", "role": "MANAGER_CONFIRMATION/TA_CONFIRMATION", "fields": ["manager_confirmed_amount=540000.00", "ta_confirmed_amount=540000.00"]},
+        {"sourceMaterialId": "FOF01-B-TA-PARAMETER", "role": "TA_SHARE_CONFIRMATION", "fields": ["subscription_nav=1.0800", "confirmed_shares=500000.00"]},
+        {"sourceMaterialId": "FOF01-B-LEDGER", "role": "HOLDING_LEDGER", "fields": ["opening_shares=130000.00", "closing_shares=630000.00", "state=SHARES_POSTED"]},
+        {"sourceMaterialId": "FOF01-B-RECON", "role": "RECONCILIATION", "fields": ["identity_match=YES", "shares_diff=0.00"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "fof01-b-confirmed-shares", "formula": "Decimal('540000.00') / Decimal('1.0800')", "result": "500000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "fof01-b-closing-shares", "formula": "Decimal('130000.00') + Decimal('500000.00')", "result": "630000.00", "unit": "份", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "fof01-b-shares-diff", "formula": "Decimal('630000.00') - (Decimal('130000.00') + Decimal('500000.00'))", "result": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01"}
+      ],
+      "reconciliation": {"identityMatch": "YES", "amountDiff": "0.00", "sharesDiff": "0.00", "state": "SHARES_POSTED"}
+    }
+  },
+  "atomicWorkItems": [
+    {"workItemId": "fof01-b-master-key-source", "responseKind": "SELECT", "observableAction": "从指令资料定位FOF母基金键", "fixtureValue": "FOF01_B_MASTER_KEY_FROM_INSTRUCTION", "sourceMaterialIds": ["FOF01-B-INSTRUCTION"], "scoreTargets": ["C-FOF01-OBJECT-SOURCES", "M-FOF01-OBJECT-SOURCE-STATE"], "remediationTargetId": "FOF01-TARGET-MASTER"},
+    {"workItemId": "fof01-b-underlying-key-source", "responseKind": "SELECT", "observableAction": "从指令资料定位被投基金键", "fixtureValue": "FOF01_B_UNDERLYING_KEY_FROM_INSTRUCTION", "sourceMaterialIds": ["FOF01-B-INSTRUCTION"], "scoreTargets": ["C-FOF01-OBJECT-SOURCES", "M-FOF01-OBJECT-SOURCE-STATE"], "remediationTargetId": "FOF01-TARGET-UNDERLYING"},
+    {"workItemId": "fof01-b-instruction-confirmation-source", "responseKind": "SELECT", "observableAction": "把指令键关联到管理人和TA确认来源", "fixtureValue": "FOF01_B_INSTRUCTION_TO_CONFIRMATION", "sourceMaterialIds": ["FOF01-B-INSTRUCTION", "FOF01-B-CONFIRMATION"], "scoreTargets": ["C-FOF01-OBJECT-SOURCES", "M-FOF01-OBJECT-SOURCE-STATE"], "remediationTargetId": "FOF01-TARGET-SOURCE"},
+    {"workItemId": "fof01-b-confirmed-amount", "responseKind": "NUMBER", "observableAction": "读取TA确认金额", "fixtureValue": "540000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF01-B-CONFIRMATION"], "scoreTargets": ["P-FOF01-CONFIRMED-AMOUNT", "M-FOF01-NUMERIC-LEDGER-RECON"], "remediationTargetId": "FOF01-TARGET-AMOUNT"},
+    {"workItemId": "fof01-b-subscription-nav", "responseKind": "NUMBER", "observableAction": "读取TA确认使用的申购NAV", "fixtureValue": "1.0800", "unit": "元/份", "precision": 4, "tolerance": "0.00005", "sourceMaterialIds": ["FOF01-B-TA-PARAMETER"], "scoreTargets": ["P-FOF01-SUBSCRIPTION-NAV", "M-FOF01-NUMERIC-LEDGER-RECON"], "remediationTargetId": "FOF01-TARGET-NAV"},
+    {"workItemId": "fof01-b-confirmed-shares", "responseKind": "NUMBER", "observableAction": "用确认金额和申购NAV复算确认份额", "fixtureValue": "500000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF01-B-CONFIRMATION", "FOF01-B-TA-PARAMETER"], "scoreTargets": ["P-FOF01-CONFIRMED-SHARES", "M-FOF01-NUMERIC-LEDGER-RECON"], "remediationTargetId": "FOF01-TARGET-CONFIRMED-SHARES"},
+    {"workItemId": "fof01-b-opening-shares-ledger", "responseKind": "NUMBER", "observableAction": "登记期初份额", "fixtureValue": "130000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF01-B-LEDGER"], "scoreTargets": ["P-FOF01-LEDGER-TRANSFER", "M-FOF01-NUMERIC-LEDGER-RECON"], "remediationTargetId": "FOF01-TARGET-OPENING-SHARES"},
+    {"workItemId": "fof01-b-confirmed-shares-ledger", "responseKind": "NUMBER", "observableAction": "把确认份额登记为独立台账单元", "fixtureValue": "500000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF01-B-LEDGER"], "scoreTargets": ["P-FOF01-LEDGER-TRANSFER", "M-FOF01-NUMERIC-LEDGER-RECON"], "remediationTargetId": "FOF01-TARGET-LEDGER-SHARES"},
+    {"workItemId": "fof01-b-closing-shares", "responseKind": "NUMBER", "observableAction": "计算期末台账份额", "fixtureValue": "630000.00", "unit": "份", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF01-B-LEDGER"], "scoreTargets": ["P-FOF01-LEDGER-TRANSFER", "M-FOF01-NUMERIC-LEDGER-RECON"], "remediationTargetId": "FOF01-TARGET-CLOSING-SHARES"},
+    {"workItemId": "fof01-b-shares-diff", "responseKind": "NUMBER", "observableAction": "勾稽期末份额与期初加确认份额", "fixtureValue": "0.00", "unit": "份", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["FOF01-B-LEDGER", "FOF01-B-RECON"], "scoreTargets": ["R-FOF01-SHARES-READY", "M-FOF01-NUMERIC-LEDGER-RECON"], "remediationTargetId": "FOF01-TARGET-SHARES-DIFF"},
+    {"workItemId": "fof01-b-state-recon", "responseKind": "SELECT", "observableAction": "判断对象和份额证据能否承接到SHARES_POSTED", "fixtureValue": "FOF01_B_KEYS_AND_SHARES_READY", "sourceMaterialIds": ["FOF01-B-RECON"], "scoreTargets": ["C-FOF01-STATE-BOUNDARY", "R-FOF01-SHARES-READY", "M-FOF01-OBJECT-SOURCE-STATE"], "remediationTargetId": "FOF01-TARGET-STATE"},
+    {"workItemId": "fof01-b-conclusion", "responseKind": "TEXT", "observableAction": "写出唯一短结论", "fixtureValue": "来源、确认金额、申购NAV、确认份额、期末份额、零差异和SHARES_POSTED", "sourceMaterialIds": ["FOF01-B-INSTRUCTION", "FOF01-B-CONFIRMATION", "FOF01-B-TA-PARAMETER", "FOF01-B-LEDGER", "FOF01-B-RECON"], "scoreTargets": ["E-FOF01-TRACEABLE-CONCLUSION"], "remediationTargetId": "FOF01-TARGET-CONCLUSION"}
+  ],
+  "coverage": {
+    "FIELD_MAP": ["fof01-b-master-key-source", "fof01-b-underlying-key-source", "fof01-b-instruction-confirmation-source", "ACC-FOF-BOUNDARY-Q-01"],
+    "CALCULATION": ["fof01-b-confirmed-amount", "fof01-b-subscription-nav", "fof01-b-confirmed-shares", "fof01-b-closing-shares", "ACC-FOF-BOUNDARY-Q-02"],
+    "LEDGER_ENTRY": ["fof01-b-opening-shares-ledger", "fof01-b-confirmed-shares-ledger", "ACC-FOF-BOUNDARY-Q-03"],
+    "RECONCILIATION": ["fof01-b-shares-diff", "fof01-b-state-recon", "ACC-FOF-BOUNDARY-Q-04"],
+    "SHORT_TEXT": ["fof01-b-conclusion", "ACC-FOF-BOUNDARY-Q-05"]
+  },
+  "dependencyPolicy": {
+    "hardPrerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+    "dependsOnRouteIds": [],
+    "serialOrder": 1,
+    "stageGate": false,
+    "releaseRegistration": "NOT_REGISTERED_IN_B1",
+    "status": "BUILDING_UNTIL_BUSINESS_ACCEPTANCE"
+  },
+  "fixturePolicy": {"routeOwnsIndependentDemoA": "FOF01-FIXTURE-DEMO-A", "routeOwnsIndependentComprehensiveB": "FOF01-FIXTURE-COMP-B", "sharedWithOtherRoute": false, "futureStatesExcluded": ["NAV_CONFIRMED", "HOLDING_RECONCILED", "RESULT_RECONCILED"]},
+  "exclusionBoundary": {"status": "DEFER", "topics": ["估值NAV", "费用返还", "红利再投", "赎回应收", "非FOF", "互认", "转换/转托管", "T+0具体规则", "异常错配", "人工凭证/重跑/回滚"], "reason": "这些主题在本批没有当前版本化规则或属于后续路线。"}
+}

@@ -1,0 +1,159 @@
+{
+  "routeId": "ACC-FOF-SUBSCRIPTION-002",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "把申购指令推进到资金与份额确认",
+  "summary": "沿着指令、管理人确认、TA确认、资金到账和份额确认的正常链完成金额复算与业务台账承接，不提前进入估值主链。",
+  "estimatedMinutes": 28,
+  "objectives": [
+    "按顺序识别指令、管理人确认、TA确认、资金到账和份额确认状态",
+    "核对同一指令的确认金额与实际到账金额",
+    "用 confirmedShares = confirmedAmount / subscriptionNAV 独立复算确认份额",
+    "把确认份额承接到台账并用资金、份额差额完成正常收口"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "FOF02-KC-01",
+          "type": "FLOW",
+          "title": "状态按证据顺序推进",
+          "conclusion": "指令创建、管理人确认、TA确认、资金到账和份额入账是连续但不可跳过的状态。",
+          "items": [
+            "每一步都要有对应资料组和同一指令键",
+            "管理人确认不等于 TA 已确认份额",
+            "资金到账不等于份额已经入账"
+          ]
+        },
+        {
+          "cardId": "FOF02-KC-02",
+          "type": "KEY_POINT",
+          "title": "金额先对齐再算份额",
+          "conclusion": "TA确认金额是确认份额计算的金额基础；正常案例中它与管理人确认和实际到账金额一致。",
+          "items": [
+            "指令金额、管理人确认金额、TA确认金额分别读取",
+            "实际到账金额与TA确认金额做应收实收勾稽",
+            "金额单位统一为元，结果保留两位小数"
+          ]
+        },
+        {
+          "cardId": "FOF02-KC-03",
+          "type": "CATEGORIES",
+          "title": "份额计算和台账承接分开记录",
+          "conclusion": "先用 TA 确认 NAV 复算确认份额，再把确认份额加到期初台账；这里的 NAV 不是估值主链的 NAV。",
+          "items": [
+            "confirmedShares = confirmedAmount ÷ subscriptionNAV",
+            "closingShares = openingShares + confirmedShares",
+            "本路线最终只到 SHARES_POSTED，不填写估值结果或封账结论"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "托管核算新人",
+        "product": "合成 FOF 母基金 FOF-EDU-C-01 与被投基金 FUND-EDU-C-01",
+        "date": "2030-06-16",
+        "purpose": "把一笔正常申购从指令推进至份额确认并完成资金与台账勾稽"
+      },
+      "steps": [
+        {"order": 1, "action": "读取指令键 INS-FOF02-A-001、FOF-EDU-C-01、FUND-EDU-C-01、2030-06-16 和 875000.00 元指令金额。", "reason": "以同一指令键建立对象和业务日期，后续资料必须回到这个键。"},
+        {"order": 2, "action": "读取管理人确认资料，确认金额为 875000.00 元，状态推进到 MANAGER_CONFIRMED。", "reason": "管理人确认说明指令已被业务确认，但还不能代替 TA 份额确认。"},
+        {"order": 3, "action": "读取 TA 确认资料，确认金额为 875000.00 元、申购 NAV 为 1.2500 元/份，并用 Decimal 计算 875000.00 ÷ 1.2500 = 700000.00 份。", "reason": "TA确认金额和NAV共同决定确认份额，计算结果要带单位和精度。"},
+        {"order": 4, "action": "读取资金资料，确认实际到账 875000.00 元，与 TA 确认金额差额为 0.00 元，状态推进到 CASH_RECEIVED。", "reason": "到账是独立证据，不能仅凭指令或确认资料推定资金已收。"},
+        {"order": 5, "action": "把 700000.00 份写入业务台账，期初 420000.00 份承接为期末 1120000.00 份，份额差额为 0.00，状态到 SHARES_POSTED。", "reason": "资金、确认份额和台账全部闭合后，本路线才完成；估值留给后续路线。"}
+      ],
+      "summary": "按证据顺序完成确认、到账、份额计算和台账承接，形成可复核的正常申购结果。"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-FOF-SUBSCRIPTION-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "选择能证明资金到账的资料，并把它映射到 CASH_RECEIVED，而不是把指令资料当作到账证据。",
+          "fieldMappings": [
+            {"fieldId": "fof02-a-cash-source", "label": "资金到账来源", "source": "FOF02 Demo A 的资料组", "options": [{"optionId": "CASH_RECEIPT_TO_CASH_RECEIVED", "text": "资金到账资料组→CASH_RECEIVED"}, {"optionId": "INSTRUCTION_TO_CASH_RECEIVED", "text": "指令资料组→CASH_RECEIVED"}, {"optionId": "TA_TO_CASH_RECEIVED", "text": "TA确认资料组→CASH_RECEIVED"}]}]
+          ,"answer": ["CASH_RECEIPT_TO_CASH_RECEIVED"],
+          "explanation": "到账状态必须由资金到账资料组证明，指令和TA确认只证明业务意图或份额参数。",
+          "hints": ["找实际到账金额字段，而不是找指令金额字段。"]
+        },
+        {
+          "questionId": "ACC-FOF-SUBSCRIPTION-Q-02",
+          "type": "CALCULATION",
+          "prompt": "FOF02 Demo A 的 TA确认金额为 875000.00 元，申购 NAV 为 1.2500 元/份。计算确认份额。",
+          "calculation": {"fields": [{"fieldId": "fof02-a-confirmed-shares", "label": "确认份额", "formula": "confirmedAmount / subscriptionNAV", "placeholder": "输入确认份额", "unit": "份", "precision": 2, "tolerance": 0.01}]},
+          "answer": ["700000.00"],
+          "explanation": "875000.00 ÷ 1.2500 = 700000.00 份。",
+          "hints": ["确认金额单位为元，申购NAV单位为元/份。"]
+        },
+        {
+          "questionId": "ACC-FOF-SUBSCRIPTION-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "按正常证据顺序填写本笔业务台账的状态链，不填写正式会计凭证。",
+          "ledgerEntries": [
+            {"entryId": "fof02-a-state-1", "direction": "STATE", "label": "第一状态", "amount": "INSTRUCTION_CREATED", "placeholder": "输入状态"},
+            {"entryId": "fof02-a-state-2", "direction": "STATE", "label": "第二状态", "amount": "MANAGER_CONFIRMED", "placeholder": "输入状态"},
+            {"entryId": "fof02-a-state-3", "direction": "STATE", "label": "第三状态", "amount": "TA_CONFIRMED", "placeholder": "输入状态"},
+            {"entryId": "fof02-a-state-4", "direction": "STATE", "label": "第四状态", "amount": "CASH_RECEIVED", "placeholder": "输入状态"},
+            {"entryId": "fof02-a-state-5", "direction": "STATE", "label": "第五状态", "amount": "SHARES_POSTED", "placeholder": "输入状态"}
+          ],
+          "answer": ["INSTRUCTION_CREATED", "MANAGER_CONFIRMED", "TA_CONFIRMED", "CASH_RECEIVED", "SHARES_POSTED"],
+          "explanation": "五个状态按资料到达和业务承接顺序记录，不跳过管理人、TA或到账证据。",
+          "hints": ["先指令，再管理人和TA确认，再到账，最后份额入账。"]
+        },
+        {
+          "questionId": "ACC-FOF-SUBSCRIPTION-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "确认 Demo A 的资金与份额结果是否闭合。",
+          "reconciliation": {"fields": [{"fieldId": "fof02-a-cash-diff", "label": "应收实收差额", "kind": "NUMBER", "formula": "ta_confirmed_amount - cash_received_amount", "placeholder": "输入资金差额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof02-a-shares-diff", "label": "份额承接差额", "kind": "NUMBER", "formula": "closing_shares - (opening_shares + confirmed_shares)", "placeholder": "输入份额差额", "precision": 2, "tolerance": 0.01}]},
+          "answer": ["0.00", "0.00"],
+          "explanation": "875000.00 - 875000.00 = 0.00；1120000.00 - (420000.00 + 700000.00) = 0.00。",
+          "hints": ["分别核对资金和份额，不用一个总差额替代两项勾稽。"]
+        },
+        {
+          "questionId": "ACC-FOF-SUBSCRIPTION-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出 Demo A 从指令到 SHARES_POSTED 的正常结论，必须说明资金到账和份额复算。",
+          "textInput": {"label": "正常业务结论", "placeholder": "输入一句结构化结论"},
+          "answer": ["指令经管理人和TA确认，875000.00元到账一致，Decimal复算700000.00份并承接为1120000.00份，状态为SHARES_POSTED"],
+          "explanation": "结论要同时表达状态顺序、到账结果、计算结果、台账结果和最终边界。",
+          "hints": ["只写本路线的正常确认、到账和份额结果。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {"role": "托管核算新人", "product": "合成 FOF 母基金 FOF-EDU-D-01 与被投基金 FUND-EDU-D-01", "date": "2030-06-17", "purpose": "从指令、确认、到账和台账资料完成一笔正常申购的结构化工作纸"},
+      "sourceMaterials": [
+        {"materialId": "FOF02-B-INSTRUCTION", "title": "指令资料组", "kind": "INSTRUCTION", "description": "合成指令给出业务日期、对象键、指令键和金额。", "fields": [{"fieldId": "case_version", "label": "案例版本", "value": "FOF02-B-EDU-01"}, {"fieldId": "business_date", "label": "业务日期", "value": "2030-06-17", "unit": "date"}, {"fieldId": "fof_fund_key", "label": "FOF母基金键", "value": "FOF-EDU-D-01", "unit": "key"}, {"fieldId": "underlying_fund_key", "label": "被投基金键", "value": "FUND-EDU-D-01", "unit": "key"}, {"fieldId": "instruction_key", "label": "指令键", "value": "INS-FOF02-B-001", "unit": "key"}, {"fieldId": "instruction_amount", "label": "指令金额", "value": "1536000.00", "unit": "元"}]},
+        {"materialId": "FOF02-B-MANAGER", "title": "管理人确认资料组", "kind": "CONFIRMATION", "description": "管理人对同一指令的确认结果。", "fields": [{"fieldId": "manager_confirmed_amount", "label": "管理人确认金额", "value": "1536000.00", "unit": "元"}, {"fieldId": "manager_confirmation_state", "label": "管理人确认状态", "value": "MANAGER_CONFIRMED"}]},
+        {"materialId": "FOF02-B-TA", "title": "TA确认资料组", "kind": "CONFIRMATION", "description": "TA确认金额、申购NAV和确认份额。", "fields": [{"fieldId": "ta_confirmed_amount", "label": "TA确认金额", "value": "1536000.00", "unit": "元"}, {"fieldId": "subscription_nav", "label": "申购NAV", "value": "1.2800", "unit": "元/份"}, {"fieldId": "confirmed_shares", "label": "确认份额", "value": "1200000.00", "unit": "份"}, {"fieldId": "ta_confirmation_state", "label": "TA确认状态", "value": "TA_CONFIRMED"}]},
+        {"materialId": "FOF02-B-CASH", "title": "资金到账资料组", "kind": "STATEMENT", "description": "合成资金资料证明单笔实际到账。", "fields": [{"fieldId": "cash_received_amount", "label": "实际到账", "value": "1536000.00", "unit": "元"}, {"fieldId": "cash_received_state", "label": "到账状态", "value": "CASH_RECEIVED"}]},
+        {"materialId": "FOF02-B-LEDGER", "title": "份额台账资料组", "kind": "LEDGER", "description": "合成业务台账给出期初、确认、期末份额和最终教学状态。", "fields": [{"fieldId": "opening_shares", "label": "期初份额", "value": "275000.00", "unit": "份"}, {"fieldId": "confirmed_shares", "label": "确认份额", "value": "1200000.00", "unit": "份"}, {"fieldId": "closing_shares", "label": "期末份额", "value": "1475000.00", "unit": "份"}, {"fieldId": "state_complete", "label": "最终状态", "value": "SHARES_POSTED"}]},
+        {"materialId": "FOF02-B-RECON", "title": "资金与份额勾稽资料组", "kind": "RECONCILIATION", "description": "合成正常结果给出资金差额和份额差额。", "fields": [{"fieldId": "cash_diff", "label": "资金差额", "value": "0.00", "unit": "元"}, {"fieldId": "shares_diff", "label": "份额差额", "value": "0.00", "unit": "份"}]}
+      ],
+      "workItems": [
+        {"workItemId": "fof02-b-instruction-state-source", "type": "FIELD_MAP", "title": "定位指令状态来源", "instruction": "选择承载INS-FOF02-B-001和INSTRUCTION_CREATED状态的资料。", "response": {"kind": "SELECT", "placeholder": "选择指令状态来源", "options": [{"optionId": "FOF02_B_INSTRUCTION_SOURCE", "text": "FOF02-B-INSTRUCTION→INSTRUCTION_CREATED"}, {"optionId": "FOF02_B_LEDGER_INSTRUCTION_SOURCE", "text": "FOF02-B-LEDGER→INSTRUCTION_CREATED"}]}},
+        {"workItemId": "fof02-b-manager-state-source", "type": "FIELD_MAP", "title": "定位管理人确认来源", "instruction": "选择承载管理人确认金额和MANAGER_CONFIRMED状态的资料。", "response": {"kind": "SELECT", "placeholder": "选择管理人确认来源", "options": [{"optionId": "FOF02_B_MANAGER_SOURCE", "text": "FOF02-B-MANAGER→MANAGER_CONFIRMED"}, {"optionId": "FOF02_B_TA_MANAGER_SOURCE", "text": "FOF02-B-TA→MANAGER_CONFIRMED"}]}},
+        {"workItemId": "fof02-b-ta-state-source", "type": "FIELD_MAP", "title": "定位TA确认来源", "instruction": "选择承载TA确认金额、申购NAV、确认份额和TA_CONFIRMED状态的资料。", "response": {"kind": "SELECT", "placeholder": "选择TA确认来源", "options": [{"optionId": "FOF02_B_TA_SOURCE", "text": "FOF02-B-TA→TA_CONFIRMED"}, {"optionId": "FOF02_B_LEDGER_TA_SOURCE", "text": "FOF02-B-LEDGER→TA_CONFIRMED"}]}},
+        {"workItemId": "fof02-b-cash-state-source", "type": "FIELD_MAP", "title": "定位资金到账来源", "instruction": "选择承载实际到账1536000.00元和CASH_RECEIVED状态的资料。", "response": {"kind": "SELECT", "placeholder": "选择资金到账来源", "options": [{"optionId": "FOF02_B_CASH_SOURCE", "text": "FOF02-B-CASH→CASH_RECEIVED"}, {"optionId": "FOF02_B_INSTRUCTION_CASH_SOURCE", "text": "FOF02-B-INSTRUCTION→CASH_RECEIVED"}]}},
+        {"workItemId": "fof02-b-shares-state-source", "type": "FIELD_MAP", "title": "定位份额台账来源", "instruction": "选择承载期初、确认、期末份额和SHARES_POSTED状态的资料。", "response": {"kind": "SELECT", "placeholder": "选择份额台账来源", "options": [{"optionId": "FOF02_B_LEDGER_SOURCE", "text": "FOF02-B-LEDGER→SHARES_POSTED"}, {"optionId": "FOF02_B_CASH_LEDGER_SOURCE", "text": "FOF02-B-CASH→SHARES_POSTED"}]}},
+        {"workItemId": "fof02-b-amount-alignment", "type": "CALCULATION", "title": "计算管理人与TA金额差额", "instruction": "用管理人确认金额1536000.00元减TA确认金额1536000.00元，输入金额对齐差额。", "response": {"kind": "NUMBER", "placeholder": "输入确认金额差额", "unit": "元", "precision": 2}},
+        {"workItemId": "fof02-b-confirmed-shares", "type": "CALCULATION", "title": "复算确认份额", "instruction": "用TA确认金额1536000.00元除以申购NAV1.2800元/份，输入TA确认份额。", "response": {"kind": "NUMBER", "placeholder": "输入确认份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof02-b-opening-shares-ledger", "type": "LEDGER_ENTRY", "title": "登记期初份额", "instruction": "从份额台账资料读取并登记期初275000.00份。", "response": {"kind": "NUMBER", "placeholder": "输入期初份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof02-b-confirmed-shares-ledger", "type": "LEDGER_ENTRY", "title": "登记确认份额", "instruction": "把TA确认的1200000.00份作为单独台账单元登记。", "response": {"kind": "NUMBER", "placeholder": "输入确认份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof02-b-cash-received-ledger", "type": "LEDGER_ENTRY", "title": "登记实际到账", "instruction": "把资金到账资料中的1536000.00元作为单独资金台账单元登记。", "response": {"kind": "NUMBER", "placeholder": "输入实际到账", "unit": "元", "precision": 2}},
+        {"workItemId": "fof02-b-closing-shares", "type": "CALCULATION", "title": "计算期末台账份额", "instruction": "用期初275000.00份加确认1200000.00份，输入期末台账份额。", "response": {"kind": "NUMBER", "placeholder": "输入期末份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof02-b-cash-diff", "type": "RECONCILIATION", "title": "核对资金零差异", "instruction": "用TA确认金额1536000.00元减实际到账1536000.00元，输入资金差额。", "response": {"kind": "NUMBER", "placeholder": "输入资金差额", "unit": "元", "precision": 2}},
+        {"workItemId": "fof02-b-shares-diff", "type": "RECONCILIATION", "title": "核对份额零差异", "instruction": "用期末1475000.00份减期初275000.00份与确认1200000.00份之和，输入份额差额。", "response": {"kind": "NUMBER", "placeholder": "输入份额差额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof02-b-state-recon", "type": "RECONCILIATION", "title": "确认最终可承接状态", "instruction": "五段来源完整、资金和份额差额均为0.00时，选择本案例最终状态。", "response": {"kind": "SELECT", "placeholder": "选择最终状态", "options": [{"optionId": "FOF02_B_CASH_AND_SHARES_ZERO", "text": "SHARES_POSTED，可交给后续路线"}, {"optionId": "FOF02_B_NOT_READY", "text": "资金或份额仍不能承接"}]}},
+        {"workItemId": "fof02-b-conclusion", "type": "SHORT_TEXT", "title": "写出唯一正常链结论", "instruction": "用一句话说明五段状态、金额对齐、Decimal份额、到账、台账和SHARES_POSTED边界；不得用长文本替代原子字段。", "response": {"kind": "TEXT", "placeholder": "输入一句结构化正常结论"}}
+      ],
+      "submissionNote": "逐项提交五段状态来源、管理人/TA金额差额、confirmedShares、期初/确认/期末份额、实际到账、cashDiff、sharesDiff、SHARES_POSTED状态和一句结论；不要求估值、费用、红利或正式会计凭证。"
+    }
+  },
+  "references": [
+    {"referenceId": "FOF-REF-SUBSCRIPTION-FLOW", "title": "FOF指令、确认、资金与份额流程抽象", "source": "FOF-EG-02-SUBSCRIPTION-FLOW；FOF-MAT-MAIN:S18-S22、FOF-MAT-INSTRUCTION:S03-S04", "usage": "支持连续正常状态和角色证据；历史时间表达不固化。"},
+    {"referenceId": "FOF-REF-SUBSCRIPTION-CALC", "title": "FOF确认份额计算抽象", "source": "FOF-MAT-MAIN:S36-S43；content/evidence/accounting/fof/field-dictionary.json#confirmed_shares", "usage": "支持 confirmedAmount/subscriptionNAV、单位、精度和 Decimal 复算。"},
+    {"referenceId": "FOF-REF-SUBSCRIPTION-EVIDENCE", "title": "FOF-02共享快照与材料审计证据", "source": "content/evidence/accounting/fof/shared-normal-snapshot.json#/fixtures/2-3；content/evidence/accounting/fof/material-audit.json", "usage": "提供本路线独立 Demo A/综合B 参数、到账/份额答案链、稳定材料定位和排除边界。"}
+  ]
+}

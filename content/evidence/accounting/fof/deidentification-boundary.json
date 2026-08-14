@@ -1,0 +1,52 @@
+{
+  "evidenceId": "FOF-EVID-DEID-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "title": "FOF B0 脱敏与题面边界",
+  "scopeNotice": "本文件只约束 FOF-01/02 的教学快照和证据资产，不是生产数据字典、业务制度或接口契约。",
+  "provenanceLabels": [
+    {
+      "label": "MATERIAL_ABSTRACTION",
+      "meaning": "从原始材料抽象对象、来源、角色或流程关系，不复制历史具体口径。",
+      "allowedIn": ["evidence", "references", "card conclusions"],
+      "forbiddenAs": ["永久日期", "永久费率", "生产菜单", "当前权限结论"]
+    },
+    {
+      "label": "SYNTHETIC_EDUCATIONAL",
+      "meaning": "为本批正常资料包生成的合成业务键、日期、金额、NAV、份额和结果。",
+      "allowedIn": ["route sourceMaterials", "demonstration", "basic practice", "fixture answer chain"],
+      "requiredControls": ["caseVersion", "sourceGroup", "unit", "precision", "tolerance"]
+    },
+    {
+      "label": "CASE_POLICY",
+      "meaning": "仅用于本案例的状态转移、零差异判断和教学收口条件。",
+      "allowedIn": ["evidence", "rubric", "structured workpaper"],
+      "forbiddenAs": ["生产 SOP", "通用权限规则", "跨产品规则"]
+    }
+  ],
+  "promptForbidden": [
+    "历史培训材料中的真实日期、时点、费率、税费或精度",
+    "真实基金名称、真实账户、真实客户、真实员工或人物姓名",
+    "生产系统菜单、网站、URL、内网路径、账号、权限或联系人",
+    "互认基金、非 FOF 特殊合同、转换/转托管/强制调整规则",
+    "迟到、重复、错配、多应收合并到账、人工凭证、重跑、回滚、重估、重披露或强制关闭"
+  ],
+  "syntheticKeyRules": {
+    "fofFundKey": "FOF-EDU-[A-Z]-NN",
+    "underlyingFundKey": "FUND-EDU-[A-Z]-NN",
+    "instructionKey": "INS-FOF[01]-[A/B]-NNN",
+    "date": "2030 年合成教学日期，随 fixture 版本变化，不代表历史业务日期"
+  },
+  "safeNormalBoundary": [
+    "国内普通开放式基金的合成对象关系",
+    "单一管理人、单一 TA、单笔指令、单笔确认、单笔到账",
+    "指令金额、确认 NAV、确认份额、实收金额和台账份额均有来源字段",
+    "只训练到 SHARES_POSTED；NAV_CONFIRMED 及之后的估值状态留给后续路线"
+  ],
+  "validationChecks": [
+    "route/rubric 不出现真实 URL、邮箱、Cookie、密码、内网路径或真实基金名称",
+    "所有数值字段绑定 caseVersion、来源组、单位、precision 和 tolerance",
+    "FOF-01 与 FOF-02 使用独立 fixture 数字，不共享全模块数字包",
+    "DEFER 主题不出现在 FOF-01/02 的题面和答案链中"
+  ]
+}

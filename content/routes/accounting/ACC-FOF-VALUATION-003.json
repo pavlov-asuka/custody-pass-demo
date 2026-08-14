@@ -1,0 +1,155 @@
+{
+  "routeId": "ACC-FOF-VALUATION-003",
+  "contentVersion": "1.0.0",
+  "line": "ACCOUNTING",
+  "title": "按当前批准 NAV 完成 FOF 持仓估值勾稽",
+  "summary": "从当前案例版本化 NAV 来源读取批准价格，承接已确认份额，计算市值并完成 TA、内部持仓与估值结果三方零差异勾稽。",
+  "estimatedMinutes": 32,
+  "objectives": [
+    "能从当前案例来源快照读取 sourceId、来源版本、估值日和 availableAt，并锁定母基金与被投基金对象键。",
+    "能用 approvedShares×approvedNAV 以 Decimal 计算市值，并分别登记 TA 与内部期末份额。",
+    "能计算 holdingDiff 与 valuationDiff，判断 NAV_CONFIRMED 和 HOLDING_RECONCILED 的正常边界。"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "FOF03-KC-01",
+          "type": "FLOW",
+          "title": "先锁定当前案例批准 NAV 来源",
+          "conclusion": "批准 NAV 只能来自本案例当前版本化快照；sourceId、来源版本、估值日和 availableAt 共同限定这一次价格读取。",
+          "items": [
+            "先看 sourceId 与 sourceVersion，再确认 sourceSnapshot 属于当前案例。",
+            "估值日和 availableAt 是题面时点字段，不是永久菜单或固定日历。",
+            "对象键必须回到本案例 FOF 母基金键和被投基金键。"
+          ]
+        },
+        {
+          "cardId": "FOF03-KC-02",
+          "type": "KEY_POINT",
+          "title": "份额承接后才计算当前案例市值",
+          "conclusion": "已确认的 TA closing shares 是数量输入；approvedNAV 是当前来源快照的价格输入，marketValue=approvedShares×approvedNAV。",
+          "items": [
+            "TA closing shares 与内部 closing shares 分别读取，不能用一个字段代替两方。",
+            "NAV 先按题面精度读取，计算过程保持 Decimal，不把中间结果转浮点。",
+            "本路线承接 FOF-02 的份额结果，不重新演示申购确认、到账或 confirmedShares。"
+          ]
+        },
+        {
+          "cardId": "FOF03-KC-03",
+          "type": "CATEGORIES",
+          "title": "三方数量金额分别勾稽",
+          "conclusion": "holdingDiff=internalShares−TAShares，valuationDiff=calculatedMarketValue−valuationResult；两者为零且来源与日期正确，才完成本案例正常估值勾稽。",
+          "items": [
+            "数量控制看 TA 与内部持仓份额是否一致。",
+            "金额控制看计算市值与资料估值结果是否一致。",
+            "状态结果分别落到 NAV_CONFIRMED 与 HOLDING_RECONCILED。"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "caseVersion": "FOF03-A-EDU-01",
+        "sourceSnapshot": "SRC-FOF03-A-NAV-001 / NAV-SNAPSHOT-A-20300618",
+        "valuationDate": "2030-06-18",
+        "availableAt": "2030-06-18T18:20:00+08:00",
+        "fofFundKey": "FOF-EDU-E-01",
+        "underlyingFundKey": "FUND-EDU-E-01",
+        "approvedNAV": "1.2345",
+        "taClosingShares": "840000.00",
+        "internalClosingShares": "840000.00",
+        "valuationResult": "1036980.00"
+      },
+      "steps": [
+        {"order": 1, "action": "从当前案例 source snapshot 读取 sourceId SRC-FOF03-A-NAV-001、版本 NAV-SNAPSHOT-A-20300618 和 availableAt 2030-06-18T18:20:00+08:00。", "reason": "先确认价格来源属于本案例当前版本，避免把别的快照当成批准 NAV。"},
+        {"order": 2, "action": "核对估值日2030-06-18、FOF-EDU-E-01与FUND-EDU-E-01对象键。", "reason": "日期和对象键决定这组 NAV、份额和结果是否属于同一案例。"},
+        {"order": 3, "action": "读取批准 NAV 1.2345 元/份，确认来源字段完整后标记 NAV_CONFIRMED。", "reason": "价格确认必须跟随来源版本和估值日，不能只抄一个数字。"},
+        {"order": 4, "action": "分别读取 TA closing shares 840000.00 份与内部 closing shares 840000.00 份，以 Decimal 计算 840000.00×1.2345=1036980.00 元。", "reason": "把两方数量分开登记，才能定位数量差异并得到可复算的市值。"},
+        {"order": 5, "action": "计算 holdingDiff=0.00份、valuationDiff=0.00元，并将本案例正常结果落到 HOLDING_RECONCILED。", "reason": "数量和金额两个控制点都为零，三方结果才可承接。"}
+      ],
+      "summary": "示范完成当前批准 NAV 来源→已确认份额→市值→TA/内部/估值结果三方勾稽，不重复 FOF-02 申购确认主链。"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-FOF-VALUATION-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "选择同时承载当前案例 sourceId、来源版本和 availableAt 的来源资料。",
+          "fieldMappings": [{"fieldId": "fof03-a-source-map", "label": "批准 NAV 来源", "source": "FOF03 Demo A 当前案例资料组", "options": [{"optionId": "VALUATION_SNAPSHOT_SOURCE", "text": "当前案例批准 NAV 来源快照"}, {"optionId": "OLD_PRICE_SOURCE", "text": "非当前版本价格摘录"}]}],
+          "answer": ["VALUATION_SNAPSHOT_SOURCE"],
+          "explanation": "sourceId、版本和 availableAt 必须来自当前案例批准 NAV 快照。",
+          "hints": ["先找 sourceId 和版本字段，不要只看裸 NAV 数字。"]
+        },
+        {
+          "questionId": "ACC-FOF-VALUATION-Q-02",
+          "type": "CALCULATION",
+          "prompt": "用 TA closing shares 840000.00 份和 approved NAV 1.2345 元/份计算当前案例市值。",
+          "calculation": {"fields": [{"fieldId": "fof03-a-market-value", "label": "marketValue", "formula": "840000.00 × 1.2345", "placeholder": "输入市值", "unit": "元", "precision": 2, "tolerance": 0.01}]},
+          "answer": ["1036980.00"],
+          "explanation": "marketValue=840000.00×1.2345=1036980.00元。",
+          "hints": ["保持 Decimal，最后按金额两位显示。"]
+        },
+        {
+          "questionId": "ACC-FOF-VALUATION-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把 TA 与内部期末份额分别登记为两个台账单元。",
+          "ledgerEntries": [{"entryId": "TA_CLOSING", "direction": "READ", "label": "TA期末份额", "amount": "840000.00", "placeholder": "输入TA份额"}, {"entryId": "INTERNAL_CLOSING", "direction": "READ", "label": "内部期末份额", "amount": "840000.00", "placeholder": "输入内部份额"}],
+          "answer": ["TA_CLOSING=840000.00", "INTERNAL_CLOSING=840000.00"],
+          "explanation": "两方份额独立登记，不能用估值结果替代持仓数量。",
+          "hints": ["先分角色，再填数量。"]
+        },
+        {
+          "questionId": "ACC-FOF-VALUATION-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "计算 TA/内部份额差额和计算市值/资料估值结果差额，并选择状态。",
+          "reconciliation": {"fields": [{"fieldId": "fof03-a-holding-diff", "label": "holdingDiff", "kind": "NUMBER", "formula": "840000.00−840000.00", "placeholder": "输入份额差额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof03-a-valuation-diff", "label": "valuationDiff", "kind": "NUMBER", "formula": "1036980.00−1036980.00", "placeholder": "输入金额差额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof03-a-state", "label": "正常完成状态", "kind": "SELECT", "formula": "两个差额均为0且来源日期正确", "placeholder": "选择状态", "options": [{"optionId": "HOLDING_RECONCILED", "text": "HOLDING_RECONCILED"}, {"optionId": "NOT_READY", "text": "尚不能承接"}]}]},
+          "answer": ["0.00", "0.00", "HOLDING_RECONCILED"],
+          "explanation": "数量和金额差额均为0.00，当前案例完成正常三方勾稽。",
+          "hints": ["先分别算数量差和金额差，再判断状态。"]
+        },
+        {
+          "questionId": "ACC-FOF-VALUATION-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出当前批准 NAV 来源、份额、市值和两个差额的正常结论。",
+          "textInput": {"label": "一句正常结论", "placeholder": "输入不超过一句的结构化结论"},
+          "answer": ["SRC-FOF03-A-NAV-001、840000.00份、1036980.00元，holdingDiff和valuationDiff均为0.00，HOLDING_RECONCILED。"],
+          "explanation": "短句只汇总已经结构化提交的结果，不替代来源、计算或台账字段。",
+          "hints": ["包含 sourceId、数量、金额和两个差额即可。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {"role": "FOF估值复核岗", "product": "境内普通开放式基金持仓", "date": "2030-06-19", "purpose": "依据当前案例批准 NAV 来源完成持仓数量和估值结果的正常三方勾稽"},
+      "sourceMaterials": [
+        {"materialId": "FOF03-B-SOURCE-SNAPSHOT", "title": "当前案例批准 NAV 来源快照", "kind": "PARAMETER", "description": "版本化当前案例快照，包含 sourceId、sourceVersion、availableAt、approved NAV 和 NAV_CONFIRMED 边界。", "fields": [{"fieldId": "sourceId", "label": "sourceId", "value": "SRC-FOF03-B-NAV-001"}, {"fieldId": "sourceVersion", "label": "来源版本", "value": "NAV-SNAPSHOT-B-20300619"}, {"fieldId": "availableAt", "label": "可用时间", "value": "2030-06-19T18:15:00+08:00"}, {"fieldId": "approvedNAV", "label": "批准NAV", "value": "0.9876", "unit": "元/份"}]},
+        {"materialId": "FOF03-B-OBJECT", "title": "估值日与对象登记资料", "kind": "CONFIRMATION", "description": "当前案例估值日和 FOF 母基金、被投基金对象键。", "fields": [{"fieldId": "valuationDate", "label": "估值日", "value": "2030-06-19"}, {"fieldId": "fofFundKey", "label": "FOF母基金键", "value": "FOF-EDU-F-01"}, {"fieldId": "underlyingFundKey", "label": "被投基金键", "value": "FUND-EDU-F-01"}]},
+        {"materialId": "FOF03-B-TA-HOLDING", "title": "TA 期末份额资料", "kind": "LEDGER", "description": "TA 当前案例期末持仓份额。", "fields": [{"fieldId": "taClosingShares", "label": "TA期末份额", "value": "1275000.00", "unit": "份"}]},
+        {"materialId": "FOF03-B-INTERNAL-HOLDING", "title": "内部期末持仓资料", "kind": "LEDGER", "description": "内部持仓工作纸中的同一案例期末份额。", "fields": [{"fieldId": "internalClosingShares", "label": "内部期末份额", "value": "1275000.00", "unit": "份"}]},
+        {"materialId": "FOF03-B-VALUATION", "title": "估值结果资料", "kind": "VALUATION", "description": "资料中的估值结果，供 marketValue 与 valuationDiff 勾稽。", "fields": [{"fieldId": "valuationResult", "label": "估值结果", "value": "1259190.00", "unit": "元"}]},
+        {"materialId": "FOF03-B-RECON", "title": "三方结果工作纸", "kind": "RECONCILIATION", "description": "承载 holdingDiff、valuationDiff 和两个正常承接状态。", "fields": [{"fieldId": "navState", "label": "NAV状态", "value": "NAV_CONFIRMED"}, {"fieldId": "holdingState", "label": "持仓状态", "value": "HOLDING_RECONCILED"}]}
+      ],
+      "workItems": [
+        {"workItemId": "fof03-b-nav-source-id", "type": "FIELD_MAP", "title": "定位批准 NAV sourceId", "instruction": "从当前案例来源快照选择 sourceId SRC-FOF03-B-NAV-001 的来源。", "response": {"kind": "SELECT", "placeholder": "选择批准NAV sourceId来源", "options": [{"optionId": "FOF03_B_APPROVED_NAV_SOURCE", "text": "FOF03-B-SOURCE-SNAPSHOT→SRC-FOF03-B-NAV-001"}, {"optionId": "FOF03_B_VALUATION_RESULT_SOURCE", "text": "FOF03-B-VALUATION→SRC-FOF03-B-NAV-001"}]}},
+        {"workItemId": "fof03-b-nav-source-version", "type": "FIELD_MAP", "title": "定位当前来源版本", "instruction": "选择承载 NAV-SNAPSHOT-B-20300619 和 availableAt 的当前版本字段。", "response": {"kind": "SELECT", "placeholder": "选择当前来源版本", "options": [{"optionId": "FOF03_B_SOURCE_VERSION_CURRENT", "text": "FOF03-B-SOURCE-SNAPSHOT→NAV-SNAPSHOT-B-20300619"}, {"optionId": "FOF03_B_SOURCE_VERSION_OLD", "text": "FOF03-B-VALUATION→历史价格版本"}]}},
+        {"workItemId": "fof03-b-valuation-date", "type": "FIELD_MAP", "title": "定位估值日与 availableAt", "instruction": "选择同时说明估值日2030-06-19和来源可用时间2030-06-19T18:15:00+08:00的资料。", "response": {"kind": "SELECT", "placeholder": "选择日期与可用时间来源", "options": [{"optionId": "FOF03_B_DATE_AND_AVAILABLE_AT", "text": "FOF03-B-OBJECT与FOF03-B-SOURCE-SNAPSHOT"}, {"optionId": "FOF03_B_DATE_ONLY", "text": "仅FOF03-B-VALUATION结果"}]}},
+        {"workItemId": "fof03-b-object-keys", "type": "FIELD_MAP", "title": "定位估值对象键", "instruction": "选择承载 FOF-EDU-F-01 与 FUND-EDU-F-01 的对象资料。", "response": {"kind": "SELECT", "placeholder": "选择对象键来源", "options": [{"optionId": "FOF03_B_OBJECT_KEYS", "text": "FOF03-B-OBJECT→FOF-EDU-F-01/FUND-EDU-F-01"}, {"optionId": "FOF03_B_RESULT_KEYS", "text": "FOF03-B-RECON→结果键"}]}},
+        {"workItemId": "fof03-b-approved-nav", "type": "CALCULATION", "title": "读取批准 NAV", "instruction": "从当前 source snapshot 读取批准 NAV 0.9876 元/份，按四位精度提交。", "response": {"kind": "NUMBER", "placeholder": "输入approved NAV", "unit": "元/份", "precision": 4}},
+        {"workItemId": "fof03-b-ta-closing-shares", "type": "LEDGER_ENTRY", "title": "登记 TA 期末份额", "instruction": "从 TA 期末份额资料独立登记1275000.00份。", "response": {"kind": "NUMBER", "placeholder": "输入TA期末份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof03-b-internal-closing-shares", "type": "LEDGER_ENTRY", "title": "登记内部期末份额", "instruction": "从内部持仓资料独立登记1275000.00份。", "response": {"kind": "NUMBER", "placeholder": "输入内部期末份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof03-b-market-value", "type": "CALCULATION", "title": "计算持仓市值", "instruction": "用已确认份额1275000.00份×approved NAV 0.9876元/份，按 Decimal 计算 marketValue。", "response": {"kind": "NUMBER", "placeholder": "输入marketValue", "unit": "元", "precision": 2}},
+        {"workItemId": "fof03-b-holding-diff", "type": "RECONCILIATION", "title": "计算持仓数量差额", "instruction": "用 internalShares 1275000.00份−TAShares 1275000.00份，输入 holdingDiff。", "response": {"kind": "NUMBER", "placeholder": "输入holdingDiff", "unit": "份", "precision": 2}},
+        {"workItemId": "fof03-b-valuation-diff", "type": "RECONCILIATION", "title": "计算估值金额差额", "instruction": "用 calculatedMarketValue 1259190.00元−valuationResult 1259190.00元，输入 valuationDiff。", "response": {"kind": "NUMBER", "placeholder": "输入valuationDiff", "unit": "元", "precision": 2}},
+        {"workItemId": "fof03-b-nav-confirmed-state", "type": "RECONCILIATION", "title": "确认 NAV 状态", "instruction": "来源ID、版本、估值日和批准 NAV 均对应当前案例时，选择 NAV_CONFIRMED。", "response": {"kind": "SELECT", "placeholder": "选择NAV状态", "options": [{"optionId": "FOF03_B_NAV_CONFIRMED", "text": "NAV_CONFIRMED"}, {"optionId": "FOF03_B_NAV_NOT_CONFIRMED", "text": "尚未确认"}]}},
+        {"workItemId": "fof03-b-holding-reconciled-state", "type": "RECONCILIATION", "title": "确认持仓勾稽状态", "instruction": "TA/内部份额差额和市值/估值结果差额均为0.00时，选择 HOLDING_RECONCILED。", "response": {"kind": "SELECT", "placeholder": "选择持仓勾稽状态", "options": [{"optionId": "FOF03_B_HOLDING_RECONCILED", "text": "HOLDING_RECONCILED"}, {"optionId": "FOF03_B_HOLDING_NOT_READY", "text": "尚不能承接"}]}},
+        {"workItemId": "fof03-b-conclusion", "type": "SHORT_TEXT", "title": "写出估值三方勾稽结论", "instruction": "用一句短结论说明当前 sourceId/版本/估值日、approved NAV、TA与内部份额、marketValue、两个差额和正常状态；不得用短句替代前面的结构化字段。", "response": {"kind": "TEXT", "placeholder": "输入一句结构化正常结论"}}
+      ],
+      "submissionNote": "逐项提交当前来源与对象字段、approved NAV、TA/内部份额、marketValue、holdingDiff、valuationDiff、NAV_CONFIRMED、HOLDING_RECONCILED 和一句短结论；本路线不重复申购确认主链。"
+    }
+  },
+  "references": [
+    {"referenceId": "FOF-REF-VALUATION-SOURCE", "title": "FOF 当前案例批准 NAV 来源抽象", "source": "FOF-MAT-MAIN:S14-S18；FOF-EG-03-VALUATION-SOURCE", "usage": "支持 sourceId、版本、估值日、availableAt 和批准 NAV 的当前案例快照定位。"},
+    {"referenceId": "FOF-REF-VALUATION-HOLDING", "title": "FOF TA 与内部持仓承接抽象", "source": "FOF-MAT-HOLDING:S08-S11；FOF-EG-03-VALUATION-HOLDING", "usage": "支持 TA closing shares、内部 closing shares 和份额差额的独立工作纸。"},
+    {"referenceId": "FOF-REF-VALUATION-RECON", "title": "FOF 市值与估值结果勾稽抽象", "source": "FOF-MAT-MAIN:S14-S18；FOF-EG-03-VALUATION-RECON", "usage": "支持 marketValue、valuationDiff、NAV_CONFIRMED 与 HOLDING_RECONCILED 的正常边界。"}
+  ]
+}
