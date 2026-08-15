@@ -47,9 +47,9 @@ export function RecordsPage() {
       <div className="records-page page-enter">
         <header className="records-header">
           <div>
-            <span className="eyebrow">每一次正式作答都在这里</span>
+            <span className="eyebrow">正式作答记录</span>
             <h1>我的训练记录</h1>
-            <p>共 {records?.totalElements ?? '—'} 次正式训练 · 查看当时的作答与评分快照，也能分清历史结论和路线当前状态。</p>
+            <p>共 {records?.totalElements ?? '—'} 次正式提交 · 查看作答快照、评分证据和提交时的路线状态。</p>
           </div>
         </header>
 
@@ -63,19 +63,19 @@ export function RecordsPage() {
             </select>
           </label>
           <label>
-            <span>本次结果</span>
+            <span>提交结论</span>
             <select value={conclusion} onChange={(event) => { setConclusion(event.target.value as Conclusion | ''); setPage(0); }}>
-              <option value="">全部结果</option>
+              <option value="">全部结论</option>
               <option value="PASSED">已通过</option>
-              <option value="LEARNED_NOT_MASTERED">未掌握</option>
+              <option value="LEARNED_NOT_MASTERED">需补学</option>
             </select>
           </label>
         </section>
 
-        {loading && <LoadingState label="正在整理训练记录…" />}
+        {loading && <LoadingState label="正在读取训练记录…" />}
         {error && <ErrorState error={error} />}
         {records && !records.items.length && (
-          <EmptyState title="还没有符合条件的记录" description="正式提交综合实务后，评分记录会出现在这里。" />
+          <EmptyState title="还没有符合条件的记录" description="完成一次综合实务提交后，记录会出现在这里。" />
         )}
         {records && records.items.length > 0 && (
           <section className="records-list" data-testid="records-list">
@@ -93,10 +93,10 @@ export function RecordsPage() {
                       <span><CalendarDays size={16} /> {formatDate(record.submittedAt)}</span>
                       <span className={passed ? 'tag tag--passed' : 'tag tag--review'}>
                         {record.processingStatus === 'SCORING'
-                          ? '评分中'
+                          ? '评分处理中'
                           : record.processingStatus === 'FAILED'
-                            ? '评分技术失败'
-                          : passed ? '本次已通过' : '本次未掌握'}
+                            ? '评分未完成（技术问题）'
+                          : passed ? '本次已通过' : '本次需补学'}
                       </span>
                     </div>
                   </div>

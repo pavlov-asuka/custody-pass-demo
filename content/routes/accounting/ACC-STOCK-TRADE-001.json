@@ -2,14 +2,14 @@
   "routeId": "ACC-STOCK-TRADE-001",
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
-  "title": "股票买卖与成本闭环",
-  "summary": "沿同一只股票的正常买入、卖出、费用、移动加权成本、资金与估值结果完成一条可复核的核算链。",
+  "title": "股票买卖与成本核算",
+  "summary": "按同一证券的买入、卖出、费用和移动加权成本，更新资金与持仓台账，再用估值结果核对期末余额。",
   "estimatedMinutes": 45,
   "objectives": [
-    "从成交清算日报读取成交数量、实际清算金额、费用和记录状态，判断正常买卖方向",
-    "按题面批准参数将成交金额、交易费用、席位佣金分别落到买入凭证，并区分交易日确认与后续支付",
+    "从成交清算日报读取成交数量、实际清算金额、费用和记录状态，判断买卖方向",
+    "按批准参数将成交金额、交易费用、席位佣金分别登记到买入凭证，区分交易日确认与后续支付",
     "按卖出前成本余额与持仓数量的移动加权关系计算结转成本、估值增值和剩余持仓",
-    "用资金台账、持仓台账和估值结果完成交叉勾稽并形成简短结论"
+    "用资金台账、持仓台账和估值结果核对期末数据，写出简短结论"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -17,12 +17,12 @@
         {
           "cardId": "STK-TRADE-KC-01",
           "type": "FLOW",
-          "title": "一笔股票买卖怎样形成核算结果",
-          "conclusion": "先读成交清算记录，再分开处理成交金额、交易费用和席位佣金，最后把持仓、成本、资金和估值结果放回同一条链核对。",
+          "title": "一笔股票买卖如何落到账上",
+          "conclusion": "先读成交清算记录，分开处理成交金额、交易费用和席位佣金；再把持仓、成本、资金和估值结果逐项核对。",
           "items": [
             "成交清算日报：成交数量、成交金额、实际清算金额和记录状态",
-            "费用与佣金：交易费用来自交易清算资料，席位佣金按已批准方案形成应付",
-            "买入与卖出：买入增加数量并形成成本，卖出按卖出前余额计算结转成本",
+            "费用与佣金：交易费用来自交易清算资料，席位佣金按已批准方案登记应付",
+            "买入与卖出：买入增加数量并计入成本，卖出按卖出前余额计算结转成本",
             "结果验证：剩余持仓、剩余成本、资金余额和估值表必须能互相解释"
           ]
         },
@@ -30,19 +30,19 @@
           "cardId": "STK-TRADE-KC-02",
           "type": "CATEGORIES",
           "title": "成交清算记录中的字段各自证明什么",
-          "conclusion": "证券数量和资金方向共同说明交易方向；成交金额、交易费用、席位佣金和实际清算金额不能互相替代。",
+          "conclusion": "证券数量和资金方向共同判断交易方向；成交金额、交易费用、席位佣金和实际清算金额各自取自相应字段。",
           "items": [
             "成交数量为正表示证券数量增加，为负表示证券数量减少",
             "实际清算金额为负表示资金流出，为正表示资金流入",
-            "成交金额形成股票成本，交易费用单独处理，席位佣金在交易日确认并形成应付佣金",
-            "记录状态正常只是继续处理的前提，不能用方向判断替代状态核对"
+            "成交金额计入股票成本，交易费用单独处理，席位佣金在交易日确认并登记应付佣金",
+            "记录状态为正常才可继续；方向判断不能代替状态核对"
           ]
         },
         {
           "cardId": "STK-TRADE-KC-03",
           "type": "KEY_POINT",
-          "title": "卖出成本要从原有持仓中结转",
-          "conclusion": "卖出成交金额是本次取得的资金，不是本次卖出的历史成本；成本和估值增值都要按卖出前余额与数量的比例结转。",
+          "title": "卖出成本从原持仓结转",
+          "conclusion": "卖出成交金额是本次资金收入，不是卖出历史成本；成本和估值增值按卖出前余额与数量比例结转。",
           "items": [
             "单位持仓成本 = 卖出前股票成本余额 ÷ 卖出前持仓数量",
             "卖出结转成本 = 单位持仓成本 × 本次卖出数量",
@@ -54,8 +54,8 @@
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "案例产品 A 的组合核算人员",
-        "product": "案例产品 A / 案例股份 A",
+        "role": "产品 A 的组合核算人员",
+        "product": "产品 A / 股份 A",
         "date": "2026-07-11 至 2026-07-12",
         "facts": [
           "7 月 10 日收盘持有 20,000 股，股票成本余额 180,000 元，估值增值余额 20,000 元。",
@@ -70,12 +70,12 @@
         {
           "order": 1,
           "action": "读取两日成交清算记录的成交数量、实际清算金额和状态",
-          "reason": "数量增加且资金流出说明买入，数量减少且资金流入说明卖出；状态正常后才进入后续处理。"
+          "reason": "数量增加且资金流出表示买入，数量减少且资金流入表示卖出；先核对记录状态，再继续处理。"
         },
         {
           "order": 2,
-          "action": "完成 7 月 11 日买入凭证：成本 100,000 元、交易费用 120 元、席位佣金 80 元形成应付；按 -(100,000 + 120 - 80) = -100,040 元复算证券清算款",
-          "reason": "成交金额形成股票成本，交易费用单独处理；佣金交易日确认，不因季度末支付而推迟确认；实际清算金额必须能由三项金额复算。"
+          "action": "登记 7 月 11 日买入凭证：成本 100,000 元、交易费用 120 元、席位佣金 80 元登记应付；按 -(100,000 + 120 - 80) = -100,040 元复算证券清算款",
+          "reason": "成交金额计入股票成本，交易费用单列；佣金在交易日确认，不因季度末支付而推迟；实际清算金额由三项金额复算。"
         },
         {
           "order": 3,
@@ -90,17 +90,17 @@
         {
           "order": 5,
           "action": "用 1,000,000 - 100,040 + 131,900 = 1,031,860 元复算期末资金，用 18,000 × 11.00 = 198,000 元复算收盘市值，再以 198,000 - 168,000 = 30,000 元复核估值增值",
-          "reason": "期初资金、两笔实际清算、估值日收盘价、剩余数量和剩余成本共同证明连续业务链闭合，结果不能凭空出现。"
+          "reason": "期初资金、两笔实际清算、估值日收盘价、剩余数量和剩余成本互相校验，四者缺一不可。"
         }
       ],
-      "summary": "读字段与状态 → 分开处理成本、费用和佣金 → 带入持仓台账 → 移动加权结转 → 资金与估值勾稽"
+      "summary": "读取字段与状态 → 分开登记成本、费用和佣金 → 更新持仓台账 → 按卖出前余额结转 → 核对资金与估值"
     },
     "BASIC_PRACTICE": {
       "questions": [
         {
           "questionId": "ACC-STOCK-TRADE-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "请把案例股份 A 的成交字段、资金方向和正常状态链分别对应到正确的业务含义。每一行都要从题面字段取证。",
+          "prompt": "将股份 A 的成交字段、资金方向和记录状态对应到业务含义；每一行都从日报字段取证。",
           "fieldMappings": [
             {
               "fieldId": "trade-direction",
@@ -140,16 +140,16 @@
             }
           ],
           "answer": ["BUY_DIRECTION", "CASH_OUTFLOW", "NORMAL_CONTINUE", "TRADE_DAY_PAYABLE"],
-          "explanation": "成交数量为正表示证券增加，实际清算金额为负表示资金流出，正常状态允许继续；席位佣金在交易日确认并形成应付。",
+          "explanation": "正成交数量表示证券增加，负清算金额表示资金流出；记录状态为正常才可继续；佣金在交易日确认并登记应付。",
           "hints": ["先逐行定位字段来源，再把数量方向、资金方向、状态和佣金时点分开判断。"]
         },
         {
           "questionId": "ACC-STOCK-TRADE-Q-02",
           "type": "CALCULATION",
-          "prompt": "从 8 月 3 日买入清算日报取数，并按题面批准关系复算实际清算金额。请填写四个数字，不要把结果放在选择项里。",
+          "prompt": "从 8 月 3 日买入清算日报取数，按批准关系复算实际清算金额。填写四个数字，不要把结果放在选择项里。",
           "calculation": {
             "fields": [
-              {"fieldId": "buy-stock-cost", "label": "成交金额形成的股票成本", "formula": "成交金额 = 72,000.00", "placeholder": "输入股票成本", "unit": "元"},
+            {"fieldId": "buy-stock-cost", "label": "成交金额计入的股票成本", "formula": "成交金额 = 72,000.00", "placeholder": "输入股票成本", "unit": "元"},
               {"fieldId": "buy-trading-fee", "label": "买入交易费用", "formula": "日报交易费用 = 90.00", "placeholder": "输入交易费用", "unit": "元"},
               {"fieldId": "buy-commission", "label": "买入席位佣金", "formula": "日报席位佣金 = 60.00", "placeholder": "输入席位佣金", "unit": "元"},
               {"fieldId": "buy-actual-settlement", "label": "实际清算金额", "formula": "-(72,000 + 90 - 60) = ?", "placeholder": "输入复算结果", "unit": "元"}
@@ -157,12 +157,12 @@
           },
           "answer": ["72000", "90", "60", "-72030"],
           "explanation": "成交金额、交易费用和席位佣金分别取数；实际清算金额按 -(72,000 + 90 - 60) = -72,030 元复算。",
-          "hints": ["先填三个来源字段，再按题面关系计算最后一格；逗号和空格不影响数字识别。"]
+          "hints": ["先填三个来源字段，再按清算关系计算最后一格；逗号和空格不影响数字识别。"]
         },
         {
           "questionId": "ACC-STOCK-TRADE-Q-03",
           "type": "LEDGER_ENTRY",
-          "prompt": "补全案例产品 B 8 月 3 日买入凭证的四个科目。借贷方向、金额和资料来源已经给出，你只需要补科目名称。",
+          "prompt": "补全产品 B 8 月 3 日买入凭证的四个科目。借贷方向、金额和资料来源已经给出，只需填写科目名称。",
           "ledgerEntries": [
             {"entryId": "debit-cost", "direction": "借", "label": "股票成本，72,000.00 元", "amount": "72,000.00 元", "placeholder": "输入借方科目"},
             {"entryId": "debit-fee", "direction": "借", "label": "交易费用，90.00 元", "amount": "90.00 元", "placeholder": "输入借方科目"},
@@ -176,7 +176,7 @@
         {
           "questionId": "ACC-STOCK-TRADE-Q-04",
           "type": "RECONCILIATION",
-          "prompt": "用案例股份 A 的卖出前台账、资金台账和 7 月 12 日估值资料完成跨来源复算。数字字段逐格填写，最后选择勾稽结论。",
+          "prompt": "从股份 A 的卖出前台账、资金台账和 7 月 12 日估值资料分别取数，复算跨来源结果；数字字段逐格填写，再选择勾稽结论。",
           "reconciliation": {
             "fields": [
               {"fieldId": "unit-cost", "label": "卖出前单位成本", "kind": "NUMBER", "formula": "280,000 ÷ 30,000 = ?", "placeholder": "输入元/股", "precision": 2, "tolerance": 0.01},
@@ -193,13 +193,13 @@
             ]
           },
           "answer": ["9.3333333333", "112000", "18000", "168000", "1031860", "198000", "30000", "BALANCED"],
-          "explanation": "卖出成本、剩余持仓、资金余额、市值和估值增值分别由台账、成交清算日报和估值日收盘价复算，全部关系闭合后才能判断勾稽一致。",
+          "explanation": "卖出成本、剩余持仓、资金余额、市值和估值增值分别由台账、成交清算日报和估值日收盘价复算；所有数字一致时选择勾稽一致。",
           "hints": ["先用卖出前余额算单位成本和结转，再分别核对资金公式与 18,000 × 11.00 的市值公式。"]
         },
         {
           "questionId": "ACC-STOCK-TRADE-Q-05",
           "type": "SHORT_TEXT",
-          "prompt": "请用一句可追溯的正常业务结论，清楚写出剩余持仓、剩余成本、期末资金、期末市值，并明确勾稽结论。",
+          "prompt": "用一句业务结论写出卖出后剩余持仓、剩余成本、期末资金、期末市值和勾稽结论。",
           "textInput": {
             "label": "连续业务结论",
             "placeholder": "例如：剩余持仓……，剩余成本……，期末资金……，期末市值……，勾稽一致。"
@@ -212,31 +212,31 @@
     },
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
-        "role": "案例产品 B 的组合核算人员",
-        "product": "案例产品 B / 案例股份 D",
+        "role": "产品 B 的组合核算人员",
+        "product": "产品 B / 股份 D",
         "date": "2026-08-03 至 2026-08-04",
-        "purpose": "根据一组资料充分、状态正常的连续买卖资料，独立完成字段读取、费用与佣金处理、移动加权成本、凭证/台账补全，以及资金和估值结果勾稽。"
+        "purpose": "从连续买卖资料读取字段，登记费用与佣金，按移动加权法结转成本，补全凭证和台账，并核对资金与估值结果。"
       },
       "sourceMaterials": [
         {
           "materialId": "STK-CASE-PARAMETERS",
-          "title": "本案计算口径与批准参数",
+          "title": "计算口径与批准参数",
           "kind": "PARAMETER",
-          "description": "本路线题面当前批准的合成参数，只约束本案作答，不把历史费率、税率或系统默认值固化为永久规则。",
+          "description": "清算关系、佣金时点和精度以本资料为准；历史费率、税率和系统默认值不用于当前处理。",
           "fields": [
             {"fieldId": "scope", "label": "业务范围", "value": "普通交易性股票；两日记录状态均为正常"},
             {"fieldId": "buy-settlement-rule", "label": "买入实际清算关系", "value": "-(成交金额 + 交易费用 - 席位佣金)"},
             {"fieldId": "sell-settlement-rule", "label": "卖出实际清算关系", "value": "成交金额 - 卖出交易费用"},
             {"fieldId": "commission-timing", "label": "佣金时点", "value": "交易日确认费用并形成应付佣金；后续支付日结清"},
             {"fieldId": "cost-rule", "label": "卖出成本口径", "value": "卖出前股票成本余额 ÷ 卖出前持仓数量 × 卖出数量"},
-            {"fieldId": "precision-boundary", "label": "本案精度边界", "value": "关键金额按 0.01 元填写；本案中间值均可直接得到，不检验参数配置"}
+            {"fieldId": "precision-boundary", "label": "精度边界", "value": "关键金额按 0.01 元填写；本案中间值均可直接得到，不检验参数配置"}
           ]
         },
         {
           "materialId": "STK-BUY-REPORT",
           "title": "8 月 3 日成交清算日报—买入记录",
           "kind": "STATEMENT",
-          "description": "案例产品 B 的普通股票买入记录。字段已经完成正常解析和拆分。",
+          "description": "产品 B 的普通股票买入记录，字段已解析并拆分。",
           "fields": [
             {"fieldId": "buy-date", "label": "业务日期", "value": "2026-08-03"},
             {"fieldId": "buy-product", "label": "产品", "value": "案例产品 B"},
@@ -283,7 +283,7 @@
           "materialId": "STK-BUY-CLOSE-POSITION",
           "title": "8 月 3 日买入入账后日终持仓台账",
           "kind": "LEDGER",
-          "description": "买入处理后的正常日终台账，作为 8 月 4 日卖出前的账簿余额。",
+          "description": "买入处理后的日终台账，作为 8 月 4 日卖出前的账簿余额。",
           "fields": [
             {"fieldId": "pre-sale-quantity", "label": "卖出前持仓数量", "value": "20,000", "unit": "股"},
             {"fieldId": "pre-sale-cost", "label": "卖出前股票成本余额", "value": "174,000.00", "unit": "元"},
@@ -296,7 +296,7 @@
           "materialId": "STK-SELL-REPORT",
           "title": "8 月 4 日成交清算日报—卖出记录",
           "kind": "STATEMENT",
-          "description": "同一产品、同一证券的正常卖出记录。",
+          "description": "同一产品、同一证券的卖出记录。",
           "fields": [
             {"fieldId": "sell-date", "label": "业务日期", "value": "2026-08-04"},
             {"fieldId": "sell-product", "label": "产品", "value": "案例产品 B"},
@@ -327,7 +327,7 @@
           "materialId": "STK-CASH-LEDGER",
           "title": "资金台账—连续两日资金变动",
           "kind": "LEDGER",
-          "description": "用成交清算日报的实际清算金额更新资金台账，佣金按批准参数在交易日形成应付。",
+          "description": "用成交清算日报的实际清算金额更新资金台账；佣金按批准参数在交易日登记应付。",
           "fields": [
             {"fieldId": "cash-opening", "label": "期初资金余额", "value": "520,000.00", "unit": "元"},
             {"fieldId": "cash-buy-movement", "label": "8 月 3 日买入资金变动", "value": "-72,030.00", "unit": "元"},
@@ -352,7 +352,7 @@
           "materialId": "STK-RECONCILIATION-WORKSHEET",
           "title": "连续业务结果勾稽工作表",
           "kind": "RECONCILIATION",
-          "description": "将资金、数量、成本和估值结果放入同一张复核表，判断本组正常业务是否闭合。",
+          "description": "将资金、数量、成本和估值结果放入同一张复核表，判断这组数据能否相互解释。",
           "fields": [
             {"fieldId": "cash-equation", "label": "资金勾稽关系", "value": "520,000 - 72,030 + 50,930 = 期末资金"},
             {"fieldId": "position-equation", "label": "数量勾稽关系", "value": "12,000 + 8,000 - 5,000 = 期末数量"},
@@ -381,7 +381,7 @@
           "workItemId": "buy-status",
           "type": "FIELD_MAP",
           "title": "确认记录状态",
-          "instruction": "从买入成交清算日报选择当前记录是否可以进入后续正常处理。",
+          "instruction": "从买入成交清算日报判断当前记录能否进入后续处理。",
           "response": {
             "kind": "SELECT",
             "placeholder": "选择记录状态",
@@ -395,7 +395,7 @@
           "workItemId": "buy-stock-cost",
           "type": "CALCULATION",
           "title": "填写买入股票成本",
-          "instruction": "成交金额形成股票成本。填写 8 月 3 日买入应计入股票成本的金额。",
+          "instruction": "成交金额计入股票成本。填写 8 月 3 日买入应计入股票成本的金额。",
           "response": {"kind": "NUMBER", "placeholder": "输入股票成本", "unit": "元", "precision": 2}
         },
         {
@@ -416,7 +416,7 @@
           "workItemId": "buy-actual-settlement",
           "type": "CALCULATION",
           "title": "复算买入实际清算金额",
-          "instruction": "按本案批准关系 -(成交金额 + 交易费用 - 席位佣金) 复算买入实际清算金额，保留资金方向。",
+          "instruction": "按批准关系 -(成交金额 + 交易费用 - 席位佣金) 复算买入实际清算金额，保留资金方向。",
           "response": {"kind": "NUMBER", "placeholder": "输入实际清算金额", "unit": "元", "precision": 2}
         },
         {
@@ -437,7 +437,7 @@
           "workItemId": "buy-commission-account",
           "type": "LEDGER_ENTRY",
           "title": "填写买入应付佣金科目",
-          "instruction": "填写买入凭证贷方形成应付佣金的科目。",
+          "instruction": "填写买入凭证贷方的应付佣金科目。",
           "response": {"kind": "TEXT", "placeholder": "输入贷方科目"}
         },
         {
@@ -451,7 +451,7 @@
           "workItemId": "commission-timing",
           "type": "FIELD_MAP",
           "title": "判断佣金确认时点",
-          "instruction": "根据本案批准参数，选择席位佣金首次确认的时点。",
+          "instruction": "根据批准参数，选择席位佣金首次确认的时点。",
           "response": {
             "kind": "SELECT",
             "placeholder": "选择佣金确认时点",
@@ -548,8 +548,8 @@
         {
           "workItemId": "reconciliation-result",
           "type": "RECONCILIATION",
-          "title": "完成跨来源勾稽",
-          "instruction": "资金、数量和估值三条关系均可由资料包复算且相互一致，选择本次勾稽结论。",
+          "title": "核对跨来源勾稽",
+          "instruction": "资金、数量和估值三条关系都能由资料复算且相互一致，选择勾稽结论。",
           "response": {
             "kind": "SELECT",
             "placeholder": "选择勾稽结论",
@@ -567,7 +567,7 @@
           "response": {"kind": "TEXT", "placeholder": "例如：剩余……，成本……，资金……，市值……，勾稽……"}
         }
       ],
-      "submissionNote": "提交前请按顺序复核记录状态、费用与佣金时点、买入凭证、移动加权成本、剩余持仓、资金台账和估值勾稽。提交后将生成不可修改的正式训练记录。"
+      "submissionNote": "提交前按顺序核对记录状态、费用与佣金时点、买入凭证、移动加权成本、剩余持仓、资金台账和估值勾稽。提交后生成不可修改的训练记录。"
     }
   },
   "references": [
@@ -587,13 +587,13 @@
       "referenceId": "ACC-REF-STOCK-ROUTE-DECISIONS",
       "title": "股票高保真路线设计决定",
       "source": "核算案例库讨论记录.md 第 16—21、44.6—44.8 节",
-      "usage": "普通买卖与成本闭环范围、同一连续案例、四环节活动组合、异常和特殊公司行为排除边界"
+      "usage": "普通买卖与成本核对范围、连续业务资料、四环节活动组合、异常和特殊公司行为排除边界"
     },
     {
       "referenceId": "ACC-REF-STOCK-CASE-PARAMETERS-202608",
-      "title": "本路线题面批准合成参数",
+      "title": "批准参数（当前资料）",
       "source": "本路线综合实务资料包中的 STK-CASE-PARAMETERS（2026.08 版本）",
-      "usage": "仅约束本案直接给出的费用金额、清算关系、佣金确认时点和精度边界，不替代当前业务规则"
+      "usage": "仅约束当前资料直接给出的费用金额、清算关系、佣金确认时点和精度边界，不替代当前业务规则"
     }
   ]
 }

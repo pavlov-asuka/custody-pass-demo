@@ -1,6 +1,11 @@
 import { Check, ChevronDown, CircleAlert, RotateCcw } from 'lucide-react';
 import type { AttemptResponse, Conclusion, RouteState } from '../api/types';
-import { dimensionLabels, routeStateLabels } from '../utils/format';
+import {
+  dimensionLabels,
+  fieldIdLabel,
+  optionValueLabel,
+  routeStateLabels,
+} from '../utils/format';
 import { Mascot } from './Mascot';
 
 function conclusionCopy(
@@ -14,13 +19,13 @@ function conclusionCopy(
     currentRouteState === 'PASSED'
   ) {
     return {
-      title: '本次复习尚未达标',
-      description: '路线的历史通过状态不会撤销，这次结果已如实保留。',
+      title: '本次复习未达到通过线',
+      description: '历史记录中的通过状态保留；本次复习按当前作答单独记录。',
     };
   }
   return conclusion === 'PASSED'
-    ? { title: '路线已通过', description: '你已经完成本路线的关键能力检验。' }
-    : { title: '已学习，还需要补强', description: '先完成定向补学，再重新完成综合实务。' };
+    ? { title: '路线已通过', description: '总分达到通过线，且关键要求已满足。' }
+    : { title: '本次作答需要补学', description: '先完成指定补学目标，再重新提交综合实务。' };
 }
 export function ResultView({
   attempt,
@@ -58,7 +63,7 @@ export function ResultView({
             </span>
             <span className={result.allMandatoryRequirementsMet ? 'is-met' : 'is-missed'}>
               {result.allMandatoryRequirementsMet ? <Check size={17} /> : <CircleAlert size={17} />}
-              {result.allMandatoryRequirementsMet ? '关键要求已满足' : '关键要求仍有遗漏'}
+              {result.allMandatoryRequirementsMet ? '必达要求已满足' : '必达要求仍待补齐'}
             </span>
           </div>
         </div>
@@ -68,8 +73,8 @@ export function ResultView({
         <section className="mandatory-summary">
           <CircleAlert size={22} />
           <div>
-            <strong>先补上关键遗漏</strong>
-            <p>本次作答仍有关键要求未充分体现。下面的四维证据会说明需要优先补强的位置。</p>
+            <strong>先处理未满足的必达项</strong>
+            <p>本次作答有必达项未满足。先查看下方标出的字段、计算或勾稽，再进入定向补学。</p>
           </div>
         </section>
       )}
@@ -78,7 +83,7 @@ export function ResultView({
         <div className="result-card__heading">
           <div>
             <span className="eyebrow">四维反馈</span>
-            <h2>把能力拆开看，更容易进步</h2>
+            <h2>按四个维度查看证据</h2>
           </div>
         </div>
         <div className="dimension-list">
@@ -101,11 +106,11 @@ export function ResultView({
                     dimension.items.map((item, index) => (
                       <div key={`${dimension.dimension}-${index}`} className={item.matched ? 'is-met' : 'is-missed'}>
                         {item.matched ? <Check size={18} /> : <CircleAlert size={18} />}
-                        <p>{item.evidence || (item.matched ? '作答中已体现这一能力。' : '本次作答尚未充分体现。')}</p>
+                        <p>{item.evidence || (item.matched ? '该项要求已核对通过。' : '本次提交缺少该项要求的内容。')}</p>
                       </div>
                     ))
                   ) : (
-                    <p className="muted">本维度暂无可展开的证据。</p>
+                    <p className="muted">本维度暂未返回可展开的证据。</p>
                   )}
                 </div>
               </details>
@@ -117,14 +122,14 @@ export function ResultView({
       {attempt.answerSnapshot && (
         <details className="result-card answer-snapshot">
           <summary>
-            <span><RotateCcw size={19} /> 查看本次原始作答</span>
+            <span><RotateCcw size={19} /> 查看本次提交的作答</span>
             <ChevronDown />
           </summary>
           <dl className="answer-snapshot__responses">
-            {Object.entries(attempt.answerSnapshot.responses).map(([fieldId, value]) => (
+            {Object.entries(attempt.answerSnapshot.responses).map(([fieldId, value], index) => (
               <div key={fieldId}>
-                <dt>{fieldId}</dt>
-                <dd>{String(value)}</dd>
+                <dt>{fieldIdLabel(fieldId, index)}</dt>
+                <dd>{typeof value === 'string' ? optionValueLabel(value, fieldId, index) : String(value)}</dd>
               </div>
             ))}
           </dl>
@@ -137,7 +142,7 @@ export function ResultView({
             <span className="eyebrow">路线当前状态</span>
             <h2>{routeStateLabels[attempt.currentRouteState]}</h2>
           </div>
-          <p>历史评分保持不变；这里单独展示路线现在的最新状态。</p>
+          <p>历史评分不可修改；下方状态是路线当前进度，不会覆盖本次结论。</p>
         </section>
       )}
 

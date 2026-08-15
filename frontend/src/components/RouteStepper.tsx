@@ -19,7 +19,7 @@ export function RouteStepper({
   onSelect: (step: StepType) => void;
 }) {
   return (
-    <ol className="route-stepper" aria-label="路线环节进度">
+    <ol className="route-stepper" aria-label="路线四环节进度">
       {order.map((type, index) => {
         const status = route.steps.find((item) => item.stepType === type);
         const completed = status?.completed ?? false;

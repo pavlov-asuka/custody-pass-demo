@@ -44,7 +44,7 @@ export function AttemptPage() {
   useEffect(() => {
     document.title = attempt?.processingStatus === 'COMPLETED'
       ? '评分结果 · 托管智训营'
-      : '评分中 · 托管智训营';
+      : '评分处理中 · 托管智训营';
   }, [attempt?.processingStatus]);
 
   async function handleRetry() {
@@ -66,7 +66,7 @@ export function AttemptPage() {
       context="综合实务评分"
     >
       <div className="attempt-page page-enter">
-        {loading && <LoadingState label="正在读取本次正式作答…" />}
+        {loading && <LoadingState label="正在读取本次提交…" />}
         {error && <ErrorState error={error} onRetry={() => void load()} />}
 
         {attempt?.processingStatus === 'SCORING' && (
@@ -75,15 +75,15 @@ export function AttemptPage() {
               <span /><span /><span />
               <Mascot pose="SCORING_WAIT" size="large" />
             </div>
-            <span className="eyebrow">正式作答已安全保存</span>
-            <h1>小托正在整理你的四维反馈</h1>
-            <p>我们会核对概念理解、处理步骤、风险意识与表达规范。查询期间不会重复评分。</p>
+            <span className="eyebrow">正式作答已保存</span>
+            <h1>系统正在生成四维评分</h1>
+            <p>系统会核对概念理解、处理步骤、风险意识与表达规范。查询期间不会重复评分。</p>
             <div className="scoring-progress">
               <span />
-              <strong>评分生成中</strong>
+              <strong>正在处理评分</strong>
             </div>
             <button className="button button--ghost" type="button" onClick={() => navigate('/map/accounting')}>
-              <ArrowLeft size={18} /> 先返回地图
+              <ArrowLeft size={18} /> 返回地图
             </button>
           </section>
         )}
@@ -92,8 +92,8 @@ export function AttemptPage() {
           <section className="scoring-failed">
             <Mascot pose="RESULT_SUPPORT" size="medium" />
             <span className="eyebrow">技术评分未完成</span>
-            <h1>答案还在，重新启动评分即可</h1>
-            <p>这不是学习结论，也不会生成新的训练记录。我们会继续使用同一份正式作答。</p>
+            <h1>评分未完成，可重试原作答</h1>
+            <p>这是技术问题，不影响本次作答内容，也不会生成新的训练记录。</p>
             <button
               className="button button--primary"
               type="button"

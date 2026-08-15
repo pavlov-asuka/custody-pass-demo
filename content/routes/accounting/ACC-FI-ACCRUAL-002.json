@@ -3,33 +3,33 @@
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
   "title": "识别计息口径并完成日常计提",
-  "summary": "读取证券信息、题面日历、成交利息和前日余额，计算百元含息，并以倒轧关系完成连续日常计息。",
+  "summary": "读取证券信息、批准日历、成交利息和前日余额，计算百元含息，再用倒轧关系核对连续两日的计息余额。",
   "estimatedMinutes": 50,
   "objectives": [
-    "从证券基础信息和题面批准参数定位计息利率、日数口径、付息方式和精度",
+    "从证券基础信息和批准参数定位计息利率、日数口径、付息方式和精度",
     "按每百元票面计算百元含息，并按票面总额换算合计应计利息",
     "区分交易中已包含的应计利息、计提前账户余额和当日实际计提利息",
     "遵循先交易凭证后计息凭证的正常顺序，复算连续两日应计利息余额"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {"cards": [
-      {"cardId": "FI-ACCRUAL-KC-01", "type": "CATEGORIES", "title": "先从题面确定计息变量", "conclusion": "债券品种、市场、付息方式、计息利率、日数口径和日历共同决定公式；历史示例不能代替本案例批准参数。", "items": ["C：题面批准的每百元面值年利息", "t：题面口径下本付息期已过天数", "分母：题面批准的本期或年度天数", "票面总额：张数 × 每张面值"]},
-      {"cardId": "FI-ACCRUAL-KC-02", "type": "FLOW", "title": "百元含息怎样形成账户余额", "conclusion": "先算每百元应计利息，再乘票面总额除以一百，得到当日合计应计利息。", "items": ["每百元应计利息 = 年利息 × 已过天数 ÷ 年度天数", "合计应计利息 = 每百元应计利息 × 票面总额 ÷ 100", "金额精度和舍入按题面批准快照执行", "日历变化先重算天数，再重算金额"]},
+      {"cardId": "FI-ACCRUAL-KC-01", "type": "CATEGORIES", "title": "先从批准资料确定计息变量", "conclusion": "债券品种、市场、付息方式、计息利率、日数口径和日历共同决定公式；历史示例不能代替当前批准参数。", "items": ["C：批准资料的每百元面值年利息", "t：批准日历口径下本付息期已过天数", "分母：批准的本期或年度天数", "票面总额：张数 × 每张面值"]},
+      {"cardId": "FI-ACCRUAL-KC-02", "type": "FLOW", "title": "百元含息如何进入账户余额", "conclusion": "先算每百元应计利息，再乘票面总额除以一百，得到当日合计应计利息。", "items": ["每百元应计利息 = 年利息 × 已过天数 ÷ 年度天数", "合计应计利息 = 每百元应计利息 × 票面总额 ÷ 100", "金额精度和舍入按批准快照执行", "日历变化先重算天数，再重算金额"]},
       {"cardId": "FI-ACCRUAL-KC-03", "type": "KEY_POINT", "title": "日常计提采用倒轧", "conclusion": "当日实际计提利息等于当日合计应计提利息减去交易凭证生成后的应计利息账户余额。", "items": ["先生成债券交易凭证，再读取计提前应计利息余额", "计提前余额 = 前日余额 + 当日交易中已包含的应计利息", "当日实际计提 = 当日合计应计 - 计提前余额", "计息凭证后账户余额应等于当日合计应计"]}
     ]},
     "DEMONSTRATION": {
-      "scenario": {"role": "案例产品甲的组合核算人员", "product": "案例产品甲 / 案例债券甲", "date": "2026-08-12 至 2026-08-13", "facts": ["本案批准使用固定计息利率 3.65%，实际天数/365；不代表永久市场规则。", "每张面值 100 元；8 月 12 日处理前持有 1,000 张，前日应计利息余额 890 元。", "8 月 12 日为本付息期第 90 天，正常 T+0 买入 1,000 张，交易凭证已包含应计利息 900 元。", "交易凭证后持有 2,000 张，计提前应计利息余额 1,790 元。", "8 月 13 日无交易，为本付息期第 91 天。"]},
+      "scenario": {"role": "产品甲的组合核算人员", "product": "产品甲 / 债券甲", "date": "2026-08-12 至 2026-08-13", "facts": ["批准资料给出固定计息利率 3.65%，实际天数/365；这里只按这组参数计算。", "每张面值 100 元；8 月 12 日处理前持有 1,000 张，前日应计利息余额 890 元。", "8 月 12 日为本付息期第 90 天，正常 T+0 买入 1,000 张，交易凭证已包含应计利息 900 元。", "交易凭证后持有 2,000 张，计提前应计利息余额 1,790 元。", "8 月 13 日无交易，为本付息期第 91 天。"]},
       "steps": [
-        {"order": 1, "action": "读取本案计息利率 3.65%、实际天数/365、每张面值 100 元和第 90 天", "reason": "这些都是本案例批准变量，不能从债券名称或历史习惯猜测。"},
-        {"order": 2, "action": "计算第 90 天每百元应计利息 3.65 × 90 ÷ 365 = 0.90 元", "reason": "先在每百元票面维度完成计算和题面规定的舍入。"},
+        {"order": 1, "action": "读取批准资料的计息利率 3.65%、实际天数/365、每张面值 100 元和第 90 天", "reason": "利率、日数口径和日期必须来自批准资料，不能从债券名称或历史习惯猜测。"},
+        {"order": 2, "action": "计算第 90 天每百元应计利息 3.65 × 90 ÷ 365 = 0.90 元", "reason": "先在每百元票面维度完成计算，再按批准资料要求舍入。"},
         {"order": 3, "action": "交易后 2,000 张的票面总额为 200,000 元，当日合计应计为 0.90 × 200,000 ÷ 100 = 1,800 元", "reason": "每百元含息必须按票面总额换算，不能直接乘张数。"},
         {"order": 4, "action": "计提前余额为 890 + 900 = 1,790 元，倒轧当日实际计提 1,800 - 1,790 = 10 元，并补全借记应计利息、贷记债券利息收入的凭证", "reason": "先交易后计息可避免把成交已包含利息重复计提。"},
         {"order": 5, "action": "第 91 天无交易：每百元应计利息 0.91 元，合计 1,820 元，实际计提 1,820 - 1,800 = 20 元", "reason": "连续日余额由日历、持仓和前日账户余额共同解释。"}
       ],
-      "summary": "定位题面变量 → 计算百元含息 → 换算合计应计 → 交易后倒轧 → 连续日复算"
+      "summary": "定位批准变量 → 计算百元含息 → 换算合计应计 → 交易后倒轧 → 对上连续两日期末余额"
     },
     "BASIC_PRACTICE": {"questions": [
-      {"questionId": "ACC-FI-ACCRUAL-Q-01", "type": "FIELD_MAP", "prompt": "把案例债券甲的计息字段对应到公式变量。", "fieldMappings": [
+      {"questionId": "ACC-FI-ACCRUAL-Q-01", "type": "FIELD_MAP", "prompt": "把债券甲的计息字段对应到公式变量。", "fieldMappings": [
         {"fieldId": "rate", "label": "批准计息利率 3.65%", "source": "案例参数卡", "options": [{"optionId": "C", "text": "每百元面值年利息 C"}, {"optionId": "T", "text": "已过天数 t"}]},
         {"fieldId": "days", "label": "第 90 天", "source": "案例日历", "options": [{"optionId": "T", "text": "已过天数 t"}, {"optionId": "DEN", "text": "年度天数分母"}]},
         {"fieldId": "denominator", "label": "365", "source": "批准计息口径", "options": [{"optionId": "DEN", "text": "年度天数分母"}, {"optionId": "FACE", "text": "票面总额"}]}
@@ -39,7 +39,7 @@
         {"fieldId": "face-total", "label": "票面总额", "formula": "2,000 张 × 100 元/张", "placeholder": "输入票面总额", "unit": "元", "precision": 0, "tolerance": 0},
         {"fieldId": "total-accrued", "label": "合计应计利息", "formula": "0.90 × 200,000 ÷ 100", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01}
       ]}, "answer": ["0.90", "200000", "1800"], "explanation": "百元含息 0.90 元，票面总额 200,000 元，合计应计 1,800 元。", "hints": ["金额换算仍然使用每百元价格乘票面总额除以一百。"]},
-      {"questionId": "ACC-FI-ACCRUAL-Q-03", "type": "RECONCILIATION", "prompt": "完成第 90 天先交易后计息的倒轧工作表。", "reconciliation": {"fields": [
+      {"questionId": "ACC-FI-ACCRUAL-Q-03", "type": "RECONCILIATION", "prompt": "用第 90 天交易后余额倒轧当日实际计提。", "reconciliation": {"fields": [
         {"fieldId": "pre-accrual-balance", "label": "计提前应计利息余额", "kind": "NUMBER", "formula": "890 + 900", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
         {"fieldId": "daily-accrual", "label": "当日实际计提", "kind": "NUMBER", "formula": "1,800 - 1,790", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
         {"fieldId": "ending-interest", "label": "计息后账户余额", "kind": "NUMBER", "formula": "1,790 + 10", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
@@ -49,19 +49,19 @@
         {"entryId": "debit-interest", "direction": "借", "label": "当日实际计提", "amount": "10.00 元", "placeholder": "输入借方科目"},
         {"entryId": "credit-income", "direction": "贷", "label": "当日实际计提", "amount": "10.00 元", "placeholder": "输入贷方科目"}
       ], "answer": ["应计利息", "债券利息收入"], "explanation": "日常计提增加应计利息并确认债券利息收入。", "hints": ["两个科目金额相同，分别对应资产和收入。"]},
-      {"questionId": "ACC-FI-ACCRUAL-Q-05", "type": "SHORT_TEXT", "prompt": "说明第 91 天无交易时的百元含息、实际计提和期末余额。", "textInput": {"label": "连续计息结论", "placeholder": "写明第 91 天三个关键结果。"}, "answer": ["0.91", "20", "1,820"], "explanation": "第 91 天百元含息 0.91 元，合计目标 1,820 元，相对前日余额实际计提 20 元。", "hints": ["从日历变化开始，依次写百元含息、倒轧金额和期末余额。"]}
+      {"questionId": "ACC-FI-ACCRUAL-Q-05", "type": "SHORT_TEXT", "prompt": "说明第 91 天无交易时的百元含息、实际计提和期末余额。", "textInput": {"label": "连续计息结论", "placeholder": "写明第 91 天三个关键结果。"}, "answer": ["0.91", "20", "1,820"], "explanation": "第 91 天百元含息 0.91 元，合计目标 1,820 元，相对前日余额实际计提 20 元。", "hints": ["先写第 91 天日历带来的含息变化，再写倒轧金额和期末余额。"]}
     ]},
     "COMPREHENSIVE_PRACTICE": {
-      "scenario": {"role": "案例产品乙的组合核算人员", "product": "案例产品乙 / 案例债券乙", "date": "2026-08-17 至 2026-08-18", "purpose": "根据正常交易、题面日历和账簿余额，独立完成连续两日百元含息、倒轧计息凭证和余额勾稽。"},
+      "scenario": {"role": "产品乙的组合核算人员", "product": "产品乙 / 债券乙", "date": "2026-08-17 至 2026-08-18", "purpose": "根据正常交易、批准日历和账簿余额，完成连续两日百元含息、倒轧计息凭证，并核对期末余额。"},
       "sourceMaterials": [
-        {"materialId": "FI-A-PARAM", "title": "本案例批准计息参数", "kind": "PARAMETER", "description": "参数仅适用于本案例。", "fields": [
+        {"materialId": "FI-A-PARAM", "title": "批准计息参数", "kind": "PARAMETER", "description": "利率、日数、舍入和凭证顺序按这组批准参数读取。", "fields": [
           {"fieldId": "interest-method", "label": "品种与付息方式", "value": "固定利率附息债，一年付息一次"},
           {"fieldId": "approved-rate", "label": "批准计息利率", "value": "3.65%"},
           {"fieldId": "day-count", "label": "日数口径", "value": "实际天数/365；本案例日历已确认"},
           {"fieldId": "rounding", "label": "舍入与容差", "value": "每百元应计利息保留 2 位；金额保留 2 位；金额容差 0.01 元"},
           {"fieldId": "sequence", "label": "凭证顺序", "value": "先生成交易凭证，再生成计息凭证"}
         ]},
-        {"materialId": "FI-A-SEC", "title": "证券与日历信息", "kind": "CONFIRMATION", "description": "脱敏证券信息和已确认日历。", "fields": [
+        {"materialId": "FI-A-SEC", "title": "证券与日历信息", "kind": "CONFIRMATION", "description": "脱敏证券信息和已确认计息日历。", "fields": [
           {"fieldId": "face-per-bond", "label": "每张面值", "value": "100", "unit": "元/张"},
           {"fieldId": "day-90", "label": "2026-08-17", "value": "本付息期第 90 天"},
           {"fieldId": "day-91", "label": "2026-08-18", "value": "本付息期第 91 天"}
@@ -82,8 +82,8 @@
         ]}
       ],
       "workItems": [
-        {"workItemId": "method-source", "type": "FIELD_MAP", "title": "定位计息口径来源", "instruction": "选择本案计息利率、日数和日历的依据。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_CASE", "text": "本案例批准参数卡与日历"}, {"optionId": "HISTORICAL_DEFAULT", "text": "沿用历史示例默认值"}]}},
-        {"workItemId": "day90-per100", "type": "CALCULATION", "title": "第 90 天每百元应计利息", "instruction": "按 3.65 × 90 ÷ 365 并按题面舍入。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元/每百元票面", "precision": 2}},
+        {"workItemId": "method-source", "type": "FIELD_MAP", "title": "定位计息口径来源", "instruction": "选择计息利率、日数和日历的批准依据。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_CASE", "text": "本案例批准参数卡与日历"}, {"optionId": "HISTORICAL_DEFAULT", "text": "沿用历史示例默认值"}]}},
+        {"workItemId": "day90-per100", "type": "CALCULATION", "title": "第 90 天每百元应计利息", "instruction": "按批准参数 3.65 × 90 ÷ 365，按资料要求舍入。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元/每百元票面", "precision": 2}},
         {"workItemId": "day90-face-total", "type": "CALCULATION", "title": "交易后票面总额", "instruction": "用 2,000 张和每张面值计算。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 0}},
         {"workItemId": "day90-total", "type": "CALCULATION", "title": "第 90 天合计应计", "instruction": "每百元应计利息 × 票面总额 ÷ 100。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
         {"workItemId": "day90-prebalance", "type": "RECONCILIATION", "title": "第 90 天计提前余额", "instruction": "前日余额加交易凭证包含的利息。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
@@ -91,14 +91,14 @@
         {"workItemId": "accrual-debit", "type": "LEDGER_ENTRY", "title": "计息借方科目", "instruction": "填写第 90 天计息凭证借方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "accrual-credit", "type": "LEDGER_ENTRY", "title": "计息贷方科目", "instruction": "填写第 90 天计息凭证贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "day90-ending", "type": "RECONCILIATION", "title": "第 90 天期末余额", "instruction": "计提前余额加实际计提。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
-        {"workItemId": "day91-per100", "type": "CALCULATION", "title": "第 91 天每百元应计利息", "instruction": "按 3.65 × 91 ÷ 365 并按题面舍入。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元/每百元票面", "precision": 2}},
+        {"workItemId": "day91-per100", "type": "CALCULATION", "title": "第 91 天每百元应计利息", "instruction": "按 3.65 × 91 ÷ 365，再按资料要求舍入。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元/每百元票面", "precision": 2}},
         {"workItemId": "day91-total", "type": "CALCULATION", "title": "第 91 天合计应计", "instruction": "按持仓票面总额换算。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
         {"workItemId": "day91-accrual", "type": "CALCULATION", "title": "第 91 天实际计提", "instruction": "第 91 天合计应计减第 90 天期末余额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
         {"workItemId": "day91-ending", "type": "RECONCILIATION", "title": "第 91 天期末余额", "instruction": "前日余额加当日实际计提。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
-        {"workItemId": "reconciliation-result", "type": "RECONCILIATION", "title": "连续计息勾稽", "instruction": "核对两日目标余额、倒轧金额和凭证顺序。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "两日连续且勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
+        {"workItemId": "reconciliation-result", "type": "RECONCILIATION", "title": "两日期末余额核对", "instruction": "核对第 90、91 日目标余额、倒轧金额和先交易后计息的凭证顺序。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "两日连续且勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
         {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "正常计息结论", "instruction": "简述第 90 天交易后倒轧和第 91 天无交易计息结果。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
       ],
-      "submissionNote": "本案例使用题面明确的计息率、日历、精度和正常交易数据。正式提交会形成不可变训练记录；请检查公式变量、单位、凭证顺序和两日余额。"
+      "submissionNote": "资料包明确给出计息率、日历、精度和正常交易数据。提交前检查公式变量、单位、凭证顺序和两日期末余额。"
     }
   },
   "references": [

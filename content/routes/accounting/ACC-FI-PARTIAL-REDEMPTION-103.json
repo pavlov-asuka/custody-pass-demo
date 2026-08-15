@@ -3,12 +3,12 @@
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
   "title": "债券部分兑付：公告口径、余额结转与重新计息",
-  "summary": "根据本案例批准公告区分减面值与减数量，完成本金、成本、估值增值和后续计息基础勾稽。",
+  "summary": "根据批准公告区分减面值与减数量，核对本金、成本、估值增值，并按剩余持仓重算后续计息基础。",
   "estimatedMinutes": 45,
   "objectives": [
     "从公告读取部分兑付方式",
     "按批准口径结转本金和账簿余额",
-    "读取本案例批准的计息快照并在减少数量后重新计算",
+    "读取批准计息快照并在减少数量后重新计算",
     "用凭证、台账和独立公式完成结果勾稽"
   ],
   "steps": {
@@ -23,18 +23,18 @@
             "减少面值不当然减少债券数量",
             "公告明确减少数量时才减少持仓数量",
             "到期兑付款项自兑付日起不再计提利息",
-            "本路线只做正常公告和批准快照"
+            "这里只处理正常公告和批准快照"
           ]
         },
         {
           "cardId": "FI-PR-KC-02",
           "type": "FLOW",
           "title": "余额结转跟着兑付方式走",
-          "conclusion": "减少数量参照卖出处理按比例结转成本和估值增值；减少面值按题面批准模式处理。",
+          "conclusion": "减少数量参照卖出处理按比例结转成本和估值增值；减少面值按批准模式处理。",
           "items": [
             "实付本金=实付数量×每张面值或公告给定偿还面值",
             "成本与估值增值的结转对象必须与方式一致",
-            "投资收益按题面批准模式确认",
+            "投资收益按批准模式确认",
             "不把兑付本金直接当作剩余持仓成本"
           ]
         },
@@ -42,11 +42,11 @@
           "cardId": "FI-PR-KC-03",
           "type": "KEY_POINT",
           "title": "数量变化后必须重新计息",
-          "conclusion": "减少数量会改变后续计息基础；本案例用明确批准的计息快照迁移 FI-002 已有能力，计算并勾稽新结果，不建立永久规则。",
+          "conclusion": "减少数量会改变后续计息基础；按批准计息快照读取 FI-002 的计息来源和算法，计算并核对新结果，不把快照外推为永久规则。",
           "items": [
-            "先读取本案例批准的计息来源、年利息、日数口径和已过天数",
+            "先读取批准资料的计息来源、年利息、日数口径和已过天数",
             "票面总额=兑付后张数×每张面值，不能用张数直接代替票面总额",
-            "每百元应计利息=本案例批准年利息×已过天数÷365，保留2位小数",
+            "每百元应计利息=批准年利息×已过天数÷365，保留2位小数",
             "总应计利息=每百元应计利息×票面总额÷100，再与兑付后计息台账勾稽",
             "不能以兑付前累计应计利息或只填重新生成状态替代数值复算"
           ]
@@ -55,8 +55,8 @@
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "案例产品甲的组合核算人员",
-        "product": "案例产品甲 / 案例债券甲",
+        "role": "产品甲的组合核算人员",
+        "product": "产品甲 / 债券甲",
         "date": "2026-08-28",
         "facts": [
           "批准公告明确兑付后减少 2,000 张债券数量，不是只减少面值。",
@@ -68,7 +68,7 @@
       "steps": [
         {
           "order": 1,
-          "action": "读取公告，确认本案是减少数量而非减少面值",
+          "action": "读取公告，确认这笔兑付是减少数量而非减少面值",
           "reason": "公告字段决定持仓数量是否变化。"
         },
         {
@@ -79,7 +79,7 @@
         {
           "order": 3,
           "action": "补全兑付凭证：借银行存款/清算款 200,000 元，贷成本 192,000 元、估值增值 8,000 元，差额按批准口径入投资收益",
-          "reason": "本金、成本和估值增值必须同一兑付数量闭合。"
+          "reason": "本金、成本和估值增值必须按同一兑付数量结转后逐项相等。"
         },
         {
           "order": 4,
@@ -88,18 +88,18 @@
         },
         {
           "order": 5,
-          "action": "读取本案例批准计息快照：3.65% 年利息、实际天数/365、已过 91 天；兑付后票面总额=8,000 张×100 元/张=800,000 元；每百元应计利息=3.65×91÷365=0.91 元；总应计利息=0.91×800,000÷100=7,280.00 元，并与计息台账核对后标记已重新生成",
-          "reason": "数量变化后必须用剩余票面总额重新计算；该批准快照只迁移 FI-002 已有计息能力，不形成永久规则。"
+          "action": "读取批准计息快照：3.65% 年利息、实际天数/365、已过 91 天；兑付后票面总额=8,000 张×100 元/张=800,000 元；每百元应计利息=3.65×91÷365=0.91 元；总应计利息=0.91×800,000÷100=7,280.00 元，并与计息台账核对后标记已重新生成",
+          "reason": "数量变化后必须用剩余票面总额重新计算；这组批准快照只读取 FI-002 的计息来源和算法，不外推为永久规则。"
         }
       ],
-      "summary": "读公告→判定减数量→按比例结转→核对剩余台账→读取批准计息快照并数值复算→与计息台账勾稽"
+          "summary": "读公告→判定减数量→按比例结转→核对剩余台账→按批准快照重算利息→对上计息台账"
     },
     "BASIC_PRACTICE": {
       "questions": [
         {
           "questionId": "ACC-FI-PARTIAL-REDEMPTION-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "选择本案公告决定的部分兑付方式。",
+          "prompt": "选择公告决定的部分兑付方式。",
           "fieldMappings": [
             {
               "fieldId": "method",
@@ -140,7 +140,7 @@
             {"entryId": "valuation", "direction": "贷", "label": "结转估值增值 8,000 元", "amount": "8,000.00 元", "placeholder": "输入贷方科目"}
           ],
           "answer": ["银行存款/清算款", "债券投资-成本", "债券投资-估值增值"],
-          "explanation": "投资收益为轧差对象，金额由本案例批准口径处理。",
+          "explanation": "投资收益作为轧差对象，金额按批准口径处理。",
           "hints": ["先填本金和两项余额对象。"]
         },
         {
@@ -156,12 +156,12 @@
               {"fieldId": "post-per100-interest", "label": "每百元应计利息", "kind": "NUMBER", "formula": "3.65×91÷365，保留2位", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
               {"fieldId": "post-total-accrued", "label": "合计应计利息", "kind": "NUMBER", "formula": "0.91×800,000÷100", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
               {"fieldId": "post-ledger-accrued", "label": "计息台账金额", "kind": "NUMBER", "formula": "与兑付后计息台账勾稽", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
-              {"fieldId": "result", "label": "结论", "kind": "SELECT", "formula": "兑付后台账和计息结果是否闭合", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "闭合"}, {"optionId": "BROKEN", "text": "不闭合"}]}
+              {"fieldId": "result", "label": "兑付后计息核对", "kind": "SELECT", "formula": "兑付后台账和计息结果是否闭合", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "闭合"}, {"optionId": "BROKEN", "text": "不闭合"}]}
             ]
           },
           "answer": ["8000", "768000", "32000", "800000", "0.91", "7280", "7280", "BALANCED"],
           "explanation": "三项余额连续；兑付后票面总额 800,000 元，每百元应计利息 0.91 元，合计应计利息 7,280.00 元，并与计息台账一致。",
-          "hints": ["先形成票面总额，再计算每百元和总额；不能把张数直接乘每百元金额。"]
+          "hints": ["先计算票面总额，再计算每百元和总额；不能把张数直接乘每百元金额。"]
         },
         {
           "questionId": "ACC-FI-PARTIAL-REDEMPTION-Q-05",
@@ -174,24 +174,24 @@
             {"itemId": "ACCRUE", "text": "读取批准计息快照并按剩余票面总额重新计息"}
           ],
           "answer": ["READ", "BOOK", "CHECK", "ACCRUE"],
-          "explanation": "材料明确数量变化后要按批准计息快照以剩余票面总额重新计算并勾稽。",
+          "explanation": "数量变化后要按批准计息快照和剩余票面总额重新计算，再与计息台账核对。",
           "hints": ["重新计息发生在兑付凭证和余额核对之后。"]
         }
       ]
     },
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
-        "role": "案例产品乙的组合核算人员",
-        "product": "案例产品乙 / 案例债券乙",
+        "role": "产品乙的组合核算人员",
+        "product": "产品乙 / 债券乙",
         "date": "2026-08-28",
-        "purpose": "依据正常兑付公告完成方式识别、金额计算、凭证、台账和重新计息数值勾稽。"
+        "purpose": "依据正常兑付公告识别减少数量，计算本金和余额，补全凭证，并用剩余票面总额重算计息。"
       },
       "sourceMaterials": [
         {
           "materialId": "FI-PR-PARAM",
-          "title": "本案例批准部分兑付参数",
+          "title": "批准部分兑付参数",
           "kind": "PARAMETER",
-          "description": "仅约束本案数量、面值、余额和精度。",
+          "description": "按资料给出的数量、面值、余额和精度计算。",
           "fields": [
             {"fieldId": "face", "label": "每张面值", "value": "100", "unit": "元/张"},
             {"fieldId": "precision", "label": "精度", "value": "金额 2 位小数；数量 0；金额容差 0.01"}
@@ -232,9 +232,9 @@
         },
         {
           "materialId": "FI-PR-ACCRUAL-PARAM",
-          "title": "本案例批准重新计息快照",
+          "title": "批准重新计息快照",
           "kind": "PARAMETER",
-          "description": "该快照只把 FI-002 已有的计息来源读取、实际天数/365、每百元计算、金额精度和台账勾稽能力迁移到本案兑付后剩余持仓；不形成永久利率、日历或系统规则。",
+          "description": "兑付后按 FI-002 的计息来源、实际天数/365、每百元计算、金额精度和台账关系重算剩余持仓；不外推为永久利率、日历或系统规则。",
           "fields": [
             {"fieldId": "source", "label": "计息来源", "value": "本案例批准快照，沿用 FI-002 已有能力"},
             {"fieldId": "rate", "label": "年利息", "value": "3.65", "unit": "%/每百元面值/年"},
@@ -272,12 +272,12 @@
         {"workItemId": "cash-account", "type": "LEDGER_ENTRY", "title": "本金到账科目", "instruction": "填写借方资金科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "cost-account", "type": "LEDGER_ENTRY", "title": "成本科目", "instruction": "填写贷方成本科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "valuation-account", "type": "LEDGER_ENTRY", "title": "估值增值科目", "instruction": "填写贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
-        {"workItemId": "income-account", "type": "LEDGER_ENTRY", "title": "轧差对象", "instruction": "填写本案例批准的收益轧差对象。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
-        {"workItemId": "accrual-source", "type": "FIELD_MAP", "title": "计息来源", "instruction": "读取计息资料，区分本案例批准快照与未提供的通用规则。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_CASE", "text": "FI-PR-ACCRUAL-PARAM 本案例批准快照"}, {"optionId": "UNPROVIDED_RULE", "text": "材料未提供的通用规则"}]}},
-        {"workItemId": "accrual-rate", "type": "CALCULATION", "title": "读取批准年利息", "instruction": "从批准计息快照读取年利息，不自行推定永久利率。", "response": {"kind": "NUMBER", "placeholder": "输入数值", "unit": "%/每百元面值/年", "precision": 2}},
-        {"workItemId": "accrual-day-count", "type": "FIELD_MAP", "title": "读取日数口径", "instruction": "从批准计息快照选择本案日数口径。", "response": {"kind": "SELECT", "placeholder": "选择日数口径", "options": [{"optionId": "ACTUAL_365", "text": "实际天数/365"}, {"optionId": "UNPROVIDED", "text": "材料未提供的其他口径"}]}},
-        {"workItemId": "accrual-day", "type": "CALCULATION", "title": "读取已过天数", "instruction": "读取本案例批准的已过天数。", "response": {"kind": "NUMBER", "placeholder": "输入天数", "unit": "日", "precision": 0}},
-        {"workItemId": "post-face-total", "type": "CALCULATION", "title": "兑付后票面总额", "instruction": "按兑付后剩余张数和每张面值形成票面总额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 0}},
+        {"workItemId": "income-account", "type": "LEDGER_ENTRY", "title": "轧差对象", "instruction": "填写批准资料给出的收益轧差对象。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
+        {"workItemId": "accrual-source", "type": "FIELD_MAP", "title": "计息来源", "instruction": "读取计息资料，区分批准快照与未提供的通用规则。", "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "APPROVED_CASE", "text": "FI-PR-ACCRUAL-PARAM 本案例批准快照"}, {"optionId": "UNPROVIDED_RULE", "text": "材料未提供的通用规则"}]}},
+        {"workItemId": "accrual-rate", "type": "CALCULATION", "title": "读取批准年利息", "instruction": "从批准计息快照读取年利息；没有来源的永久利率不填入。", "response": {"kind": "NUMBER", "placeholder": "输入数值", "unit": "%/每百元面值/年", "precision": 2}},
+        {"workItemId": "accrual-day-count", "type": "FIELD_MAP", "title": "读取日数口径", "instruction": "从批准计息快照选择这笔兑付使用的日数口径。", "response": {"kind": "SELECT", "placeholder": "选择日数口径", "options": [{"optionId": "ACTUAL_365", "text": "实际天数/365"}, {"optionId": "UNPROVIDED", "text": "材料未提供的其他口径"}]}},
+        {"workItemId": "accrual-day", "type": "CALCULATION", "title": "读取已过天数", "instruction": "读取批准快照中的已过天数。", "response": {"kind": "NUMBER", "placeholder": "输入天数", "unit": "日", "precision": 0}},
+        {"workItemId": "post-face-total", "type": "CALCULATION", "title": "兑付后票面总额", "instruction": "按兑付后剩余张数和每张面值计算票面总额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 0}},
         {"workItemId": "accrual-per100", "type": "CALCULATION", "title": "每百元应计利息", "instruction": "按批准年利息×已过天数÷365，保留 2 位小数。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元/每百元票面", "precision": 2}},
         {"workItemId": "accrual-total", "type": "CALCULATION", "title": "合计应计利息", "instruction": "按每百元应计利息×票面总额÷100，保留 2 位小数。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
         {"workItemId": "accrual-ledger-total", "type": "RECONCILIATION", "title": "计息台账金额", "instruction": "将计算出的合计应计利息与兑付后计息台账勾稽。", "response": {"kind": "NUMBER", "placeholder": "输入台账金额", "unit": "元", "precision": 2}},
@@ -286,7 +286,7 @@
         {"workItemId": "result", "type": "RECONCILIATION", "title": "结果勾稽", "instruction": "确认公告、凭证、台账和计息数值一致。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "勾稽一致"}, {"optionId": "BROKEN", "text": "存在差异"}]}},
         {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "业务结论", "instruction": "说明公告方式、金额、剩余数量、批准计息变量、计算结果和台账勾稽。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
       ],
-      "submissionNote": "所有数值为本案例批准快照；提交前按公告、凭证、台账、计息来源、变量、公式和勾稽顺序复核。计息快照只训练 FI-002 已有能力在本案迁移应用，不代表永久规则。"
+      "submissionNote": "数值均来自批准快照；提交前按公告、凭证、台账、计息来源、变量、公式和勾稽顺序复核。计息快照只把 FI-002 的计息来源和算法用于这笔兑付，不外推为永久规则。"
     }
   },
   "references": [

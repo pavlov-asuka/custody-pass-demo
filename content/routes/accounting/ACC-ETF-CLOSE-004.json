@@ -2,21 +2,21 @@
   "routeId": "ACC-ETF-CLOSE-004",
   "contentVersion": "2026.08.14-etf-b2",
   "line": "ACCOUNTING",
-  "title": "ETF 台账、补券、替代款与凭证/估值/对账闭环",
+  "title": "ETF 台账、补券、替代款与凭证/估值/对账",
   "summary": "承接中性现金替代预付款，在实际补券成本和费用形成后判断最终方向，完成事件、台账、估值、TA 和清算多源零差及 remaining=0。",
   "estimatedMinutes": 56,
   "objectives": [
     "区分现金替代预付款、非最终估计视图、实际补券成本、费用、最终方向/金额和估计调整",
     "仅在实际补券成本和费用形成后，以预付款减实际总成本判断最终退回、无需额外现金或应补方向",
     "用业务事件工作纸和 ETF 台账分别登记实际成本、最终结算金额、估计调整和 remaining",
-    "证明 event/ledger/valuation/TA/clearing 金额差额均为零且 remaining=0 后完成正常封账"
+    "核对 event/ledger/valuation/TA/clearing 金额差额均为零且 remaining=0 后完成正常封账"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
       "cards": [
-        {"cardId": "ACC-ETF-CLOSE-004-KC-01", "type": "FLOW", "title": "预付款和估计视图都不是最终结算", "conclusion": "R2 的 unsettledSubstitutionPrepayment 是待结算现金；估计视图只用于本案例过程记录，不决定最终结算方向。", "items": ["现金替代预付款来自上游已闭合初始对价。", "估计视图必须标明 NON_FINAL_ESTIMATE_ONLY。", "不得用估计值替代实际补券成本和费用。"]},
+        {"cardId": "ACC-ETF-CLOSE-004-KC-01", "type": "FLOW", "title": "预付款和估计视图都不是最终结算", "conclusion": "R2 的 unsettledSubstitutionPrepayment 是待结算现金；估计视图只用于过程记录，不决定最终结算方向。", "items": ["现金替代预付款来自上游已核对的初始对价。", "估计视图必须标明 NON_FINAL_ESTIMATE_ONLY。", "不得用估计值替代实际补券成本和费用。"]},
         {"cardId": "ACC-ETF-CLOSE-004-KC-02", "type": "KEY_POINT", "title": "实际成本形成后再判断方向", "conclusion": "先计算实际补券成交金额加费用，再以预付款减实际总成本得到有符号最终结算金额。", "items": ["正数表示向申购人退回现金。", "零表示无需额外现金。", "负数表示申购人应补现金；最终金额取绝对值。"]},
-        {"cardId": "ACC-ETF-CLOSE-004-KC-03", "type": "KEY_POINT", "title": "remaining 和五来源共同封账", "conclusion": "正常封账要求事件与台账 remaining 均为 0，事件、台账、估值、TA 和清算结果全部零差。", "items": ["退回方向下 remaining = 预付款 - 实际总成本 - 最终退回金额。", "估计调整 = 最终结算金额 - 估计视图金额。", "本路线使用角色化工作纸，不冻结正式会计科目或借贷顺序。"]}
+        {"cardId": "ACC-ETF-CLOSE-004-KC-03", "type": "KEY_POINT", "title": "remaining=0且五来源一致后封账", "conclusion": "正常封账要求事件与台账 remaining 均为 0，事件、台账、估值、TA 和清算结果全部零差。", "items": ["退回方向下 remaining = 预付款 - 实际总成本 - 最终退回金额。", "估计调整 = 最终结算金额 - 估计视图金额。", "这里使用角色化工作纸，不冻结正式会计科目或借贷顺序。"]}
       ]
     },
     "DEMONSTRATION": {
@@ -26,7 +26,7 @@
         {"order": 2, "action": "读取估计视图金额 864.00 元并确认 NON_FINAL_ESTIMATE_ONLY；该视图不用于决定最终结算方向。", "reason": "估计视图与最终结算结果必须分开。"},
         {"order": 3, "action": "从实际补券成交资料计算 1200×20.48=24576.00 元，再加费用 120.00 元得到实际总成本 24696.00 元。", "reason": "只有实际补券成交和费用都形成后，最终方向才可判断。"},
         {"order": 4, "action": "计算有符号最终结算 25704.00-24696.00=1008.00 元，判断方向 RETURN_TO_AP，最终结算金额 1008.00 元；估计调整 1008.00-864.00=144.00 元，remaining=25704.00-24696.00-1008.00=0.00 元。", "reason": "方向、金额、调整和 remaining 使用同一 Decimal 链但保持独立字段。"},
-        {"order": 5, "action": "在业务事件工作纸和 ETF 台账分别登记实际成本24696.00、最终结算1008.00、调整144.00、remaining 0.00；事件、台账、估值、TA、清算金额均为1008.00且差额为0.00，记录 SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE。", "reason": "五来源零差和 remaining=0 同时成立后才正常封账。"}
+        {"order": 5, "action": "在业务事件工作纸和 ETF 台账分别登记实际成本24696.00、最终结算1008.00、调整144.00、remaining 0.00；事件、台账、估值、TA、清算金额均为1008.00且差额为0.00，记录 SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE。", "reason": "五来源差额均为0.00且 remaining=0 后，才正常封账。"}
       ],
       "summary": "Demo A：预付款25704.00元，实际补券24576.00元、费用120.00元、实际总成本24696.00元；最终退回1008.00元，估计视图864.00元、调整144.00元，事件/台账remaining为0.00且五来源零差。"
     },
@@ -69,7 +69,7 @@
         {"materialId": "ETF04-B-PCF", "title": "PCF 现金替代行", "kind": "PARAMETER", "description": "脱敏合成的正常 PCF 替代行。", "fields": [{"fieldId": "pcfKey", "label": "PCF 键", "value": "PCF-ETF04-B-001"}, {"fieldId": "securityCode", "label": "替代证券代码", "value": "600801"}, {"fieldId": "market", "label": "市场", "value": "SSE"}, {"fieldId": "substitutionQuantity", "label": "待补证券数量", "value": "1500", "unit": "股"}]},
         {"materialId": "ETF04-B-ESTIMATE", "title": "非最终估计视图", "kind": "VALUATION", "description": "只用于过程记录的案例估计视图。", "fields": [{"fieldId": "estimateVersion", "label": "估计版本", "value": "EST-ETF04-B-01"}, {"fieldId": "estimateState", "label": "估计状态", "value": "NON_FINAL_ESTIMATE_ONLY"}, {"fieldId": "estimatedSettlementViewAmount", "label": "估计结算视图金额", "value": "1593.00", "unit": "元"}]},
         {"materialId": "ETF04-B-BUYIN", "title": "实际补券成交资料", "kind": "CONFIRMATION", "description": "正常实际补券成交结果。", "fields": [{"fieldId": "buyinExecutionKey", "label": "补券成交键", "value": "BUYIN-ETF04-B-001"}, {"fieldId": "actualBuyinQuantity", "label": "实际补券数量", "value": "1500", "unit": "股"}, {"fieldId": "actualBuyinPrice", "label": "实际补券价格", "value": "28.20", "unit": "元/股"}, {"fieldId": "actualBuyinGross", "label": "实际补券成交金额", "value": "42300.00", "unit": "元"}]},
-        {"materialId": "ETF04-B-FEE", "title": "补券费用资料", "kind": "VOUCHER", "description": "本案例版本的正常费用结果，不冻结生产费率。", "fields": [{"fieldId": "feeSourceKey", "label": "费用来源键", "value": "FEE-ETF04-B-001"}, {"fieldId": "substitutionFee", "label": "补券费用", "value": "171.00", "unit": "元"}, {"fieldId": "actualSubstitutionCost", "label": "实际补券总成本", "value": "42471.00", "unit": "元"}]},
+        {"materialId": "ETF04-B-FEE", "title": "补券费用资料", "kind": "VOUCHER", "description": "该版本的正常费用结果，不冻结生产费率。", "fields": [{"fieldId": "feeSourceKey", "label": "费用来源键", "value": "FEE-ETF04-B-001"}, {"fieldId": "substitutionFee", "label": "补券费用", "value": "171.00", "unit": "元"}, {"fieldId": "actualSubstitutionCost", "label": "实际补券总成本", "value": "42471.00", "unit": "元"}]},
         {"materialId": "ETF04-B-EVENT", "title": "业务事件工作纸", "kind": "LEDGER", "description": "角色化业务事件结果，不包含正式科目借贷。", "fields": [{"fieldId": "finalDirection", "label": "最终结算方向", "value": "RETURN_TO_AP"}, {"fieldId": "eventSettlementAmount", "label": "事件最终结算金额", "value": "2187.00", "unit": "元"}, {"fieldId": "eventRemaining", "label": "事件 remaining", "value": "0.00", "unit": "元"}, {"fieldId": "eventState", "label": "事件状态", "value": "SUBSTITUTION_SETTLED"}]},
         {"materialId": "ETF04-B-LEDGER", "title": "ETF 现金替代台账", "kind": "LEDGER", "description": "正常台账结果，分列估计、调整、实际成本和最终结算。", "fields": [{"fieldId": "ledgerEstimatedView", "label": "台账估计视图", "value": "1593.00", "unit": "元"}, {"fieldId": "ledgerEstimateAdjustment", "label": "台账估计调整", "value": "594.00", "unit": "元"}, {"fieldId": "ledgerActualCost", "label": "台账实际总成本", "value": "42471.00", "unit": "元"}, {"fieldId": "ledgerSettlementAmount", "label": "台账最终结算金额", "value": "2187.00", "unit": "元"}, {"fieldId": "ledgerRemaining", "label": "台账 remaining", "value": "0.00", "unit": "元"}]},
         {"materialId": "ETF04-B-MULTISOURCE", "title": "估值、TA 与清算结果", "kind": "RECONCILIATION", "description": "独立多来源正常结果。", "fields": [{"fieldId": "valuationSettlementAmount", "label": "估值结果金额", "value": "2187.00", "unit": "元"}, {"fieldId": "taSettlementAmount", "label": "TA 结果金额", "value": "2187.00", "unit": "元"}, {"fieldId": "clearingSettlementAmount", "label": "清算结果金额", "value": "2187.00", "unit": "元"}, {"fieldId": "finalState", "label": "最终状态", "value": "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"}]}
@@ -99,7 +99,7 @@
         {"workItemId": "etf04-b-normal-close-state", "type": "RECONCILIATION", "title": "确认正常封账状态", "instruction": "确认实际成本后方向已定、事件与台账 remaining=0 且五来源零差。", "response": {"kind": "SELECT", "placeholder": "请选择封账状态", "options": [{"optionId": "ETF04_B_NORMAL_CLOSE", "text": "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"}, {"optionId": "ETF04_B_ESTIMATE_ONLY", "text": "仅形成估计视图"}]}},
         {"workItemId": "etf04-b-conclusion", "type": "SHORT_TEXT", "title": "写出正常结算封账结论", "instruction": "用一句短结论保留预付款、估计视图、实际补券、费用、实际总成本、最终方向/金额、调整、remaining和五来源差额。", "response": {"kind": "TEXT", "placeholder": "请输入现金替代结算与封账结论"}}
       ],
-      "submissionNote": "本路线所有价格、费用、估计视图、状态和容差均仅属于本案例版本快照；不冻结生产费率、正式科目借贷、处理顺序或权限。"
+      "submissionNote": "这组资料中的价格、费用、估计视图、状态和容差均仅属于对应版本快照；不冻结生产费率、正式科目借贷、处理顺序或权限。"
     }
   },
   "references": [

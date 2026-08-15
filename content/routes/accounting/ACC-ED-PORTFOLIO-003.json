@@ -29,7 +29,7 @@
           "cardId": "ED-PORTFOLIO-KC-02",
           "type": "CATEGORIES",
           "title": "收益与公允价值是两条不同链",
-          "conclusion": "已实现投资收益由交易字段闭合，期末投资组合公允价值由成本、应计项目和公允价值变动闭合，两者共同回到利润表。",
+          "conclusion": "已实现投资收益由交易字段复算，期末投资组合公允价值由成本、应计项目和公允价值变动复算，两项结果都要回到利润表。",
           "items": [
             "股票交易收益 = 交易价款 - 成本 - 费用",
             "基金收益 = 赎回款 - 成本 - 增值税 - 费用",
@@ -87,10 +87,10 @@
         {
           "order": 5,
           "action": "把投资收益和组合估值结果与主表/附注字段勾稽，记录正常 BALANCED 结论",
-          "reason": "原始交易、估值、附注和主表必须形成连续证据链。"
+          "reason": "原始交易、估值、附注和主表四处的金额应能逐项对应。"
         }
       ],
-      "summary": "锁定原始资料 → 股票/基金/债券收益复算 → 估值复算 → 按分子/分母重算比例 → 附注与主表闭合"
+      "summary": "锁定原始资料 → 股票/基金/债券收益复算 → 估值复算 → 按分子/分母重算比例 → 附注与主表核对"
     },
     "BASIC_PRACTICE": {
       "questions": [
@@ -594,7 +594,7 @@
           "materialId": "EDP-CASE-RECON",
           "title": "收益、估值与主表勾稽表",
           "kind": "RECONCILIATION",
-          "description": "要求学习者把交易、估值、附注和主表结果逐项闭合；资料状态为正常完整。",
+          "description": "把交易、估值、附注和主表结果逐项核对；资料状态为正常完整。",
           "fields": [
             {
               "fieldId": "investment-income-check",
@@ -719,7 +719,7 @@
         {
           "workItemId": "investment-income-total",
           "type": "RECONCILIATION",
-          "title": "闭合投资收益合计",
+          "title": "核对投资收益合计",
           "instruction": "股票 2,500,000 + 基金 800,000 + 债券 200,000。",
           "response": {
             "kind": "NUMBER",
@@ -767,7 +767,7 @@
         {
           "workItemId": "valuation-total",
           "type": "RECONCILIATION",
-          "title": "闭合组合期末公允价值",
+          "title": "核对组合期末公允价值",
           "instruction": "50,000,000 + 20,000,000 + 30,800,000。",
           "response": {
             "kind": "NUMBER",
@@ -867,7 +867,7 @@
         {
           "workItemId": "result-note",
           "type": "SHORT_TEXT",
-          "title": "形成投资组合复核结论",
+          "title": "写出投资组合复核结论",
           "instruction": "简短报告三类投资收益、组合公允价值、分项/合计比例和主表状态。",
           "response": {
             "kind": "TEXT",
@@ -875,7 +875,7 @@
           }
         }
       ],
-      "submissionNote": "本案例资料完整且业务正常。请先从交易明细/凭证取数，至少独立复算股票、基金、债券中的一条收益，再复算估值和比例；比例必须按分子/分母重算，不能加总已舍入分项比例。"
+      "submissionNote": "资料完整且业务正常。请先从交易明细/凭证取数，至少独立复算股票、基金、债券中的一条收益，再复算估值和比例；比例必须按分子/分母重算，不能加总已舍入分项比例。"
     }
   },
   "references": [

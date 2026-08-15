@@ -96,9 +96,14 @@ public class FormalContentCatalog {
     public JsonNode publicRouteMetadata(String routeId) {
         JsonNode content = route(routeId).content();
         ObjectNode result = objectMapper.createObjectNode();
-        for (String field : List.of("routeId", "contentVersion", "line", "title", "summary",
-                "estimatedMinutes", "objectives", "references")) {
+        for (String field : List.of("routeId", "contentVersion", "line", "estimatedMinutes")) {
             result.set(field, content.path(field).deepCopy());
+        }
+        result.put("title", HumanFeedbackText.publicDisplayText(content.path("title").asText("")));
+        result.put("summary", HumanFeedbackText.publicDisplayText(content.path("summary").asText("")));
+        ArrayNode objectives = result.putArray("objectives");
+        for (JsonNode objective : content.path("objectives")) {
+            objectives.add(HumanFeedbackText.publicDisplayText(objective.asText("")));
         }
         return result;
     }

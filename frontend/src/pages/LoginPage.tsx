@@ -43,23 +43,23 @@ export function LoginPage() {
           托管智训营
         </div>
         <div className="login-story__copy">
-          <span className="eyebrow">把业务经验，练成岗位能力</span>
-          <h1>今天，<br />从一条路线开始。</h1>
-          <p>跟着小托走进真实业务情境，先学、再练、及时看见每一步成长。</p>
+          <span className="eyebrow">从业务资料开始，练习岗位处理</span>
+          <h1>今天，<br />从当前路线开始。</h1>
+          <p>从原始业务资料出发，练习取数、计算、勾稽和结果表达。</p>
         </div>
         <Mascot
           pose="WELCOME_WAVE"
           size="large"
-          message={<><strong>你好，我是小托。</strong><span>登录后，我们从当前路线继续。</span></>}
+          message={<><strong>你好，我是小托。</strong><span>登录后，继续当前路线和未完成环节。</span></>}
         />
       </section>
 
       <section className="login-panel">
         <div className="login-card">
           <div className="login-card__heading">
-            <span className="eyebrow">欢迎回来</span>
-            <h2>登录学习账号</h2>
-            <p>使用你的员工号继续上一次学习。</p>
+            <span className="eyebrow">岗位学习入口</span>
+            <h2>登录岗位学习账号</h2>
+            <p>用员工号继续未完成环节，训练记录会保留。</p>
           </div>
           <form onSubmit={submit}>
             <label>
@@ -93,7 +93,7 @@ export function LoginPage() {
               {submitting ? '正在进入…' : <>进入学习世界 <ArrowRight size={20} /></>}
             </button>
           </form>
-          <p className="login-card__note"><ShieldCheck size={17} /> 账户仅用于岗位学习；进度与训练记录会安全保存。</p>
+          <p className="login-card__note"><ShieldCheck size={17} /> 账户仅用于岗位学习；草稿、正式作答和训练记录会安全保存。</p>
         </div>
       </section>
     </main>

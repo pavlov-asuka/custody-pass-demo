@@ -37,7 +37,7 @@ export function AppShell({
   }, []);
 
   async function handleLogout() {
-    if (!window.confirm('确定退出托管智训营吗？')) return;
+    if (!window.confirm('确定退出当前学习账号吗？')) return;
     await signOut();
     navigate('/login', { replace: true });
   }

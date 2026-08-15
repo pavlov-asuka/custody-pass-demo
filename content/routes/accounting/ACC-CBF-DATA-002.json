@@ -2,14 +2,14 @@
   "routeId": "ACC-CBF-DATA-002",
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
-  "title": "数据接收、解析、完整性与可启动判定",
-  "summary": "从两套资料完整的正常案例批次读取同日键、文件组版本、记录数、数量/金额控制总额、解析行数、映射行数和完整性字段，主动证明RECEIVED、PARSED、MAPPED、COMPLETE、READY五个可观察状态，并完成日间/日终双源勾稽。",
+  "title": "数据接收、解析、完整性与可启动状态",
+  "summary": "从两套完整正常资料读取同日键、文件组版本、记录数、数量/金额控制总额、解析行数、映射行数和完整性字段，按证据确认RECEIVED、PARSED、MAPPED、COMPLETE、READY，并核对日间/日终双源结果。",
   "estimatedMinutes": 70,
   "objectives": [
     "从接收登记、日间资料组、日终资料组和映射/完整性工作纸定位业务日期、市场键、组合键、证券键、文件组版本和记录控制字段",
-    "依据记录数与解析行数、解析行数与映射行数、必需字段和同日键字段，逐步证明RECEIVED、PARSED、MAPPED、COMPLETE，而不是背诵状态顺序",
-    "用独立Decimal复算记录数、数量控制总额、金额控制总额以及解析/映射行数差，不进入佣金、交收或备付金主金额链",
-    "完成日间与日终资料的记录、数量和金额控制总额双源勾稽；只有同日键、字段映射和完整性全部闭合时才判定READY"
+    "依据记录数与解析行数、解析行数与映射行数、必需字段和同日键字段，逐项确认RECEIVED、PARSED、MAPPED、COMPLETE，而不是背诵状态顺序",
+    "用独立Decimal复算记录数、数量控制总额、金额控制总额以及解析/映射行数差，不把它们带入佣金、交收或备付金主金额链",
+    "核对日间与日终资料的记录、数量和金额控制总额；同日键、字段映射和完整性全部通过后才判定READY"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -18,7 +18,7 @@
           "cardId": "CBF-R2-KC-01",
           "type": "FLOW",
           "title": "状态要由资料字段证明",
-          "conclusion": "收到、解析、映射、完整和可启动是不同证据层；每一步都要回到资料字段和控制结果。",
+          "conclusion": "收到、解析、映射、完整和可启动对应不同证据；每一步都要回到资料字段和控制结果。",
           "items": [
             "RECEIVED看接收登记、文件组ID、文件组版本、业务日期、同日键和记录数是否可读",
             "PARSED看记录数与parsedRows相等且parseStatus为PASS",
@@ -30,7 +30,7 @@
           "cardId": "CBF-R2-KC-02",
           "type": "CATEGORIES",
           "title": "控制总额只回答资料完整性",
-          "conclusion": "本路线计算记录数、数量和金额控制总额及其差额，用于确认资料能否进入后续核算；不把控制总额计算扩展成佣金、交收或备付金核算。",
+          "conclusion": "记录数、数量和金额控制总额及其差额用于确认资料能否进入后续核算；不把控制总额计算扩展成佣金、交收或备付金核算。",
           "items": [
             "记录数 = 明细行数；解析行数差 = parsedRows − recordCount",
             "数量控制总额 = 各明细quantity的Decimal合计",
@@ -42,19 +42,19 @@
           "cardId": "CBF-R2-KC-03",
           "type": "KEY_POINT",
           "title": "收到和解析不等于可启动",
-          "conclusion": "READY必须同时满足同日键一致、字段映射完成、记录/数量/金额完整性闭合和双源差额为零；本案例正常结论为READY。",
+          "conclusion": "READY必须同时满足同日键一致、字段映射完成、记录/数量/金额完整性通过和双源差额为零；这组正常资料的结论为READY。",
           "items": [
-            "接收成功只证明资料进入本案例资料包，不证明结构已解析",
+            "接收成功只证明资料已登记，不证明结构已解析",
             "解析成功只证明字段可读，不证明字段已经映射和完整",
-            "映射成功和字段完整还要经过日间/日终控制总额勾稽",
-            "全部条件闭合后才可以在数据接收与可启动状态工作纸记录READY"
+            "映射成功和字段完整还要经过日间/日终控制总额核对",
+            "全部条件通过后，才能在数据接收与可启动状态工作纸记录READY"
           ]
         }
       ]
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "本案例数据接收与核算工作角色",
+        "role": "数据接收与核算工作角色",
         "product": "券结基金单券商单市场普通证券资料批次",
         "date": "2026-08-13",
         "fixture": "CBF-R2-FIXTURE-DEMO-A",
@@ -62,7 +62,7 @@
           "接收登记、日间资料组和日终资料组共同给出业务日期2026-08-13、市场键MARKET_DATA_A、组合键PORTFOLIO_DATA_A和证券键SECURITY_DATA_A。",
           "日间文件组CASE_DAY_DATA_A和日终文件组CASE_EOD_DATA_A的版本均为CASE-FORMAT-A-01；两组各3条记录、数量控制总额15000、金额控制总额625000.00。",
           "两组parsedRows均为3、mappedRows均为3、parseStatus/mappingStatus/requiredFieldCheck/sameDayKeyCheck均为PASS。",
-          "所有标识、版本、行数和金额均为本案例合成教学参数，不代表生产文件格式或永久规则。"
+          "所有标识、版本、行数和金额均为合成教学参数，不代表生产文件格式或永久规则。"
         ]
       },
       "steps": [
@@ -74,32 +74,32 @@
         {
           "order": 2,
           "action": "分别比较日间和日终资料的recordCount=3与parsedRows=3，并读取parseStatus=PASS，记录PARSED",
-          "reason": "解析状态要由记录数与解析行数闭合证明，而不是由接收成功推断。"
+          "reason": "解析状态要由记录数与解析行数相等来确认，不能由接收成功推断。"
         },
         {
           "order": 3,
-          "action": "分别比较parsedRows=3与mappedRows=3，并读取mappingStatus=PASS，将资料字段关联本案例字段字典，记录MAPPED",
+          "action": "分别比较parsedRows=3与mappedRows=3，并读取mappingStatus=PASS，将资料字段关联字段字典，记录MAPPED",
           "reason": "映射完成必须有行数关系和映射结果字段，不能把解析行数直接当成映射行数。"
         },
         {
           "order": 4,
           "action": "把三条明细分别相加：数量5000+4000+6000=15000，金额210000.00+165000.00+250000.00=625000.00；检查必需字段和四个同日键均为PASS，记录COMPLETE",
-          "reason": "COMPLETE由字段存在、键一致和可复算控制总额共同证明；本步骤不计算佣金或备付金。"
+          "reason": "COMPLETE要同时有字段存在、键一致和可复算控制总额；本步骤不计算佣金或备付金。"
         },
         {
           "order": 5,
-          "action": "勾稽日间/日终记录差0、数量差0、金额差0.00，确认映射和完整性均通过，在数据接收与可启动状态工作纸记录READY",
-          "reason": "收到或解析并不等于可启动；只有同日键、映射、记录/数量/金额完整性及双源差额全部闭合才可READY。"
+          "action": "核对日间/日终记录差0、数量差0、金额差0.00，确认映射和完整性均通过，在数据接收与可启动状态工作纸记录READY",
+          "reason": "收到或解析并不等于可启动；只有同日键、映射、记录/数量/金额完整性及双源差额全部通过才可READY。"
         }
       ],
-      "summary": "接收字段 → 解析行数 → 映射行数 → 完整性控制总额 → 双源零差异与READY"
+      "summary": "接收字段 → 解析行数 → 映射行数 → 完整性控制总额 → 双源零差异 → READY"
     },
     "BASIC_PRACTICE": {
       "questions": [
         {
           "questionId": "ACC-CBF-DATA-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "把Demo A中五个状态的证明字段映射到资料或工作纸来源。",
+          "prompt": "把Demo A五个状态的证据字段映射到资料或工作纸来源。",
           "fieldMappings": [
             {
               "fieldId": "received-proof",
@@ -154,7 +154,7 @@
         {
           "questionId": "ACC-CBF-DATA-Q-02",
           "type": "CALCULATION",
-          "prompt": "按Demo A明细计算记录数、数量/金额控制总额以及解析和映射行数差。",
+          "prompt": "按Demo A明细计算记录数、数量/金额控制总额，以及解析和映射行数差。",
           "calculation": {
             "fields": [
               {"fieldId": "record-count", "label": "明细记录数", "formula": "3条明细", "placeholder": "输入行数", "unit": "行", "precision": 0, "tolerance": 0},
@@ -180,13 +180,13 @@
             {"entryId": "ready-state", "direction": "状态", "label": "可启动核算", "amount": "READY", "placeholder": "输入状态"}
           ],
           "answer": ["RECEIVED", "PARSED", "MAPPED", "COMPLETE", "READY"],
-          "explanation": "工作纸记录可由字段和控制结果证明的状态，不添加系统菜单、按钮或未闭合字段。",
-          "hints": ["每个状态都要能回指上一题的字段证据；READY必须放在完整性和双源勾稽之后。"]
+          "explanation": "工作纸记录能从字段和控制结果确认的状态，不添加系统菜单、按钮或未解释字段。",
+          "hints": ["逐项找到接收、解析、映射和完整性字段；READY必须放在完整性和双源核对之后。"]
         },
         {
           "questionId": "ACC-CBF-DATA-Q-04",
           "type": "RECONCILIATION",
-          "prompt": "完成Demo A日间与日终资料的记录、数量和金额控制总额勾稽，并判断能否READY。",
+          "prompt": "核对Demo A日间与日终资料的记录、数量和金额控制总额，并判断能否READY。",
           "reconciliation": {
             "fields": [
               {"fieldId": "record-diff", "label": "记录数差", "kind": "NUMBER", "formula": "3−3", "placeholder": "输入行数差", "precision": 0, "tolerance": 0},
@@ -196,31 +196,31 @@
             ]
           },
           "answer": ["0", "0", "0.00", "READY"],
-          "explanation": "日间与日终资料记录数、数量和金额控制总额均一致，且完整性已通过，因此本案例可READY。",
+          "explanation": "日间与日终资料记录数、数量和金额控制总额均一致，且完整性已通过，因此这组资料可READY。",
           "hints": ["先分别算三项差额，再确认COMPLETE证据已存在，不能只看received或parsed。"]
         },
         {
           "questionId": "ACC-CBF-DATA-Q-05",
           "type": "SHORT_TEXT",
-          "prompt": "用一句话说明为什么Demo A收到并解析后，还必须经过映射、完整性和双源勾稽才能READY。",
+          "prompt": "用一句话说明为什么Demo A收到并解析后，还必须经过映射、完整性和双源核对才能READY。",
           "textInput": {"label": "数据可启动结论", "placeholder": "写明五状态、同日键、字段映射、控制总额和READY边界"},
           "answer": ["RECEIVED", "PARSED", "MAPPED", "COMPLETE", "READY", "同日键", "字段映射", "记录", "数量", "金额", "零差"],
-          "explanation": "结论要表达状态是由字段和控制结果逐步证明的，收到/解析不等于可启动。",
-          "hints": ["按状态证据顺序组织句子，并明确READY需要同日键、映射和三项控制总额闭合。"]
+          "explanation": "结论要指出状态由字段和控制结果逐步确认，收到/解析不等于可启动。",
+          "hints": ["按状态证据顺序组织句子，并明确READY需要同日键、映射和三项控制总额均无差额。"]
         }
       ]
     },
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
-        "role": "本案例数据接收与核算工作角色",
+        "role": "数据接收与核算工作角色",
         "product": "券结基金单券商单市场普通证券资料批次",
         "date": "2026-08-14",
-        "purpose": "使用完整脱敏资料包，从接收登记、日间资料组、日终资料组和映射/完整性工作纸逐项证明RECEIVED、PARSED、MAPPED、COMPLETE、READY；独立复算控制总额，并完成日间/日终双源零差异勾稽。"
+        "purpose": "使用完整脱敏资料包，从接收登记、日间资料组、日终资料组和映射/完整性工作纸逐项确认RECEIVED、PARSED、MAPPED、COMPLETE、READY；独立复算控制总额，并核对日间/日终双源零差异。"
       },
       "sourceMaterials": [
         {
           "materialId": "CBF-DATA-B-INTAKE",
-          "title": "综合B接收登记与同日键资料",
+          "title": "接收登记与同日键资料",
           "kind": "CONFIRMATION",
           "description": "提供业务日期、市场/组合/证券键、两组文件批次和版本、接收状态及记录数。",
           "fields": [
@@ -240,7 +240,7 @@
         },
         {
           "materialId": "CBF-DATA-B-DAY",
-          "title": "综合B日间资料组",
+          "title": "日间资料组",
           "kind": "STATEMENT",
           "description": "完整日间明细和控制字段；不含佣金、交收或备付金主金额链。",
           "fields": [
@@ -266,9 +266,9 @@
         },
         {
           "materialId": "CBF-DATA-B-EOD",
-          "title": "综合B日终资料组",
+          "title": "日终资料组",
           "kind": "STATEMENT",
-          "description": "完整日终明细和控制字段，与日间资料组进行双源勾稽。",
+          "description": "完整日终明细和控制字段，与日间资料组进行双源核对。",
           "fields": [
             {"fieldId": "eod_business_date", "label": "业务日期", "value": "2026-08-14"},
             {"fieldId": "eod_market_key", "label": "市场键", "value": "MARKET_DATA_B"},
@@ -292,9 +292,9 @@
         },
         {
           "materialId": "CBF-DATA-B-MAPPING",
-          "title": "综合B字段映射与完整性工作纸",
+          "title": "字段映射与完整性工作纸",
           "kind": "LEDGER",
-          "description": "以业务字段和角色化工作纸记录映射行数、必需字段、同日键和完整性结果。",
+          "description": "用数据接收与可启动工作纸登记映射行数、必需字段、同日键和完整性结果。",
           "fields": [
             {"fieldId": "day_mapped_rows", "label": "日间映射行数", "value": "4", "unit": "行"},
             {"fieldId": "eod_mapped_rows", "label": "日终映射行数", "value": "4", "unit": "行"},
@@ -306,9 +306,9 @@
         },
         {
           "materialId": "CBF-DATA-B-READINESS",
-          "title": "综合B双源勾稽与可启动确认",
+          "title": "双源核对与可启动确认",
           "kind": "RECONCILIATION",
-          "description": "本案例正常资料的记录、数量和金额差额均为零，最终可记录READY。",
+          "description": "正常资料的记录、数量和金额差额均为零，可记录READY。",
           "fields": [
             {"fieldId": "record_diff", "label": "日间/日终记录差", "value": "0", "unit": "行"},
             {"fieldId": "quantity_diff", "label": "日间/日终数量差", "value": "0", "unit": "份"},
@@ -321,49 +321,49 @@
         {
           "workItemId": "r2-b-received-proof",
           "type": "FIELD_MAP",
-          "title": "证明资料已收到",
-          "instruction": "从综合B接收登记选择能够证明RECEIVED的字段组合。",
+          "title": "读取接收登记",
+          "instruction": "从接收登记选择能够确认RECEIVED的字段组合。",
           "response": {"kind": "SELECT", "placeholder": "选择接收证据", "options": [{"optionId": "RECEIVED_FROM_INTAKE_KEYS", "text": "业务日期/四个同日键、两个文件组ID与版本、记录数可读"}, {"optionId": "READY_ONLY", "text": "只看最终READY字段"}]}
         },
         {
           "workItemId": "r2-b-parsed-proof",
           "type": "FIELD_MAP",
-          "title": "证明结构已解析",
-          "instruction": "从日间和日终资料选择证明PARSED的字段关系。",
+          "title": "核对解析行数",
+          "instruction": "从日间和日终资料选择确认PARSED的字段关系。",
           "response": {"kind": "SELECT", "placeholder": "选择解析证据", "options": [{"optionId": "PARSED_ROWS_EQUAL_RECORDS", "text": "两组均recordCount=4、parsedRows=4且parseStatus=PASS"}, {"optionId": "RECEIVED_STATUS_ONLY", "text": "只看receivedStatus=RECEIVED"}]}
         },
         {
           "workItemId": "r2-b-mapped-proof",
           "type": "FIELD_MAP",
-          "title": "证明字段已映射",
-          "instruction": "从映射工作纸选择证明MAPPED的字段关系。",
+          "title": "核对字段映射",
+          "instruction": "从映射工作纸选择确认MAPPED的字段关系。",
           "response": {"kind": "SELECT", "placeholder": "选择映射证据", "options": [{"optionId": "MAPPED_ROWS_EQUAL_PARSED", "text": "两组均parsedRows=4、mappedRows=4且mappingStatus=PASS"}, {"optionId": "PARSE_PASS_ONLY", "text": "只要parseStatus=PASS即可"}]}
         },
         {
           "workItemId": "r2-b-complete-proof",
           "type": "FIELD_MAP",
-          "title": "证明业务数据完整",
+          "title": "核对业务数据完整性",
           "instruction": "选择能够同时证明必需字段、同日键和控制总额可验证的字段组合。",
           "response": {"kind": "SELECT", "placeholder": "选择完整性证据", "options": [{"optionId": "COMPLETE_KEYS_FIELDS_CONTROLS", "text": "required_field_check=PASS、same_day_key_check=PASS，数量/金额控制总额可从明细复算"}, {"optionId": "MAPPED_STATUS_ONLY", "text": "只要mappingStatus=PASS即可"}]}
         },
         {
           "workItemId": "r2-b-ready-proof",
           "type": "FIELD_MAP",
-          "title": "证明可以启动核算",
+          "title": "确认可以启动核算",
           "instruction": "选择能够证明READY而不是仅收到或解析的字段组合。",
           "response": {"kind": "SELECT", "placeholder": "选择READY证据", "options": [{"optionId": "READY_ALL_CONTROLS_ZERO", "text": "同日键/映射/完整性闭合，日间与日终记录/数量/金额差均为零"}, {"optionId": "PARSED_MEANS_READY", "text": "parsedRows=recordCount即可READY"}]}
         },
         {
           "workItemId": "r2-b-quantity-total",
           "type": "CALCULATION",
-          "title": "复算综合B数量控制总额",
+          "title": "复算数量控制总额",
           "instruction": "用日间四条明细的数量独立计算数量控制总额。",
           "response": {"kind": "NUMBER", "placeholder": "输入数量", "unit": "份", "precision": 0}
         },
         {
           "workItemId": "r2-b-amount-total",
           "type": "CALCULATION",
-          "title": "复算综合B金额控制总额",
+          "title": "复算金额控制总额",
           "instruction": "用日间四条明细的金额独立计算金额控制总额。",
           "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}
         },
@@ -377,19 +377,19 @@
         {
           "workItemId": "r2-b-two-source-recon",
           "type": "RECONCILIATION",
-          "title": "完成日间/日终双源控制总额勾稽",
-          "instruction": "比较综合B日间和日终资料的记录数、数量控制总额和金额控制总额，并判断是否可READY。",
+          "title": "核对日间/日终双源控制总额",
+          "instruction": "比较日间和日终资料的记录数、数量控制总额和金额控制总额，并判断是否可READY。",
           "response": {"kind": "SELECT", "placeholder": "选择勾稽结论", "options": [{"optionId": "ALL_ZERO_READY", "text": "记录、数量、金额差均为零，完整性闭合，可以READY"}, {"optionId": "NOT_READY", "text": "仍需补充或解释资料"}]}
         },
         {
           "workItemId": "r2-b-validation",
           "type": "SHORT_TEXT",
-          "title": "写出可追溯的可启动结论",
-          "instruction": "用一句话说明五个状态如何由字段、控制总额和双源勾稽逐步证明，并明确收到/解析不等于READY。",
+          "title": "写出可启动结论",
+          "instruction": "用一句话说明五个状态如何由字段、控制总额和双源核对逐步确认，并明确收到/解析不等于READY。",
           "response": {"kind": "TEXT", "placeholder": "输入数据可启动验证结论"}
         }
       ],
-      "submissionNote": "提交结构化状态工作纸：同日键与文件组版本、接收/解析/映射/完整性/READY证据、数量和金额控制总额、日间/日终差额及一句可追溯结论。本案例资料完整且正常闭合。"
+      "submissionNote": "提交状态工作纸：同日键与文件组版本、接收/解析/映射/完整性/READY证据、数量和金额控制总额、日间/日终差额及一句结论。资料完整且差额为零。"
     }
   },
   "references": [

@@ -37,7 +37,7 @@ async function parseError(response: Response): Promise<never> {
   try {
     body = (await response.json()) as ApiErrorBody;
   } catch {
-    body = { code: 'NETWORK_RESPONSE_ERROR', message: '服务响应无法读取，请稍后重试。' };
+    body = { code: 'NETWORK_RESPONSE_ERROR', message: '学习服务未返回可读取的结果，请稍后重试。' };
   }
   throw new ApiError(response.status, body);
 }
@@ -65,7 +65,7 @@ async function request<T>(
   } catch {
     throw new ApiError(0, {
       code: 'NETWORK_ERROR',
-      message: '暂时无法连接学习服务，请检查网络后重试。',
+      message: '无法连接学习服务，请检查网络后重试。',
     });
   }
 

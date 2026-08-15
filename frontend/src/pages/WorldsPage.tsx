@@ -16,9 +16,9 @@ const worldKickers: Record<Line, string> = {
 };
 
 function worldStatusText(world: World): string {
-  if (world.status === 'PASSED') return '已完成';
-  if (world.status === 'NOT_STARTED') return '准备出发';
-  return '继续学习';
+  if (world.status === 'PASSED') return '已通过';
+  if (world.status === 'NOT_STARTED') return '尚未开始';
+  return '继续当前路线';
 }
 
 function WorldCard({ world }: { world: World }) {
@@ -73,17 +73,17 @@ export function WorldsPage() {
       <div className="worlds-page page-enter">
         <header className="worlds-header">
           <div className="worlds-header__copy">
-            <h1>今天想进入哪个学习世界？</h1>
-            <p>每个世界都有自己的岗位路线。选定一条业务线，专注完成今天的学习。</p>
+            <h1>选择要练习的业务世界</h1>
+            <p>从一条业务线开始，按路线完成知识卡、示范、练习和综合实务。</p>
           </div>
           <Mascot
             pose="WELCOME_WAVE"
             size="small"
-            message="选择一条业务线，我们就出发！"
+            message="先选业务线，再从当前节点进入。"
           />
         </header>
 
-        {loading && <LoadingState label="正在打开学习世界…" />}
+        {loading && <LoadingState label="正在读取学习世界…" />}
         {error && <ErrorState error={error} onRetry={reload} />}
         {data && (
           <section className="world-grid" data-testid="world-grid">

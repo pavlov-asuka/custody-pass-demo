@@ -3,13 +3,13 @@
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
   "title": "把申购指令推进到资金与份额确认",
-  "summary": "沿着指令、管理人确认、TA确认、资金到账和份额确认的正常链完成金额复算与业务台账承接，不提前进入估值主链。",
+  "summary": "按指令、管理人确认、TA确认、资金到账和份额确认的顺序复算金额，承接业务台账并核对两项差额；估值另行处理。",
   "estimatedMinutes": 28,
   "objectives": [
     "按顺序识别指令、管理人确认、TA确认、资金到账和份额确认状态",
     "核对同一指令的确认金额与实际到账金额",
     "用 confirmedShares = confirmedAmount / subscriptionNAV 独立复算确认份额",
-    "把确认份额承接到台账并用资金、份额差额完成正常收口"
+    "把确认份额承接到台账，分别核对资金差额与份额承接差额并记录 SHARES_POSTED"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -29,10 +29,10 @@
           "cardId": "FOF02-KC-02",
           "type": "KEY_POINT",
           "title": "金额先对齐再算份额",
-          "conclusion": "TA确认金额是确认份额计算的金额基础；正常案例中它与管理人确认和实际到账金额一致。",
+          "conclusion": "TA确认金额是确认份额计算的金额基础；资料中的正常结果与管理人确认和实际到账金额一致。",
           "items": [
             "指令金额、管理人确认金额、TA确认金额分别读取",
-            "实际到账金额与TA确认金额做应收实收勾稽",
+            "实际到账金额与TA确认金额做应收实收核对",
             "金额单位统一为元，结果保留两位小数"
           ]
         },
@@ -44,7 +44,7 @@
           "items": [
             "confirmedShares = confirmedAmount ÷ subscriptionNAV",
             "closingShares = openingShares + confirmedShares",
-            "本路线最终只到 SHARES_POSTED，不填写估值结果或封账结论"
+            "这里最终只记录 SHARES_POSTED，不填写估值结果或封账结论"
           ]
         }
       ]
@@ -54,14 +54,14 @@
         "role": "托管核算新人",
         "product": "合成 FOF 母基金 FOF-EDU-C-01 与被投基金 FUND-EDU-C-01",
         "date": "2030-06-16",
-        "purpose": "把一笔正常申购从指令推进至份额确认并完成资金与台账勾稽"
+        "purpose": "把一笔正常申购从指令推进至份额确认，并核对资金与台账结果"
       },
       "steps": [
         {"order": 1, "action": "读取指令键 INS-FOF02-A-001、FOF-EDU-C-01、FUND-EDU-C-01、2030-06-16 和 875000.00 元指令金额。", "reason": "以同一指令键建立对象和业务日期，后续资料必须回到这个键。"},
         {"order": 2, "action": "读取管理人确认资料，确认金额为 875000.00 元，状态推进到 MANAGER_CONFIRMED。", "reason": "管理人确认说明指令已被业务确认，但还不能代替 TA 份额确认。"},
         {"order": 3, "action": "读取 TA 确认资料，确认金额为 875000.00 元、申购 NAV 为 1.2500 元/份，并用 Decimal 计算 875000.00 ÷ 1.2500 = 700000.00 份。", "reason": "TA确认金额和NAV共同决定确认份额，计算结果要带单位和精度。"},
         {"order": 4, "action": "读取资金资料，确认实际到账 875000.00 元，与 TA 确认金额差额为 0.00 元，状态推进到 CASH_RECEIVED。", "reason": "到账是独立证据，不能仅凭指令或确认资料推定资金已收。"},
-        {"order": 5, "action": "把 700000.00 份写入业务台账，期初 420000.00 份承接为期末 1120000.00 份，份额差额为 0.00，状态到 SHARES_POSTED。", "reason": "资金、确认份额和台账全部闭合后，本路线才完成；估值留给后续路线。"}
+        {"order": 5, "action": "把 700000.00 份写入业务台账，期初 420000.00 份承接为期末 1120000.00 份，份额差额为 0.00，状态到 SHARES_POSTED。", "reason": "资金差额和份额差额均为 0.00 后，才记录 SHARES_POSTED；估值留给后续路线。"}
       ],
       "summary": "按证据顺序完成确认、到账、份额计算和台账承接，形成可复核的正常申购结果。"
     },
@@ -104,11 +104,11 @@
         {
           "questionId": "ACC-FOF-SUBSCRIPTION-Q-04",
           "type": "RECONCILIATION",
-          "prompt": "确认 Demo A 的资金与份额结果是否闭合。",
+          "prompt": "确认 Demo A 的资金与份额差额是否均为零。",
           "reconciliation": {"fields": [{"fieldId": "fof02-a-cash-diff", "label": "应收实收差额", "kind": "NUMBER", "formula": "ta_confirmed_amount - cash_received_amount", "placeholder": "输入资金差额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof02-a-shares-diff", "label": "份额承接差额", "kind": "NUMBER", "formula": "closing_shares - (opening_shares + confirmed_shares)", "placeholder": "输入份额差额", "precision": 2, "tolerance": 0.01}]},
           "answer": ["0.00", "0.00"],
           "explanation": "875000.00 - 875000.00 = 0.00；1120000.00 - (420000.00 + 700000.00) = 0.00。",
-          "hints": ["分别核对资金和份额，不用一个总差额替代两项勾稽。"]
+          "hints": ["分别核对资金和份额，不用一个总差额替代两项比较。"]
         },
         {
           "questionId": "ACC-FOF-SUBSCRIPTION-Q-05",
@@ -117,7 +117,7 @@
           "textInput": {"label": "正常业务结论", "placeholder": "输入一句结构化结论"},
           "answer": ["指令经管理人和TA确认，875000.00元到账一致，Decimal复算700000.00份并承接为1120000.00份，状态为SHARES_POSTED"],
           "explanation": "结论要同时表达状态顺序、到账结果、计算结果、台账结果和最终边界。",
-          "hints": ["只写本路线的正常确认、到账和份额结果。"]
+          "hints": ["只写已提交的确认、到账和份额结果。"]
         }
       ]
     },
@@ -129,7 +129,7 @@
         {"materialId": "FOF02-B-TA", "title": "TA确认资料组", "kind": "CONFIRMATION", "description": "TA确认金额、申购NAV和确认份额。", "fields": [{"fieldId": "ta_confirmed_amount", "label": "TA确认金额", "value": "1536000.00", "unit": "元"}, {"fieldId": "subscription_nav", "label": "申购NAV", "value": "1.2800", "unit": "元/份"}, {"fieldId": "confirmed_shares", "label": "确认份额", "value": "1200000.00", "unit": "份"}, {"fieldId": "ta_confirmation_state", "label": "TA确认状态", "value": "TA_CONFIRMED"}]},
         {"materialId": "FOF02-B-CASH", "title": "资金到账资料组", "kind": "STATEMENT", "description": "合成资金资料证明单笔实际到账。", "fields": [{"fieldId": "cash_received_amount", "label": "实际到账", "value": "1536000.00", "unit": "元"}, {"fieldId": "cash_received_state", "label": "到账状态", "value": "CASH_RECEIVED"}]},
         {"materialId": "FOF02-B-LEDGER", "title": "份额台账资料组", "kind": "LEDGER", "description": "合成业务台账给出期初、确认、期末份额和最终教学状态。", "fields": [{"fieldId": "opening_shares", "label": "期初份额", "value": "275000.00", "unit": "份"}, {"fieldId": "confirmed_shares", "label": "确认份额", "value": "1200000.00", "unit": "份"}, {"fieldId": "closing_shares", "label": "期末份额", "value": "1475000.00", "unit": "份"}, {"fieldId": "state_complete", "label": "最终状态", "value": "SHARES_POSTED"}]},
-        {"materialId": "FOF02-B-RECON", "title": "资金与份额勾稽资料组", "kind": "RECONCILIATION", "description": "合成正常结果给出资金差额和份额差额。", "fields": [{"fieldId": "cash_diff", "label": "资金差额", "value": "0.00", "unit": "元"}, {"fieldId": "shares_diff", "label": "份额差额", "value": "0.00", "unit": "份"}]}
+        {"materialId": "FOF02-B-RECON", "title": "资金与份额核对资料组", "kind": "RECONCILIATION", "description": "正常结果给出资金差额和份额差额。", "fields": [{"fieldId": "cash_diff", "label": "资金差额", "value": "0.00", "unit": "元"}, {"fieldId": "shares_diff", "label": "份额差额", "value": "0.00", "unit": "份"}]}
       ],
       "workItems": [
         {"workItemId": "fof02-b-instruction-state-source", "type": "FIELD_MAP", "title": "定位指令状态来源", "instruction": "选择承载INS-FOF02-B-001和INSTRUCTION_CREATED状态的资料。", "response": {"kind": "SELECT", "placeholder": "选择指令状态来源", "options": [{"optionId": "FOF02_B_INSTRUCTION_SOURCE", "text": "FOF02-B-INSTRUCTION→INSTRUCTION_CREATED"}, {"optionId": "FOF02_B_LEDGER_INSTRUCTION_SOURCE", "text": "FOF02-B-LEDGER→INSTRUCTION_CREATED"}]}},
@@ -145,8 +145,8 @@
         {"workItemId": "fof02-b-closing-shares", "type": "CALCULATION", "title": "计算期末台账份额", "instruction": "用期初275000.00份加确认1200000.00份，输入期末台账份额。", "response": {"kind": "NUMBER", "placeholder": "输入期末份额", "unit": "份", "precision": 2}},
         {"workItemId": "fof02-b-cash-diff", "type": "RECONCILIATION", "title": "核对资金零差异", "instruction": "用TA确认金额1536000.00元减实际到账1536000.00元，输入资金差额。", "response": {"kind": "NUMBER", "placeholder": "输入资金差额", "unit": "元", "precision": 2}},
         {"workItemId": "fof02-b-shares-diff", "type": "RECONCILIATION", "title": "核对份额零差异", "instruction": "用期末1475000.00份减期初275000.00份与确认1200000.00份之和，输入份额差额。", "response": {"kind": "NUMBER", "placeholder": "输入份额差额", "unit": "份", "precision": 2}},
-        {"workItemId": "fof02-b-state-recon", "type": "RECONCILIATION", "title": "确认最终可承接状态", "instruction": "五段来源完整、资金和份额差额均为0.00时，选择本案例最终状态。", "response": {"kind": "SELECT", "placeholder": "选择最终状态", "options": [{"optionId": "FOF02_B_CASH_AND_SHARES_ZERO", "text": "SHARES_POSTED，可交给后续路线"}, {"optionId": "FOF02_B_NOT_READY", "text": "资金或份额仍不能承接"}]}},
-        {"workItemId": "fof02-b-conclusion", "type": "SHORT_TEXT", "title": "写出唯一正常链结论", "instruction": "用一句话说明五段状态、金额对齐、Decimal份额、到账、台账和SHARES_POSTED边界；不得用长文本替代原子字段。", "response": {"kind": "TEXT", "placeholder": "输入一句结构化正常结论"}}
+        {"workItemId": "fof02-b-state-recon", "type": "RECONCILIATION", "title": "确认最终可承接状态", "instruction": "五段来源完整、资金和份额差额均为0.00时，选择最终状态。", "response": {"kind": "SELECT", "placeholder": "选择最终状态", "options": [{"optionId": "FOF02_B_CASH_AND_SHARES_ZERO", "text": "SHARES_POSTED，可交给后续路线"}, {"optionId": "FOF02_B_NOT_READY", "text": "资金或份额仍不能承接"}]}},
+        {"workItemId": "fof02-b-conclusion", "type": "SHORT_TEXT", "title": "写出正常申购结论", "instruction": "用一句话说明五段状态、金额对齐、Decimal份额、到账、台账和SHARES_POSTED边界；这些结果均来自前面的结构化字段。", "response": {"kind": "TEXT", "placeholder": "输入一句结构化正常结论"}}
       ],
       "submissionNote": "逐项提交五段状态来源、管理人/TA金额差额、confirmedShares、期初/确认/期末份额、实际到账、cashDiff、sharesDiff、SHARES_POSTED状态和一句结论；不要求估值、费用、红利或正式会计凭证。"
     }

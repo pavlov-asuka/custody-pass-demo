@@ -201,7 +201,7 @@ async function run() {
 
   async function login(page) {
     await page.goto(baseUrl);
-    const loginHeading = page.getByRole('heading', { name: '登录学习账号' });
+    const loginHeading = page.getByRole('heading', { name: '登录岗位学习账号' });
     const worldGrid = page.getByTestId('world-grid');
     // 脚本内后续页面共享已登录会话，直接进入三世界
     await Promise.race([
@@ -316,7 +316,7 @@ async function run() {
     // 正确反馈：自动推进保留，但原提交按钮必须立即消失。
     await page.waitForTimeout(260);
     assert.equal(await page.getByRole('button', { name: '检查答案' }).count(), 0);
-    assert.equal(await page.getByText('即将进入下一题…', { exact: true }).count(), 1);
+    assert.equal(await page.getByText('已答对，正在载入下一题…', { exact: true }).count(), 1);
     await shot(page, '13-practice-correct.png');
     await page.locator('.practice-actionbar').screenshot({
       path: path.join(screenshotDir, '15-practice-advancing.png'),

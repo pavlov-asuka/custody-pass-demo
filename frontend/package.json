@@ -9,6 +9,7 @@
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
     "test:pages": "node tests/page-test.mjs",
+    "test:text": "node tests/text-format-test.mjs",
     "test:styles": "node tests/style-audit.mjs"
   },
   "dependencies": {

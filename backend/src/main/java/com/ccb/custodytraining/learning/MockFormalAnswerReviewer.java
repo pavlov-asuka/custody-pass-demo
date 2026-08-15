@@ -39,13 +39,14 @@ public class MockFormalAnswerReviewer implements FormalAnswerReviewer {
             for (JsonNode rule : item.path("evidenceRules")) {
                 if (!matches(responses.path(rule.path("fieldId").asText()), rule)) {
                     return new Decision(item.path(idField).asText(), false,
-                            "结构化作答未满足：" + item.path("evidenceRequirement").asText());
+                            HumanFeedbackText.reviewerEvidence(item, false));
                 }
             }
             return new Decision(item.path(idField).asText(), true,
-                    "结构化工作纸已满足：" + item.path("evidenceRequirement").asText());
+                    HumanFeedbackText.reviewerEvidence(item, true));
         } catch (Exception exception) {
-            return new Decision(item.path(idField).asText(), false, "结构化作答无法读取");
+            return new Decision(item.path(idField).asText(), false,
+                    HumanFeedbackText.unreadableSubmission());
         }
     }
 

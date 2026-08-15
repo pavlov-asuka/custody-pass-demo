@@ -2,8 +2,8 @@
   "routeId": "ACC-FI-SUBSCRIPTION-102",
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
-  "title": "债券申购申请、确认与清算闭环",
-  "summary": "沿一笔正常网上债券申购，区分申购申请与最终确认，完成清算款重分类、成本确认、持仓形成和字段勾稽。",
+  "title": "债券申购申请、确认与清算核对",
+  "summary": "沿一笔正常网上债券申购，区分申请记录与最终确认，完成清算款重分类、成本确认、持仓记录并核对两阶段台账。",
   "estimatedMinutes": 45,
   "objectives": [
     "从申购申请和申购确认记录读取业务类型、数量、每百元价格和状态",
@@ -18,12 +18,12 @@
           "cardId": "FI-SUB-KC-01",
           "type": "CATEGORIES",
           "title": "申请记录和确认记录不是同一状态",
-          "conclusion": "申购申请先形成新债清算款与其他清算款之间的业务记录；最终确认才形成债券成本、持仓和证券清算款。",
+          "conclusion": "申购申请先记录新债清算款与其他清算款之间的业务重分类；最终确认才记入债券成本、持仓和证券清算款。",
           "items": [
-            "业务类型为申购申请：记录申请结果，不形成最终债券持仓",
+            "业务类型为申购申请：记录申请结果，不记入最终债券持仓",
             "业务类型为申购确认：读取最终确认数量、发行价格和实际清算金额",
             "申请与确认必须用同一产品和证券字段相互匹配",
-            "本路线只做状态正常的网上申购，不补造网下申购规则"
+            "这里只处理状态正常的网上申购，不把网下申购规则带入"
           ]
         },
         {
@@ -35,7 +35,7 @@
             "申请：借清算款-新债清算款，贷清算款-其他清算款",
             "确认：借债券投资-成本和清算款-其他清算款",
             "确认：贷证券清算款和清算款-新债清算款",
-            "每个阶段借贷金额都要与实际清算金额闭合"
+            "每个阶段借贷金额都要等于实际清算金额"
           ]
         },
         {
@@ -46,7 +46,7 @@
           "items": [
             "票面总额 = 确认张数 × 每张面值",
             "确认金额 = 每百元价格 × 票面总额 ÷ 100",
-            "确认数量形成最终持仓数量",
+            "确认数量决定最终持仓数量",
             "确认成本和证券清算款金额必须一致"
           ]
         }
@@ -54,24 +54,24 @@
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "案例产品甲的组合核算人员",
-        "product": "案例产品甲 / 案例债券甲",
+        "role": "产品甲的组合核算人员",
+        "product": "产品甲 / 债券甲",
         "date": "2026-08-25 至 2026-08-27",
         "facts": [
           "8 月 25 日记录状态正常，业务类型为网上债券申购申请，申请数量 3,000 张，每百元价格 98.50。",
-          "申请日先按实际清算金额 295,500 元在新债清算款与其他清算款之间重分类，不形成债券持仓。",
+          "申请日先按实际清算金额 295,500 元在新债清算款与其他清算款之间重分类，申请阶段不记入债券持仓。",
           "8 月 27 日取得同一证券的网上债券申购确认，确认数量 3,000 张，每百元价格 98.50，实际清算金额 295,500 元。",
-          "确认后形成债券投资成本 295,500 元和 3,000 张持仓，申请阶段两个过渡清算款余额被确认凭证清除。"
+          "确认后记入债券投资成本 295,500 元和 3,000 张持仓，申请阶段两个过渡清算款余额被确认凭证清除。"
         ]
       },
       "steps": [
         {"order": 1, "action": "读取申请记录的业务类型、数量、每百元价格和状态，确认 8 月 25 日仍处于申购申请阶段", "reason": "业务类型和状态决定当前记录的业务含义，申请记录不能直接当作最终持仓。"},
-        {"order": 2, "action": "按 3,000 张 × 100 元/张 × 98.50 ÷ 100 = 295,500 元，确认申请凭证的清算金额并完成新债清算款与其他清算款重分类", "reason": "申请阶段只处理题面已确认的清算款关系，不形成最终债券成本和持仓。"},
+        {"order": 2, "action": "按 3,000 张 × 100 元/张 × 98.50 ÷ 100 = 295,500 元，确认申请凭证的清算金额并完成新债清算款与其他清算款重分类", "reason": "申请阶段只处理资料已确认的清算款关系，不记入最终债券成本和持仓。"},
         {"order": 3, "action": "读取 8 月 27 日网上债券申购确认记录，确认最终数量 3,000 张和实际清算金额 295,500 元", "reason": "最终确认记录才是成本和持仓的字段来源。"},
-        {"order": 4, "action": "补全确认凭证：借债券投资-成本 295,500 元、借清算款-其他清算款 295,500 元；贷证券清算款 295,500 元、贷清算款-新债清算款 295,500 元", "reason": "确认凭证同时形成成本并清除申请阶段的过渡清算款，借贷两边各为 591,000 元。"},
-        {"order": 5, "action": "核对确认后 3,000 张持仓、295,500 元成本、过渡清算款归零以及证券清算款 295,500 元发生额", "reason": "两阶段资料、成本公式和清算款台账共同证明申购确认闭环。"}
+        {"order": 4, "action": "补全确认凭证：借债券投资-成本 295,500 元、借清算款-其他清算款 295,500 元；贷证券清算款 295,500 元、贷清算款-新债清算款 295,500 元", "reason": "确认凭证同时记入成本并清除申请阶段的过渡清算款，借贷两边各为 591,000 元。"},
+        {"order": 5, "action": "核对确认后 3,000 张持仓、295,500 元成本、过渡清算款归零以及证券清算款 295,500 元发生额", "reason": "申请记录、确认记录、成本公式和清算款台账要逐项对上。"}
       ],
-      "summary": "识别申请状态 → 重分类清算款 → 读取最终确认 → 确认成本和凭证 → 核对持仓与清算结果"
+      "summary": "识别申请状态 → 重分类清算款 → 读取最终确认 → 确认成本和凭证 → 核对持仓与两阶段清算款"
     },
     "BASIC_PRACTICE": {
       "questions": [
@@ -91,7 +91,7 @@
         {
           "questionId": "ACC-FI-SUBSCRIPTION-Q-02",
           "type": "ORDERING",
-          "prompt": "排列网上债券申购的正常处理顺序。",
+          "prompt": "按记录和凭证排列网上债券申购的正常处理顺序。",
           "items": [
             {"itemId": "READ_APPLY", "text": "读取申购申请记录"},
             {"itemId": "RECLASSIFY", "text": "按申请资料重分类新债清算款与其他清算款"},
@@ -99,7 +99,7 @@
             {"itemId": "BOOK_COST", "text": "按确认结果确认成本、持仓和证券清算款"}
           ],
           "answer": ["READ_APPLY", "RECLASSIFY", "READ_CONFIRM", "BOOK_COST"],
-          "explanation": "先处理申请状态，再取得确认结果；成本、持仓和证券清算款只能在确认阶段形成。",
+          "explanation": "先处理申请记录，再读取确认结果；成本、持仓和证券清算款只能在确认阶段形成。",
           "hints": ["不能把确认成本放在申请记录之前。"]
         },
         {
@@ -132,7 +132,7 @@
         {
           "questionId": "ACC-FI-SUBSCRIPTION-Q-05",
           "type": "RECONCILIATION",
-          "prompt": "用确认记录、持仓台账和清算款台账完成结果勾稽。",
+          "prompt": "用确认记录、持仓台账和清算款台账逐项核对结果。",
           "reconciliation": {"fields": [
             {"fieldId": "ending-quantity", "label": "确认后持仓", "kind": "NUMBER", "formula": "最终确认数量 = 3,000", "placeholder": "输入张数", "precision": 0, "tolerance": 0},
             {"fieldId": "ending-cost", "label": "确认后成本", "kind": "NUMBER", "formula": "98.50 × 300,000 ÷ 100", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
@@ -146,15 +146,15 @@
       ]
     },
     "COMPREHENSIVE_PRACTICE": {
-      "scenario": {"role": "案例产品乙的组合核算人员", "product": "案例产品乙 / 案例债券乙", "date": "2026-08-25 至 2026-08-27", "purpose": "根据正常网上债券申购资料，独立完成申请与确认状态判断、清算款重分类、每百元金额计算、成本持仓确认和结果勾稽。"},
+      "scenario": {"role": "产品乙的组合核算人员", "product": "产品乙 / 债券乙", "date": "2026-08-25 至 2026-08-27", "purpose": "根据正常网上债券申购资料，判断申请与确认状态，重分类清算款，计算每百元金额，确认成本持仓并核对台账。"},
       "sourceMaterials": [
-        {"materialId": "FI-S-PARAM", "title": "本案例批准申购参数", "kind": "PARAMETER", "description": "只约束本案例的单位、价格、状态、金额和精度。", "fields": [
+        {"materialId": "FI-S-PARAM", "title": "批准申购参数", "kind": "PARAMETER", "description": "这笔网上申购按资料给出的单位、价格、状态、金额和精度处理。", "fields": [
           {"fieldId": "face-per-bond", "label": "每张面值", "value": "100", "unit": "元/张"},
           {"fieldId": "price-unit", "label": "价格单位", "value": "98.50 元/每百元票面", "unit": "元/每百元票面"},
           {"fieldId": "amount-formula", "label": "金额公式", "value": "每百元价格 × 票面总额 ÷ 100"},
           {"fieldId": "precision", "label": "精度与容差", "value": "金额保留 2 位小数；数量和票面总额容差为 0；金额绝对容差 0.01 元"}
         ]},
-        {"materialId": "FI-S-APPLY", "title": "8 月 25 日网上债券申购申请记录", "kind": "STATEMENT", "description": "状态正常的申请记录，只用于判断申请阶段和形成清算款重分类。", "fields": [
+        {"materialId": "FI-S-APPLY", "title": "8 月 25 日网上债券申购申请记录", "kind": "STATEMENT", "description": "状态正常的申请记录，用于判断申请阶段并记录清算款重分类。", "fields": [
           {"fieldId": "apply-date", "label": "业务日期", "value": "2026-08-25"},
           {"fieldId": "security", "label": "证券", "value": "案例债券乙"},
           {"fieldId": "business-type", "label": "业务类型", "value": "网上债券申购申请"},
@@ -168,7 +168,7 @@
           {"fieldId": "apply-credit", "label": "贷方", "value": "清算款-其他清算款", "unit": "元"},
           {"fieldId": "apply-amount", "label": "金额", "value": "295,500.00", "unit": "元"}
         ]},
-        {"materialId": "FI-S-CONFIRM", "title": "8 月 27 日网上债券申购确认记录", "kind": "CONFIRMATION", "description": "同一产品、同一证券的最终确认记录，是确认成本和持仓的字段来源。", "fields": [
+        {"materialId": "FI-S-CONFIRM", "title": "8 月 27 日网上债券申购确认记录", "kind": "CONFIRMATION", "description": "同一产品、同一证券的最终确认记录，成本和持仓以此记录为来源。", "fields": [
           {"fieldId": "confirm-date", "label": "业务日期", "value": "2026-08-27"},
           {"fieldId": "confirm-business-type", "label": "业务类型", "value": "网上债券申购确认"},
           {"fieldId": "confirm-quantity", "label": "最终确认数量", "value": "3,000", "unit": "张"},
@@ -184,7 +184,7 @@
         ]}
       ],
       "workItems": [
-        {"workItemId": "apply-state", "type": "FIELD_MAP", "title": "识别申请阶段", "instruction": "从申请记录选择业务状态和申请阶段处理结论。", "response": {"kind": "SELECT", "placeholder": "选择状态", "options": [{"optionId": "APPLICATION_NO_POSITION", "text": "申请阶段，不形成最终持仓和成本"}, {"optionId": "CONFIRMED_POSITION", "text": "确认阶段，立即形成持仓和成本"}]}},
+        {"workItemId": "apply-state", "type": "FIELD_MAP", "title": "识别申请阶段", "instruction": "从申请记录选择业务状态，并判断该阶段是否形成最终持仓。", "response": {"kind": "SELECT", "placeholder": "选择状态", "options": [{"optionId": "APPLICATION_NO_POSITION", "text": "申请阶段，不形成最终持仓和成本"}, {"optionId": "CONFIRMED_POSITION", "text": "确认阶段，立即形成持仓和成本"}]}},
         {"workItemId": "confirm-state", "type": "FIELD_MAP", "title": "识别最终确认", "instruction": "从确认记录选择业务状态。", "response": {"kind": "SELECT", "placeholder": "选择状态", "options": [{"optionId": "APPLICATION", "text": "仍为申请阶段"}, {"optionId": "CONFIRMATION", "text": "最终确认并形成成本持仓"}]}},
         {"workItemId": "price-unit", "type": "FIELD_MAP", "title": "确认价格单位", "instruction": "选择 98.50 的对象和单位。", "response": {"kind": "SELECT", "placeholder": "选择价格单位", "options": [{"optionId": "PER_100_FACE", "text": "每百元票面价格"}, {"optionId": "TOTAL_AMOUNT", "text": "本笔总金额"}]}},
         {"workItemId": "face-total", "type": "CALCULATION", "title": "确认票面总额", "instruction": "用最终确认数量和每张面值计算票面总额。", "response": {"kind": "NUMBER", "placeholder": "输入票面总额", "unit": "元", "precision": 0}},
@@ -196,12 +196,12 @@
         {"workItemId": "confirm-other-account", "type": "LEDGER_ENTRY", "title": "确认过渡清算科目", "instruction": "填写确认阶段借方过渡清算科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "confirm-security-account", "type": "LEDGER_ENTRY", "title": "确认证券清算科目", "instruction": "填写确认阶段贷方证券清算科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "confirm-new-account", "type": "LEDGER_ENTRY", "title": "确认新债清算科目", "instruction": "填写确认阶段贷方新债清算科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
-        {"workItemId": "ending-quantity", "type": "RECONCILIATION", "title": "确认后持仓", "instruction": "复核最终确认数量形成的持仓。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
+        {"workItemId": "ending-quantity", "type": "RECONCILIATION", "title": "确认后持仓", "instruction": "复核最终确认数量对应的持仓。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
         {"workItemId": "transit-clearing", "type": "RECONCILIATION", "title": "过渡清算款余额", "instruction": "复核确认凭证清除申请阶段两项过渡清算款后的余额。", "response": {"kind": "NUMBER", "placeholder": "输入余额", "unit": "元", "precision": 2}},
-        {"workItemId": "result", "type": "RECONCILIATION", "title": "申购确认勾稽", "instruction": "核对申请状态、确认成本、持仓和清算款台账。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "状态、成本、持仓和清算款一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
-        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "申购确认结论", "instruction": "说明申请阶段不形成持仓、确认阶段形成的数量和成本，以及过渡清算款结果。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
+        {"workItemId": "result", "type": "RECONCILIATION", "title": "申购确认结果核对", "instruction": "逐项核对申请状态、确认成本、持仓和清算款台账。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "状态、成本、持仓和清算款一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
+        {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "申购确认结论", "instruction": "说明申请阶段不记入持仓、确认阶段记入的数量和成本，以及过渡清算款结果。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
       ],
-      "submissionNote": "提交前请按申请、重分类、确认、成本持仓和清算款顺序复核；申请阶段不等于最终确认，价格为每百元票面报价。"
+      "submissionNote": "提交前按申请、重分类、确认、成本持仓和清算款顺序复核；申请记录不等于最终确认，价格仍按每百元票面读取。"
     }
   },
   "references": [

@@ -46,6 +46,13 @@ import { Mascot } from '../components/Mascot';
 import { PracticeSession } from '../components/PracticeSession';
 import { RouteStepper } from '../components/RouteStepper';
 import { ErrorState, LoadingState } from '../components/States';
+import {
+  materialKindLabel,
+  optionValueLabel,
+  publicBusinessText,
+  publicUnitLabel,
+  workItemTypeLabel,
+} from '../utils/format';
 import { pendingAttemptKey, requestId } from '../utils/ids';
 
 const stepOrder: StepType[] = [
@@ -58,6 +65,21 @@ const stepOrder: StepType[] = [
 interface DraftConflict {
   server: DraftResponse;
   localAnswer: ComprehensivePracticeAnswer;
+}
+
+function answerPreview(
+  content: ComprehensivePracticeContent,
+  answer: ComprehensivePracticeAnswer,
+): string {
+  const filled = content.workItems.flatMap((item, index) => {
+    const value = answer.responses[item.workItemId];
+    if (value === undefined || value === null || value === '') return [];
+    const displayValue = typeof value === 'number'
+      ? `${value}${item.response.unit ? ` ${publicUnitLabel(item.response.unit)}` : ''}`
+      : optionValueLabel(String(value), item.workItemId, index);
+    return [`${publicBusinessText(item.title)}：${publicBusinessText(displayValue)}`];
+  });
+  return filled.length ? filled.join('\n') : '尚未填写';
 }
 
 function KnowledgeCardStep({
@@ -80,23 +102,23 @@ function KnowledgeCardStep({
     <section className="lesson-card knowledge-card">
       <div className="lesson-card__topline">
         <span className="eyebrow">知识卡 {index + 1} / {content.cards.length}</span>
-        <span className="lesson-type"><BookOpen size={18} /> 一个核心判断</span>
+        <span className="lesson-type"><BookOpen size={18} /> 关键判断</span>
       </div>
       <Mascot pose="READ_WITH_BOOK" size="small" />
-      <h2>{card.title}</h2>
-      <div className="knowledge-card__conclusion">{card.conclusion}</div>
+      <h2>{publicBusinessText(card.title)}</h2>
+      <div className="knowledge-card__conclusion">{publicBusinessText(card.conclusion)}</div>
       <div className={`knowledge-visual knowledge-visual--${card.type.toLowerCase()}`}>
         {card.items.map((item, itemIndex) => (
           <div key={item} className="knowledge-visual__item">
             <span>{itemIndex + 1}</span>
-            <strong>{item}</strong>
+            <strong>{publicBusinessText(item)}</strong>
             {itemIndex < card.items.length - 1 && <ArrowRight size={19} />}
           </div>
         ))}
       </div>
       <div className="lesson-insight">
         <Lightbulb size={24} />
-        <div><strong>记住这一点</strong><span>{card.conclusion}</span></div>
+        <div><strong>本卡结论</strong><span>{publicBusinessText(card.conclusion)}</span></div>
       </div>
       <div className="lesson-inline-actions">
         <button
@@ -140,12 +162,12 @@ function DemonstrationStep({
     <section className="lesson-card demonstration">
       <div className="lesson-card__topline">
         <span className="eyebrow">正常示范</span>
-        <span className="lesson-type"><FileCheck2 size={18} /> 跟着步骤做</span>
+        <span className="lesson-type"><FileCheck2 size={18} /> 按步骤核对</span>
       </div>
-      <h2>{content.scenario.date} · {content.scenario.product}</h2>
-      <p className="lesson-lead">你是{content.scenario.role}。场景中已经确认：</p>
+      <h2>{publicBusinessText(content.scenario.date)} · {publicBusinessText(content.scenario.product)}</h2>
+      <p className="lesson-lead">你的岗位是{publicBusinessText(content.scenario.role)}。当前资料已确认：</p>
       <div className="fact-strip">
-        {content.scenario.facts.map((fact) => <span key={fact}><Check size={16} />{fact}</span>)}
+        {content.scenario.facts.map((fact) => <span key={fact}><Check size={16} />{publicBusinessText(fact)}</span>)}
       </div>
       <ol className="demo-timeline">
         {content.steps.map((step, stepIndex) => {
@@ -158,8 +180,8 @@ function DemonstrationStep({
           <li key={step.order} className={state}>
             <span className="demo-timeline__number">{step.order}</span>
             <div>
-              <strong>{step.action}</strong>
-              <p><span>为什么：</span>{step.reason}</p>
+              <strong>{publicBusinessText(step.action)}</strong>
+              <p><span>为什么：</span>{publicBusinessText(step.reason)}</p>
             </div>
           </li>
           );
@@ -168,11 +190,11 @@ function DemonstrationStep({
       {complete && (
         <div className="lesson-insight">
           <ArrowRight size={24} />
-          <div><strong>正确处理链</strong><span>{content.summary}</span></div>
+          <div><strong>处理结果</strong><span>{publicBusinessText(content.summary)}</span></div>
         </div>
       )}
       <div className="lesson-inline-actions">
-        <span className="muted">已展开 {visible} / {content.steps.length} 步</span>
+        <span className="muted">已显示 {visible} / {content.steps.length} 步</span>
         <button
           className="button button--primary"
           type="button"
@@ -353,15 +375,15 @@ function ComprehensivePracticeStep({
     }
   }
 
-  if (loadingDraft) return <LoadingState label="正在取回你的综合实务草稿…" />;
+  if (loadingDraft) return <LoadingState label="正在读取综合实务草稿…" />;
 
   return (
     <section className="comprehensive-practice">
       <div className="comprehensive-practice__heading">
         <div>
           <span className="eyebrow">综合实务</span>
-          <h2>完成一份真实的核算工作底稿</h2>
-          <p>独立读资料、完成计算与账务判断，再用第二来源验证结果。</p>
+          <h2>完成核算工作底稿</h2>
+          <p>读取资料、完成计算与账务处理，再用第二来源核对结果。</p>
         </div>
         <Mascot pose="THINKING" size="small" message="先读资料，再落笔计算。" />
       </div>
@@ -381,25 +403,25 @@ function ComprehensivePracticeStep({
       <div className="practice-workspace">
         <aside className="practice-brief">
           <div className="practice-brief__meta">
-            <span><strong>你的角色</strong>{content.scenario.role}</span>
-            <span><strong>业务时点</strong>{content.scenario.date}</span>
+            <span><strong>你的角色</strong>{publicBusinessText(content.scenario.role)}</span>
+            <span><strong>业务时点</strong>{publicBusinessText(content.scenario.date)}</span>
           </div>
           <div>
-            <span className="eyebrow">本次任务</span>
-            <h3>{content.scenario.product}</h3>
-            <p>{content.scenario.purpose}</p>
+            <span className="eyebrow">当前业务</span>
+            <h3>{publicBusinessText(content.scenario.product)}</h3>
+            <p>{publicBusinessText(content.scenario.purpose)}</p>
           </div>
           <div className="source-materials">
             <span className="eyebrow">业务资料包</span>
             {content.sourceMaterials.map((material) => (
               <article className="source-material" key={material.materialId}>
-                <header><strong>{material.title}</strong><em>{material.kind}</em></header>
-                <p>{material.description}</p>
+                <header><strong>{publicBusinessText(material.title)}</strong><em>{materialKindLabel(material.kind)}</em></header>
+                <p>{publicBusinessText(material.description)}</p>
                 <dl>
                   {material.fields.map((field) => (
                     <div key={field.fieldId}>
-                      <dt>{field.label}</dt>
-                      <dd>{field.value}{field.unit ? ` ${field.unit}` : ''}</dd>
+                      <dt>{publicBusinessText(field.label)}</dt>
+                      <dd>{publicBusinessText(field.value)}{field.unit ? ` ${publicUnitLabel(field.unit)}` : ''}</dd>
                     </div>
                   ))}
                 </dl>
@@ -425,22 +447,22 @@ function ComprehensivePracticeStep({
                 <section className="work-item" key={item.workItemId}>
                   <span className="work-item__index">{String(index + 1).padStart(2, '0')}</span>
                   <div className="work-item__body">
-                    <div className="work-item__title"><strong>{item.title}</strong><em>{item.type}</em></div>
-                    <p>{item.instruction}</p>
+                    <div className="work-item__title"><strong>{publicBusinessText(item.title)}</strong><em>{workItemTypeLabel(item.type)}</em></div>
+                    <p>{publicBusinessText(item.instruction)}</p>
                     {item.response.kind === 'SELECT' ? (
-                      <select id={`work-${item.workItemId}`} aria-label={item.title} value={String(value)} onChange={(event) => update(event.target.value)} disabled={submitting}>
-                        <option value="">{item.response.placeholder}</option>
-                        {item.response.options?.map((option) => <option value={option.optionId} key={option.optionId}>{option.text}</option>)}
+                      <select id={`work-${item.workItemId}`} aria-label={publicBusinessText(item.title)} value={String(value)} onChange={(event) => update(event.target.value)} disabled={submitting}>
+                        <option value="">{publicBusinessText(item.response.placeholder)}</option>
+                        {item.response.options?.map((option) => <option value={option.optionId} key={option.optionId}>{publicBusinessText(option.text)}</option>)}
                       </select>
                     ) : item.response.kind === 'NUMBER' ? (
                       <label className="work-input work-input--number">
-                        <input id={`work-${item.workItemId}`} aria-label={item.title} type="number" step={item.response.precision ? 1 / (10 ** item.response.precision) : 1} value={value} placeholder={item.response.placeholder} onChange={(event) => update(event.target.value === '' ? '' : Number(event.target.value))} disabled={submitting} />
-                        {item.response.unit && <span>{item.response.unit}</span>}
+                        <input id={`work-${item.workItemId}`} aria-label={publicBusinessText(item.title)} type="number" step={item.response.precision ? 1 / (10 ** item.response.precision) : 1} value={value} placeholder={publicBusinessText(item.response.placeholder)} onChange={(event) => update(event.target.value === '' ? '' : Number(event.target.value))} disabled={submitting} />
+                        {item.response.unit && <span>{publicUnitLabel(item.response.unit)}</span>}
                       </label>
                     ) : item.type === 'SHORT_TEXT' ? (
-                      <textarea id={`work-${item.workItemId}`} aria-label={item.title} value={String(value)} maxLength={500} placeholder={item.response.placeholder} onChange={(event) => update(event.target.value)} disabled={submitting} />
+                      <textarea id={`work-${item.workItemId}`} aria-label={publicBusinessText(item.title)} value={String(value)} maxLength={500} placeholder={publicBusinessText(item.response.placeholder)} onChange={(event) => update(event.target.value)} disabled={submitting} />
                     ) : (
-                      <input id={`work-${item.workItemId}`} aria-label={item.title} type="text" value={String(value)} maxLength={100} placeholder={item.response.placeholder} onChange={(event) => update(event.target.value)} disabled={submitting} />
+                      <input id={`work-${item.workItemId}`} aria-label={publicBusinessText(item.title)} type="text" value={String(value)} maxLength={100} placeholder={publicBusinessText(item.response.placeholder)} onChange={(event) => update(event.target.value)} disabled={submitting} />
                     )}
                   </div>
                 </section>
@@ -448,7 +470,7 @@ function ComprehensivePracticeStep({
             })}
           </div>
           <div className="practice-sheet__footer">
-            <p>{content.submissionNote}</p>
+            <p>{publicBusinessText(content.submissionNote)}</p>
             <div>
               <button
                 className="button button--secondary"
@@ -475,11 +497,11 @@ function ComprehensivePracticeStep({
         <div className="modal-backdrop" role="presentation">
           <div className="modal" role="dialog" aria-modal="true" aria-labelledby="submit-title">
             <span className="modal__icon"><FileCheck2 /></span>
-            <h2 id="submit-title">生成本次正式评分记录？</h2>
-            <p>提交成功后，字段、计算、勾稽和结论将作为不可修改的正式快照异步评分。</p>
+            <h2 id="submit-title">提交这份综合实务？</h2>
+            <p>提交后，字段、计算、勾稽和结论会固定为正式快照并进入异步评分。</p>
             <div className="modal__actions">
               <button className="button button--ghost" type="button" onClick={() => setConfirming(false)}>
-                再检查一下
+                返回检查
               </button>
               <button className="button button--primary" type="button" onClick={() => void submit()} disabled={submitting}>
                 {submitting ? '正在提交…' : '确认提交'}
@@ -494,10 +516,10 @@ function ComprehensivePracticeStep({
           <div className="modal modal--wide" role="dialog" aria-modal="true" aria-labelledby="conflict-title">
             <span className="modal__icon modal__icon--warning"><CircleAlert /></span>
             <h2 id="conflict-title">发现另一份更新过的草稿</h2>
-            <p>我们没有覆盖它。请选择继续使用云端草稿，或明确保留当前编辑内容。</p>
+            <p>当前编辑内容仍保留在本地。请选择云端草稿，或保留当前编辑并保存。</p>
             <div className="conflict-preview">
-              <div><strong>云端草稿</strong><pre>{JSON.stringify(conflict.server.answer ?? emptyAnswer, null, 2)}</pre></div>
-              <div><strong>当前编辑</strong><pre>{JSON.stringify(conflict.localAnswer, null, 2)}</pre></div>
+              <div><strong>云端草稿</strong><pre>{answerPreview(content, conflict.server.answer ?? emptyAnswer)}</pre></div>
+              <div><strong>当前编辑</strong><pre>{answerPreview(content, conflict.localAnswer)}</pre></div>
             </div>
             <div className="modal__actions">
               <button className="button button--secondary" type="button" onClick={() => void resolveConflict('server')}>
@@ -515,14 +537,14 @@ function ComprehensivePracticeStep({
         <div className="modal-backdrop" role="presentation">
           <div className="modal" role="dialog" aria-modal="true">
             <span className="modal__icon modal__icon--warning"><Save /></span>
-            <h2>草稿还没有保存完成</h2>
-            <p>建议先留在页面等待自动保存，避免丢失刚刚输入的内容。</p>
+            <h2>当前草稿尚未保存</h2>
+            <p>自动保存还未完成，离开可能丢失刚输入的字段。</p>
             <div className="modal__actions">
               <button className="button button--ghost" type="button" onClick={() => navigationBlocker.reset()}>
                 留在这里
               </button>
               <button className="button button--secondary" type="button" onClick={() => navigationBlocker.proceed()}>
-                仍然离开
+                不保存，仍然离开
               </button>
             </div>
           </div>
@@ -588,7 +610,7 @@ export function LearningPage() {
   }, [active, refreshRoute, route, routeId, stepReload]);
 
   useEffect(() => {
-    document.title = route ? `${route.title} · 托管智训营` : '路线学习 · 托管智训营';
+    document.title = route ? `${publicBusinessText(route.title)} · 托管智训营` : '路线学习 · 托管智训营';
   }, [route]);
 
   const activeIndex = stepOrder.indexOf(active);
@@ -651,7 +673,7 @@ export function LearningPage() {
           {error && (
             <ErrorState error={error} compact onRetry={() => setStepReload((value) => value + 1)} />
           )}
-          {loadingStep && <LoadingState label="正在加载当前学习环节…" />}
+          {loadingStep && <LoadingState label="正在读取当前学习环节…" />}
           {!loadingStep && validStep?.stepType === 'BASIC_PRACTICE' && (
             <BasicPracticeStep
               routeId={route.routeId}
@@ -662,21 +684,21 @@ export function LearningPage() {
         </div>
       ) : (
         <div className="learning-page page-enter">
-          {loadingRoute && <LoadingState label="正在准备路线…" />}
+          {loadingRoute && <LoadingState label="正在读取路线状态…" />}
           {error && !route && <ErrorState error={error} onRetry={() => void refreshRoute(true)} />}
           {route && (
             <>
               <header className="learning-header">
                 <div>
                   <span className="eyebrow">核算路线 · 预计 {route.estimatedMinutes ?? 20} 分钟</span>
-                  <h1>{route.title}</h1>
-                  <p>{route.summary}</p>
+                  <h1>{publicBusinessText(route.title)}</h1>
+                  <p>{publicBusinessText(route.summary ?? '')}</p>
                 </div>
                 <RouteStepper route={route} active={active} onSelect={selectStep} />
               </header>
 
               {error && <ErrorState error={error} compact onRetry={() => setStepReload((value) => value + 1)} />}
-              {loadingStep && <LoadingState label="正在加载当前学习环节…" />}
+              {loadingStep && <LoadingState label="正在读取当前学习环节…" />}
               {!loadingStep && validStep?.stepType === 'KNOWLEDGE_CARD' && (
                 <KnowledgeCardStep
                   data={validStep as StepResponse<'KNOWLEDGE_CARD'>}

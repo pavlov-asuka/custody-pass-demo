@@ -134,6 +134,9 @@ function attempt(id, conclusion = 'PASSED') {
 }
 
 const stepContent = formalRoute.steps;
+const workItemTitles = Object.fromEntries(
+  formalRoute.steps.COMPREHENSIVE_PRACTICE.workItems.map((item) => [item.workItemId, item.title]),
+);
 
 const worlds = {
   mapVersion: '2026.08.1',
@@ -309,7 +312,7 @@ async function run() {
   });
 
   await page.goto(baseUrl);
-  await page.getByRole('heading', { name: '登录学习账号' }).waitFor();
+  await page.getByRole('heading', { name: '登录岗位学习账号' }).waitFor();
   await page.evaluate(() => document.fonts.ready);
   assert.equal(await page.evaluate(() => document.fonts.check('400 16px "Nunito"')), true);
   assert.equal(await page.evaluate(() => document.fonts.check('400 16px "Noto Sans SC"')), true);
@@ -333,54 +336,54 @@ async function run() {
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('03-accounting-map.png')) });
 
   await page.getByRole('button', { name: /站上核算岗/ }).click();
-  await page.getByRole('heading', { name: '核算结果从哪里来' }).waitFor();
+  await page.getByRole('heading', { name: formalRoute.steps.KNOWLEDGE_CARD.cards[0].title }).waitFor();
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('04-knowledge-card.png')) });
 
   await page.getByRole('button', { name: /正常示范/ }).click();
-  await page.getByRole('heading', { name: '7月9日 · 案例产品 B' }).waitFor();
+  await page.getByRole('heading', { name: `${formalRoute.steps.DEMONSTRATION.scenario.date} · ${formalRoute.steps.DEMONSTRATION.scenario.product}` }).waitFor();
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('05-demonstration.png')) });
 
   await page.getByRole('button', { name: /基础练习/ }).click();
-  await page.getByRole('heading', { name: '哪份资料最直接证明托管费已经实际支付？' }).waitFor();
+  await page.getByRole('heading', { name: formalRoute.steps.BASIC_PRACTICE.questions[0].prompt }).waitFor();
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('06-basic-practice.png')) });
 
   await page.getByRole('button', { name: /综合实务/ }).click();
-  await page.getByRole('heading', { name: '完成一份真实的核算工作底稿' }).waitFor();
-  await page.getByLabel('确认实际支付来源').selectOption('BANK-STATEMENT');
+  await page.getByRole('heading', { name: '完成核算工作底稿' }).waitFor();
+  await page.getByLabel(workItemTitles['payment-source']).selectOption('BANK-STATEMENT');
   await page.getByRole('button', { name: /正常示范/ }).click();
-  await page.getByRole('heading', { name: '草稿还没有保存完成' }).waitFor();
+  await page.getByRole('heading', { name: '当前草稿尚未保存' }).waitFor();
   await page.getByRole('button', { name: '留在这里' }).click();
   assert.ok(page.url().includes('step=COMPREHENSIVE_PRACTICE'), 'Unsaved answer should trigger and respect the leave guard.');
   await page.waitForTimeout(1200);
 
   forceDraftConflict = true;
-  await page.getByLabel('计算期末应付余额').fill('800');
+  await page.getByLabel(workItemTitles['ending-payable']).fill('800');
   await page.getByRole('heading', { name: '发现另一份更新过的草稿' }).waitFor();
   await page.getByRole('button', { name: '使用云端草稿' }).click();
-  assert.equal(await page.getByLabel('确认实际支付来源').inputValue(), 'BANK-STATEMENT');
+  assert.equal(await page.getByLabel(workItemTitles['payment-source']).inputValue(), 'BANK-STATEMENT');
 
-  await page.getByLabel('计算期末应付余额').fill('800');
-  await page.getByLabel('填写借方科目').fill('应付托管费');
-  await page.getByLabel('填写贷方科目').fill('银行存款');
-  await page.getByLabel('完成结果勾稽').selectOption('BALANCED');
-  await page.getByLabel('记录核算结论').fill('当日支付托管费1400元，期末应付托管费800元，资金、台账和估值结果勾稽一致。');
+  await page.getByLabel(workItemTitles['ending-payable']).fill('800');
+  await page.getByLabel(workItemTitles['debit-account']).fill('应付托管费');
+  await page.getByLabel(workItemTitles['credit-account']).fill('银行存款');
+  await page.getByLabel(workItemTitles['reconciliation-result']).selectOption('BALANCED');
+  await page.getByLabel(workItemTitles['result-note']).fill('当日支付托管费1400元，期末应付托管费800元，资金、台账和估值结果勾稽一致。');
   await page.waitForTimeout(1200);
   assert.ok(draftSaveCount >= 1, 'Draft auto-save should issue a revisioned PUT request.');
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('07-comprehensive-practice.png')) });
 
   await page.getByRole('button', { name: /提交综合实务/ }).click();
-  await page.getByRole('heading', { name: '生成本次正式评分记录？' }).waitFor();
+  await page.getByRole('heading', { name: '提交这份综合实务？' }).waitFor();
   await page.getByRole('button', { name: '确认提交' }).click();
   await page.getByTestId('scoring-wait').waitFor();
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('08-scoring-wait.png')) });
 
   await navigateTo('/attempts/44');
-  await page.getByRole('heading', { name: '答案还在，重新启动评分即可' }).waitFor();
+  await page.getByRole('heading', { name: '评分未完成，可重试原作答' }).waitFor();
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('09-scoring-failed.png')) });
   await page.getByRole('button', { name: '重试原作答评分' }).click();
@@ -403,12 +406,12 @@ async function run() {
 
   await navigateTo('/attempts/43');
   await page.getByTestId('result-view').waitFor();
-  assert.equal(await page.getByText('已学习，还需要补强', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('本次作答需要补学', { exact: true }).count(), 1);
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('12-result-remediation.png')) });
 
   await page.getByRole('button', { name: /开始定向补学/ }).click();
-  await page.getByRole('heading', { name: '把遗漏补上，再独立完成一次' }).waitFor();
+  await page.getByRole('heading', { name: '完成补学目标，再提交综合实务' }).waitFor();
   assert.equal(await page.locator('.remediation-nav > button').count(), 2);
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('13-remediation.png')) });
@@ -418,7 +421,7 @@ async function run() {
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('14-remediation-complete.png')) });
   await page.getByRole('button', { name: /重新完成综合实务/ }).click();
-  await page.getByRole('heading', { name: '完成一份真实的核算工作底稿' }).waitFor();
+  await page.getByRole('heading', { name: '完成核算工作底稿' }).waitFor();
   assert.ok(page.url().includes('step=COMPREHENSIVE_PRACTICE'), 'Completed remediation should return directly to comprehensive practice.');
 
   await navigateTo('/records');
@@ -436,8 +439,8 @@ async function run() {
 
   await navigateTo('/records/43');
   await page.getByTestId('result-view').waitFor();
-  assert.equal(await page.getByText('不可修改的历史记录', { exact: true }).count(), 1);
-  assert.equal(await page.getByText('历史结论：本次未掌握', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('历史记录（不可修改）', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('历史结论：需补学', { exact: true }).count(), 1);
   assert.equal(await page.getByText('路线当前：已通过', { exact: true }).count(), 1);
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('17-record-detail-history-not-mastered-current-passed.png')) });

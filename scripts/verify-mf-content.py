@@ -167,7 +167,9 @@ def check_content_continuity(routes: dict[str, dict]) -> None:
     for route_id, route in routes.items():
         scenario = route["steps"]["COMPREHENSIVE_PRACTICE"]["scenario"]
         purpose = scenario["purpose"]
-        if "独立脱敏批次" not in purpose or "不承接其他路线" not in purpose:
+        independent_scope = "独立脱敏批次" in purpose or "这批资料独立" in purpose
+        no_cross_route_carry = "不承接其他路线" in purpose or "只使用本资料包" in purpose
+        if not independent_scope or not no_cross_route_carry:
             raise AssertionError(f"{route_id}: independent case-scope marker is missing")
     frame_materials = routes["ACC-MF-FRAME-001"]["steps"]["COMPREHENSIVE_PRACTICE"]["sourceMaterials"]
     frame_fields = {

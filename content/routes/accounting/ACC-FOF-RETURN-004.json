@@ -2,13 +2,13 @@
   "routeId": "ACC-FOF-RETURN-004",
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
-  "title": "完成 FOF 返还现金与红利再投资份额闭环",
-  "summary": "在本案例参数边界内分别完成费用或服务返还现金链、红利再投资份额链，并将实收和份额结果勾稽到案例本地正常承接状态。",
+  "title": "核对 FOF 返还现金与红利再投资份额",
+  "summary": "在批准参数范围内分别计算费用或服务返还现金、红利再投资份额，核对实收和份额差额并记录正常承接状态。",
   "estimatedMinutes": 38,
   "objectives": [
-    "能从案例本地资料读取 approved base、approved rate、确认返还金额和银行实收金额。",
+    "能从资料中读取 approved base、approved rate、确认返还金额和银行实收金额。",
     "能用 Decimal 计算 confirmed return、returnDiff、红利再投资份额、期末份额和 sharesDiff。",
-    "能把现金返还链与红利再投链分开登记、分别勾稽，并判断案例本地最终承接状态。"
+    "能把现金返还与红利再投分开登记、分别核对，并判断最终承接状态。"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -17,9 +17,9 @@
           "cardId": "FOF04-KC-01",
           "type": "CATEGORIES",
           "title": "两个事件链使用不同资料角色",
-          "conclusion": "返还现金链读取本案例 approved base、approved rate 和银行实收；红利再投链读取确认红利、approved reinvest NAV 和份额台账。",
+          "conclusion": "返还现金读取批准的 approved base、approved rate 和银行实收；红利再投读取确认红利、approved reinvest NAV 和份额台账。",
           "items": [
-            "参数来源只对本案例有效，不能把某次费率写成永久规则。",
+            "参数来源只对这组资料有效，不能把某次费率写成永久规则。",
             "银行实收是现金链的独立结果，不等于确认金额字段。",
             "红利金额和再投 NAV 是份额计算的两个独立输入。"
           ]
@@ -30,18 +30,18 @@
           "title": "先算返还，再核实实收",
           "conclusion": "confirmedReturn=approvedBase×approvedRate，returnDiff=confirmedReturn−actualCash；中间过程保持 Decimal，金额最后按两位提交。",
           "items": [
-            "approved rate 按本案例六位比例精度读取。",
+            "approved rate 按资料给出的六位比例精度读取。",
             "confirmed return 与银行 actual cash 分别记录。",
-            "returnDiff 为0.00才完成现金返还闭环。"
+            "returnDiff 为0.00才可记录现金返还结果。"
           ]
         },
         {
           "cardId": "FOF04-KC-03",
           "type": "KEY_POINT",
           "title": "红利金额转换成份额并承接台账",
-          "conclusion": "reinvestShares=confirmedDividendAmount÷approvedReinvestNAV，closingShares=openingShares+reinvestShares，sharesDiff=0.00才完成红利再投份额闭环。",
+          "conclusion": "reinvestShares=confirmedDividendAmount÷approvedReinvestNAV，closingShares=openingShares+reinvestShares；sharesDiff=0.00后才可记录红利再投份额结果。",
           "items": [
-            "红利金额和再投 NAV 使用本案例题面版本化参数。",
+            "红利金额和再投 NAV 使用批准的版本化参数。",
             "期初、再投、期末份额是三个可独立复核的工作纸单元。",
             "现金链和份额链的事件状态是 case-local 字段，不扩展为永久平台状态。"
           ]
@@ -61,13 +61,13 @@
         "openingShares": "310000.00"
       },
       "steps": [
-        {"order": 1, "action": "从本案例返还参数资料读取 RET-FOF04-A-001、approved base 420000.00元和 approved rate 0.012500。", "reason": "先锁定本案例参数和事件键，避免把费率当成跨案例规则。"},
+        {"order": 1, "action": "从返还参数资料读取 RET-FOF04-A-001、approved base 420000.00元和 approved rate 0.012500。", "reason": "先锁定批准参数和事件键，避免把费率当成跨资料规则。"},
         {"order": 2, "action": "用 Decimal 计算 420000.00×0.012500=5250.00元，并从银行资料读取 actual return cash 5250.00元。", "reason": "确认返还金额与实收金额必须分别产生，才能计算现金差额。"},
-        {"order": 3, "action": "计算 returnDiff=5250.00−5250.00=0.00元，完成现金返还事件闭环。", "reason": "实收零差异是现金链的可观察业务结果。"},
+        {"order": 3, "action": "计算 returnDiff=5250.00−5250.00=0.00元，记录现金返还事件结果。", "reason": "实收零差异是现金返还的可观察业务结果。"},
         {"order": 4, "action": "从红利确认和再投参数资料读取 DIV-FOF04-A-001、48000.00元和 approved reinvest NAV 1.2000元/份，以 Decimal 计算48000.00÷1.2000=40000.00份。", "reason": "红利金额、再投 NAV 和再投份额必须分别可追溯。"},
-        {"order": 5, "action": "登记期初310000.00份，计算期末350000.00份，sharesDiff=0.00，并将两条链落到 RETURN_AND_REINVEST_RECONCILED。", "reason": "现金与份额两个闭环都完成后，案例结果才可正常承接。"}
+        {"order": 5, "action": "登记期初310000.00份，计算期末350000.00份，sharesDiff=0.00，并将两条结果落到 RETURN_AND_REINVEST_RECONCILED。", "reason": "现金与份额差额都为零后，结果才可正常承接。"}
       ],
-      "summary": "示范同时完成返还现金链和红利再投份额链；费率、NAV、日期和事件状态只对本案例快照有效。"
+      "summary": "示范同时完成返还现金和红利再投份额的核对；费率、NAV、日期和事件状态只对这组批准快照有效。"
     },
     "BASIC_PRACTICE": {
       "questions": [
@@ -101,10 +101,10 @@
         {
           "questionId": "ACC-FOF-RETURN-Q-04",
           "type": "RECONCILIATION",
-          "prompt": "计算返还现金差额和红利再投份额差额，并选择两条链都完成的案例本地状态。",
+          "prompt": "计算返还现金差额和红利再投份额差额，并选择两条事件都完成的最终状态。",
           "reconciliation": {"fields": [{"fieldId": "fof04-a-return-diff", "label": "returnDiff", "kind": "NUMBER", "formula": "5250.00−5250.00", "placeholder": "输入现金差额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof04-a-shares-diff", "label": "sharesDiff", "kind": "NUMBER", "formula": "350000.00−(310000.00+40000.00)", "placeholder": "输入份额差额", "precision": 2, "tolerance": 0.01}, {"fieldId": "fof04-a-event-state", "label": "案例本地状态", "kind": "SELECT", "formula": "两个差额均为0.00", "placeholder": "选择状态", "options": [{"optionId": "RETURN_AND_REINVEST_RECONCILED", "text": "RETURN_AND_REINVEST_RECONCILED"}, {"optionId": "NOT_READY", "text": "尚不能承接"}]}]},
           "answer": ["0.00", "0.00", "RETURN_AND_REINVEST_RECONCILED"],
-          "explanation": "现金和份额差额均为0.00，案例本地两条事件链均完成。",
+          "explanation": "现金和份额差额均为0.00，两条事件均完成。",
           "hints": ["分别算两条差额，不能用一项零差异代替另一项。"]
         },
         {
@@ -119,36 +119,36 @@
       ]
     },
     "COMPREHENSIVE_PRACTICE": {
-      "scenario": {"role": "FOF收益事件复核岗", "product": "境内普通开放式基金案例本地返还与红利再投", "date": "2030-06-21", "purpose": "在本案例参数和资料边界内闭合返还现金链与红利再投份额链"},
+      "scenario": {"role": "FOF收益事件复核岗", "product": "境内普通开放式基金返还与红利再投", "date": "2030-06-21", "purpose": "在批准参数和资料边界内分别核对返还现金与红利再投份额"},
       "sourceMaterials": [
-        {"materialId": "FOF04-B-RETURN-PARAMETER", "title": "本案例返还参数资料", "kind": "PARAMETER", "description": "ONLY_THIS_CASE 的返还事件参数，明确 approved base、approved rate 和事件键。", "fields": [{"fieldId": "returnEventKey", "label": "返还事件键", "value": "RET-FOF04-B-001"}, {"fieldId": "approvedBase", "label": "批准基数", "value": "735000.00", "unit": "元"}, {"fieldId": "approvedRate", "label": "批准比例", "value": "0.008000", "unit": "比例"}]},
-        {"materialId": "FOF04-B-RETURN-CASH", "title": "返还银行实收资料", "kind": "STATEMENT", "description": "独立银行实收资料，供 confirmed return 与 actual cash 勾稽。", "fields": [{"fieldId": "actualReturnCash", "label": "银行实收", "value": "5880.00", "unit": "元"}]},
-        {"materialId": "FOF04-B-DIVIDEND-CONFIRM", "title": "红利确认资料", "kind": "CONFIRMATION", "description": "本案例红利事件键与确认红利金额。", "fields": [{"fieldId": "dividendEventKey", "label": "红利事件键", "value": "DIV-FOF04-B-001"}, {"fieldId": "confirmedDividendAmount", "label": "确认红利金额", "value": "92500.00", "unit": "元"}]},
-        {"materialId": "FOF04-B-REINVEST-PARAMETER", "title": "红利再投参数资料", "kind": "PARAMETER", "description": "本案例批准再投 NAV，标记为 SYNTHETIC_EDUCATIONAL 的题面参数。", "fields": [{"fieldId": "approvedReinvestNAV", "label": "批准再投NAV", "value": "1.2500", "unit": "元/份"}]},
+        {"materialId": "FOF04-B-RETURN-PARAMETER", "title": "返还参数资料", "kind": "PARAMETER", "description": "ONLY_THIS_CASE 返还事件参数，明确 approved base、approved rate 和事件键。", "fields": [{"fieldId": "returnEventKey", "label": "返还事件键", "value": "RET-FOF04-B-001"}, {"fieldId": "approvedBase", "label": "批准基数", "value": "735000.00", "unit": "元"}, {"fieldId": "approvedRate", "label": "批准比例", "value": "0.008000", "unit": "比例"}]},
+        {"materialId": "FOF04-B-RETURN-CASH", "title": "返还银行实收资料", "kind": "STATEMENT", "description": "独立银行实收资料，供 confirmed return 与 actual cash 核对。", "fields": [{"fieldId": "actualReturnCash", "label": "银行实收", "value": "5880.00", "unit": "元"}]},
+        {"materialId": "FOF04-B-DIVIDEND-CONFIRM", "title": "红利确认资料", "kind": "CONFIRMATION", "description": "红利事件键与确认红利金额。", "fields": [{"fieldId": "dividendEventKey", "label": "红利事件键", "value": "DIV-FOF04-B-001"}, {"fieldId": "confirmedDividendAmount", "label": "确认红利金额", "value": "92500.00", "unit": "元"}]},
+        {"materialId": "FOF04-B-REINVEST-PARAMETER", "title": "红利再投参数资料", "kind": "PARAMETER", "description": "批准再投 NAV，标记为 SYNTHETIC_EDUCATIONAL 的资料参数。", "fields": [{"fieldId": "approvedReinvestNAV", "label": "批准再投NAV", "value": "1.2500", "unit": "元/份"}]},
         {"materialId": "FOF04-B-RETURN-LEDGER", "title": "返还事件份额台账", "kind": "LEDGER", "description": "独立登记期初和红利再投后的期末份额。", "fields": [{"fieldId": "openingShares", "label": "期初份额", "value": "456000.00", "unit": "份"}, {"fieldId": "closingShares", "label": "期末份额", "value": "530000.00", "unit": "份"}]},
-        {"materialId": "FOF04-B-RETURN-RECON", "title": "两条事件链结果勾稽资料", "kind": "RECONCILIATION", "description": "承载 returnDiff、sharesDiff 及本案例本地事件状态。", "fields": [{"fieldId": "returnDiff", "label": "返还差额", "value": "0.00", "unit": "元"}, {"fieldId": "sharesDiff", "label": "份额差额", "value": "0.00", "unit": "份"}, {"fieldId": "eventState", "label": "事件状态", "value": "RETURN_AND_REINVEST_RECONCILED"}]}
+        {"materialId": "FOF04-B-RETURN-RECON", "title": "两条事件链结果核对资料", "kind": "RECONCILIATION", "description": "承载 returnDiff、sharesDiff 及事件状态。", "fields": [{"fieldId": "returnDiff", "label": "返还差额", "value": "0.00", "unit": "元"}, {"fieldId": "sharesDiff", "label": "份额差额", "value": "0.00", "unit": "份"}, {"fieldId": "eventState", "label": "事件状态", "value": "RETURN_AND_REINVEST_RECONCILED"}]}
       ],
       "workItems": [
-        {"workItemId": "fof04-b-return-parameter-source", "type": "FIELD_MAP", "title": "定位返还参数来源", "instruction": "选择承载 RET-FOF04-B-001、approved base 和 approved rate 的本案例参数资料。", "response": {"kind": "SELECT", "placeholder": "选择返还参数来源", "options": [{"optionId": "FOF04_B_RETURN_PARAMETER_SOURCE", "text": "FOF04-B-RETURN-PARAMETER→base/rate"}, {"optionId": "FOF04_B_RETURN_RECON_SOURCE", "text": "FOF04-B-RETURN-RECON→base/rate"}]}},
+        {"workItemId": "fof04-b-return-parameter-source", "type": "FIELD_MAP", "title": "定位返还参数来源", "instruction": "选择承载 RET-FOF04-B-001、approved base 和 approved rate 的返还参数资料。", "response": {"kind": "SELECT", "placeholder": "选择返还参数来源", "options": [{"optionId": "FOF04_B_RETURN_PARAMETER_SOURCE", "text": "FOF04-B-RETURN-PARAMETER→base/rate"}, {"optionId": "FOF04_B_RETURN_RECON_SOURCE", "text": "FOF04-B-RETURN-RECON→base/rate"}]}},
         {"workItemId": "fof04-b-return-cash-source", "type": "FIELD_MAP", "title": "定位返还银行实收来源", "instruction": "选择承载实际返还现金5880.00元的独立银行资料。", "response": {"kind": "SELECT", "placeholder": "选择返还实收来源", "options": [{"optionId": "FOF04_B_RETURN_CASH_SOURCE", "text": "FOF04-B-RETURN-CASH→actualReturnCash"}, {"optionId": "FOF04_B_RETURN_PARAMETER_CASH", "text": "FOF04-B-RETURN-PARAMETER→actualReturnCash"}]}},
         {"workItemId": "fof04-b-dividend-reinvest-source", "type": "FIELD_MAP", "title": "定位红利和再投参数来源", "instruction": "选择分别承载 DIV-FOF04-B-001、确认红利92500.00元和 approved reinvest NAV 1.2500 的资料组。", "response": {"kind": "SELECT", "placeholder": "选择红利再投来源", "options": [{"optionId": "FOF04_B_DIVIDEND_REINVEST_SOURCE", "text": "FOF04-B-DIVIDEND-CONFIRM+FOF04-B-REINVEST-PARAMETER"}, {"optionId": "FOF04_B_RETURN_CASH_SOURCE", "text": "FOF04-B-RETURN-CASH"}]}},
-        {"workItemId": "fof04-b-approved-return-base", "type": "CALCULATION", "title": "读取返还批准基数", "instruction": "从本案例返还参数资料读取 approved base 735000.00元。", "response": {"kind": "NUMBER", "placeholder": "输入approved base", "unit": "元", "precision": 2}},
-        {"workItemId": "fof04-b-approved-return-rate", "type": "CALCULATION", "title": "读取返还批准比例", "instruction": "从本案例返还参数资料读取 approved rate 0.008000，保持六位比例精度。", "response": {"kind": "NUMBER", "placeholder": "输入approved rate", "unit": "比例", "precision": 6}},
+        {"workItemId": "fof04-b-approved-return-base", "type": "CALCULATION", "title": "读取返还批准基数", "instruction": "从返还参数资料读取 approved base 735000.00元。", "response": {"kind": "NUMBER", "placeholder": "输入approved base", "unit": "元", "precision": 2}},
+        {"workItemId": "fof04-b-approved-return-rate", "type": "CALCULATION", "title": "读取返还批准比例", "instruction": "从返还参数资料读取 approved rate 0.008000，保持六位比例精度。", "response": {"kind": "NUMBER", "placeholder": "输入approved rate", "unit": "比例", "precision": 6}},
         {"workItemId": "fof04-b-confirmed-return", "type": "CALCULATION", "title": "计算返还确认金额", "instruction": "用 approved base 735000.00元×approved rate 0.008000，以 Decimal 计算 confirmed return。", "response": {"kind": "NUMBER", "placeholder": "输入confirmed return", "unit": "元", "precision": 2}},
         {"workItemId": "fof04-b-actual-return-cash", "type": "LEDGER_ENTRY", "title": "登记返还银行实收", "instruction": "从独立银行资料登记 actual return cash 5880.00元。", "response": {"kind": "NUMBER", "placeholder": "输入返还实收", "unit": "元", "precision": 2}},
-        {"workItemId": "fof04-b-return-diff", "type": "RECONCILIATION", "title": "勾稽返还应收实收", "instruction": "用 confirmed return 5880.00元−actual cash 5880.00元，输入 returnDiff。", "response": {"kind": "NUMBER", "placeholder": "输入returnDiff", "unit": "元", "precision": 2}},
+        {"workItemId": "fof04-b-return-diff", "type": "RECONCILIATION", "title": "核对返还应收实收", "instruction": "用 confirmed return 5880.00元−actual cash 5880.00元，输入 returnDiff。", "response": {"kind": "NUMBER", "placeholder": "输入returnDiff", "unit": "元", "precision": 2}},
         {"workItemId": "fof04-b-confirmed-dividend-amount", "type": "CALCULATION", "title": "读取确认红利金额", "instruction": "从红利确认资料读取 confirmed dividend amount 92500.00元。", "response": {"kind": "NUMBER", "placeholder": "输入确认红利金额", "unit": "元", "precision": 2}},
-        {"workItemId": "fof04-b-approved-reinvest-nav", "type": "CALCULATION", "title": "读取批准再投 NAV", "instruction": "从本案例再投参数资料读取 approved reinvest NAV 1.2500元/份。", "response": {"kind": "NUMBER", "placeholder": "输入approved reinvest NAV", "unit": "元/份", "precision": 4}},
+        {"workItemId": "fof04-b-approved-reinvest-nav", "type": "CALCULATION", "title": "读取批准再投 NAV", "instruction": "从再投参数资料读取 approved reinvest NAV 1.2500元/份。", "response": {"kind": "NUMBER", "placeholder": "输入approved reinvest NAV", "unit": "元/份", "precision": 4}},
         {"workItemId": "fof04-b-reinvest-shares", "type": "CALCULATION", "title": "计算红利再投份额", "instruction": "用 confirmed dividend amount 92500.00元÷approved reinvest NAV 1.2500元/份，以 Decimal 计算 reinvest shares。", "response": {"kind": "NUMBER", "placeholder": "输入reinvest shares", "unit": "份", "precision": 2}},
         {"workItemId": "fof04-b-opening-shares", "type": "LEDGER_ENTRY", "title": "登记红利事件期初份额", "instruction": "从返还事件份额台账登记 return opening shares 456000.00份。", "response": {"kind": "NUMBER", "placeholder": "输入期初份额", "unit": "份", "precision": 2}},
         {"workItemId": "fof04-b-closing-shares", "type": "CALCULATION", "title": "计算红利事件期末份额", "instruction": "用 opening shares 456000.00份+reinvest shares 74000.00份，输入 closing shares。", "response": {"kind": "NUMBER", "placeholder": "输入期末份额", "unit": "份", "precision": 2}},
-        {"workItemId": "fof04-b-shares-diff", "type": "RECONCILIATION", "title": "勾稽红利再投份额承接", "instruction": "用 closing shares 530000.00份−(opening 456000.00份+reinvest 74000.00份)，输入 sharesDiff。", "response": {"kind": "NUMBER", "placeholder": "输入sharesDiff", "unit": "份", "precision": 2}},
-        {"workItemId": "fof04-b-return-event-state", "type": "RECONCILIATION", "title": "确认返还现金事件状态", "instruction": "confirmed return、actual cash 和 returnDiff 均闭合时，选择本案例返还现金事件状态。", "response": {"kind": "SELECT", "placeholder": "选择返还事件状态", "options": [{"optionId": "FOF04_B_RETURN_CASH_RECONCILED", "text": "CASH_RETURN_RECONCILED"}, {"optionId": "FOF04_B_RETURN_CASH_NOT_READY", "text": "现金链尚未闭合"}]}},
-        {"workItemId": "fof04-b-reinvest-event-state", "type": "RECONCILIATION", "title": "确认红利再投事件状态", "instruction": "确认红利、再投 NAV、reinvest shares、closing shares 和 sharesDiff 均闭合时，选择本案例红利再投事件状态。", "response": {"kind": "SELECT", "placeholder": "选择再投事件状态", "options": [{"optionId": "FOF04_B_DIVIDEND_REINVEST_RECONCILED", "text": "DIVIDEND_REINVEST_RECONCILED"}, {"optionId": "FOF04_B_DIVIDEND_REINVEST_NOT_READY", "text": "再投链尚未闭合"}]}},
-        {"workItemId": "fof04-b-final-handoff-state", "type": "RECONCILIATION", "title": "确认两条链最终承接状态", "instruction": "返还现金链和红利再投份额链均为零差异时，选择本案例本地最终承接状态。", "response": {"kind": "SELECT", "placeholder": "选择最终承接状态", "options": [{"optionId": "FOF04_B_BOTH_EVENTS_READY", "text": "RETURN_AND_REINVEST_RECONCILED"}, {"optionId": "FOF04_B_BOTH_EVENTS_NOT_READY", "text": "尚不能承接"}]}},
-        {"workItemId": "fof04-b-conclusion", "type": "SHORT_TEXT", "title": "写出两链闭环结论", "instruction": "用一句短结论说明返还 base/rate/confirmed return/actual cash/returnDiff、红利金额/NAV/reinvest shares、期初/期末份额/sharesDiff 和最终案例本地状态。", "response": {"kind": "TEXT", "placeholder": "输入一句结构化正常结论"}}
+        {"workItemId": "fof04-b-shares-diff", "type": "RECONCILIATION", "title": "核对红利再投份额承接", "instruction": "用 closing shares 530000.00份−(opening 456000.00份+reinvest 74000.00份)，输入 sharesDiff。", "response": {"kind": "NUMBER", "placeholder": "输入sharesDiff", "unit": "份", "precision": 2}},
+        {"workItemId": "fof04-b-return-event-state", "type": "RECONCILIATION", "title": "确认返还现金事件状态", "instruction": "confirmed return、actual cash 和 returnDiff 均为零差异时，选择返还现金事件状态。", "response": {"kind": "SELECT", "placeholder": "选择返还事件状态", "options": [{"optionId": "FOF04_B_RETURN_CASH_RECONCILED", "text": "CASH_RETURN_RECONCILED"}, {"optionId": "FOF04_B_RETURN_CASH_NOT_READY", "text": "现金链尚未闭合"}]}},
+        {"workItemId": "fof04-b-reinvest-event-state", "type": "RECONCILIATION", "title": "确认红利再投事件状态", "instruction": "确认红利、再投 NAV、reinvest shares、closing shares 和 sharesDiff 均为零差异时，选择红利再投事件状态。", "response": {"kind": "SELECT", "placeholder": "选择再投事件状态", "options": [{"optionId": "FOF04_B_DIVIDEND_REINVEST_RECONCILED", "text": "DIVIDEND_REINVEST_RECONCILED"}, {"optionId": "FOF04_B_DIVIDEND_REINVEST_NOT_READY", "text": "再投链尚未闭合"}]}},
+        {"workItemId": "fof04-b-final-handoff-state", "type": "RECONCILIATION", "title": "确认两条链最终承接状态", "instruction": "返还现金链和红利再投份额链均为零差异时，选择最终承接状态。", "response": {"kind": "SELECT", "placeholder": "选择最终承接状态", "options": [{"optionId": "FOF04_B_BOTH_EVENTS_READY", "text": "RETURN_AND_REINVEST_RECONCILED"}, {"optionId": "FOF04_B_BOTH_EVENTS_NOT_READY", "text": "尚不能承接"}]}},
+        {"workItemId": "fof04-b-conclusion", "type": "SHORT_TEXT", "title": "写出两条事件结论", "instruction": "用一句短结论说明返还 base/rate/confirmed return/actual cash/returnDiff、红利金额/NAV/reinvest shares、期初/期末份额/sharesDiff 和最终事件状态。", "response": {"kind": "TEXT", "placeholder": "输入一句结构化正常结论"}}
       ],
-      "submissionNote": "逐项提交两条事件链的来源、基数、比例、金额、实收、红利、再投 NAV、再投份额、期初/期末份额、两个差额、三个案例本地事件状态和一句结论；本路线不扩展永久平台状态。"
+      "submissionNote": "逐项提交两条事件链的来源、基数、比例、金额、实收、红利、再投 NAV、再投份额、期初/期末份额、两个差额、三个事件状态和一句结论；不扩展永久平台状态。"
     }
   },
   "references": [

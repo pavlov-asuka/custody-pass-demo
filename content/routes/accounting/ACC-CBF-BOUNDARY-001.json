@@ -2,14 +2,14 @@
   "routeId": "ACC-CBF-BOUNDARY-001",
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
-  "title": "对象、账户角色、来源与责任映射",
-  "summary": "在同一单券商、单市场、单日普通证券买入资料包中，定位交易、备付金、持仓和估值结果对象，区分资料提供与核算复核责任，完成角色化工作纸并用Decimal计算和零差异结果验证映射。",
+  "title": "对象、业务角色与责任映射",
+  "summary": "从同一券商、单市场、单日普通证券买入资料中，分别定位交易、备付金、持仓和估值结果；区分资料提供与核算复核责任，填入角色工作纸，再用 Decimal 复算并核对零差异。",
   "estimatedMinutes": 70,
   "objectives": [
-    "从本案例日内交易资料组、日终券商对账资料组、估值结果资料组和复核资料组定位字段来源，并保持业务日期、市场、组合和证券键一致",
-    "把交易对象、清算交收、券商备付金、证券持仓和估值结果区分为业务角色，不用真实账户或未闭合的正式会计科目替代",
-    "用独立Decimal链复算成交总额、佣金、交收金额、备付金余额、持仓数量和估值市值，并将结果填入业务角色工作纸",
-    "以资金、持仓、估值数量、备付金差额均为零且复核已确认，验证本案例映射可以进入后续状态链"
+    "从日内交易、日终券商对账、估值结果和复核资料组定位字段来源，并核对业务日期、市场、组合和证券键",
+    "把交易对象、清算交收、券商备付金、证券持仓和估值结果分成业务角色；不以真实账户或未闭合的正式会计科目代替",
+    "用独立 Decimal 链复算成交总额、佣金、交收金额、备付金余额、持仓数量和估值市值，把结果填入业务角色工作纸",
+    "当资金、持仓、估值数量和备付金差额均为零且复核已确认时，判断映射是否可以进入后续处理"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -18,7 +18,7 @@
           "cardId": "CBF-R1-KC-01",
           "type": "CATEGORIES",
           "title": "先分对象，再认资料来源",
-          "conclusion": "本案例先把资料按交易对象、日终对账对象、估值结果对象和复核对象分开；来源正确不等于结果已核算。",
+          "conclusion": "先把资料按交易对象、日终对账对象、估值结果对象和复核对象分开；来源正确还要支持金额计算和零差异核对。",
           "items": [
             "日内交易资料组提供买卖方向、数量、价格和成交金额所需字段",
             "日终券商对账资料组提供备付金和持仓期初/期末字段",
@@ -30,45 +30,45 @@
           "cardId": "CBF-R1-KC-02",
           "type": "FLOW",
           "title": "责任角色和业务角色要分层",
-          "conclusion": "资料提供责任、核算工作责任、估值复核责任和托管复核责任可以分工；券商备付金、证券持仓和估值结果是不同的业务角色。",
+          "conclusion": "资料提供、核算、估值复核和托管复核可以分工；券商备付金、证券持仓和估值结果是不同业务角色。",
           "items": [
-            "BROKER_DATA_PROVIDER负责本案例交易资料组和对账资料组的提供",
+            "BROKER_DATA_PROVIDER负责交易资料组和对账资料组的提供",
             "ACCOUNTING_WORKER负责读字段、建映射、算金额和补业务角色工作纸",
             "VALUATION_REVIEWER负责确认估值价格、数量和结果资料的对应关系",
-            "CUSTODY_REVIEWER负责确认同日资料、零差异和复核状态满足本案例收口条件"
+            "CUSTODY_REVIEWER负责确认同日资料、零差异和复核状态满足收口条件"
           ]
         },
         {
           "cardId": "CBF-R1-KC-03",
           "type": "KEY_POINT",
           "title": "角色映射必须可计算、可勾稽",
-          "conclusion": "映射的完成标准不是写出名称，而是能把来源字段带入计算、工作纸和零差异验证。",
+          "conclusion": "映射成立的证据不是名称，而是来源字段能进入计算、工作纸和零差异核对。",
           "items": [
             "成交总额 = 成交数量 × 成交价格",
-            "佣金金额 = 成交总额 × 本案例佣金率；交收金额 = 成交总额 + 佣金金额",
+            "佣金金额 = 成交总额 × 佣金率；交收金额 = 成交总额 + 佣金金额",
             "买入后备付金期末余额和持仓期末数量必须能由期初与交易结果复算",
-            "估值数量、备付金和复核状态要与日终结果建立可追溯连接"
+            "估值数量、备付金和复核状态要能和日终结果互相核对"
           ]
         }
       ]
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "本案例核算工作角色",
-        "product": "券结基金单日普通证券交易案例",
+        "role": "核算工作角色",
+        "product": "券结基金单日普通证券交易",
         "date": "2026-08-12",
         "fixture": "CBF-FIXTURE-DEMO-A",
         "facts": [
           "同一业务日期、市场键MARKET_CASE_01、组合键PORTFOLIO_CASE_01和证券键SECURITY_CASE_01在四组资料中一致。",
           "日内交易资料组给出BUY、8000份、42.50元、佣金率0.0012；日终券商对账资料组给出备付金期初800000.00元、期末459592.00元和持仓期初2000份、期末10000份。",
           "估值结果资料组给出估值价格42.80元、估值数量10000份、估值市值428000.00元和估值备付金459592.00元；复核确认资料组为YES。",
-          "全部标识和数值均为本案例合成教学参数，不代表生产制度或真实账户。"
+          "标识和数值为合成教学参数。"
         ]
       },
       "steps": [
         {
           "order": 1,
-          "action": "先按四个同日键把日内交易资料组、日终券商对账资料组、估值结果资料组和复核确认资料组归入同一案例对象",
+          "action": "先按四个同日键把日内交易资料组、日终券商对账资料组、估值结果资料组和复核确认资料组归入同一业务对象",
           "reason": "跨来源映射的第一道证据是业务日期、市场、组合和证券键一致，而不是资料标题相似。"
         },
         {
@@ -79,7 +79,7 @@
         {
           "order": 3,
           "action": "将资料提供责任映射给BROKER_DATA_PROVIDER，将读字段、计算和工作纸动作映射给ACCOUNTING_WORKER，将结果确认映射给VALUATION_REVIEWER/CUSTODY_REVIEWER",
-          "reason": "责任映射要能说明谁提供、谁处理和谁复核，避免把资料来源误认为核算完成。"
+          "reason": "责任映射要能说明谁提供、谁处理和谁复核，避免把资料来源当成金额已入账。"
         },
         {
           "order": 4,
@@ -88,8 +88,8 @@
         },
         {
           "order": 5,
-          "action": "在业务角色工作纸记录备付金减少340408.00、持仓期末10000份和估值市值428000.00，并验证资金差0.00、持仓差0、估值数量差0、备付金差0.00及复核YES",
-          "reason": "本路线的正常完成证据是来源、责任、角色、计算和零差异验证连成一条链。"
+          "action": "在业务角色工作纸记录备付金减少340408.00、持仓期末10000份和估值市值428000.00，并核对资金差0.00、持仓差0、估值数量差0、备付金差0.00及复核YES",
+          "reason": "映射是否成立，要看来源、责任、角色、计算和零差异核对能否相互对应。"
         }
       ],
       "summary": "同日键 → 来源与对象 → 责任分层 → Decimal计算 → 角色工作纸与零差异验证"
@@ -99,7 +99,7 @@
         {
           "questionId": "ACC-CBF-BOUNDARY-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "把本案例三个核心资料组映射到主要业务角色。",
+          "prompt": "把三个核心资料组映射到主要业务角色。",
           "fieldMappings": [
             {
               "fieldId": "trade-source",
@@ -130,13 +130,13 @@
             }
           ],
           "answer": ["TRADE_DATA_GROUP", "BROKER_STATEMENT_GROUP", "VALUATION_GROUP"],
-          "explanation": "交易字段、备付金余额和估值结果分别从对应资料组读取；来源映射还要保留业务角色边界。",
+          "explanation": "交易字段、备付金余额和估值结果分别从对应资料组读取；来源映射要保留业务角色边界。",
           "hints": ["先看字段属于交易、余额/持仓还是估值结果，再看资料组。"]
         },
         {
           "questionId": "ACC-CBF-BOUNDARY-Q-02",
           "type": "CALCULATION",
-          "prompt": "按Demo A的交易资料和本案例参数，计算成交总额、佣金、交收金额和备付金期末余额。",
+          "prompt": "按 Demo A 的交易资料和佣金率，计算成交总额、佣金、交收金额和备付金期末余额。",
           "calculation": {
             "fields": [
               {"fieldId": "gross-amount", "label": "成交总额", "formula": "8000 × 42.50", "placeholder": "输入金额", "unit": "元", "precision": 2, "tolerance": 0.01},
@@ -152,68 +152,68 @@
         {
           "questionId": "ACC-CBF-BOUNDARY-Q-03",
           "type": "LEDGER_ENTRY",
-          "prompt": "用业务角色化工作纸补全Demo A的资金、持仓和估值结果，不写正式会计科目或借贷方向。",
+          "prompt": "用业务角色化工作纸补全 Demo A 的资金、持仓和估值结果；不写正式会计科目或借贷方向。",
           "ledgerEntries": [
             {"entryId": "reserve-role", "direction": "资金减少", "label": "BROKER_RESERVE_ROLE期末余额", "amount": "459592.00", "placeholder": "输入角色或结果"},
             {"entryId": "position-role", "direction": "数量增加", "label": "SECURITIES_LEDGER_ROLE期末数量", "amount": "10000", "placeholder": "输入角色或结果"},
             {"entryId": "valuation-role", "direction": "估值结果", "label": "VALUATION_RESULT_ROLE估值市值", "amount": "428000.00", "placeholder": "输入角色或结果"}
           ],
           "answer": ["BROKER_RESERVE_ROLE", "459592.00", "SECURITIES_LEDGER_ROLE", "10000", "VALUATION_RESULT_ROLE", "428000.00"],
-          "explanation": "工作纸只记录业务角色、业务动作和结果值；本案例不补造正式科目名或借贷方向。",
+          "explanation": "工作纸只记录业务角色、业务动作和结果值；这里不补造正式科目名或借贷方向。",
           "hints": ["将资金、持仓和估值结果分别落到三个角色，再填期末结果。"]
         },
         {
           "questionId": "ACC-CBF-BOUNDARY-Q-04",
           "type": "RECONCILIATION",
-          "prompt": "用Demo A的角色工作纸和资料完成四项零差异勾稽，并判断是否满足本案例正常收口条件。",
+          "prompt": "用 Demo A 的角色工作纸和资料逐项复算四项零差异，判断是否满足收口条件。",
           "reconciliation": {
             "fields": [
               {"fieldId": "cash-diff", "label": "资金差额", "kind": "NUMBER", "formula": "459592.00 − (800000.00 − 340408.00)", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
               {"fieldId": "position-diff", "label": "持仓差额", "kind": "NUMBER", "formula": "10000 − (2000 + 8000)", "placeholder": "输入份额", "precision": 0, "tolerance": 0},
               {"fieldId": "valuation-quantity-diff", "label": "估值数量差额", "kind": "NUMBER", "formula": "10000 − 10000", "placeholder": "输入份额", "precision": 0, "tolerance": 0},
               {"fieldId": "reserve-diff", "label": "备付金差额", "kind": "NUMBER", "formula": "459592.00 − 459592.00", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
-              {"fieldId": "close-result", "label": "正常收口结论", "kind": "SELECT", "formula": "四项差额为零且复核为YES", "placeholder": "选择结论", "options": [{"optionId": "ALL_ZERO_AND_REVIEW_CONFIRMED", "text": "零差异且复核已确认"}, {"optionId": "NOT_READY", "text": "仍需补充资料"}]}
+              {"fieldId": "close-result", "label": "收口结论", "kind": "SELECT", "formula": "四项差额为零且复核为YES", "placeholder": "选择结论", "options": [{"optionId": "ALL_ZERO_AND_REVIEW_CONFIRMED", "text": "零差异且复核已确认"}, {"optionId": "NOT_READY", "text": "仍需补充资料"}]}
             ]
           },
           "answer": ["0.00", "0", "0", "0.00", "ALL_ZERO_AND_REVIEW_CONFIRMED"],
-          "explanation": "资金、持仓、估值数量和备付金差额均为零，复核状态为YES，因此满足本案例正常收口条件。",
+          "explanation": "资金、持仓、估值数量和备付金差额均为零，复核状态为 YES，满足收口条件。",
           "hints": ["分别重算四个差额，最后同时检查复核状态；不要用单一系统状态替代勾稽。"]
         },
         {
           "questionId": "ACC-CBF-BOUNDARY-Q-05",
           "type": "SHORT_TEXT",
-          "prompt": "用一句可追溯结论说明Demo A为什么完成了对象与来源映射验证。",
-          "textInput": {"label": "本路线映射结论", "placeholder": "写明同日键、来源/责任、业务角色、计算和零差异复核"},
+          "prompt": "用一句话说明 Demo A 为什么通过对象与来源映射核对。",
+          "textInput": {"label": "映射结论", "placeholder": "写明同日键、来源/责任、业务角色、计算和零差异复核"},
           "answer": ["同日键", "交易资料组", "券商备付金角色", "证券持仓角色", "估值结果角色", "Decimal", "零差异", "复核"],
-          "explanation": "结论需要同时包含同日关联、来源和责任分层、角色化工作纸、可复算结果及零差异复核。",
+          "explanation": "结论需同时包含同日关联、来源和责任分层、角色化工作纸、计算结果及零差异复核。",
           "hints": ["按同日键→来源/责任→角色→计算→勾稽复核组织一句话。"]
         }
       ]
     },
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
-        "role": "本案例核算工作角色",
+        "role": "核算工作角色",
         "product": "券结基金单券商单市场单日普通证券交易",
         "date": "2026-08-12",
-        "purpose": "使用完整脱敏资料包完成对象、账户角色、来源与责任映射，补全角色化工作纸，独立复算交易链，并以资金、持仓、估值数量、备付金零差异和复核确认验证本路线结果。"
+        "purpose": "从脱敏资料包定位对象、业务角色、来源与责任，填入角色工作纸，复算交易金额，并用资金、持仓、估值数量、备付金零差异和复核确认核对结果。"
       },
       "sourceMaterials": [
         {
           "materialId": "CBF-R1-B-PARAM",
-          "title": "本案例责任与计算参数快照",
+          "title": "责任与计算参数快照",
           "kind": "PARAMETER",
-          "description": "本案例合成责任、费率、同日交收、精度和容差参数；不代表生产制度。",
+          "description": "合成责任、费率、同日交收、精度和容差参数；不代表生产制度。",
           "fields": [
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-12"},
-            {"fieldId": "settlement_timing", "label": "本案例交收时点", "value": "SAME_CASE_DAY_AFTER_TRADE"},
-            {"fieldId": "commission_rate", "label": "本案例佣金率", "value": "0.0008", "unit": "rate"},
+            {"fieldId": "settlement_timing", "label": "交收时点", "value": "SAME_CASE_DAY_AFTER_TRADE"},
+            {"fieldId": "commission_rate", "label": "佣金率", "value": "0.0008", "unit": "rate"},
             {"fieldId": "amount_precision", "label": "金额精度", "value": "2位小数"},
             {"fieldId": "reconciliation_tolerance", "label": "差额容差", "value": "0.00"}
           ]
         },
         {
           "materialId": "CBF-R1-B-RESPONSIBILITY",
-          "title": "本案例责任角色确认资料",
+          "title": "责任角色确认资料",
           "kind": "INSTRUCTION",
           "description": "以业务角色表示资料提供、核算工作、估值复核和托管复核责任。",
           "fields": [
@@ -227,7 +227,7 @@
           "materialId": "CBF-R1-B-TRADE",
           "title": "日内交易资料组（综合B）",
           "kind": "CONFIRMATION",
-          "description": "本案例完整日内交易字段，提供同日键和买入交易计算输入。",
+          "description": "完整日内交易字段，提供同日键和买入交易计算输入。",
           "fields": [
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-12"},
             {"fieldId": "market_key", "label": "市场键", "value": "MARKET_CASE_01"},
@@ -247,7 +247,7 @@
           "materialId": "CBF-R1-B-STATEMENT",
           "title": "日终券商对账资料组（综合B）",
           "kind": "STATEMENT",
-          "description": "本案例完整日终余额和持仓字段，分别落到券商备付金角色和证券持仓角色。",
+          "description": "完整日终余额和持仓字段，分别落到券商备付金角色和证券持仓角色。",
           "fields": [
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-12"},
             {"fieldId": "market_key", "label": "市场键", "value": "MARKET_CASE_01"},
@@ -263,7 +263,7 @@
           "materialId": "CBF-R1-B-VALUATION",
           "title": "估值结果资料组（综合B）",
           "kind": "VALUATION",
-          "description": "本案例独立估值结果字段，不能与券商备付金或证券持仓角色混同。",
+          "description": "独立估值结果字段，不能与券商备付金或证券持仓角色混同。",
           "fields": [
             {"fieldId": "valuation_price", "label": "估值价格", "value": "37.80", "unit": "元/份"},
             {"fieldId": "valuation_quantity", "label": "估值数量", "value": "13500", "unit": "份"},
@@ -275,10 +275,10 @@
           "materialId": "CBF-R1-B-REVIEW",
           "title": "复核确认资料组（综合B）",
           "kind": "CONFIRMATION",
-          "description": "本案例正常资料的复核结果，所有差异要求为零。",
+          "description": "资料的复核结果，所有差异要求为零。",
           "fields": [
             {"fieldId": "review_confirmed", "label": "复核确认", "value": "YES"},
-            {"fieldId": "close_decision", "label": "本案例封账结论", "value": "NORMAL_CLOSE"},
+            {"fieldId": "close_decision", "label": "封账结论", "value": "NORMAL_CLOSE"},
             {"fieldId": "cash_diff", "label": "资金差额资料结果", "value": "0.00", "unit": "元"},
             {"fieldId": "position_diff", "label": "持仓差额资料结果", "value": "0", "unit": "份"},
             {"fieldId": "valuation_quantity_diff", "label": "估值数量差额资料结果", "value": "0", "unit": "份"},
@@ -305,7 +305,7 @@
           "workItemId": "r1-b-responsibility",
           "type": "FIELD_MAP",
           "title": "确认资料提供、核算和复核责任",
-          "instruction": "用业务角色写出本案例的责任链。",
+          "instruction": "用业务角色写出责任链。",
           "response": {"kind": "SELECT", "placeholder": "选择责任链", "options": [{"optionId": "BROKER_TO_ACCOUNTING_TO_REVIEW", "text": "BROKER_DATA_PROVIDER→ACCOUNTING_WORKER→VALUATION_REVIEWER/CUSTODY_REVIEWER"}, {"optionId": "ACCOUNTING_ONLY", "text": "全部资料和复核均由ACCOUNTING_WORKER完成"}]}
         },
         {
@@ -319,7 +319,7 @@
           "workItemId": "r1-b-commission",
           "type": "CALCULATION",
           "title": "复算佣金金额",
-          "instruction": "用成交总额和本案例佣金率计算佣金金额。",
+          "instruction": "用成交总额和佣金率计算佣金金额。",
           "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}
         },
         {
@@ -340,18 +340,18 @@
           "workItemId": "r1-b-reconciliation",
           "type": "RECONCILIATION",
           "title": "验证映射后的零差异结果",
-          "instruction": "根据资料和计算结果，判断资金、持仓、估值数量和备付金是否均为零差异且复核已确认。",
+          "instruction": "根据资料和计算结果，判断资金、持仓、估值数量和备付金是否均为零差异，且复核已确认。",
           "response": {"kind": "SELECT", "placeholder": "选择勾稽结论", "options": [{"optionId": "ALL_ZERO_AND_REVIEW_CONFIRMED", "text": "四项差额均为零且复核已确认"}, {"optionId": "NOT_READY", "text": "映射或资料仍不完整"}]}
         },
         {
           "workItemId": "r1-b-validation",
           "type": "SHORT_TEXT",
-          "title": "写出可追溯验证结论",
-          "instruction": "用一句话说明同日键、来源与责任映射、角色工作纸、Decimal计算和零差异复核如何共同支持本案例结论。",
+          "title": "写出验证结论",
+          "instruction": "用一句话说明同日键、来源与责任映射、角色工作纸、Decimal计算和零差异复核如何支持结论。",
           "response": {"kind": "TEXT", "placeholder": "输入本路线验证结论"}
         }
       ],
-      "submissionNote": "提交结构化工作纸答案：字段来源与角色、责任链、三步金额计算、角色化工作纸、四项零差异和一句验证结论。所有标识和参数仅适用于本案例。"
+      "submissionNote": "提交工作纸答案：字段来源与角色、责任链、三步金额计算、角色化工作纸、四项零差异和一句验证结论。"
     }
   },
   "references": [

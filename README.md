@@ -8,6 +8,8 @@
 
 当前状态和已知限制见 [docs/current-state.md](docs/current-state.md)，技术结构见 [docs/architecture.md](docs/architecture.md)，前端视觉以 [frontend/DESIGN.md](frontend/DESIGN.md) 为唯一事实源。
 
+学员可见文字直接说明资料、字段、计算、状态和下一动作。内部活动类型、字段 ID 与技术状态只保留在提交和评分机制中，页面统一显示为业务中文；现有视觉、路线结构、数字、公式、答案和评分规则不因文字治理改变。
+
 ## 当前正式范围
 
 - `ACCOUNTING`：开放；正式内容包含跨模块基础 4 条必修路线、股票模块 4 条必修路线和 4 条非阻挡进阶路线、固定收益模块 4 条必修路线和 5 条非阻挡进阶路线、期货模块 4 条必修路线、估值对账与信息披露模块 5 条必修路线、普通货币基金模块 5 条必修路线、券结基金模块 4 条必修路线、FOF 模块 5 条必修路线、ETF 模块 4 条必修路线。
@@ -45,6 +47,7 @@ tests/e2e/     真实浏览器系统级闭环
 
 ```powershell
 .\scripts\validate-content.ps1
+py -3 .\scripts\verify-text-humanization.py
 .\scripts\test-backend.ps1
 .\scripts\build-frontend.ps1
 .\scripts\build-app.ps1

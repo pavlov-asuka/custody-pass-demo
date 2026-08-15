@@ -171,6 +171,9 @@ class LearningFlowApplicationTests {
         assertTrue(!wrong.path("correct").asBoolean());
         assertTrue(!wrong.has("answer"));
         assertTrue(!wrong.has("correctAnswer"));
+        assertTrue(wrong.path("explanation").asText().contains("实际支付"));
+        assertTrue(wrong.path("hint").asText().contains("实际支付"));
+        assertTrue(!wrong.path("explanation").asText().contains("结构化作答"));
         answerQuestion(learner, "ACC-ROLE-Q-01", List.of("B"));
         answerQuestion(learner, "ACC-ROLE-Q-02", List.of("B"));
         JsonNode finalAnswer = answerQuestion(learner, "ACC-ROLE-Q-03",
@@ -331,6 +334,13 @@ class LearningFlowApplicationTests {
         assertTrue(completed.toString().contains("\"matched\""));
         assertTrue(!completed.toString().contains("\"itemId\""));
         assertTrue(!completed.toString().contains("M-RECONCILIATION"));
+        for (JsonNode dimension : completed.path("result").path("dimensions")) {
+            for (JsonNode item : dimension.path("items")) {
+                String evidence = item.path("evidence").asText();
+                assertTrue(!evidence.contains("结构化作答"));
+                assertTrue(evidence.matches(".*(资料|字段|金额|状态|计算|勾稽|结论|凭证|台账|资金|成本|持仓|市值|来源).*"));
+            }
+        }
         String storedResult = jdbc.queryForObject(
                 "SELECT result_snapshot_json FROM scoring_result WHERE attempt_id=?",
                 String.class, completed.path("attemptId").asLong());
@@ -348,6 +358,8 @@ class LearningFlowApplicationTests {
                 .andExpect(jsonPath("$.code").value("REMEDIATION_REQUIRED"));
         JsonNode plan = getJson(learner, "/api/attempts/" + attemptId + "/remediation");
         for (JsonNode target : plan.path("targets")) {
+            assertTrue(!target.path("title").asText().contains("可追溯"));
+            assertTrue(!target.path("reason").asText().contains("能力未体现"));
             String targetId = target.path("targetId").asText();
             String questionId = target.path("practice").path("questionId").asText();
             answerRemediation(learner, attemptId, targetId, correctAnswer(questionId));
@@ -473,12 +485,25 @@ class LearningFlowApplicationTests {
         String knowledge = mockMvc.perform(get("/api/routes/" + ROUTE + "/steps/KNOWLEDGE_CARD")
                         .session(learner.session()))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String technicalRoute = mockMvc.perform(get("/api/routes/ACC-CBF-SETTLEMENT-003")
+                        .session(learner.session()))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        String redemptionRoute = mockMvc.perform(get("/api/routes/ACC-FOF-REDEMPTION-005")
+                        .session(learner.session()))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         assertTrue(route.contains("\"rubricVersion\":\"2.0.0\""));
-        for (String body : List.of(route, knowledge)) {
+        for (String body : List.of(route, knowledge, technicalRoute)) {
             assertTrue(!body.contains("referenceAnswer"));
             assertTrue(!body.contains("mandatoryRequirements"));
             assertTrue(!body.contains("\"evidenceRules\""));
+            assertTrue(!body.contains("\"references\""));
         }
+        assertTrue(technicalRoute.contains("备付金"));
+        assertTrue(!technicalRoute.contains("reserve"));
+        assertTrue(!technicalRoute.contains("gross"));
+        assertTrue(redemptionRoute.contains("应收金额"));
+        assertTrue(!redemptionRoute.contains("receivableAmount"));
+        assertTrue(!redemptionRoute.contains("业务字段"));
         mockMvc.perform(get("/api/cases").session(learner.session()))
                 .andExpect(status().isNotFound());
         mockMvc.perform(get("/api/knowledge/topics").session(learner.session()))

@@ -144,7 +144,7 @@ export function MapTrack({
             </div>
             {current && (
               <span className="map-node__continue">
-                {node.state === 'NOT_STARTED' ? '从这里开始' : '继续'}
+                {node.state === 'NOT_STARTED' ? '进入路线' : '继续学习'}
               </span>
             )}
           </div>
@@ -159,7 +159,9 @@ export function MapTrack({
           <Mascot
             pose="GUIDE_POINT"
             size="medium"
-            message={recommended.node.state === 'NOT_STARTED' ? '从这里开始！' : '继续这条路线！'}
+            message={recommended.node.state === 'NOT_STARTED'
+              ? '从当前节点进入，完成四个环节。'
+              : '返回当前环节，继续完成这条路线。'}
           />
         </div>
       )}

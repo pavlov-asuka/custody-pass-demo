@@ -379,6 +379,8 @@ public class LearningService {
             targetOut.put("completed", target.completed());
             String questionId = targetData.path("questionId").asText();
             targetOut.set("practice", publicQuestion(findQuestion(contentSnapshot, questionId)));
+            targetOut.put("title", HumanFeedbackText.remediationTitle(targetData));
+            targetOut.put("reason", HumanFeedbackText.remediationReason(targetData));
         }
         return response;
     }
@@ -613,28 +615,14 @@ public class LearningService {
     }
 
     private String feedbackExplanation(JsonNode question, boolean correct) {
-        if (correct || !isStructuredPracticeQuestion(question)) {
-            return question.path("explanation").asText();
+        if (correct) {
+            return HumanFeedbackText.correctPracticeExplanation(question);
         }
-        return "请回到题面资料，逐项核对输入、关系和业务结果后重试。";
+        return HumanFeedbackText.incorrectPracticeExplanation(question);
     }
 
     private String feedbackHint(JsonNode question) {
-        return switch (question.path("type").asText()) {
-            case "FIELD_MAP" -> "先分开核对字段来源、方向、状态和确认时点。";
-            case "CALCULATION" -> "先取出题面提供的各项输入，再按批准关系复算。";
-            case "LEDGER_ENTRY" -> "先按借贷方向区分成本、费用、应付项和清算项。";
-            case "RECONCILIATION" -> "先分别完成数量、成本、资金和市值关系，再核对是否闭合。";
-            case "SHORT_TEXT" -> "逐项检查结论是否覆盖持仓、成本、资金、市值和勾稽。";
-            default -> question.path("hints").path(0).asText("");
-        };
-    }
-
-    private boolean isStructuredPracticeQuestion(JsonNode question) {
-        return switch (question.path("type").asText()) {
-            case "FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT" -> true;
-            default -> false;
-        };
+        return HumanFeedbackText.practiceHint(question);
     }
 
     private boolean numericAnswersMatch(List<String> expected, List<String> answer, JsonNode fields) {
@@ -849,6 +837,10 @@ public class LearningService {
         for (JsonNode dimension : result.path("dimensions")) {
             for (JsonNode item : dimension.path("items")) {
                 if (item instanceof ObjectNode object) {
+                    object.put("evidence", HumanFeedbackText.publicEvidence(
+                            object.path("description").asText(""),
+                            object.path("evidence").asText(""),
+                            object.path("matched").asBoolean()));
                     object.remove(List.of("itemId", "description"));
                 }
             }

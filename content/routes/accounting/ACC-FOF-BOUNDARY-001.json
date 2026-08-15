@@ -2,13 +2,13 @@
   "routeId": "ACC-FOF-BOUNDARY-001",
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
-  "title": "看清 FOF 母基金、被投基金与证据链",
-  "summary": "从合成正常资料中区分 FOF 母基金、被投基金、指令和确认来源，把对象键、金额、份额与状态证据连成可复核的业务链。",
+  "title": "区分 FOF 母基金、被投基金与确认来源",
+  "summary": "从正常资料中分别读取 FOF 母基金、被投基金、指令和确认来源，核对对象键、金额、份额与状态后写入业务工作纸。",
   "estimatedMinutes": 24,
   "objectives": [
     "区分 FOF 母基金、被投基金、申购指令、管理人确认和 TA 确认对象",
     "从不同资料组读取对象键、日期、金额、申购 NAV、份额和状态字段",
-    "用 Decimal 复算确认份额，并把结果承接到业务台账与零差异勾稽",
+    "用 Decimal 复算确认份额，把结果写入业务台账并核对承接差额",
     "在 SHARES_POSTED 前保持证据边界，不提前宣称估值或正常封账"
   ],
   "steps": {
@@ -39,12 +39,12 @@
         {
           "cardId": "FOF01-KC-03",
           "type": "KEY_POINT",
-          "title": "边界完成才算对象链可用",
-          "conclusion": "对象键一致、金额和份额可复算、状态证据完整，才能把资料落到 SHARES_POSTED；估值和封账属于后续路线。",
+          "title": "对象和份额核对后再承接",
+          "conclusion": "对象键一致、金额和份额可复算、状态证据完整，才能把资料记录为 SHARES_POSTED；估值和封账属于后续路线。",
           "items": [
             "确认份额 = TA 确认金额 ÷ 合成申购 NAV",
             "期末份额 = 期初份额 + 确认份额",
-            "本路线不使用估值 NAV、收益或后续封账字段"
+            "估值 NAV、收益和后续封账字段在这里不读"
           ]
         }
       ]
@@ -61,9 +61,9 @@
         {"order": 2, "action": "在管理人确认和 TA 确认资料中核对同一指令键，并记录管理人确认金额 612000.00 元和 TA 确认金额 612000.00 元。", "reason": "来源键一致且金额一致，才能把确认资料归入这笔指令。"},
         {"order": 3, "action": "从 TA 确认资料读取申购 NAV 1.0200 元/份、确认份额字段和 SHARES_POSTED 目标状态。", "reason": "申购 NAV 只作为确认份额的计算参数，不把它当成后续估值 NAV。"},
         {"order": 4, "action": "用 Decimal 复算 612000.00 ÷ 1.0200 = 600000.00 份。", "reason": "金额、NAV、份额必须带单位和精度，复算结果才能进入台账。"},
-        {"order": 5, "action": "将期初 80000.00 份与确认 600000.00 份承接为期末 680000.00 份，核对对象键一致、份额差额 0.00，完成到 SHARES_POSTED。", "reason": "本路线的完成证据是对象和份额链闭合，不提前进入估值或封账。"}
+        {"order": 5, "action": "将期初 80000.00 份与确认 600000.00 份承接为期末 680000.00 份，核对对象键一致、份额差额 0.00，完成到 SHARES_POSTED。", "reason": "对象键一致且份额差额为 0.00，工作纸才可记录 SHARES_POSTED；估值和封账另行处理。"}
       ],
-      "summary": "对象键、来源责任、确认份额和台账承接均可追溯且零差异后，才形成可继续向后续路线传递的 FOF 业务对象链。"
+      "summary": "对象键、来源责任、确认份额和台账承接均已核对且差额为零后，工作纸才具备向后续路线传递的完整 FOF 业务记录。"
     },
     "BASIC_PRACTICE": {
       "questions": [
@@ -83,7 +83,7 @@
           "prompt": "FOF01 Demo A 的 TA 确认金额为 612000.00 元，申购 NAV 为 1.0200 元/份。复算确认份额。",
           "calculation": {"fields": [{"fieldId": "fof01-a-confirmed-shares", "label": "确认份额", "formula": "ta_confirmed_amount / subscription_nav", "placeholder": "输入确认份额", "unit": "份", "precision": 2, "tolerance": 0.01}]},
           "answer": ["600000.00"],
-          "explanation": "612000.00 ÷ 1.0200 = 600000.00 份，使用本案例的合成参数和 Decimal 精度。",
+          "explanation": "612000.00 ÷ 1.0200 = 600000.00 份，使用资料给出的合成参数和 Decimal 精度。",
           "hints": ["先确认金额单位是元、NAV单位是元/份，再做除法。"]
         },
         {
@@ -96,7 +96,7 @@
             {"entryId": "fof01-a-state", "direction": "STATE", "label": "最终教学状态", "amount": "SHARES_POSTED", "placeholder": "输入状态"}
           ],
           "answer": ["FOF-EDU-A-01", "FUND-EDU-A-01", "SHARES_POSTED"],
-          "explanation": "业务工作纸要保留对象键和状态；正式科目、凭证号和人工冲正不在本路线范围。",
+          "explanation": "业务工作纸只保留对象键和状态；这里不填写正式科目、凭证号或人工冲正。",
           "hints": ["对象键与状态分别记录，不要把基金名称写成一个结果字段。"]
         },
         {
@@ -105,8 +105,8 @@
           "prompt": "核对 Demo A 的对象键和份额承接是否可以进入 SHARES_POSTED。",
           "reconciliation": {"fields": [{"fieldId": "fof01-a-identity-match", "label": "对象键一致", "kind": "SELECT", "formula": "identity_match", "placeholder": "选择对象键结论", "options": [{"optionId": "YES", "text": "一致"}, {"optionId": "NO", "text": "不一致"}]}, {"fieldId": "fof01-a-shares-diff", "label": "份额承接差额", "kind": "NUMBER", "formula": "closing_shares - (opening_shares + confirmed_shares)", "placeholder": "输入份额差额", "precision": 2, "tolerance": 0.01}]},
           "answer": ["YES", "0.00"],
-          "explanation": "对象键一致且 680000.00 - (80000.00 + 600000.00) = 0.00，满足本案例状态边界。",
-          "hints": ["勾稽先看对象键，再看期末份额公式。"]
+          "explanation": "对象键一致且 680000.00 - (80000.00 + 600000.00) = 0.00，满足 SHARES_POSTED 的状态条件。",
+          "hints": ["先核对对象键，再复算期末份额公式。"]
         },
         {
           "questionId": "ACC-FOF-BOUNDARY-Q-05",
@@ -120,29 +120,29 @@
       ]
     },
     "COMPREHENSIVE_PRACTICE": {
-      "scenario": {"role": "托管核算新人", "product": "合成 FOF 母基金 FOF-EDU-B-01 与被投基金 FUND-EDU-B-01", "date": "2030-06-13", "purpose": "从五组正常资料完成对象映射、确认份额复算、业务台账补全和状态勾稽"},
+      "scenario": {"role": "托管核算新人", "product": "合成 FOF 母基金 FOF-EDU-B-01 与被投基金 FUND-EDU-B-01", "date": "2030-06-13", "purpose": "从五组正常资料完成对象映射、确认份额复算、业务台账补全并核对承接差额"},
       "sourceMaterials": [
         {"materialId": "FOF01-B-INSTRUCTION", "title": "指令资料组", "kind": "INSTRUCTION", "description": "合成业务指令，给出对象键、日期、指令键和金额。", "fields": [{"fieldId": "case_version", "label": "案例版本", "value": "FOF01-B-EDU-01"}, {"fieldId": "business_date", "label": "业务日期", "value": "2030-06-13", "unit": "date"}, {"fieldId": "fof_fund_key", "label": "FOF母基金键", "value": "FOF-EDU-B-01", "unit": "key"}, {"fieldId": "underlying_fund_key", "label": "被投基金键", "value": "FUND-EDU-B-01", "unit": "key"}, {"fieldId": "instruction_key", "label": "指令键", "value": "INS-FOF01-B-001", "unit": "key"}, {"fieldId": "instruction_amount", "label": "指令金额", "value": "540000.00", "unit": "元"}]},
         {"materialId": "FOF01-B-CONFIRMATION", "title": "管理人和TA确认资料组", "kind": "CONFIRMATION", "description": "同一指令的管理人确认和TA确认结果。", "fields": [{"fieldId": "manager_confirmed_amount", "label": "管理人确认金额", "value": "540000.00", "unit": "元"}, {"fieldId": "ta_confirmed_amount", "label": "TA确认金额", "value": "540000.00", "unit": "元"}, {"fieldId": "manager_confirmation_state", "label": "管理人确认状态", "value": "MANAGER_CONFIRMED"}, {"fieldId": "ta_confirmation_state", "label": "TA确认状态", "value": "TA_CONFIRMED"}]},
-        {"materialId": "FOF01-B-TA-PARAMETER", "title": "TA确认参数资料组", "kind": "PARAMETER", "description": "本案例用于复算确认份额的TA申购参数。", "fields": [{"fieldId": "subscription_nav", "label": "申购NAV", "value": "1.0800", "unit": "元/份"}, {"fieldId": "confirmed_shares", "label": "TA确认份额", "value": "500000.00", "unit": "份"}]},
+        {"materialId": "FOF01-B-TA-PARAMETER", "title": "TA确认参数资料组", "kind": "PARAMETER", "description": "用于复算确认份额的TA申购参数。", "fields": [{"fieldId": "subscription_nav", "label": "申购NAV", "value": "1.0800", "unit": "元/份"}, {"fieldId": "confirmed_shares", "label": "TA确认份额", "value": "500000.00", "unit": "份"}]},
         {"materialId": "FOF01-B-LEDGER", "title": "业务台账资料组", "kind": "LEDGER", "description": "合成台账期初、确认和期末份额及状态结果。", "fields": [{"fieldId": "opening_shares", "label": "期初份额", "value": "130000.00", "unit": "份"}, {"fieldId": "confirmed_shares", "label": "承接份额", "value": "500000.00", "unit": "份"}, {"fieldId": "closing_shares", "label": "期末份额", "value": "630000.00", "unit": "份"}, {"fieldId": "state_complete", "label": "状态", "value": "SHARES_POSTED"}]},
-        {"materialId": "FOF01-B-RECON", "title": "对象与份额勾稽资料组", "kind": "RECONCILIATION", "description": "合成资料给出对象键一致和份额零差异的正常结果。", "fields": [{"fieldId": "identity_match", "label": "对象键一致", "value": "YES"}, {"fieldId": "shares_diff", "label": "份额差额", "value": "0.00", "unit": "份"}]}
+        {"materialId": "FOF01-B-RECON", "title": "对象与份额核对资料组", "kind": "RECONCILIATION", "description": "正常资料给出对象键一致和份额零差异的结果。", "fields": [{"fieldId": "identity_match", "label": "对象键一致", "value": "YES"}, {"fieldId": "shares_diff", "label": "份额差额", "value": "0.00", "unit": "份"}]}
       ],
       "workItems": [
         {"workItemId": "fof01-b-master-key-source", "type": "FIELD_MAP", "title": "定位FOF母基金键", "instruction": "从资料组中选择承载FOF母基金键FOF-EDU-B-01的来源。", "response": {"kind": "SELECT", "placeholder": "选择母基金键来源", "options": [{"optionId": "FOF01_B_MASTER_KEY_FROM_INSTRUCTION", "text": "FOF01-B-INSTRUCTION→FOF-EDU-B-01"}, {"optionId": "FOF01_B_MASTER_KEY_FROM_LEDGER", "text": "FOF01-B-LEDGER→FOF-EDU-B-01"}]}},
         {"workItemId": "fof01-b-underlying-key-source", "type": "FIELD_MAP", "title": "定位被投基金键", "instruction": "从资料组中选择承载被投基金键FUND-EDU-B-01的来源。", "response": {"kind": "SELECT", "placeholder": "选择被投基金键来源", "options": [{"optionId": "FOF01_B_UNDERLYING_KEY_FROM_INSTRUCTION", "text": "FOF01-B-INSTRUCTION→FUND-EDU-B-01"}, {"optionId": "FOF01_B_UNDERLYING_KEY_FROM_VALUATION", "text": "估值资料组→FUND-EDU-B-01"}]}},
         {"workItemId": "fof01-b-instruction-confirmation-source", "type": "FIELD_MAP", "title": "定位指令与确认来源", "instruction": "选择能把INS-FOF01-B-001关联到管理人确认和TA确认的来源链。", "response": {"kind": "SELECT", "placeholder": "选择指令确认来源链", "options": [{"optionId": "FOF01_B_INSTRUCTION_TO_CONFIRMATION", "text": "指令资料→管理人确认资料→TA确认资料，同一指令键关联"}, {"optionId": "FOF01_B_LEDGER_TO_CONFIRMATION", "text": "台账资料直接代替管理人和TA确认"}]}},
-        {"workItemId": "fof01-b-confirmed-amount", "type": "CALCULATION", "title": "确认TA金额字段", "instruction": "从综合B确认资料读取并输入TA确认金额，核对其与指令/管理人确认金额一致。", "response": {"kind": "NUMBER", "placeholder": "输入TA确认金额", "unit": "元", "precision": 2}},
+        {"workItemId": "fof01-b-confirmed-amount", "type": "CALCULATION", "title": "确认TA金额字段", "instruction": "从管理人和TA确认资料读取并输入TA确认金额，核对其与指令/管理人确认金额一致。", "response": {"kind": "NUMBER", "placeholder": "输入TA确认金额", "unit": "元", "precision": 2}},
         {"workItemId": "fof01-b-subscription-nav", "type": "CALCULATION", "title": "确认申购NAV字段", "instruction": "从TA参数资料读取并输入用于确认份额的申购NAV。", "response": {"kind": "NUMBER", "placeholder": "输入申购NAV", "unit": "元/份", "precision": 4}},
         {"workItemId": "fof01-b-confirmed-shares", "type": "CALCULATION", "title": "复算TA确认份额", "instruction": "用TA确认金额540000.00元除以申购NAV1.0800元/份，输入确认份额。", "response": {"kind": "NUMBER", "placeholder": "输入确认份额", "unit": "份", "precision": 2}},
-        {"workItemId": "fof01-b-opening-shares-ledger", "type": "LEDGER_ENTRY", "title": "登记期初份额", "instruction": "从业务台账资料读取并登记本案例期初份额。", "response": {"kind": "NUMBER", "placeholder": "输入期初份额", "unit": "份", "precision": 2}},
+        {"workItemId": "fof01-b-opening-shares-ledger", "type": "LEDGER_ENTRY", "title": "登记期初份额", "instruction": "从业务台账资料读取并登记期初份额。", "response": {"kind": "NUMBER", "placeholder": "输入期初份额", "unit": "份", "precision": 2}},
         {"workItemId": "fof01-b-confirmed-shares-ledger", "type": "LEDGER_ENTRY", "title": "登记承接份额", "instruction": "将TA确认的份额作为单独业务台账单元登记，不与对象键或状态文字合并。", "response": {"kind": "NUMBER", "placeholder": "输入承接份额", "unit": "份", "precision": 2}},
         {"workItemId": "fof01-b-closing-shares", "type": "CALCULATION", "title": "计算期末台账份额", "instruction": "用期初份额130000.00份加承接份额500000.00份，输入期末台账份额。", "response": {"kind": "NUMBER", "placeholder": "输入期末份额", "unit": "份", "precision": 2}},
         {"workItemId": "fof01-b-shares-diff", "type": "RECONCILIATION", "title": "核对份额差额", "instruction": "计算630000.00 - (130000.00 + 500000.00)，输入份额承接差额。", "response": {"kind": "NUMBER", "placeholder": "输入份额差额", "unit": "份", "precision": 2}},
-        {"workItemId": "fof01-b-state-recon", "type": "RECONCILIATION", "title": "确认可承接状态", "instruction": "对象来源已映射、份额差额为0.00时，选择本案例可以承接到的最终状态。", "response": {"kind": "SELECT", "placeholder": "选择最终状态", "options": [{"optionId": "FOF01_B_KEYS_AND_SHARES_READY", "text": "SHARES_POSTED，可交给后续路线"}, {"optionId": "FOF01_B_NOT_READY", "text": "仍不能承接"}]}},
-        {"workItemId": "fof01-b-conclusion", "type": "SHORT_TEXT", "title": "写出唯一可追溯结论", "instruction": "用一句话汇总来源、确认份额、台账结果和SHARES_POSTED边界；不得用长文本补写前面字段。", "response": {"kind": "TEXT", "placeholder": "输入一句结构化结论"}}
+        {"workItemId": "fof01-b-state-recon", "type": "RECONCILIATION", "title": "确认可承接状态", "instruction": "对象来源已映射、份额差额为0.00时，选择可以承接到的最终状态。", "response": {"kind": "SELECT", "placeholder": "选择最终状态", "options": [{"optionId": "FOF01_B_KEYS_AND_SHARES_READY", "text": "SHARES_POSTED，可交给后续路线"}, {"optionId": "FOF01_B_NOT_READY", "text": "仍不能承接"}]}},
+        {"workItemId": "fof01-b-conclusion", "type": "SHORT_TEXT", "title": "写出对象与份额结论", "instruction": "用一句话说明来源、确认份额、台账结果和SHARES_POSTED边界；四项结果均来自前面的结构化字段。", "response": {"kind": "TEXT", "placeholder": "输入一句结构化结论"}}
       ],
-      "submissionNote": "逐项提交母基金键来源、被投基金键来源、指令/确认来源链、确认金额、申购NAV、确认份额、期初/承接/期末台账份额、份额差额、SHARES_POSTED状态和一句结论；本题不要求估值NAV、费用、红利、正式会计科目或封账。"
+      "submissionNote": "逐项提交母基金键来源、被投基金键来源、指令/确认来源链、确认金额、申购NAV、确认份额、期初/承接/期末台账份额、份额差额、SHARES_POSTED状态和一句结论；不要求估值NAV、费用、红利、正式会计科目或封账。"
     }
   },
   "references": [

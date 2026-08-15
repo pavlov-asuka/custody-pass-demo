@@ -214,7 +214,7 @@ async function submitComprehensivePractice(page, answer) {
   await page.getByLabel('计算期末应付余额').fill(String(answer.endingPayable));
   await page.getByLabel('填写借方科目').fill(answer.debitAccount);
   await page.getByLabel('填写贷方科目').fill(answer.creditAccount);
-  await page.getByLabel('完成结果勾稽').selectOption(answer.reconciliation);
+  await page.getByLabel('核对支付与期末余额').selectOption(answer.reconciliation);
   await page.getByLabel('记录核算结论').fill(answer.note);
   await page.waitForTimeout(1100);
   await page.locator('button.button--primary').filter({ hasText: '提交综合实务' }).click();
@@ -315,7 +315,7 @@ async function run() {
   evidence.firstAttemptId = firstAttemptId;
   check('第一次正式作答已生成 attempt', firstAttemptId > 0, `attemptId=${firstAttemptId}`);
   const failTitle = (await page.locator('[data-testid="result-view"] h1').textContent()) || '';
-  check('第一次结果为未掌握/需补强', /补强|还需要|定向补学/.test(failTitle), failTitle);
+  check('第一次结果需要补学', /需要补学|定向补学/.test(failTitle), failTitle);
   const failActions = (await page.locator('.result-actions').innerText()) || '';
   check('第一次结果提供开始定向补学', failActions.includes('开始定向补学'), failActions);
   await shot(page, '08-result-not-mastered');
@@ -333,7 +333,7 @@ async function run() {
   await openRecords(page);
   await page.locator('.record-row__open').first().click();
   await page.waitForSelector('.record-detail-header, [data-testid="result-view"]', { timeout: 15000 });
-  const continueRemediation = page.locator('button.button--primary').filter({ hasText: /继续本次补学|开始定向补学/ });
+  const continueRemediation = page.locator('button.button--primary').filter({ hasText: /继续补学目标|开始定向补学/ });
   await continueRemediation.first().click();
   await page.waitForSelector('.remediation-page', { timeout: 15000 });
   await shot(page, '10-remediation-start');
@@ -383,7 +383,7 @@ async function run() {
   await page.locator('.record-row__open').first().click();
   await page.waitForSelector('.record-detail-header', { timeout: 15000 });
   const detailText = (await page.locator('.record-detail-page').innerText()) || '';
-  check('历史详情保留未掌握结论', detailText.includes('本次未掌握'), detailText.slice(0, 120));
+  check('历史详情保留需补学结论', detailText.includes('历史结论：需补学'), detailText.slice(0, 120));
   check('历史详情同时显示路线当前已通过', detailText.includes('路线当前：已通过') || detailText.includes('已通过'), detailText.slice(0, 160));
   await shot(page, '15-record-detail-not-mastered');
 

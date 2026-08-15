@@ -3,14 +3,14 @@
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
   "title": "日终备付金、证券持仓对账与正常封账",
-  "summary": "承接已完成的券结数据和交收结果，使用日终资金、证券、估值、CA/调度和复核资料完成三方零差异勾稽，在前置状态和复核均确认后记录本案例正常封账。",
+  "summary": "承接券结数据和交收结果，使用日终资金、证券、估值、CA/调度和复核资料逐项核对三方差额；前置状态和复核确认后记录正常封账。",
   "estimatedMinutes": 90,
   "objectives": [
     "从日终券商资金对账单、证券对账单、券结业务角色日终台账、估值结果、CA/调度确认和复核资料定位对应字段",
     "先锁定同一业务日期、市场键、组合键、证券键和券商键，再把外部、内部台账和估值结果作为独立来源比较",
     "计算备付金三方金额差、证券持仓三方数量差、估值数量与市值关系及估值结果金额差，不重算前置交收金额链",
-    "补全日终核对与正常封账证据工作纸，并证明READY、ACCOUNTED、CA、调度和复核条件均已完成",
-    "在全部差异为零且前置条件闭合后记录RECONCILED并形成可追溯的NORMAL_CLOSE结论"
+    "补全日终核对与正常封账工作纸，确认READY、ACCOUNTED、CA、调度和复核条件均已完成",
+    "在全部差异为零且前置条件满足后记录RECONCILED，并写出有来源的NORMAL_CLOSE结论"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -31,19 +31,19 @@
           "cardId": "CBF-R4-KC-02",
           "type": "CATEGORIES",
           "title": "余额、数量和市值分别计算",
-          "conclusion": "备付金差额、持仓数量差额和估值金额差额属于不同验证对象；估值市值必须先由估值数量乘批准估值价复算。",
+          "conclusion": "备付金差额、持仓数量差额和估值金额差额分别核对；估值市值先由估值数量乘批准估值价复算。",
           "items": [
             "外部备付金 − 角色台账备付金 = 0.00",
             "角色台账备付金 − 估值备付金 = 0.00",
             "外部持仓 − 证券台账数量 = 0，证券台账数量 − 估值数量 = 0",
-            "估值市值 = 估值数量 × 本案例批准估值价，估值市值 − 估值结果金额 = 0.00"
+            "估值市值 = 估值数量 × 批准估值价，估值市值 − 估值结果金额 = 0.00"
           ]
         },
         {
           "cardId": "CBF-R4-KC-03",
           "type": "KEY_POINT",
-          "title": "全部条件完成后才能正常封账",
-          "conclusion": "R2的READY和R3的ACCOUNTED只是进入日终收口的前置条件；只有差异全为零、CA与调度完成、复核已确认，才记录RECONCILED和本案例NORMAL_CLOSE。",
+          "title": "差额为零且条件齐全后才能正常封账",
+          "conclusion": "R2的READY和R3的ACCOUNTED只是进入日终核对的前置条件；差异全为零、CA与调度完成且复核已确认后，才记录RECONCILED和NORMAL_CLOSE。",
           "items": [
             "数据状态为READY，交收结果状态为ACCOUNTED",
             "CA完成、日终调度完成、同日资料完整",
@@ -55,14 +55,14 @@
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "本案例券结基金日终核对与封账工作角色",
+        "role": "券结基金日终核对与封账工作角色",
         "product": "券结基金单券商单市场普通证券交易日终收口",
         "date": "2026-08-17",
         "fixture": "CBF-R4-FIXTURE-DEMO-A",
         "facts": [
           "六组资料均标识业务日期2026-08-17、市场键MARKET_CLOSE_A、组合键PORTFOLIO_CLOSE_A、证券键SECURITY_CLOSE_A和券商键BROKER_CASE_01；数据状态READY、核算状态ACCOUNTED。",
           "日终外部备付金、角色台账备付金和估值备付金均为860000.00元；外部持仓、证券台账数量和估值数量均为16000份。",
-          "本案例批准估值价为48.75元/份，估值市值为16000×48.75=780000.00元，估值结果金额同为780000.00元。",
+          "批准估值价为48.75元/份，估值市值为16000×48.75=780000.00元，估值结果金额同为780000.00元。",
           "同日资料完整、CA完成、日终调度完成、复核已确认；所有余额/数量/金额差异均为零。"
         ]
       },
@@ -70,12 +70,12 @@
         {
           "order": 1,
           "action": "核对六组资料的业务日期、市场/组合/证券键和券商键，并确认数据状态READY、核算状态ACCOUNTED",
-          "reason": "不同对象或前置状态的资料不能直接进入同一日终勾稽。"
+          "reason": "不同对象或前置状态的资料不能直接进入同一日终核对。"
         },
         {
           "order": 2,
           "action": "分别计算外部备付金860000.00−角色台账860000.00=0.00、角色台账860000.00−估值备付金860000.00=0.00和外部−估值=0.00",
-          "reason": "资金三方必须逐项闭合，不能用一个净额替代三组来源比较。"
+          "reason": "资金三方必须逐项无差额，不能用一个净额替代三组来源比较。"
         },
         {
           "order": 3,
@@ -100,7 +100,7 @@
         {
           "questionId": "ACC-CBF-CLOSE-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "把Demo A的日终字段映射到外部资金、外部证券、角色台账、估值结果、CA/调度确认和复核确认来源。",
+          "prompt": "把Demo A日终字段映射到外部资金、外部证券、角色台账、估值结果、CA/调度确认和复核确认来源。",
           "fieldMappings": [
             {
               "fieldId": "external-cash-source",
@@ -175,7 +175,7 @@
         {
           "questionId": "ACC-CBF-CLOSE-Q-03",
           "type": "LEDGER_ENTRY",
-          "prompt": "在日终核对/封账证据工作纸中记录Demo A的状态、三方结果、完成确认和正常结论，不填写正式科目或借贷方向。",
+          "prompt": "在日终核对/封账工作纸中记录Demo A的状态、三方结果、完成确认和正常结论，不填写正式科目或借贷方向。",
           "ledgerEntries": [
             {"entryId": "ready-state", "direction": "前置状态", "label": "DATA_STATE", "amount": "READY", "placeholder": "输入状态"},
             {"entryId": "accounted-state", "direction": "前置状态", "label": "ACCOUNTING_STATE", "amount": "ACCOUNTED", "placeholder": "输入状态"},
@@ -194,7 +194,7 @@
         {
           "questionId": "ACC-CBF-CLOSE-Q-04",
           "type": "RECONCILIATION",
-          "prompt": "完成Demo A的备付金三方、持仓三方、估值金额和状态条件验证。",
+          "prompt": "核对Demo A的备付金三方、持仓三方、估值金额和状态条件。",
           "reconciliation": {
             "fields": [
               {"fieldId": "reserve-external-ledger-diff", "label": "外部备付金−角色台账", "kind": "NUMBER", "formula": "860000.00−860000.00", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01},
@@ -208,7 +208,7 @@
             ]
           },
           "answer": ["0.00", "0.00", "0.00", "0", "0", "0", "0.00", "NORMAL_CLOSE_RECONCILED"],
-          "explanation": "资金三方、持仓三方、估值金额和状态条件全部闭合，Demo A可以正常封账。",
+          "explanation": "资金三方、持仓三方、估值金额和状态条件均无差额，Demo A可以正常封账。",
           "hints": ["逐项确认差额为零后，再检查READY、ACCOUNTED、CA、调度和复核条件。"]
         },
         {
@@ -217,24 +217,24 @@
           "prompt": "用一句话写出Demo A的可追溯正常封账结论。",
           "textInput": {"label": "日终封账结论", "placeholder": "写明对象、资金/持仓/估值零差异、READY/ACCOUNTED、CA/调度/复核和RECONCILED/NORMAL_CLOSE"},
           "answer": ["MARKET_CLOSE_A", "PORTFOLIO_CLOSE_A", "SECURITY_CLOSE_A", "资金三方", "持仓三方", "估值市值", "0.00", "READY", "ACCOUNTED", "CA", "调度", "复核", "RECONCILED", "NORMAL_CLOSE"],
-          "explanation": "结论必须同时回指同一对象、三方勾稽、估值计算和前置/完成/复核条件。",
+          "explanation": "结论必须同时指向同一对象、三方核对、估值计算和前置/完成/复核条件。",
           "hints": ["按对象与来源→差额→状态与完成确认→正常结论组织一句话。"]
         }
       ]
     },
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
-        "role": "本案例券结基金日终核对与封账工作角色",
+        "role": "券结基金日终核对与封账工作角色",
         "product": "券结基金单券商单市场普通证券交易日终收口",
         "date": "2026-08-18",
-        "purpose": "承接R2的READY和R3的ACCOUNTED，独立读取综合B日终外部资金、证券、内部角色台账、估值结果、CA/调度和复核资料，完成资金三方、持仓三方、估值市值与状态条件的零差异验证，并记录RECONCILED/NORMAL_CLOSE。"
+        "purpose": "承接R2的READY和R3的ACCOUNTED，读取日终外部资金、证券、内部角色台账、估值结果、CA/调度和复核资料，核对资金三方、持仓三方、估值市值与状态条件的零差异，并记录RECONCILED/NORMAL_CLOSE。"
       },
       "sourceMaterials": [
         {
           "materialId": "CBF-CLOSE-B-CASH",
-          "title": "综合B日终券商资金对账单",
+          "title": "日终券商资金对账单",
           "kind": "STATEMENT",
-          "description": "完整且已确认的日终外部资金资料，提供综合B备付金期末余额和同日资料完整字段。",
+          "description": "完整且已确认的日终外部资金资料，提供备付金期末余额和同日资料完整字段。",
           "fields": [
             {"fieldId": "cash_business_date", "label": "业务日期", "value": "2026-08-18"},
             {"fieldId": "cash_market_key", "label": "市场键", "value": "MARKET_CLOSE_B"},
@@ -247,9 +247,9 @@
         },
         {
           "materialId": "CBF-CLOSE-B-SECURITIES",
-          "title": "综合B日终券商证券对账单",
+          "title": "日终券商证券对账单",
           "kind": "STATEMENT",
-          "description": "完整且已确认的日终外部证券资料，提供综合B证券期末持仓数量和数量单位。",
+          "description": "完整且已确认的日终外部证券资料，提供证券期末持仓数量和数量单位。",
           "fields": [
             {"fieldId": "securities_business_date", "label": "业务日期", "value": "2026-08-18"},
             {"fieldId": "securities_market_key", "label": "市场键", "value": "MARKET_CLOSE_B"},
@@ -261,7 +261,7 @@
         },
         {
           "materialId": "CBF-CLOSE-B-ROLE-LEDGER",
-          "title": "综合B券结业务角色日终台账",
+          "title": "券结业务角色日终台账",
           "kind": "LEDGER",
           "description": "按业务角色记录日终备付金、证券台账数量、ACCOUNTED状态和一次日终核对工作纸，不填写正式科目或借贷方向。",
           "fields": [
@@ -277,9 +277,9 @@
         },
         {
           "materialId": "CBF-CLOSE-B-VALUATION",
-          "title": "综合B估值结果资料",
+          "title": "估值结果资料",
           "kind": "VALUATION",
-          "description": "本案例批准估值价和已确认估值结果，提供估值数量、估值备付金、市值和结果金额。",
+          "description": "批准估值价和已确认估值结果，提供估值数量、估值备付金、市值和结果金额。",
           "fields": [
             {"fieldId": "valuation_business_date", "label": "业务日期", "value": "2026-08-18"},
             {"fieldId": "valuation_market_key", "label": "市场键", "value": "MARKET_CLOSE_B"},
@@ -295,9 +295,9 @@
         },
         {
           "materialId": "CBF-CLOSE-B-CA-SCHEDULE",
-          "title": "综合B CA与日终调度完成确认",
+          "title": "CA与日终调度完成确认",
           "kind": "CONFIRMATION",
-          "description": "本案例同日CA和日终调度均已完成，作为状态条件来源，不扩展公司行为业务。",
+          "description": "同日CA和日终调度均已完成，作为状态条件来源，不扩展公司行为业务。",
           "fields": [
             {"fieldId": "ca_business_date", "label": "业务日期", "value": "2026-08-18"},
             {"fieldId": "ca_market_key", "label": "市场键", "value": "MARKET_CLOSE_B"},
@@ -308,9 +308,9 @@
         },
         {
           "materialId": "CBF-CLOSE-B-REVIEW",
-          "title": "综合B复核确认资料",
+          "title": "复核确认资料",
           "kind": "CONFIRMATION",
-          "description": "复核人员已确认综合B日终资料、差额和状态条件完整，允许记录本案例正常封账结论。",
+          "description": "复核人员已确认日终资料、差额和状态条件完整，可以记录正常封账结论。",
           "fields": [
             {"fieldId": "review_business_date", "label": "业务日期", "value": "2026-08-18"},
             {"fieldId": "review_confirmed", "label": "复核确认", "value": "YES"},
@@ -325,28 +325,28 @@
           "workItemId": "r4-b-cash-source",
           "type": "FIELD_MAP",
           "title": "定位外部资金来源",
-          "instruction": "选择承载综合B外部备付金期末余额和同日资料完整字段的独立来源。",
+          "instruction": "选择承载外部备付金期末余额和同日资料完整字段的独立来源。",
           "response": {"kind": "SELECT", "placeholder": "选择外部资金来源", "options": [{"optionId": "BROKER_CASH_STATEMENT", "text": "CBF-CLOSE-B-CASH：日终券商资金对账单"}, {"optionId": "VALUATION_RESULT", "text": "CBF-CLOSE-B-VALUATION：估值结果资料"}]}
         },
         {
           "workItemId": "r4-b-securities-source",
           "type": "FIELD_MAP",
           "title": "定位外部证券来源",
-          "instruction": "选择承载综合B外部证券期末持仓数量的独立来源。",
+          "instruction": "选择承载外部证券期末持仓数量的独立来源。",
           "response": {"kind": "SELECT", "placeholder": "选择外部证券来源", "options": [{"optionId": "BROKER_SECURITIES_STATEMENT", "text": "CBF-CLOSE-B-SECURITIES：日终券商证券对账单"}, {"optionId": "ROLE_DAY_END_LEDGER", "text": "CBF-CLOSE-B-ROLE-LEDGER：内部角色台账"}]}
         },
         {
           "workItemId": "r4-b-role-ledger-source",
           "type": "FIELD_MAP",
           "title": "定位内部角色台账来源",
-          "instruction": "选择承载综合B角色备付金、证券台账数量、ACCOUNTED状态和日终工作纸次数的来源。",
+          "instruction": "选择承载角色备付金、证券台账数量、ACCOUNTED状态和日终工作纸次数的来源。",
           "response": {"kind": "SELECT", "placeholder": "选择角色台账来源", "options": [{"optionId": "ROLE_DAY_END_LEDGER", "text": "CBF-CLOSE-B-ROLE-LEDGER：券结业务角色日终台账"}, {"optionId": "BROKER_CASH_STATEMENT", "text": "CBF-CLOSE-B-CASH：外部资金对账单"}]}
         },
         {
           "workItemId": "r4-b-valuation-source",
           "type": "FIELD_MAP",
           "title": "定位估值结果来源",
-          "instruction": "选择承载综合B批准估值价、估值数量、估值备付金、市值和估值结果金额的来源。",
+          "instruction": "选择承载批准估值价、估值数量、估值备付金、市值和估值结果金额的来源。",
           "response": {"kind": "SELECT", "placeholder": "选择估值来源", "options": [{"optionId": "VALUATION_RESULT", "text": "CBF-CLOSE-B-VALUATION：估值结果资料"}, {"optionId": "BROKER_SECURITIES_STATEMENT", "text": "CBF-CLOSE-B-SECURITIES：外部证券对账单"}]}
         },
         {
@@ -360,7 +360,7 @@
           "workItemId": "r4-b-valuation-market-value",
           "type": "CALCULATION",
           "title": "复算估值市值",
-          "instruction": "用综合B估值数量23500和本案例批准估值价62.40复算估值市值。",
+          "instruction": "用估值数量23500和批准估值价62.40复算估值市值。",
           "response": {"kind": "NUMBER", "placeholder": "输入估值市值", "unit": "元", "precision": 2}
         },
         {
@@ -394,28 +394,28 @@
         {
           "workItemId": "r4-b-reserve-recon",
           "type": "RECONCILIATION",
-          "title": "完成备付金三方勾稽",
+          "title": "核对备付金三方",
           "instruction": "确认外部、角色台账和估值备付金的三项差额均为0.00。",
           "response": {"kind": "SELECT", "placeholder": "选择资金勾稽结论", "options": [{"optionId": "RESERVE_ALL_ZERO", "text": "备付金三方差额均为0.00"}, {"optionId": "RESERVE_NOT_CLOSED", "text": "备付金三方尚未闭合"}]}
         },
         {
           "workItemId": "r4-b-position-recon",
           "type": "RECONCILIATION",
-          "title": "完成证券持仓三方勾稽",
+          "title": "核对证券持仓三方",
           "instruction": "确认外部证券、证券台账和估值数量的三项差额均为0。",
           "response": {"kind": "SELECT", "placeholder": "选择持仓勾稽结论", "options": [{"optionId": "POSITION_ALL_ZERO", "text": "证券持仓三方差额均为0"}, {"optionId": "POSITION_NOT_CLOSED", "text": "证券持仓三方尚未闭合"}]}
         },
         {
           "workItemId": "r4-b-valuation-recon",
           "type": "RECONCILIATION",
-          "title": "完成估值金额勾稽",
+          "title": "核对估值金额",
           "instruction": "确认估值数量×批准估值价等于估值市值，且估值市值与估值结果金额差为0.00。",
           "response": {"kind": "SELECT", "placeholder": "选择估值勾稽结论", "options": [{"optionId": "VALUATION_ALL_ZERO", "text": "市值公式和估值结果金额差均为0.00"}, {"optionId": "VALUATION_NOT_CLOSED", "text": "估值结果尚未闭合"}]}
         },
         {
           "workItemId": "r4-b-status-recon",
           "type": "RECONCILIATION",
-          "title": "完成状态条件勾稽",
+          "title": "核对状态条件",
           "instruction": "确认READY、ACCOUNTED、同日资料完整、CA完成、调度完成、复核确认和一次工作纸记录均满足后，才记录RECONCILED/NORMAL_CLOSE。",
           "response": {"kind": "SELECT", "placeholder": "选择状态结论", "options": [{"optionId": "RECONCILED_NORMAL_CLOSE", "text": "前置、完成、复核和零差异条件全部闭合，可正常封账"}, {"optionId": "PRECONDITION_NOT_CLOSED", "text": "前置或复核条件尚未闭合"}]}
         },
@@ -423,11 +423,11 @@
           "workItemId": "r4-b-conclusion",
           "type": "SHORT_TEXT",
           "title": "写出可追溯正常封账结论",
-          "instruction": "用一句话回指综合B对象、资金三方、持仓三方、估值市值/金额差、READY/ACCOUNTED、CA/调度/复核和RECONCILED/NORMAL_CLOSE。",
+          "instruction": "用一句话写明对象、资金三方、持仓三方、估值市值/金额差、READY/ACCOUNTED、CA/调度/复核和RECONCILED/NORMAL_CLOSE。",
           "response": {"kind": "TEXT", "placeholder": "输入日终正常封账结论"}
         }
       ],
-      "submissionNote": "提交结构化日终核对工作纸：来源与对象一致性、备付金三方、证券持仓三方、估值市值与金额差、前置状态、CA/调度、复核和正常封账结论。本案例不要求重算前置交收金额链。"
+      "submissionNote": "提交日终核对工作纸：来源与对象一致性、备付金三方、证券持仓三方、估值市值与金额差、前置状态、CA/调度、复核和正常封账结论。不要求重算前置交收金额链。"
     }
   },
   "references": [

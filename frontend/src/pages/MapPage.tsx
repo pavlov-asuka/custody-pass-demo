@@ -49,7 +49,7 @@ export function MapPage() {
       context="核算学习地图"
     >
       <div className="map-page page-enter">
-        {loading && <LoadingState label="正在铺开核算学习地图…" />}
+        {loading && <LoadingState label="正在读取核算路线…" />}
         {error && <ErrorState error={error} onRetry={reload} />}
         {data && (
           <>
@@ -61,7 +61,7 @@ export function MapPage() {
                   已通过 {data.progress.passedRequiredRoutes} / {data.progress.publishedRequiredRoutes} 条必修路线
                 </span>
                 <button type="button" className="map-locator__back" onClick={scrollToRecommended}>
-                  回到当前路线
+                  定位当前路线
                 </button>
               </div>
             </div>
@@ -86,15 +86,15 @@ export function MapPage() {
               ))}
               {!nodes.length && (
                 <div className="state-panel">
-                  <strong>路线正在整理中</strong>
-                  <p>请稍后回到核算学习世界查看。</p>
+                  <strong>暂无可进入的核算路线</strong>
+                  <p>返回核算学习世界，稍后再查看已发布路线。</p>
                 </div>
               )}
               <div className="map-tail">
                 <Wrench size={24} />
                 <div>
-                  <strong>更多核算路线正在建设</strong>
-                  <span>完成已发布路线后，我们会继续向下延伸。</span>
+                  <strong>更多核算路线在建设中</strong>
+                  <span>当前先开放已发布路线；新增路线发布后会显示在这里。</span>
                 </div>
               </div>
             </main>

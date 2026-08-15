@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getTrainingRecord } from '../api/client';
+import { getRoute, getTrainingRecord } from '../api/client';
 import { AppShell } from '../components/AppShell';
 import { ResultView } from '../components/ResultView';
 import { ErrorState, LoadingState } from '../components/States';
@@ -13,6 +13,11 @@ export function RecordDetailPage() {
   const id = Number(attemptId);
   const navigate = useNavigate();
   const { data, error, loading, reload } = useAsync(() => getTrainingRecord(id), [id]);
+  const routeId = data?.routeId ?? '';
+  const { data: route } = useAsync(
+    () => routeId ? getRoute(routeId) : Promise.resolve(null),
+    [routeId],
+  );
 
   useEffect(() => {
     document.title = '训练记录详情 · 托管智训营';
@@ -22,25 +27,25 @@ export function RecordDetailPage() {
     <AppShell
       backLabel="返回训练记录"
       onBack={() => navigate('/records')}
-      context="历史评分快照"
+      context="历史作答记录"
     >
       <div className="record-detail-page page-enter">
-        {loading && <LoadingState label="正在读取历史评分快照…" />}
+        {loading && <LoadingState label="正在读取历史提交…" />}
         {error && <ErrorState error={error} onRetry={reload} />}
         {data?.processingStatus === 'COMPLETED' && (
           <>
             <header className="record-detail-header">
               <div className="record-detail-header__status">
-                <span className="tag">不可修改的历史记录</span>
-                <span className={`tag ${data.result?.conclusion === 'PASSED' ? 'tag--passed' : 'tag--review'}`}>
-                  历史结论：{data.result?.conclusion === 'PASSED' ? '本次已通过' : '本次未掌握'}
+                  <span className="tag">历史记录（不可修改）</span>
+                  <span className={`tag ${data.result?.conclusion === 'PASSED' ? 'tag--passed' : 'tag--review'}`}>
+                  历史结论：{data.result?.conclusion === 'PASSED' ? '本次已通过' : '需补学'}
                 </span>
                 {data.currentRouteState && (
                   <span className="tag tag--current">路线当前：{routeStateLabels[data.currentRouteState]}</span>
                 )}
               </div>
-              <h1>站上核算岗</h1>
-              <p>核算条线 / 核算基础与产品生命周期 / 岗位基础 / 站上核算岗</p>
+              <h1>{route?.title ?? '路线训练记录'}</h1>
+              <p>核算条线 / {route?.title ?? '历史路线'}</p>
               <span>提交时间：{formatDate(data.submittedAt)}</span>
             </header>
             <ResultView
@@ -54,11 +59,11 @@ export function RecordDetailPage() {
                       type="button"
                       onClick={() => navigate(`/attempts/${data.attemptId}/remediation`)}
                     >
-                      继续本次补学 <ArrowRight size={18} />
+                      继续补学目标 <ArrowRight size={18} />
                     </button>
                   )}
                   <button className="button button--secondary" type="button" onClick={() => navigate(`/learn/${data.routeId}`)}>
-                    返回路线复习
+                    返回路线
                   </button>
                 </>
               }
@@ -67,10 +72,10 @@ export function RecordDetailPage() {
         )}
         {data?.processingStatus !== 'COMPLETED' && data && (
           <section className="state-panel">
-            <strong>{data.processingStatus === 'FAILED' ? '本次评分遇到技术问题' : '本次作答仍在评分'}</strong>
-            <p>答案和正式记录都已保存，请前往评分状态页继续处理。</p>
+            <strong>{data.processingStatus === 'FAILED' ? '本次评分遇到技术问题' : '本次作答正在评分'}</strong>
+            <p>作答和记录已保存，请打开评分状态查看结果。</p>
             <button className="button button--primary" type="button" onClick={() => navigate(`/attempts/${data.attemptId}`)}>
-              前往评分状态
+              查看评分状态
             </button>
           </section>
         )}

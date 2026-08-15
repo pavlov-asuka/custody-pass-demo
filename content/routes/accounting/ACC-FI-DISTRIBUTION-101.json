@@ -2,12 +2,12 @@
   "routeId": "ACC-FI-DISTRIBUTION-101",
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
-  "title": "债券分销维护、利息分摊与费用闭环",
-  "summary": "沿一条正常银行间债券分销记录，完成 DVP 识别、利息分摊、成本确认、服务费和手续费返还凭证及金额勾稽。",
+  "title": "债券分销维护、利息分摊与费用核对",
+  "summary": "沿一条正常银行间债券分销记录，识别 DVP 和记录状态，拆分利息与成本，并核对服务费、手续费返还和结算金额。",
   "estimatedMinutes": 45,
   "objectives": [
     "从分销记录和结算资料读取平台、DVP 方式、审核状态、数量和结算金额",
-    "按本案例批准的利息分摊方式计算应计利息与债券投资成本",
+    "按批准的利息分摊方式计算应计利息与债券投资成本",
     "区分结算服务费、应付费用和手续费返还的不同凭证对象",
     "用数量、每张面值、利息、成本、结算金额和费用资料完成交叉勾稽"
   ],
@@ -18,31 +18,31 @@
           "cardId": "FI-DIST-KC-01",
           "type": "FLOW",
           "title": "先读分销记录，再确认能否入账",
-          "conclusion": "正常分销先确认记录来源、DVP 结算方式和有效状态，再按已批准字段完成核算；记录状态不能由学习者自行改写。",
+          "conclusion": "正常分销先确认记录来源、DVP 结算方式和有效状态，再按已批准字段核算；状态字段按分销记录读取，不能自行改写。",
           "items": [
-            "银行间分销在本案采用 DVP，证券交收和资金交收同时完成",
+            "这笔银行间分销采用 DVP，证券交收和资金交收同时完成",
             "分销记录由指令或维护资料提供，业务状态来自记录字段",
             "数量、面值和结算金额必须指向同一证券和同一分销记录",
-            "本路线只训练正常有效记录，不训练废止、启用或删除操作"
+            "这里只处理正常有效记录，不涉及废止、启用或删除操作"
           ]
         },
         {
           "cardId": "FI-DIST-KC-02",
           "type": "CATEGORIES",
           "title": "利息计入收入还是冲减成本",
-          "conclusion": "利息分摊方式决定同一笔结算金额在成本和应计利息之间的拆分；本案只使用题面批准的冲减成本快照。",
+          "conclusion": "利息分摊方式决定同一笔结算金额在成本和应计利息之间的拆分；这笔分销只使用批准的冲减成本快照。",
           "items": [
             "计入利息收入时，维护利息金额为 0",
-            "冲减成本时，利息金额按本案例批准的税后百元含息和数量计算",
+            "冲减成本时，利息金额按批准的税后百元含息和数量计算",
             "结算金额 = 债券投资成本 + 应计利息，不把每百元利息直接当总金额",
-            "本案例参数只适用于本题，不固化永久税率或系统默认值"
+            "批准参数只用于这笔分销，不把税率或系统默认值带入其他业务"
           ]
         },
         {
           "cardId": "FI-DIST-KC-03",
           "type": "KEY_POINT",
           "title": "费用和返还各有对象",
-          "conclusion": "结算服务费形成费用与应付费用；手续费返还按本案例批准方式计入当期损益，不直接冲减债券成本。",
+          "conclusion": "结算服务费计入费用并形成应付费用；手续费返还按批准方式计入当期损益，不直接冲减债券成本。",
           "items": [
             "结算服务费借记交易费用、贷记对应应付费用",
             "手续费返还先形成其他应收款",
@@ -54,24 +54,24 @@
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "案例产品甲的组合核算人员",
-        "product": "案例产品甲 / 案例债券甲",
+        "role": "产品甲的组合核算人员",
+        "product": "产品甲 / 债券甲",
         "date": "2026-08-22",
         "facts": [
           "银行间债券分销记录由正常指令推送，结算方式为 DVP，记录状态为有效待审核。",
           "分销数量 5,000 张，每张面值 100 元，结算金额 500,000 元。",
-          "本案例批准利息分摊方式为冲减成本，税后百元含息为 0.80 元。",
+          "批准资料规定利息分摊方式为冲减成本，税后百元含息为 0.80 元。",
           "结算服务费 50 元；手续费返还 300 元，返还方式为计入当期损益。"
         ]
       },
       "steps": [
-        {"order": 1, "action": "读取分销记录的平台、DVP 方式、状态、数量和结算金额，确认本案是正常银行间债券分销", "reason": "分销记录字段决定资料是否属于本次正常业务，不能用页面操作替代字段判断。"},
-        {"order": 2, "action": "先算票面总额 = 5,000 张 × 100 元/张 = 500,000 元；再算应计利息 = 0.80 元/每百元票面 × 500,000 元 ÷ 100 = 4,000 元，最后以 500,000 - 4,000 计算债券投资成本 496,000 元", "reason": "本案例批准的冲减成本方式把结算金额拆成成本和应计利息两部分，百元价格必须先换算为票面总额。"},
+        {"order": 1, "action": "读取分销记录的平台、DVP 方式、状态、数量和结算金额，确认这条记录是正常银行间债券分销", "reason": "平台、结算方式和状态字段共同决定处理边界，页面操作不能替代记录字段。"},
+        {"order": 2, "action": "先算票面总额 = 5,000 张 × 100 元/张 = 500,000 元；再算应计利息 = 0.80 元/每百元票面 × 500,000 元 ÷ 100 = 4,000 元，最后以 500,000 - 4,000 计算债券投资成本 496,000 元", "reason": "冲减成本的批准处理把结算金额拆成成本和应计利息两部分，百元金额必须先换算为票面总额。"},
         {"order": 3, "action": "补全确认成本、应计利息和结算款凭证，并核对 496,000 + 4,000 = 500,000", "reason": "成本、利息和结算金额必须使用同一数量和单位关系。"},
         {"order": 4, "action": "补全 50 元结算服务费凭证，借记交易费用、贷记应付交易费用；再按计入当期损益方式处理 300 元手续费返还", "reason": "服务费和返还不是债券成本或应计利息，必须按其资料对象分别入账。"},
-        {"order": 5, "action": "用数量、票面总额、成本、应计利息、服务费和返还资料复核分销结果，并形成可追溯结论", "reason": "业务结果要同时解释分销证券、结算金额和费用链。"}
+        {"order": 5, "action": "用数量、票面总额、成本、应计利息、服务费和返还资料复核分销记录，并写明结算金额与费用处理结果", "reason": "同一组资料要同时解释分销证券、结算金额、服务费和手续费返还。"}
       ],
-      "summary": "确认 DVP 与记录状态 → 计算利息和成本 → 补全结算凭证 → 处理费用与返还 → 完成分销勾稽"
+      "summary": "确认 DVP 与记录状态 → 计算利息和成本 → 补全结算凭证 → 分别登记费用与返还 → 核对分销金额"
     },
     "BASIC_PRACTICE": {
       "questions": [
@@ -85,13 +85,13 @@
             {"fieldId": "status", "label": "有效待审核", "source": "分销记录", "options": [{"optionId": "VALID_NORMAL", "text": "本案正常有效记录"}, {"optionId": "INVALID", "text": "已经失效的记录"}]}
           ],
           "answer": ["INTERBANK", "DVP", "VALID_NORMAL"],
-          "explanation": "平台、DVP 和状态分别来自分销记录，三者共同确定本案处理边界。",
+          "explanation": "平台、DVP 和状态分别来自分销记录，三者共同确定这笔分销的处理边界。",
           "hints": ["先读取资料字段，再判断业务对象，不要从菜单名称猜测。"]
         },
         {
           "questionId": "ACC-FI-DISTRIBUTION-Q-02",
           "type": "CALCULATION",
-          "prompt": "按本案例批准的冲减成本方式，计算分销利息和债券投资成本。",
+          "prompt": "按批准的冲减成本方式，计算分销利息和债券投资成本。",
           "calculation": {"fields": [
             {"fieldId": "face-total", "label": "票面总额", "formula": "5,000 张 × 100 元/张", "placeholder": "输入票面总额", "unit": "元", "precision": 0, "tolerance": 0},
             {"fieldId": "interest", "label": "应计利息", "formula": "0.80 元/每百元票面 × 500,000 元 ÷ 100", "placeholder": "输入应计利息", "unit": "元", "precision": 2, "tolerance": 0.01},
@@ -111,40 +111,40 @@
             {"entryId": "settlement", "direction": "贷", "label": "分销结算金额 500,000 元", "amount": "500,000.00 元", "placeholder": "输入贷方科目"}
           ],
           "answer": ["债券投资-成本", "应计利息", "银行存款/备付金"],
-          "explanation": "成本和应计利息合计等于结算金额，贷方使用本案结算资料对应的资金科目。",
+          "explanation": "成本和应计利息合计等于结算金额，贷方使用结算资料对应的资金科目。",
           "hints": ["不要把应计利息并入成本，也不要把结算金额拆成两个贷方。"]
         },
         {
           "questionId": "ACC-FI-DISTRIBUTION-Q-04",
           "type": "FIELD_MAP",
-          "prompt": "把手续费返还资料对应到本案例批准的会计处理。",
+          "prompt": "把手续费返还资料对应到批准的会计处理。",
           "fieldMappings": [
             {"fieldId": "return-method", "label": "返还方式：计入当期损益", "source": "手续费返还确认", "options": [{"optionId": "INCOME", "text": "贷记其他收入，不冲减债券成本"}, {"optionId": "COST_REDUCTION", "text": "贷记债券投资-成本"}]},
             {"fieldId": "return-amount", "label": "返还金额 300 元", "source": "手续费返还确认", "options": [{"optionId": "RECEIVABLE", "text": "先借记其他应收款-手续费返还"}, {"optionId": "CASH_RECEIPT", "text": "直接增加债券持仓数量"}]}
           ],
           "answer": ["INCOME", "RECEIVABLE"],
-          "explanation": "本案返还方式为计入当期损益，先确认其他应收款，再确认其他收入。",
+          "explanation": "返还方式为计入当期损益，先确认其他应收款，再确认其他收入。",
           "hints": ["先看返还方式字段，再看返还金额对应的应收对象。"]
         },
         {
           "questionId": "ACC-FI-DISTRIBUTION-Q-05",
           "type": "RECONCILIATION",
-          "prompt": "完成分销金额与费用资料的勾稽。",
+          "prompt": "把分销金额、服务费和手续费返还分别对上。",
           "reconciliation": {"fields": [
             {"fieldId": "settlement-check", "label": "成本加利息", "kind": "NUMBER", "formula": "496,000 + 4,000", "placeholder": "输入金额", "precision": 2, "tolerance": 0.01},
             {"fieldId": "fee-total", "label": "服务费与返还分别记录", "kind": "SELECT", "formula": "50 元服务费、300 元返还不得并入债券成本", "placeholder": "选择结论", "options": [{"optionId": "SEPARATE", "text": "费用和返还分别勾稽"}, {"optionId": "MIXED", "text": "费用并入债券成本"}]},
-            {"fieldId": "result", "label": "分销闭环", "kind": "SELECT", "formula": "证券、结算和费用资料是否一致", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "分销结果勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}
+            {"fieldId": "result", "label": "分销结果核对", "kind": "SELECT", "formula": "证券、结算和费用资料是否一致", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "分销结果勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}
           ]},
           "answer": ["500000", "SEPARATE", "BALANCED"],
-          "explanation": "成本和利息闭合为结算金额，服务费与返还各按对象单独记录。",
+          "explanation": "成本和利息合计等于结算金额，服务费与返还各按对象单独记录。",
           "hints": ["最后检查金额相等和对象分离两个层次。"]
         }
       ]
     },
     "COMPREHENSIVE_PRACTICE": {
-      "scenario": {"role": "案例产品乙的组合核算人员", "product": "案例产品乙 / 案例债券乙", "date": "2026-08-22", "purpose": "根据正常银行间债券分销资料，完成记录识别、利息与成本拆分、凭证补全、费用返还处理和结果勾稽。"},
+      "scenario": {"role": "产品乙的组合核算人员", "product": "产品乙 / 债券乙", "date": "2026-08-22", "purpose": "根据正常银行间债券分销资料，识别记录，拆分利息与成本，补全凭证，并核对费用返还结果。"},
       "sourceMaterials": [
-        {"materialId": "FI-D-PARAM", "title": "本案例批准分销参数", "kind": "PARAMETER", "description": "只适用于本案例，不构成永久平台、费率、税率或系统规则。", "fields": [
+        {"materialId": "FI-D-PARAM", "title": "批准分销参数", "kind": "PARAMETER", "description": "这笔分销按资料给出的单位、利息分摊、费用和精度计算；不把快照外推为平台或费率规则。", "fields": [
           {"fieldId": "face-per-bond", "label": "每张面值", "value": "100", "unit": "元/张"},
           {"fieldId": "amount-formula", "label": "百元金额公式", "value": "每百元金额 × 票面总额 ÷ 100"},
           {"fieldId": "interest-method", "label": "利息分摊方式", "value": "冲减成本"},
@@ -159,12 +159,12 @@
           {"fieldId": "quantity", "label": "分销数量", "value": "5,000", "unit": "张"},
           {"fieldId": "settlement-amount", "label": "结算金额", "value": "500,000.00", "unit": "元"}
         ]},
-        {"materialId": "FI-D-INTEREST", "title": "分销利息确认资料", "kind": "STATEMENT", "description": "与分销记录同证券、同日期匹配的本案利息字段。", "fields": [
+        {"materialId": "FI-D-INTEREST", "title": "分销利息确认资料", "kind": "STATEMENT", "description": "与分销记录同证券、同日期匹配的利息字段。", "fields": [
           {"fieldId": "interest-date", "label": "利息基准日", "value": "2026-08-21"},
           {"fieldId": "interest-per100", "label": "税后百元含息", "value": "0.80", "unit": "元/每百元票面"},
           {"fieldId": "interest-allocation", "label": "利息分摊方式", "value": "冲减成本"}
         ]},
-        {"materialId": "FI-D-FEE", "title": "分销费用与手续费返还确认", "kind": "CONFIRMATION", "description": "费用和返还均为本案正常已确认金额，返还方式由资料直接给出。", "fields": [
+        {"materialId": "FI-D-FEE", "title": "分销费用与手续费返还确认", "kind": "CONFIRMATION", "description": "费用和返还均为正常已确认金额，返还方式由资料直接给出。", "fields": [
           {"fieldId": "service-fee", "label": "结算服务费", "value": "50.00", "unit": "元"},
           {"fieldId": "fee-return", "label": "手续费返还", "value": "300.00", "unit": "元"},
           {"fieldId": "fee-return-method", "label": "手续费返还方式", "value": "计入当期损益"}
@@ -178,9 +178,9 @@
         ]}
       ],
       "workItems": [
-        {"workItemId": "platform-state", "type": "FIELD_MAP", "title": "确认分销平台和状态", "instruction": "从分销记录选择本案平台、结算方式和正常状态。", "response": {"kind": "SELECT", "placeholder": "选择记录属性", "options": [{"optionId": "INTERBANK_DVP_VALID", "text": "银行间、DVP、已推送待审核有效"}, {"optionId": "EXCHANGE_NET_INVALID", "text": "交易所、净额、失效"}]}},
+        {"workItemId": "platform-state", "type": "FIELD_MAP", "title": "确认分销平台和状态", "instruction": "从分销记录选择平台、结算方式和正常状态。", "response": {"kind": "SELECT", "placeholder": "选择记录属性", "options": [{"optionId": "INTERBANK_DVP_VALID", "text": "银行间、DVP、已推送待审核有效"}, {"optionId": "EXCHANGE_NET_INVALID", "text": "交易所、净额、失效"}]}},
         {"workItemId": "face-total", "type": "CALCULATION", "title": "分销票面总额", "instruction": "用 5,000 张和每张面值 100 元计算票面总额。", "response": {"kind": "NUMBER", "placeholder": "输入票面总额", "unit": "元", "precision": 0}},
-        {"workItemId": "interest-method", "type": "FIELD_MAP", "title": "定位利息分摊方式", "instruction": "从批准参数和利息资料选择本案处理方式。", "response": {"kind": "SELECT", "placeholder": "选择分摊方式", "options": [{"optionId": "COST_REDUCTION", "text": "冲减成本"}, {"optionId": "INCOME", "text": "计入利息收入"}]}},
+        {"workItemId": "interest-method", "type": "FIELD_MAP", "title": "定位利息分摊方式", "instruction": "从批准参数和利息资料选择这笔分销的处理方式。", "response": {"kind": "SELECT", "placeholder": "选择分摊方式", "options": [{"optionId": "COST_REDUCTION", "text": "冲减成本"}, {"optionId": "INCOME", "text": "计入利息收入"}]}},
         {"workItemId": "interest-amount", "type": "CALCULATION", "title": "分销应计利息", "instruction": "按税后百元含息 × 票面总额 ÷ 100 计算。", "response": {"kind": "NUMBER", "placeholder": "输入应计利息", "unit": "元", "precision": 2}},
         {"workItemId": "cost-amount", "type": "CALCULATION", "title": "分销债券成本", "instruction": "用结算金额减应计利息计算成本。", "response": {"kind": "NUMBER", "placeholder": "输入债券成本", "unit": "元", "precision": 2}},
         {"workItemId": "settlement-check", "type": "RECONCILIATION", "title": "成本利息结算勾稽", "instruction": "核对成本加应计利息是否等于结算金额。", "response": {"kind": "NUMBER", "placeholder": "输入勾稽金额", "unit": "元", "precision": 2}},
@@ -189,12 +189,12 @@
         {"workItemId": "settlement-account", "type": "LEDGER_ENTRY", "title": "确认结算科目", "instruction": "填写成本凭证对应的贷方结算科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "service-fee-amount", "type": "CALCULATION", "title": "结算服务费", "instruction": "从费用确认资料读取服务费金额。", "response": {"kind": "NUMBER", "placeholder": "输入服务费", "unit": "元", "precision": 2}},
         {"workItemId": "service-fee-account", "type": "LEDGER_ENTRY", "title": "结算服务费科目", "instruction": "填写服务费凭证借方和贷方对象。", "response": {"kind": "TEXT", "placeholder": "输入两个科目"}},
-        {"workItemId": "fee-return-method", "type": "FIELD_MAP", "title": "确认手续费返还处理", "instruction": "读取手续费返还方式并选择本案处理。", "response": {"kind": "SELECT", "placeholder": "选择返还方式", "options": [{"optionId": "INCOME", "text": "计入当期损益"}, {"optionId": "COST_REDUCTION", "text": "冲减债券成本"}]}},
+        {"workItemId": "fee-return-method", "type": "FIELD_MAP", "title": "确认手续费返还处理", "instruction": "读取手续费返还方式并选择批准处理。", "response": {"kind": "SELECT", "placeholder": "选择返还方式", "options": [{"optionId": "INCOME", "text": "计入当期损益"}, {"optionId": "COST_REDUCTION", "text": "冲减债券成本"}]}},
         {"workItemId": "fee-return-accounts", "type": "LEDGER_ENTRY", "title": "手续费返还科目", "instruction": "填写计入当期损益方式下的借方和贷方对象。", "response": {"kind": "TEXT", "placeholder": "输入两个科目"}},
-        {"workItemId": "result", "type": "RECONCILIATION", "title": "分销结果结论", "instruction": "核对记录状态、数量、金额、费用和返还是否闭合。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "分销、成本、费用和返还勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
+        {"workItemId": "result", "type": "RECONCILIATION", "title": "分销结果核对", "instruction": "逐项核对记录状态、数量、结算金额、服务费和手续费返还。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "分销、成本、费用和返还勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
         {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "分销结论", "instruction": "写明 DVP、利息分摊、成本、结算和手续费返还结果。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
       ],
-      "submissionNote": "提交前请依次核对分销记录、百元单位、利息分摊、成本与结算、服务费和手续费返还。所有参数只适用于本案例。"
+      "submissionNote": "提交前依次核对分销记录、百元单位、利息分摊、成本与结算、服务费和手续费返还；参数只按资料给出的这笔业务使用。"
     }
   },
   "references": [

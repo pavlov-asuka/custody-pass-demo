@@ -17,7 +17,7 @@ function ProtectedLayout() {
   if (restoring) {
     return (
       <div className="app-restoring">
-        <LoadingState label="正在恢复学习会话…" />
+        <LoadingState label="正在恢复登录状态…" />
       </div>
     );
   }

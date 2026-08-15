@@ -2,13 +2,13 @@
   "routeId": "ACC-FI-TRADE-001",
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
-  "title": "债券买卖、净价全价与成本闭环",
-  "summary": "沿同一只债券的正常买入和卖出，完成净价、应计利息、全价结算、账簿余额结转及资金持仓勾稽。",
+  "title": "债券买卖、净价全价与余额核对",
+  "summary": "沿同一只债券的正常买入和卖出，复算净价、应计利息和全价结算，并把成本、估值增值、账簿应计利息、持仓和资金逐项对上。",
   "estimatedMinutes": 50,
   "objectives": [
     "从证券基础信息、成交单和结算资料读取价格单位、票面总额、应计利息和结算状态",
     "按每百元价格乘票面总额除以一百的单位关系复算净价金额、应计利息和全价结算金额",
-    "补全买入凭证，并按题面批准比例结转卖出部分的成本、估值增值和账簿应计利息",
+    "补全买入凭证，并按批准比例结转卖出部分的成本、估值增值和账簿应计利息",
     "用成交资料、证券台账、账簿余额和资金台账验证剩余持仓与资金结果"
   ],
   "steps": {
@@ -35,18 +35,18 @@
             "成交单：方向、张数、净价、每百元应计利息和全价",
             "结算资料：结算日、结算金额和正常完成状态",
             "证券台账：卖出前数量与卖出后剩余数量",
-            "科目余额：成本、估值增值和应计利息按题面批准比例结转"
+            "科目余额：成本、估值增值和应计利息按批准比例结转"
           ]
         },
         {
           "cardId": "FI-TRADE-KC-03",
           "type": "KEY_POINT",
-          "title": "余额结转不等于重新学习估值方法",
-          "conclusion": "本路线只处理题面已经给出的估值增值账簿余额及其比例结转；价格来源与估值方法留到固定收益基础估值路线。",
+          "title": "余额结转要接上卖出数量",
+          "conclusion": "卖出比例只用于结转资料已给的成本、估值增值和账簿应计利息；价格来源与估值方法在固定收益基础估值资料中另行核对。",
           "items": [
             "卖出比例 = 卖出张数 ÷ 卖出前张数",
             "结转成本 = 卖出前成本余额 × 卖出比例",
-            "结转估值增值和账簿应计利息使用同一题面批准比例",
+            "结转估值增值和账簿应计利息使用同一批准比例",
             "剩余余额 = 卖出前余额 - 本次结转余额"
           ]
         }
@@ -54,11 +54,11 @@
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "案例产品甲的组合核算人员",
-        "product": "案例产品甲 / 案例债券甲",
+        "role": "产品甲的组合核算人员",
+        "product": "产品甲 / 债券甲",
         "date": "2026-08-03 至 2026-08-04",
         "facts": [
-          "案例债券甲每张面值 100 元，期初持有 8,000 张，票面总额 800,000 元。",
+          "债券甲每张面值 100 元，期初持有 8,000 张，票面总额 800,000 元。",
           "8 月 3 日正常买入 4,000 张，每百元净价 98.20，每百元应计利息 1.10。",
           "买入前成本余额 776,000 元、估值增值余额 8,000 元、账簿应计利息余额 7,200 元、资金余额 1,500,000 元。",
           "买入后成本余额 1,168,800 元、估值增值余额 18,000 元、账簿应计利息余额 11,600 元。",
@@ -84,22 +84,22 @@
         {
           "order": 4,
           "action": "计算卖出比例 3,000 ÷ 12,000 = 25%，结转成本 292,200 元、估值增值 4,500 元、账簿应计利息 2,900 元，剩余 9,000 张、成本 876,600 元",
-          "reason": "本路线使用题面已给账簿余额按批准比例结转，不在此推导估值增值的价格来源。"
+          "reason": "卖出比例只作用于资料已给的账簿余额；估值增值的价格来源不在这组成交资料中。"
         },
         {
           "order": 5,
           "action": "复算卖出全价结算 300,600 元，期末资金 1,403,400 元，并核对剩余估值增值 13,500 元和账簿应计利息 8,700 元",
-          "reason": "成交单、清算金额、证券数量和三项账簿余额全部连续，才能确认正常交易闭环。"
+          "reason": "成交单的全价和清算金额、证券数量，以及成本、估值增值、应计利息的剩余余额分别相等，才能放行正常交易。"
         }
       ],
-      "summary": "确认单位与票面总额 → 复算净价和利息 → 补全买入凭证 → 按批准比例结转 → 核对资金与剩余账簿"
+      "summary": "确认单位与票面总额 → 复算净价和利息 → 补全买入凭证 → 按比例结转 → 核对资金、持仓与剩余账簿"
     },
     "BASIC_PRACTICE": {
       "questions": [
         {
           "questionId": "ACC-FI-TRADE-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "把案例债券甲买入资料中的字段对应到它所证明的业务含义。",
+          "prompt": "把债券甲买入资料中的字段对应到它所证明的业务含义。",
           "fieldMappings": [
             {"fieldId": "price-unit", "label": "净价 98.20", "source": "成交单", "options": [{"optionId": "PER_100_CLEAN", "text": "每百元票面不含息价格"}, {"optionId": "TOTAL_CASH", "text": "本笔总资金金额"}]},
             {"fieldId": "face-total", "label": "4,000 张，每张面值 100 元", "source": "基础信息与成交单", "options": [{"optionId": "FACE_400000", "text": "票面总额 400,000 元"}, {"optionId": "FACE_4000", "text": "票面总额 4,000 元"}]},
@@ -112,7 +112,7 @@
         {
           "questionId": "ACC-FI-TRADE-Q-02",
           "type": "CALCULATION",
-          "prompt": "按每百元价格乘票面总额除以一百，复算案例债券甲的买入金额链。",
+          "prompt": "按每百元价格乘票面总额除以一百，复算债券甲的买入金额链。",
           "calculation": {"fields": [
             {"fieldId": "buy-face-total", "label": "买入票面总额", "formula": "4,000 张 × 100 元/张", "placeholder": "输入票面总额", "unit": "元", "precision": 0, "tolerance": 0},
             {"fieldId": "buy-clean-amount", "label": "买入净价金额", "formula": "98.20 × 400,000 ÷ 100", "placeholder": "输入净价金额", "unit": "元", "precision": 2, "tolerance": 0.01},
@@ -133,7 +133,7 @@
             {"entryId": "credit-clearing", "direction": "贷", "label": "全价结算金额", "amount": "397,200.00 元", "placeholder": "输入贷方科目"}
           ],
           "answer": ["债券投资-成本", "应计利息", "证券清算款"],
-          "explanation": "买入净价金额形成债券成本，成交包含的利息单列为应计利息，二者通过证券清算款按全价结算。",
+          "explanation": "买入净价金额计入债券成本，成交包含的利息单列为应计利息，二者通过证券清算款按全价结算。",
           "hints": ["先核对借方两项之和是否等于贷方结算金额。"]
         },
         {
@@ -149,29 +149,29 @@
           ]},
           "answer": ["0.25", "292200", "9000", "876600", "BALANCED"],
           "explanation": "卖出比例 25%，结转成本 292,200 元；剩余 9,000 张和成本 876,600 元，与同一比例下的其他余额连续。",
-          "hints": ["本题只结转题面已给余额，不需要推导估值方法。"]
+          "hints": ["这里只结转资料已给余额，不需要推导估值方法。"]
         },
         {
           "questionId": "ACC-FI-TRADE-Q-05",
           "type": "SHORT_TEXT",
-          "prompt": "用一句话说明净价、应计利息、全价结算和剩余账簿是否闭合。",
+          "prompt": "用一句话说明买入金额链和卖出后账簿结果。",
           "textInput": {"label": "正常交易结论", "placeholder": "写明买入结算金额、卖出后剩余张数与成本，并给出勾稽结论。"},
           "answer": ["397,200", "9,000", "876,600", "勾稽一致"],
-          "explanation": "结论应能追溯到买入全价结算和卖出后剩余数量、成本，而不是只写‘正确’。",
+          "explanation": "结论要写出买入全价结算、卖出后剩余数量和成本，并说明这些数字是否对得上。",
           "hints": ["至少覆盖一个结算结果、两个剩余账簿结果和勾稽判断。"]
         }
       ]
     },
     "COMPREHENSIVE_PRACTICE": {
-      "scenario": {"role": "案例产品乙的组合核算人员", "product": "案例产品乙 / 案例债券乙", "date": "2026-08-10 至 2026-08-11", "purpose": "独立完成一只正常债券的买入全价结算、凭证、次日部分卖出及剩余账簿和资金勾稽。"},
+      "scenario": {"role": "产品乙的组合核算人员", "product": "产品乙 / 债券乙", "date": "2026-08-10 至 2026-08-11", "purpose": "完成一只正常债券的买入全价结算、凭证、次日部分卖出，并核对剩余账簿和资金。"},
       "sourceMaterials": [
-        {"materialId": "FI-T-PARAM", "title": "本案例批准参数", "kind": "PARAMETER", "description": "只约束本案例，不构成永久市场、费率、税率、精度或结算规则。", "fields": [
+        {"materialId": "FI-T-PARAM", "title": "批准参数", "kind": "PARAMETER", "description": "这组债券只按资料给出的单位、价格、余额结转和精度计算；不把快照外推为市场或结算规则。", "fields": [
           {"fieldId": "price-unit", "label": "价格单位", "value": "净价、全价和应计利息均为每百元票面报价"},
           {"fieldId": "amount-formula", "label": "金额换算", "value": "每百元价格 × 票面总额 ÷ 100"},
           {"fieldId": "sale-rule", "label": "卖出余额结转", "value": "成本、估值增值和账簿应计利息按卖出张数÷卖出前张数的比例结转"},
           {"fieldId": "precision", "label": "金额精度与容差", "value": "金额保留 2 位小数；判定绝对误差 0.01 元"}
         ]},
-        {"materialId": "FI-T-SEC", "title": "证券基础信息", "kind": "CONFIRMATION", "description": "案例债券乙的脱敏基础信息。", "fields": [
+        {"materialId": "FI-T-SEC", "title": "证券基础信息", "kind": "CONFIRMATION", "description": "债券乙的脱敏基础信息。", "fields": [
           {"fieldId": "security", "label": "证券", "value": "案例债券乙"},
           {"fieldId": "face-per-bond", "label": "每张面值", "value": "100", "unit": "元/张"},
           {"fieldId": "market", "label": "市场", "value": "案例银行间市场"}
@@ -209,26 +209,26 @@
       ],
       "workItems": [
         {"workItemId": "buy-price-unit", "type": "FIELD_MAP", "title": "确认买入报价单位", "instruction": "根据参数卡和成交确认，选择买入净价的含义。", "response": {"kind": "SELECT", "placeholder": "选择价格单位", "options": [{"optionId": "PER_100_CLEAN", "text": "每百元票面不含息价格"}, {"optionId": "TOTAL_AMOUNT", "text": "本笔交易总金额"}]}},
-        {"workItemId": "buy-face-total", "type": "CALCULATION", "title": "买入票面总额", "instruction": "用张数和每张面值计算。", "response": {"kind": "NUMBER", "placeholder": "输入票面总额", "unit": "元", "precision": 0}},
-        {"workItemId": "buy-clean-amount", "type": "CALCULATION", "title": "买入净价金额", "instruction": "按每百元净价 × 票面总额 ÷ 100 计算。", "response": {"kind": "NUMBER", "placeholder": "输入净价金额", "unit": "元", "precision": 2}},
-        {"workItemId": "buy-accrued-amount", "type": "CALCULATION", "title": "买入应计利息", "instruction": "按每百元应计利息 × 票面总额 ÷ 100 计算。", "response": {"kind": "NUMBER", "placeholder": "输入应计利息", "unit": "元", "precision": 2}},
+        {"workItemId": "buy-face-total", "type": "CALCULATION", "title": "买入票面总额", "instruction": "从买入数量和证券基础信息的每张面值计算票面总额。", "response": {"kind": "NUMBER", "placeholder": "输入票面总额", "unit": "元", "precision": 0}},
+        {"workItemId": "buy-clean-amount", "type": "CALCULATION", "title": "买入净价金额", "instruction": "用成交确认的每百元净价和刚算出的票面总额换算净价金额。", "response": {"kind": "NUMBER", "placeholder": "输入净价金额", "unit": "元", "precision": 2}},
+        {"workItemId": "buy-accrued-amount", "type": "CALCULATION", "title": "买入应计利息", "instruction": "用成交确认的每百元应计利息和票面总额换算成交包含的利息。", "response": {"kind": "NUMBER", "placeholder": "输入应计利息", "unit": "元", "precision": 2}},
         {"workItemId": "buy-full-settlement", "type": "RECONCILIATION", "title": "买入全价结算", "instruction": "用净价金额和应计利息复算结算金额。", "response": {"kind": "NUMBER", "placeholder": "输入结算金额", "unit": "元", "precision": 2}},
         {"workItemId": "buy-cost-account", "type": "LEDGER_ENTRY", "title": "买入成本科目", "instruction": "填写净价金额对应的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "buy-interest-account", "type": "LEDGER_ENTRY", "title": "买入利息科目", "instruction": "填写成交包含利息对应的借方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "buy-clearing-account", "type": "LEDGER_ENTRY", "title": "买入清算科目", "instruction": "填写全价结算对应的贷方科目。", "response": {"kind": "TEXT", "placeholder": "输入科目"}},
         {"workItemId": "sale-ratio", "type": "CALCULATION", "title": "卖出比例", "instruction": "卖出张数除以卖出前张数。", "response": {"kind": "NUMBER", "placeholder": "输入小数", "precision": 4}},
-        {"workItemId": "sell-cost-transfer", "type": "CALCULATION", "title": "卖出结转成本", "instruction": "按题面批准比例结转卖出前成本余额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
-        {"workItemId": "sell-valuation-transfer", "type": "CALCULATION", "title": "卖出结转估值增值", "instruction": "按同一比例结转已给估值增值余额；无需推导估值方法。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "sell-cost-transfer", "type": "CALCULATION", "title": "卖出结转成本", "instruction": "用卖出张数÷卖出前张数得到比例，再乘卖出前成本余额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
+        {"workItemId": "sell-valuation-transfer", "type": "CALCULATION", "title": "卖出结转估值增值", "instruction": "用同一卖出比例乘卖出前已给的估值增值余额；价格来源不在此处推导。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
         {"workItemId": "sell-interest-transfer", "type": "CALCULATION", "title": "卖出结转账簿应计利息", "instruction": "按同一比例结转卖出前账簿应计利息。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
         {"workItemId": "remaining-quantity", "type": "RECONCILIATION", "title": "剩余张数", "instruction": "复算卖出后证券数量。", "response": {"kind": "NUMBER", "placeholder": "输入张数", "unit": "张", "precision": 0}},
         {"workItemId": "remaining-cost", "type": "RECONCILIATION", "title": "剩余成本", "instruction": "用卖出前成本减结转成本。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
         {"workItemId": "remaining-valuation", "type": "RECONCILIATION", "title": "剩余估值增值", "instruction": "用卖出前余额减结转余额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
         {"workItemId": "remaining-interest", "type": "RECONCILIATION", "title": "剩余账簿应计利息", "instruction": "用卖出前余额减结转余额。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
         {"workItemId": "ending-cash", "type": "RECONCILIATION", "title": "期末资金", "instruction": "期初资金减买入结算、加卖出结算。", "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}},
-        {"workItemId": "reconciliation-result", "type": "RECONCILIATION", "title": "连续性结论", "instruction": "核对价格单位、结算金额、证券数量和三项账簿余额。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "全部连续且勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
+        {"workItemId": "reconciliation-result", "type": "RECONCILIATION", "title": "交易结果核对", "instruction": "逐项核对价格单位、买卖结算金额、证券数量和成本/估值增值/应计利息余额。", "response": {"kind": "SELECT", "placeholder": "选择结论", "options": [{"optionId": "BALANCED", "text": "全部连续且勾稽一致"}, {"optionId": "BROKEN", "text": "存在无法解释差异"}]}},
         {"workItemId": "result-note", "type": "SHORT_TEXT", "title": "正常交易结论", "instruction": "简述买入全价结算、卖出后剩余张数、成本、资金和勾稽结果。", "response": {"kind": "TEXT", "placeholder": "输入简短结论"}}
       ],
-      "submissionNote": "本案例资料均为正常、充分且已批准的脱敏合成快照。正式提交会形成不可变训练记录；请先检查单位、金额、凭证和勾稽结果。"
+      "submissionNote": "资料包给出正常、完整且已批准的脱敏快照。提交前先检查价格单位、金额、凭证方向和卖出后四项余额。"
     }
   },
   "references": [

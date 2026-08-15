@@ -2,14 +2,14 @@
   "routeId": "ACC-CBF-SETTLEMENT-003",
   "contentVersion": "1.0.0",
   "line": "ACCOUNTING",
-  "title": "普通证券交易的券商交收、佣金时点与备付金结转",
-  "summary": "复用已确认的普通证券交易结果，按本案例批准参数完成成交总额、佣金、同日券商交收、备付金现金变动和期末余额的角色化工作纸，并以公式恒等式和外部券商资金对账完成双重零差异验证。",
+  "title": "普通证券交易的券商交收、佣金时点与备付金",
+  "summary": "承接已确认的普通证券交易结果，按批准参数复算成交总额、佣金、同日券商交收、备付金现金变动和期末余额，再用公式和外部资金对账核对两处差额。",
   "estimatedMinutes": 75,
   "objectives": [
-    "从已确认交易结果、批准参数、本案例券商资金对账和角色化结转工作纸定位成交总额、佣金率/时点、备付金余额和外部余额字段",
-    "区分成交总额、佣金金额、交收金额和备付金变化四个业务结果，不用历史T+0记忆、历史费率或正式科目推断本案例答案",
-    "用独立Decimal链复算gross、commission、settlement、reserve movement和reserve close，并明确现金方向",
-    "以公式恒等式、备付金余额公式、外部券商资金对账零差异和一次角色化结转验证正常业务结果"
+    "从已确认交易结果、批准参数、券商资金对账和角色化结转工作纸定位成交总额、佣金率/时点、备付金余额和外部余额字段",
+    "区分成交总额、佣金金额、交收金额和备付金变化四个业务结果，不用历史T+0记忆、历史费率或正式科目推断结果",
+    "用独立Decimal链复算gross、commission、settlement、reserve movement和reserve close，并标明现金方向",
+    "用公式恒等式、备付金余额公式、外部券商资金对账差额和一次角色化结转核对结果"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -21,8 +21,8 @@
           "conclusion": "成交总额是数量与价格的结果，佣金是批准费率作用于成交总额的结果，交收金额是两者之和，备付金变化是交收导致的现金方向变化。",
           "items": [
             "gross = quantity × tradePrice，描述成交结果，不直接等于现金流出",
-            "commission = gross × 本案例批准commissionRate，时点由批准参数给出",
-            "settlement = gross + commission，是本案例同日券商交收金额",
+            "commission = gross × 批准commissionRate，时点由批准参数给出",
+            "settlement = gross + commission，是同日券商交收金额",
             "reserveMovement = −settlement，reserveClose = reserveOpen − settlement"
           ]
         },
@@ -30,9 +30,9 @@
           "cardId": "CBF-R3-KC-02",
           "type": "FLOW",
           "title": "先定位批准参数，再进入现金链",
-          "conclusion": "佣金率和佣金进入现金链的时点都必须从本案例批准参数读取；历史T+0表述、历史费率和正式科目不提供本题答案。",
+          "conclusion": "佣金率和佣金进入现金链的时点都从批准参数读取；历史T+0表述、历史费率和正式科目不能代替资料。",
           "items": [
-            "已确认交易结果只提供本路线需要的数量、价格和成交总额",
+            "已确认交易结果只提供交收需要的数量、价格和成交总额",
             "批准参数提供commissionRate、commissionCashTiming、settlementTiming、精度和容差",
             "券商资金对账提供reserveOpen、外部cashMovement和reserveClose",
             "角色化工作纸记录一次交收结转及现金方向，不补造会计科目、借贷或系统字段"
@@ -41,39 +41,39 @@
         {
           "cardId": "CBF-R3-KC-03",
           "type": "KEY_POINT",
-          "title": "金额链和外部余额要双重验证",
-          "conclusion": "正常完成不是算出一个交收金额，而是同时证明公式恒等式、备付金余额关系、外部对账余额差为零且结转只记录一次。",
+          "title": "金额链和外部余额分别核对",
+          "conclusion": "交收金额之外，还要核对公式恒等式、备付金余额关系和外部对账余额差，并确认结转只记录一次。",
           "items": [
             "formulaDiff = gross + commission − settlement = 0.00",
             "reserveFormulaDiff = reserveOpen − settlement − reserveClose = 0.00",
             "externalBalanceDiff = externalStatementClosing − reserveClose = 0.00",
-            "postingCount − 1 = 0，说明本案例没有重复结转"
+            "postingCount − 1 = 0，说明没有重复结转"
           ]
         }
       ]
     },
     "DEMONSTRATION": {
       "scenario": {
-        "role": "本案例券结交收与资金工作角色",
+        "role": "券结交收与资金工作角色",
         "product": "券结基金单券商单市场普通证券交易",
         "date": "2026-08-15",
         "fixture": "CBF-R3-FIXTURE-DEMO-A",
         "facts": [
           "已确认交易结果资料给出业务日期2026-08-15、市场键MARKET_SETTLE_A、组合键PORTFOLIO_SETTLE_A、证券键SECURITY_SETTLE_A、数量9000、成交价格28.40元和成交总额待复算。",
-          "本案例批准参数给出commissionRate=0.0011、commissionCashTiming=SAME_CASE_DAY_IN_CASH_CHAIN、settlementTiming=SAME_CASE_DAY_AFTER_TRADE、金额精度2位和差额容差0.00。",
+          "批准参数给出commissionRate=0.0011、commissionCashTiming=SAME_CASE_DAY_IN_CASH_CHAIN、settlementTiming=SAME_CASE_DAY_AFTER_TRADE、金额精度2位和差额容差0.00。",
           "券商资金对账资料给出备付金期初700000.00元、外部现金变动−255881.16元和期末444118.84元；所有差异均应为零。",
-          "所有标识、费率、时点和金额均为本案例合成教学参数；不重新训练交易方向、股票成本或正式凭证。"
+          "所有标识、费率、时点和金额均为合成教学参数；不重新训练交易方向、股票成本或正式凭证。"
         ]
       },
       "steps": [
         {
           "order": 1,
           "action": "从已确认交易结果定位业务日期、市场/组合/证券键、数量9000和成交价格28.40，并读取成交结果确认状态",
-          "reason": "本路线承接已确认交易结果，只读取交收所需字段，不把买卖方向或股票成本重新作为学习对象。"
+          "reason": "这里承接已确认交易结果，只读取交收所需字段，不把买卖方向或股票成本重新作为学习对象。"
         },
         {
           "order": 2,
-          "action": "从本案例批准参数读取commissionRate=0.0011、佣金同日进入现金链和同日券商交收时点",
+          "action": "从批准参数读取commissionRate=0.0011、佣金同日进入现金链和同日券商交收时点",
           "reason": "佣金时点和费率属于题面批准参数，不能用历史T+0记忆、历史费率或正式科目推断。"
         },
         {
@@ -88,11 +88,11 @@
         },
         {
           "order": 5,
-          "action": "验证formulaDiff=0.00、reserveFormulaDiff=0.00、externalBalanceDiff=444118.84−444118.84=0.00，并确认postingCount=1后完成本案例结转",
-          "reason": "正常收口需要公式关系和外部券商资金对账双重闭合，同时防止同一交收金额重复结转。"
+          "action": "验证formulaDiff=0.00、reserveFormulaDiff=0.00、externalBalanceDiff=444118.84−444118.84=0.00，并确认postingCount=1后完成结转",
+          "reason": "结果要同时满足公式关系和外部券商资金对账，并防止同一交收金额重复结转。"
         }
       ],
-      "summary": "承接已确认结果 → 读取批准时点 → gross/commission/settlement → reserve现金链 → 公式与外部余额双重验证"
+      "summary": "承接已确认结果 → 读取批准时点 → gross/commission/settlement → reserve现金链 → 公式与外部余额核对"
     },
     "BASIC_PRACTICE": {
       "questions": [
@@ -139,7 +139,7 @@
             }
           ],
           "answer": ["CONFIRMED_TRADE_RESULT", "APPROVED_PARAMETER", "BROKER_CASH_STATEMENT", "ROLE_SETTLEMENT_WORKPAPER"],
-          "explanation": "交易结果、批准参数、外部资金对账和角色化工作纸分别承担不同来源职责；本题不以历史记忆或未提供的正式凭证代替来源。",
+          "explanation": "交易结果、批准参数、外部资金对账和角色化工作纸分别承担不同来源职责；不以历史记忆或未提供的正式凭证代替来源。",
           "hints": ["先按字段含义区分交易结果、参数、余额对账和工作纸，再确认材料定位。"]
         },
         {
@@ -159,7 +159,7 @@
           },
           "answer": ["255600.00", "281.16", "255881.16", "-255881.16", "444118.84", "0.00", "0.00"],
           "explanation": "Demo A完整链为gross255600.00、commission281.16、settlement255881.16、reserveMovement−255881.16、reserveClose444118.84，两个公式差均为0.00。",
-          "hints": ["先算gross，再按批准费率算commission；commission在本案例批准时点进入settlement和备付金现金链。"]
+          "hints": ["先算gross，再按批准费率算commission；commission按批准时点进入settlement和备付金现金链。"]
         },
         {
           "questionId": "ACC-CBF-SETTLEMENT-Q-03",
@@ -174,13 +174,13 @@
             {"entryId": "posting-count-role", "direction": "结转次数", "label": "ROLE_SETTLEMENT_WORKPAPER记录次数", "amount": "1", "placeholder": "输入次数"}
           ],
           "answer": ["TRADE_OBJECT", "255600.00", "COMMISSION_CASH_ROLE", "281.16", "CLEARING_SETTLEMENT_ROLE", "255881.16", "BROKER_RESERVE_ROLE", "-255881.16", "BROKER_RESERVE_ROLE", "444118.84", "1"],
-          "explanation": "工作纸按业务角色、现金方向、余额和一次结转记录结果；本案例没有提供也不要求正式会计科目或借贷方向。",
+          "explanation": "工作纸按业务角色、现金方向、余额和一次结转记录结果；资料没有提供也不要求正式会计科目或借贷方向。",
           "hints": ["把成交结果、佣金现金、交收、备付金变动、备付金期末和结转次数分别记录。"]
         },
         {
           "questionId": "ACC-CBF-SETTLEMENT-Q-04",
           "type": "RECONCILIATION",
-          "prompt": "完成Demo A的成交/佣金/交收公式、备付金余额、外部券商资金对账和重复结转四项验证。",
+          "prompt": "核对Demo A的成交/佣金/交收公式、备付金余额、外部券商资金对账和重复结转四项结果。",
           "reconciliation": {
             "fields": [
               {"fieldId": "formula-diff", "label": "gross+commission−settlement", "kind": "NUMBER", "formula": "255600.00+281.16−255881.16", "placeholder": "输入差额", "precision": 2, "tolerance": 0.01},
@@ -191,13 +191,13 @@
             ]
           },
           "answer": ["0.00", "0.00", "0.00", "0", "ALL_ZERO_ONCE"],
-          "explanation": "公式恒等式、备付金余额公式、外部券商余额和一次结转检查均为零，因此本案例交收链正常闭合。",
+          "explanation": "公式恒等式、备付金余额公式、外部券商余额和一次结转检查均为零，因此交收结果可以正常承接。",
           "hints": ["先分别验证公式和外部余额，再检查postingCount，不用持仓或估值结果替代。"]
         },
         {
           "questionId": "ACC-CBF-SETTLEMENT-Q-05",
           "type": "SHORT_TEXT",
-          "prompt": "用一句话写出Demo A的可追溯交收结论，说明四个金额结果、批准现金时点、备付金方向、外部余额和一次结转。",
+          "prompt": "用一句话写出Demo A的交收结论，说明四个金额结果、批准现金时点、备付金方向、外部余额和一次结转。",
           "textInput": {"label": "交收与备付金结论", "placeholder": "写明gross、commission、settlement、reserve movement/close、批准时点、外部余额和不重复结转"},
           "answer": ["gross", "commission", "settlement", "reserveMovement", "reserveClose", "SAME_CASE_DAY_IN_CASH_CHAIN", "外部余额", "0.00", "一次", "不重复"],
           "explanation": "结论必须能追溯到已确认结果、批准参数、券商资金对账和角色工作纸，不用历史T+0或正式科目替代。",
@@ -207,17 +207,17 @@
     },
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
-        "role": "本案例券结交收与资金工作角色",
+        "role": "券结交收与资金工作角色",
         "product": "券结基金单券商单市场普通证券交易",
         "date": "2026-08-16",
-        "purpose": "复用综合B已确认普通证券交易结果，读取本案例批准佣金率和现金时点，完成gross/commission/settlement/reserve movement/reserve close链，补全角色化结转工作纸，并以公式恒等式、备付金余额公式、外部券商资金余额和一次结转四重验证闭合。"
+        "purpose": "复用已确认普通证券交易结果，读取批准佣金率和现金时点，计算gross/commission/settlement/reserve movement/reserve close，补全角色化结转工作纸，并用公式、备付金余额、外部券商资金和一次结转逐项核对。"
       },
       "sourceMaterials": [
         {
           "materialId": "CBF-SETTLEMENT-B-TRADE",
-          "title": "综合B已确认普通证券交易结果",
+          "title": "已确认普通证券交易结果",
           "kind": "CONFIRMATION",
-          "description": "已确认上游交易结果；本路线只读取交收需要的数量、成交价格、成交总额和同日对象键，不重新训练交易方向、股票成本或凭证。",
+          "description": "已确认上游交易结果；这里只读取交收需要的数量、成交价格、成交总额和同日对象键，不重新训练交易方向、股票成本或凭证。",
           "fields": [
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-16"},
             {"fieldId": "market_key", "label": "市场键", "value": "MARKET_SETTLE_B"},
@@ -232,7 +232,7 @@
         },
         {
           "materialId": "CBF-SETTLEMENT-B-PARAM",
-          "title": "综合B本案例批准参数",
+          "title": "批准交收参数",
           "kind": "PARAMETER",
           "description": "本批题面批准的佣金率、佣金现金时点、交收时点、精度、容差和一次结转约束；不代表现行制度。",
           "fields": [
@@ -246,7 +246,7 @@
         },
         {
           "materialId": "CBF-SETTLEMENT-B-CASH",
-          "title": "综合B券商资金对账资料",
+          "title": "券商资金对账资料",
           "kind": "STATEMENT",
           "description": "提供备付金期初、外部现金变动和期末余额，作为交收现金链的外部独立来源。",
           "fields": [
@@ -262,9 +262,9 @@
         },
         {
           "materialId": "CBF-SETTLEMENT-B-WORKPAPER",
-          "title": "综合B券结业务角色结转工作纸",
+          "title": "券结业务角色结转工作纸",
           "kind": "LEDGER",
-          "description": "以角色和现金方向记录本案例一次结转，不填写正式科目或借贷方向。",
+          "description": "以角色和现金方向记录一次结转，不填写正式科目或借贷方向。",
           "fields": [
             {"fieldId": "trade_result_role", "label": "成交结果角色", "value": "TRADE_OBJECT"},
             {"fieldId": "commission_cash_role", "label": "佣金现金角色", "value": "COMMISSION_CASH_ROLE"},
@@ -279,14 +279,14 @@
           "workItemId": "r3-b-trade-source",
           "type": "FIELD_MAP",
           "title": "定位已确认交易结果",
-          "instruction": "选择承载综合B数量、成交价格和成交总额的来源，并确认本路线复用已确认结果。",
+          "instruction": "选择承载数量、成交价格和成交总额的来源，并确认这里复用已确认结果。",
           "response": {"kind": "SELECT", "placeholder": "选择来源", "options": [{"optionId": "CONFIRMED_TRADE_RESULT", "text": "CBF-SETTLEMENT-B-TRADE：已确认交易结果"}, {"optionId": "CASH_STATEMENT", "text": "CBF-SETTLEMENT-B-CASH：券商资金对账"}]}
         },
         {
           "workItemId": "r3-b-parameter-source",
           "type": "FIELD_MAP",
           "title": "定位批准费率与现金时点",
-          "instruction": "选择本案例佣金率、佣金现金时点、交收时点和精度容差的来源。",
+          "instruction": "选择佣金率、佣金现金时点、交收时点和精度容差的来源。",
           "response": {"kind": "SELECT", "placeholder": "选择批准参数", "options": [{"optionId": "APPROVED_PARAMETER", "text": "CBF-SETTLEMENT-B-PARAM：本案例批准参数"}, {"optionId": "HISTORICAL_T_PLUS_ZERO", "text": "历史T+0或历史费率记忆"}]}
         },
         {
@@ -300,14 +300,14 @@
           "workItemId": "r3-b-gross",
           "type": "CALCULATION",
           "title": "复算成交总额",
-          "instruction": "用综合B已确认数量和成交价格计算gross。",
+          "instruction": "用已确认数量和成交价格计算gross。",
           "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}
         },
         {
           "workItemId": "r3-b-commission",
           "type": "CALCULATION",
           "title": "按批准时点复算佣金",
-          "instruction": "用gross和本案例批准commissionRate计算commission，并读取SAME_CASE_DAY_IN_CASH_CHAIN。",
+          "instruction": "用gross和批准commissionRate计算commission，并读取SAME_CASE_DAY_IN_CASH_CHAIN。",
           "response": {"kind": "NUMBER", "placeholder": "输入金额", "unit": "元", "precision": 2}
         },
         {
@@ -360,7 +360,7 @@
           "response": {"kind": "TEXT", "placeholder": "输入交收与备付金验证结论"}
         }
       ],
-      "submissionNote": "提交结构化交收工作纸：来源与批准时点、gross/commission/settlement/reserve movement/reserve close、角色化结转、公式恒等式、外部备付金余额勾稽、一次结转和简短结论。本案例不要求持仓或估值三方收口。"
+      "submissionNote": "提交交收工作纸：来源与批准时点、gross/commission/settlement/reserve movement/reserve close、角色化结转、公式恒等式、外部备付金余额核对、一次结转和简短结论。这里不要求持仓或估值三方核对。"
     }
   },
   "references": [

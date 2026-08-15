@@ -1,6 +1,12 @@
 import { ArrowDown, ArrowUp, Check, CircleAlert } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { PracticeQuestion as Question } from '../api/types';
+import {
+  businessActionLabel,
+  optionDisplayLabel,
+  publicBusinessText,
+  publicUnitLabel,
+} from '../utils/format';
 
 export function PracticeQuestion({
   question,
@@ -73,17 +79,17 @@ export function PracticeQuestion({
           {question.fieldMappings?.map((field, fieldIndex) => (
             <div className="practice-structured__row" key={field.fieldId}>
               <div className="practice-structured__label">
-                <strong>{field.label}</strong>
-                <span>来源：{field.source}</span>
+                <strong>{publicBusinessText(field.label)}</strong>
+                <span>来源：{publicBusinessText(field.source)}</span>
               </div>
               <select
-                aria-label={field.label}
+                aria-label={publicBusinessText(field.label)}
                 value={selected[fieldIndex] ?? ''}
                 onChange={(event) => updateValue(fieldIndex, event.target.value)}
                 disabled={disabled || Boolean(feedback?.correct)}
               >
-                <option value="">选择对应含义</option>
-                {field.options.map((option) => <option value={option.optionId} key={option.optionId}>{option.text}</option>)}
+                <option value="">选择对应业务含义</option>
+                {field.options.map((option) => <option value={option.optionId} key={option.optionId}>{publicBusinessText(option.text)}</option>)}
               </select>
             </div>
           ))}
@@ -97,9 +103,9 @@ export function PracticeQuestion({
           {question.calculation?.fields.map((field, fieldIndex) => (
             <label className="practice-structured__row" key={field.fieldId}>
               <span className="practice-structured__label">
-                <strong>{field.label}</strong>
+                <strong>{publicBusinessText(field.label)}</strong>
                 <span>
-                  {field.formula}
+                  {publicBusinessText(field.formula)}
                   {field.precision !== undefined && `；建议保留 ${field.precision} 位小数`}
                   {field.tolerance !== undefined && `；判定允许误差 ±${field.tolerance}`}
                 </span>
@@ -108,13 +114,13 @@ export function PracticeQuestion({
                 <input
                   type="text"
                   inputMode="decimal"
-                  aria-label={field.label}
+                  aria-label={publicBusinessText(field.label)}
                   value={selected[fieldIndex] ?? ''}
-                  placeholder={field.placeholder}
+                  placeholder={publicBusinessText(field.placeholder)}
                   onChange={(event) => updateValue(fieldIndex, event.target.value)}
                   disabled={disabled || Boolean(feedback?.correct)}
                 />
-                <em>{field.unit}</em>
+                <em>{publicUnitLabel(field.unit)}</em>
               </span>
             </label>
           ))}
@@ -128,13 +134,13 @@ export function PracticeQuestion({
           <div className="practice-ledger__head"><span>方向</span><span>资料行</span><span>补全科目</span></div>
           {question.ledgerEntries?.map((entry, entryIndex) => (
             <label className="practice-ledger__row" key={entry.entryId}>
-              <b>{entry.direction}</b>
-              <span><strong>{entry.label}</strong><em>{entry.amount}</em></span>
+              <b>{businessActionLabel(entry.direction)}</b>
+              <span><strong>{publicBusinessText(entry.label)}</strong><em>{publicBusinessText(entry.amount)}</em></span>
               <input
                 type="text"
-                aria-label={entry.label}
+                aria-label={publicBusinessText(entry.label)}
                 value={selected[entryIndex] ?? ''}
-                placeholder={entry.placeholder}
+                placeholder={publicBusinessText(entry.placeholder)}
                 onChange={(event) => updateValue(entryIndex, event.target.value)}
                 disabled={disabled || Boolean(feedback?.correct)}
               />
@@ -150,31 +156,31 @@ export function PracticeQuestion({
           {question.reconciliation?.fields.map((field, fieldIndex) => (
             <label className="practice-structured__row" key={field.fieldId}>
               <span className="practice-structured__label">
-                <strong>{field.label}</strong>
+                <strong>{publicBusinessText(field.label)}</strong>
                 <span>
-                  {field.formula}
+                  {publicBusinessText(field.formula)}
                   {field.precision !== undefined && `；建议保留 ${field.precision} 位小数`}
                   {field.tolerance !== undefined && `；判定允许误差 ±${field.tolerance}`}
                 </span>
               </span>
               {field.kind === 'SELECT' ? (
                 <select
-                  aria-label={field.label}
+                  aria-label={publicBusinessText(field.label)}
                   value={selected[fieldIndex] ?? ''}
                   onChange={(event) => updateValue(fieldIndex, event.target.value)}
                   disabled={disabled || Boolean(feedback?.correct)}
                 >
-                  <option value="">{field.placeholder}</option>
-                  {field.options?.map((option) => <option value={option.optionId} key={option.optionId}>{option.text}</option>)}
+                  <option value="">{publicBusinessText(field.placeholder)}</option>
+                  {field.options?.map((option) => <option value={option.optionId} key={option.optionId}>{publicBusinessText(option.text)}</option>)}
                 </select>
               ) : (
                 <span className="practice-structured__control">
                   <input
                     type="text"
                     inputMode="decimal"
-                    aria-label={field.label}
+                    aria-label={publicBusinessText(field.label)}
                     value={selected[fieldIndex] ?? ''}
-                    placeholder={field.placeholder}
+                    placeholder={publicBusinessText(field.placeholder)}
                     onChange={(event) => updateValue(fieldIndex, event.target.value)}
                     disabled={disabled || Boolean(feedback?.correct)}
                   />
@@ -188,11 +194,11 @@ export function PracticeQuestion({
 
     return (
       <label className="practice-structured practice-structured--text">
-        <span className="practice-structured__text-label">{question.textInput?.label ?? '业务结论'}</span>
+        <span className="practice-structured__text-label">{publicBusinessText(question.textInput?.label ?? '业务结论')}</span>
         <textarea
-          aria-label={question.textInput?.label ?? '业务结论'}
+          aria-label={publicBusinessText(question.textInput?.label ?? '业务结论')}
           value={selected[0] ?? ''}
-          placeholder={question.textInput?.placeholder}
+          placeholder={question.textInput?.placeholder ? publicBusinessText(question.textInput.placeholder) : undefined}
           maxLength={500}
           onChange={(event) => updateValue(0, event.target.value)}
           disabled={disabled || Boolean(feedback?.correct)}
@@ -213,8 +219,8 @@ export function PracticeQuestion({
 
   return (
     <div className="practice-question">
-      <div className="eyebrow">想一想</div>
-      <h2>{question.prompt}</h2>
+      <div className="eyebrow">先做判断</div>
+      <h2>{publicBusinessText(question.prompt)}</h2>
 
       {isOrdering ? (
         <ol className="ordering-list">
@@ -223,7 +229,7 @@ export function PracticeQuestion({
             return (
               <li key={id}>
                 <span className="ordering-list__number">{index + 1}</span>
-                <span>{item?.text}</span>
+                <span>{item?.text ? publicBusinessText(item.text) : ''}</span>
                 <span className="ordering-list__controls">
                   <button type="button" onClick={() => move(index, -1)} disabled={index === 0 || disabled}>
                     <ArrowUp size={18} />
@@ -242,7 +248,7 @@ export function PracticeQuestion({
         </ol>
       ) : isStructured ? renderStructuredInput() : (
         <div className="choice-list">
-          {question.options?.map((option) => {
+          {question.options?.map((option, index) => {
             const active = selected.includes(option.optionId);
             return (
               <button
@@ -252,8 +258,8 @@ export function PracticeQuestion({
                 onClick={() => toggle(option.optionId)}
                 disabled={disabled}
               >
-                <span className="choice-list__key">{option.optionId}</span>
-                <span>{option.text}</span>
+                <span className="choice-list__key">{optionDisplayLabel(option.optionId, index)}</span>
+                <span>{publicBusinessText(option.text)}</span>
                 {active && <Check className="choice-list__check" size={20} strokeWidth={4} />}
               </button>
             );
@@ -265,9 +271,9 @@ export function PracticeQuestion({
         <div className={`feedback ${feedback.correct ? 'feedback--correct' : 'feedback--wrong'}`}>
           {feedback.correct ? <Check size={24} /> : <CircleAlert size={24} />}
           <div>
-            <strong>{feedback.correct ? '判断正确' : '再想一步'}</strong>
+            <strong>{feedback.correct ? '判断正确' : '请核对资料'}</strong>
             <p>{feedback.explanation}</p>
-            {feedback.hint && <span>提示：{feedback.hint}</span>}
+            {feedback.hint && <span>下一步：{feedback.hint}</span>}
           </div>
         </div>
       )}
