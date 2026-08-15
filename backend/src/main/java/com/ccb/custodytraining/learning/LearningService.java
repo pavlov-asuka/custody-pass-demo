@@ -446,8 +446,9 @@ public class LearningService {
             ObjectNode item = items.addObject();
             item.put("attemptId", attempt.id());
             item.put("routeId", attempt.routeId());
-            item.put("path", "核算条线 / 核算基础与产品生命周期 / 岗位基础 / 站上核算岗");
-            item.put("routeTitle", "站上核算岗");
+            FormalContentCatalog.RouteMapEntry mapEntry = catalog.routeMapEntry(attempt.routeId());
+            item.put("path", mapEntry.path());
+            item.put("routeTitle", mapEntry.title());
             item.put("processingStatus", attempt.processingStatus());
             item.put("conclusion", attempt.conclusion());
             item.put("submittedAt", attempt.submittedAt().toString());

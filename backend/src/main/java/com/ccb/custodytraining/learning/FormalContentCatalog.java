@@ -60,6 +60,27 @@ public class FormalContentCatalog {
         return List.copyOf(routes.keySet());
     }
 
+    public RouteMapEntry routeMapEntry(String routeId) {
+        for (JsonNode line : map.path("lines")) {
+            for (JsonNode region : line.path("regions")) {
+                for (JsonNode module : region.path("modules")) {
+                    for (JsonNode node : module.path("nodes")) {
+                        if (routeId.equals(node.path("routeId").asText())) {
+                            String title = node.path("title").asText(route(routeId).content().path("title").asText());
+                            String path = String.join(" / ",
+                                    line.path("name").asText(),
+                                    region.path("name").asText(),
+                                    module.path("name").asText(),
+                                    title);
+                            return new RouteMapEntry(path, title);
+                        }
+                    }
+                }
+            }
+        }
+        throw new NotFoundException("路线地图节点不存在");
+    }
+
     public JsonNode publicStep(String routeId, LearningTypes.StepType stepType) {
         JsonNode step = route(routeId).content().path("steps").path(stepType.name()).deepCopy();
         if (stepType == LearningTypes.StepType.BASIC_PRACTICE) {
@@ -212,5 +233,8 @@ public class FormalContentCatalog {
         public String rubricVersion() {
             return rubric.path("rubricVersion").asText();
         }
+    }
+
+    public record RouteMapEntry(String path, String title) {
     }
 }

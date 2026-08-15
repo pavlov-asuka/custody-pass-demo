@@ -434,7 +434,8 @@ class LearningFlowApplicationTests {
     }
 
     @Test
-    void recordHistoryIsPaginatedFilteredImmutableAndUserIsolated() throws Exception {
+    void recordHistoryUsesDynamicRouteMetadataAndIsPaginatedFilteredImmutableAndUserIsolated()
+            throws Exception {
         Session first = prepared("10000001");
         long attemptId = submit(first, requestId(), PASSING_ANSWER).path("attemptId").asLong();
         JsonNode original = awaitTerminal(first, attemptId);
@@ -442,10 +443,21 @@ class LearningFlowApplicationTests {
         JsonNode history = getJson(first, "/api/training-records/" + attemptId);
         assertEquals("9.9.9", history.path("contentVersion").asText());
         assertEquals(original.path("answerSnapshot"), history.path("answerSnapshot"));
-        mockMvc.perform(get("/api/training-records?line=ACCOUNTING&conclusion=PASSED")
-                        .session(first.session()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalElements").value(1));
+        passRoute(first, "ACC-LIFE-ONBOARD-002");
+        JsonNode records = getJson(first,
+                "/api/training-records?line=ACCOUNTING&conclusion=PASSED");
+        assertEquals(2, records.path("totalElements").asInt());
+        JsonNode onboardingRecord = null;
+        for (JsonNode item : records.path("items")) {
+            if ("ACC-LIFE-ONBOARD-002".equals(item.path("routeId").asText())) {
+                onboardingRecord = item;
+                break;
+            }
+        }
+        assertTrue(onboardingRecord != null);
+        assertEquals("接管一只新产品", onboardingRecord.path("routeTitle").asText());
+        assertEquals("核算学习世界 / 核算基础与产品生命周期 / 岗位基础 / 接管一只新产品",
+                onboardingRecord.path("path").asText());
         Session second = login("10000002");
         mockMvc.perform(get("/api/training-records/" + attemptId).session(second.session()))
                 .andExpect(status().isNotFound());
