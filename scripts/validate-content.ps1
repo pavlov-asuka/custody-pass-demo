@@ -151,7 +151,7 @@ foreach ($schemaFile in $schemaFiles) {
     }
 }
 
-$releasePath = Join-Path $contentRoot 'releases/ACCOUNTING_2026.08.9.json'
+$releasePath = Join-Path $contentRoot 'releases/ACCOUNTING_2026.08.10.json'
 $release = Read-Json $releasePath
 Test-JsonSchema $release $schemas['release-manifest.schema.json'] '$.release'
 foreach ($field in @('releaseId', 'releasedAt', 'map', 'routes')) {

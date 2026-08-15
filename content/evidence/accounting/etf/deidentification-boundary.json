@@ -1,0 +1,51 @@
+{
+  "evidenceId": "ETF-EVID-DEID-001",
+  "version": "1.1.0",
+  "scope": "ETF-01-04",
+  "title": "ETF B0-B2 脱敏、案例版本和题面边界",
+  "scopeNotice": "本文件把原始材料抽象为可教学的正常资料包；不把真实产品、真实账户、真实人员、内部菜单或历史参数暴露给学员。",
+  "provenanceLabels": [
+    {"label": "MATERIAL_ABSTRACTION", "meaning": "从原始材料稳定定位抽象出的业务对象、因果关系或字段语义，不等于现行生产规则。", "allowedUse": ["知识卡", "示范原因", "字段定义", "证据映射"]},
+    {"label": "SYNTHETIC_EDUCATIONAL", "meaning": "为本批教学构造的脱敏产品键、来源键、日期、数量、价格或结果资料。", "allowedUse": ["正常示范", "基础练习", "综合实务资料包", "Decimal答案链"]},
+    {"label": "CASE_POLICY", "meaning": "仅在某一案例快照中有效的精度、容差、状态、公式参数或对账结果。", "allowedUse": ["案例规则", "参考答案", "确定性评分"]}
+  ],
+  "promptForbidden": [
+    "真实产品代码、真实基金名称、真实账户或真实客户信息",
+    "内部邮箱、网址、凭证号、员工号、密码、Cookie、密钥或本地路径",
+    "历史截图中的菜单、日期、费率、阈值、汇率、补券席位和节假日设置",
+    "跨境、互认、券结增量、联接、差异化分红、折算拆分和公司行为的未闭合规则",
+    "异常、缺失、冲突、迟到、错配、人工重跑、回滚、重估或升级写作"
+  ],
+  "syntheticKeyRules": [
+    "产品键统一使用 ETF-EDU-[A/B]-01，不复用原始产品代码。",
+    "事件键统一使用 EVT-ETF[01/02/03/04]-[A/B]-001，来源键统一使用 SRC-ETF[01/02/03/04]-[A/B]-...。",
+    "案例日期固定为 2030 年教学日期，仅用于区分 Demo A 与 Comprehensive B。",
+    "来源字段以字符串保存，金额/价格/份额/比例使用 Decimal 复算。"
+  ],
+  "safeNormalBoundary": [
+    "国内普通股票型 ETF，单一正常一级申购，不包含跨境、券结、联接或公司行为。",
+    "资料包包含产品登记、PCF/申赎清单、市场价格、申赎凭证前估值、台账/结果和勾稽结果。",
+    "只有一个业务事件、资料充分、来源键一致、结果按案例版本可复算；不制造异常。",
+    "R1-R4 最后状态依次为 SECONDARY_SETTLED、INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT、PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT 与 SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE；均只表示案例来源链已闭合，不外推为生产发布状态。"
+  ],
+  "versionedCaseRules": [
+    {"ruleId": "ETF-CASE-RULE-01", "scope": "ETF-01", "rule": "一级创设份额 = 申赎篮子数量 × 每篮对应份额；篮数、份额按整数精度 0；二级交易发行份额变动 = 0 份。", "provenance": "CASE_POLICY"},
+    {"ruleId": "ETF-CASE-RULE-02", "scope": "ETF-02", "rule": "flag=1 表示必须现金替代；flag=2 表示允许现金替代，只有本案例 deliveryChoice=CASH_SUBSTITUTE 时选择现金交付；现金替代 = 数量 × 案例参考价格 × (1 + 案例溢价比例)。", "provenance": "CASE_POLICY"},
+    {"ruleId": "ETF-CASE-RULE-03", "scope": "ETF-02", "rule": "创设单位净值 = 申赎凭证前资产净值 ÷ 申赎凭证前实收资本数量 × 一篮对应 ETF 份额。", "provenance": "CASE_POLICY"},
+    {"ruleId": "ETF-CASE-RULE-04", "scope": "ETF-02", "rule": "单位现金差额 = 创设单位净值 - 股票篮参考市值；溢价预付款 = 现金替代合计 - 对应现金替代行参考市值；初始申购对价 = 创设单位净值 + 溢价预付款；现金替代预付款待结算金额 = 溢价预付款 - 本路线已结算现金替代金额。", "provenance": "CASE_POLICY"},
+    {"ruleId": "ETF-CASE-RULE-05", "scope": "ETF-02", "rule": "申购对价 = 实际交付组合证券价值 + 现金替代合计 + 单位现金差额 - 本路线已结算现金替代金额；本案例 refund_amount=0 仍保留现金替代预付款待结算余额，不表示最终经济结算完成；实际补券成本和费用在 R4 形成后，才判断最终是可退、应退或应补。", "provenance": "CASE_POLICY"},
+    {"ruleId": "ETF-CASE-RULE-06", "scope": "ETF-03", "rule": "应交证券数量=确认篮数×每篮实物证券数量；应交现金替代与应交单位现金差额分别等于每篮金额×确认篮数；现金总额为两条现金腿之和。篮数、份额和证券数量均为整数。", "provenance": "CASE_POLICY"},
+    {"ruleId": "ETF-CASE-RULE-07", "scope": "ETF-03", "rule": "指令、PCF 校验、确认、证券交收和现金交收状态必须由各自来源支持；TA、清算、ETF 台账份额一致且证券、现金替代、单位现金差额三腿全部零差，才可进入交收勾稽状态。", "provenance": "CASE_POLICY"},
+    {"ruleId": "ETF-CASE-RULE-08", "scope": "ETF-04", "rule": "估计视图标记 NON_FINAL_ESTIMATE_ONLY；实际补券成交金额=整数数量×实际价格，实际总成本=成交金额+费用，只有实际成本和费用形成后才判断最终结算方向。", "provenance": "CASE_POLICY"},
+    {"ruleId": "ETF-CASE-RULE-09", "scope": "ETF-04", "rule": "有符号最终结算金额=现金替代预付款待结算金额-实际总成本；正数退回申购人、零无需额外现金、负数由申购人补付，最终结算金额取绝对值。", "provenance": "CASE_POLICY"},
+    {"ruleId": "ETF-CASE-RULE-10", "scope": "ETF-04", "rule": "本案例正常封账要求事件和台账 remaining=0，且事件、台账、估值、TA、清算五来源全部零差；不冻结生产会计科目、借贷方向、费用规则、权限或重跑 SOP。", "provenance": "CASE_POLICY"}
+  ],
+  "validationChecks": [
+    "每个数字字段有 unit、precision、tolerance 和 provenance；每条 Decimal 公式使用字符串输入。",
+    "Demo A 与 Comprehensive B 的 caseVersion、对象键、事件键、数字和来源组均独立。",
+    "综合实务最多一个 SHORT_TEXT，其他业务结果拆为 FIELD_MAP/CALCULATION/LEDGER_ENTRY/RECONCILIATION。",
+    "题面不泄漏本文件的 ADVANCED/DEFER 边界和 Rubric 硬性必达细节。",
+    "R3 三腿数量/金额单位和精度分别受门禁；R4 的估计值不得替代实际成本，最终方向必须晚于补券成本与费用。",
+    "R4 事件、台账、估值、TA、清算使用独立来源键，remaining 与跨来源差额均由 Decimal 复算。"
+  ]
+}

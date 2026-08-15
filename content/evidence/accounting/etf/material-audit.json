@@ -1,0 +1,450 @@
+{
+  "evidenceId": "ETF-EVID-MATERIAL-AUDIT-001",
+  "version": "1.1.0",
+  "scope": "ETF-MODULE",
+  "title": "ETF B0-B2 11 份物理材料对象级审计与活动落点",
+  "scopeNotice": "本审计记录物理文件、可定位对象、同源媒体关系和可支持的教学抽象；原始材料中的历史菜单、费率、日期、阈值、截图和 FAQ 不自动升级为现行生产规则。ETF-01 至 ETF-04 只使用本批明确标记的 MATERIAL_ABSTRACTION、CASE_POLICY 与 SYNTHETIC_EDUCATIONAL 案例快照。",
+  "physicalFileCount": 11,
+  "independentEvidenceGroupCount": 9,
+  "effectiveSourceCount": 9,
+  "duplicateRule": "两份联接流程 DOCX 保留为两个物理文件，但共享媒体和共同语义只计入一个同源证据族；多份 PPT 的共用 logo、模板或装饰媒体不重复计权。",
+  "physicalFiles": [
+    {
+      "physicalFileId": "ETF-PHY-01",
+      "sourceMaterialCode": "ETF-MAT-INDEX-OPS",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__指数化投资下的ETF运营.pptx",
+      "format": "PPTX",
+      "sizeBytes": 4048181,
+      "sha256": "3F2F6809C11673FD664C655D1374CE9B913D7C818FDA8F81F62967233739A206",
+      "duplicateOf": null,
+      "objectAudit": {
+        "zipEntries": 322,
+        "slides": 67,
+        "notesSlides": 25,
+        "slideTables": 45,
+        "slideImages": 45,
+        "mediaParts": 45,
+        "formulas": 0,
+        "oleObjects": 6,
+        "embeddedPackages": 3,
+        "embeddedObjects": 9,
+        "relationships": 121,
+        "commentsParts": ["ppt/commentAuthors.xml"],
+        "stableLocators": ["S01-S67", "IMG01-IMG45", "NOTE01-NOTE25"]
+      },
+      "teachingConclusion": "S04-S13 支持 ETF 产品、基金份额、组合证券、一级实物申赎、二级交易和 PCF/现金替代概念；S17-S27 支持补券台账语义；S29-S38 支持估值、凭证和交收因果链。",
+      "readabilityLimitations": ["6 个 OLE 对象和 3 个 embedded package 已登记，但其内部对象不计入 slide 正文表格/公式统计，不能据此补造隐藏公式。", "备注页仅作为存在性证据，不把未能稳定抽取的备注内容作为路线答案。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-02",
+      "sourceMaterialCode": "ETF-MAT-SETTLEMENT",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__场内ETF清算介绍.pptx",
+      "format": "PPTX",
+      "sizeBytes": 9207574,
+      "sha256": "0152DFDA6368526D13A354CAA3F96E0DD6A6ADC9E7E7885D9AE568B72BBB9235",
+      "duplicateOf": null,
+      "objectAudit": {
+        "zipEntries": 431,
+        "slides": 20,
+        "notesSlides": 8,
+        "slideTables": 3,
+        "slideImages": 16,
+        "mediaParts": 14,
+        "formulas": 0,
+        "oleObjects": 0,
+        "embeddedPackages": 0,
+        "embeddedObjects": 0,
+        "relationships": 55,
+        "commentsParts": ["ppt/commentAuthors.xml"],
+        "stableLocators": ["S01-S20", "IMG01-IMG14", "NOTE01-NOTE08"]
+      },
+      "teachingConclusion": "S08-S13 明确 ETF 份额、组合证券、现金替代、现金差额和退补款的清算对象；S19 给出不同 ETF 类型的交收方式和时点表。",
+      "readabilityLimitations": ["正文表格按 slide XML 表对象登记；图片中的界面字段不被当作可复制的现行参数。", "备注页存在但不作为当前案例规则来源。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-03",
+      "sourceMaterialCode": "ETF-MAT-FAQ",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__ETF-ETF核算常见问题解答V2-202606.docx",
+      "format": "DOCX",
+      "sizeBytes": 173651,
+      "sha256": "5F226E8C7C874CCC77B0BE60E66A85521D0D88D5C77526D2A11A3713E69E0E0B",
+      "duplicateOf": null,
+      "objectAudit": {
+        "zipEntries": 17,
+        "paragraphs": 95,
+        "nonEmptyParagraphs": 93,
+        "tables": 0,
+        "inlineImages": 0,
+        "mediaParts": 1,
+        "formulas": 0,
+        "textboxes": 0,
+        "oleObjects": 1,
+        "embeddedPackages": 1,
+        "embeddedObjects": 2,
+        "relationships": 2,
+        "commentsParts": [],
+        "notes": ["word/footnotes.xml", "word/endnotes.xml"],
+        "stableLocators": ["P001-P095", "IMG01"]
+      },
+      "teachingConclusion": "P003-P019 支持单位现金差额、现金替代、台账现金替代和 PCF 带替代金额的来源关系；P022-P051 支持销售凭证、补票凭证、可退/应退替代款之间的关系。",
+      "readabilityLimitations": ["1 个 embedded Word package 与 1 个媒体对象已登记；嵌入对象内部内容不作为本批独立答案来源。", "脚注/尾注部件存在但不改变本批正常案例口径。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-04",
+      "sourceMaterialCode": "ETF-MAT-DIFFERENTIAL-DIVIDEND",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__ETF-ETF差异化分红对现金替代的影响&简述可退估增计算.pptx",
+      "format": "PPTX",
+      "sizeBytes": 982129,
+      "sha256": "961C5C8BA509B607F2ED4B374D7F372F7FF9D968B3D89151CBCBB847C47C7EFF",
+      "duplicateOf": null,
+      "objectAudit": {
+        "zipEntries": 98,
+        "slides": 9,
+        "notesSlides": 2,
+        "slideTables": 0,
+        "slideImages": 13,
+        "mediaParts": 15,
+        "formulas": 0,
+        "oleObjects": 0,
+        "embeddedPackages": 0,
+        "embeddedObjects": 0,
+        "relationships": 36,
+        "commentsParts": ["ppt/commentAuthors.xml"],
+        "stableLocators": ["S01-S09", "IMG01-IMG15", "NOTE01-NOTE02"]
+      },
+      "teachingConclusion": "S05-S06 说明差异化分红会使 PCF、股票篮浏览和台账现金替代出现口径差异；S08 说明待补数量、送股和现金分红会影响可退估增。仅用于边界登记，不进入 B1 正常题面。",
+      "readabilityLimitations": ["正文公式来自可抽取文字；图片内的 UI 参数不冻结为现行规则。", "commentAuthors 部件存在但未发现可作为业务规则的 comment body。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-05",
+      "sourceMaterialCode": "ETF-MAT-CROSS-BORDER-GLOBAL",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__沪港深ETF及跨境全球ETF培训.pdf",
+      "format": "PDF",
+      "sizeBytes": 2596576,
+      "sha256": "1DB8A8442F6377BCED45DA200B13309A4EA4F34C4323663EA55CCBA6D027A35F",
+      "duplicateOf": null,
+      "objectAudit": {
+        "pages": 20,
+        "imageReferences": 251,
+        "uniqueImageObjects": 92,
+        "formulas": 0,
+        "annotations": 0,
+        "embeddedObjects": 0,
+        "relationships": "PDF object references inspected; no OOXML relationships",
+        "stableLocators": ["P001-P020"]
+      },
+      "teachingConclusion": "P004-P017 支持跨沪港深/跨境产品分类、PCF/篮子来源、市场/汇率/补券参数和台账计算；属于跨市场进阶边界，不进入 B1 普通国内 ETF 题面。",
+      "readabilityLimitations": ["图片对象按页面引用和唯一 XObject 分别计数；图片内 UI 参数不作为现行规则。", "无批注、表单和 embedded file。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-06",
+      "sourceMaterialCode": "ETF-MAT-CROSS-SH-SZ-HK",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__跨沪深港ETF介绍.pdf",
+      "format": "PDF",
+      "sizeBytes": 2014404,
+      "sha256": "33B3423B395A5CA120B1DFD6C32F32EB517E9E14B1F24C830BC20A1020334748",
+      "duplicateOf": null,
+      "objectAudit": {
+        "pages": 23,
+        "imageReferences": 11,
+        "uniqueImageObjects": 11,
+        "formulas": 0,
+        "annotations": 0,
+        "embeddedObjects": 0,
+        "relationships": "PDF object references inspected; no OOXML relationships",
+        "stableLocators": ["P001-P023"]
+      },
+      "teachingConclusion": "P005-P006 定义单市场、跨市场和跨境 ETF；P011-P017 展示组合证券、补券、退补款和结转参数关系；只登记为后续边界。",
+      "readabilityLimitations": ["P011-P012 的案例数字和菜单截图是历史教学示例，不冻结为当前规则。", "无批注、表单和 embedded file。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-07",
+      "sourceMaterialCode": "ETF-MAT-LINK-STOCK",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__股票-ETF不用指数收益法，联接使用指数收益法的流程.docx",
+      "format": "DOCX",
+      "sizeBytes": 632299,
+      "sha256": "DDB31D09A16C17FF39353F78751FD4D8F82C5D163DBABE2354F19F758F6B2FDB",
+      "duplicateOf": null,
+      "objectAudit": {
+        "zipEntries": 22,
+        "paragraphs": 15,
+        "nonEmptyParagraphs": 8,
+        "tables": 0,
+        "inlineImages": 5,
+        "mediaParts": 5,
+        "formulas": 0,
+        "textboxes": 0,
+        "oleObjects": 0,
+        "embeddedPackages": 0,
+        "embeddedObjects": 0,
+        "relationships": 3,
+        "commentsParts": [],
+        "notes": [],
+        "stableLocators": ["P001-P015", "IMG01-IMG05"]
+      },
+      "teachingConclusion": "P001、P003-P013 支持 ETF 不采用指数收益法而联接基金可以使用影子/指数收益法行情的对象边界；与 ETF-ETF 同源流程材料合并计权。",
+      "readabilityLimitations": ["图片对象可定位但不把截图菜单当作现行生产配置。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-08",
+      "sourceMaterialCode": "ETF-MAT-LINK-ETF",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__ETF-ETF不用指数收益法，联接使用指数收益法的流程.docx",
+      "format": "DOCX",
+      "sizeBytes": 621990,
+      "sha256": "560F20FEA1A612CA117BF2FB7A264E17E2C4CF810C2C41CC677F66C45B5F2101",
+      "duplicateOf": null,
+      "objectAudit": {
+        "zipEntries": 28,
+        "paragraphs": 25,
+        "nonEmptyParagraphs": 11,
+        "tables": 0,
+        "inlineImages": 5,
+        "mediaParts": 5,
+        "formulas": 0,
+        "textboxes": 0,
+        "oleObjects": 0,
+        "embeddedPackages": 0,
+        "embeddedObjects": 0,
+        "relationships": 3,
+        "commentsParts": [],
+        "notes": [],
+        "stableLocators": ["P001-P025", "IMG01-IMG05"]
+      },
+      "teachingConclusion": "P007、P009-P025 与 ETF-MAT-LINK-STOCK 同源但文件不相同；支持联接基金估值处理的增量边界，不进入 B1。",
+      "readabilityLimitations": ["图片对象可定位但不把截图菜单当作现行生产配置。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-09",
+      "sourceMaterialCode": "ETF-MAT-SPLIT",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__ETF-ETF折算、拆分流程.docx",
+      "format": "DOCX",
+      "sizeBytes": 415613,
+      "sha256": "1E649788CEC6EB2DBB94D5D550B58900A1EA02FC1715580AB55F370713BE4642",
+      "duplicateOf": null,
+      "objectAudit": {
+        "zipEntries": 22,
+        "paragraphs": 31,
+        "nonEmptyParagraphs": 26,
+        "tables": 0,
+        "inlineImages": 3,
+        "mediaParts": 4,
+        "formulas": 0,
+        "textboxes": 0,
+        "oleObjects": 1,
+        "embeddedPackages": 1,
+        "embeddedObjects": 2,
+        "relationships": 3,
+        "commentsParts": [],
+        "notes": ["word/footnotes.xml", "word/endnotes.xml"],
+        "stableLocators": ["P001-P031", "IMG01-IMG04", "EMBED01"]
+      },
+      "teachingConclusion": "P001-P031 支持折算/拆分日期、比例、凭证、估值表和联接持仓调整的历史流程；没有进入 B1 正常对象或 PCF 主链。",
+      "readabilityLimitations": ["EMBED01 为 embedded Excel package，未把其内部单元格公式外推到 B1。", "脚注、尾注和图片仅作为对象审计证据。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-10",
+      "sourceMaterialCode": "ETF-MAT-BROKER-SETTLEMENT",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__券结ETF核算介绍.pptx",
+      "format": "PPTX",
+      "sizeBytes": 2073460,
+      "sha256": "A2B9F863DAF40EC5EF4F0A28506A3561BA8E928D72363BDF10A5149B6ED69BED",
+      "duplicateOf": null,
+      "objectAudit": {
+        "zipEntries": 121,
+        "slides": 16,
+        "notesSlides": 2,
+        "slideTables": 3,
+        "slideImages": 15,
+        "mediaParts": 17,
+        "formulas": 0,
+        "oleObjects": 4,
+        "embeddedPackages": 2,
+        "embeddedObjects": 6,
+        "relationships": 45,
+        "commentsParts": ["ppt/commentAuthors.xml"],
+        "stableLocators": ["S01-S16", "IMG01-IMG17", "NOTE01-NOTE02", "EMBED01-EMBED02"]
+      },
+      "teachingConclusion": "S01-S16 支持券结 ETF 的券商交收、佣金、备付金和参数增量边界；普通 ETF B1 不重复教授券结基金基础。",
+      "readabilityLimitations": ["4 个 OLE 对象、embedded Word 和 Excel package 只登记存在性，内部内容不作为 B1 规则。", "评论作者部件存在但未发现稳定可复用的评论正文。"]
+    },
+    {
+      "physicalFileId": "ETF-PHY-11",
+      "sourceMaterialCode": "ETF-MAT-MUTUAL-RECOGNITION-COLLECTIVE",
+      "relativePath": "project_materials/新人陪练案例库/核算/05_ETF综合进阶__ETF-港交所ETF（互认基金）及集中申购业务实际运作情况介绍.pptx",
+      "format": "PPTX",
+      "sizeBytes": 1825013,
+      "sha256": "5B8CB66F95A0A5AD228034707A0C91098180DF07A7D8F1EBB65098112E55AB70",
+      "duplicateOf": null,
+      "objectAudit": {
+        "zipEntries": 138,
+        "slides": 14,
+        "notesSlides": 2,
+        "slideTables": 0,
+        "slideImages": 26,
+        "mediaParts": 26,
+        "formulas": 0,
+        "oleObjects": 0,
+        "embeddedPackages": 0,
+        "embeddedObjects": 0,
+        "relationships": 41,
+        "commentsParts": ["ppt/commentAuthors.xml"],
+        "stableLocators": ["S01-S14", "IMG01-IMG26", "NOTE01-NOTE02"]
+      },
+      "teachingConclusion": "S03-S12 支持集中申购、代卖/代买、补券和退补款的历史业务描述；因当前规则、权限和正常资料包未闭合，保持后续边界。",
+      "readabilityLimitations": ["图片和菜单中的历史参数不进入 B1；备注和评论不作为现行规则。"]
+    }
+  ],
+  "sameSourceMediaRelations": [
+    {
+      "relationId": "ETF-SM-01",
+      "kind": "SAME_SOURCE_MEDIA",
+      "physicalFileIds": ["ETF-PHY-07", "ETF-PHY-08"],
+      "mediaSha256": [
+        "710E006B2B5470793294E94C48DBB27C146344EA3A4BCF4587EE23047A53E51B",
+        "AB5998A86421C3897D4235E8E77B71B439EB64482F7D55639C61862809ADFC05",
+        "7C71C803D2C06A73748360E03C9EBE0688E13A0EBB4B00136AC1BE35CEE2EC18",
+        "41564BE9DF2597D03EEE738614C276E46110983B14F81780085C06FF68304AAA",
+        "BE2844BABB22EED9758682C8A3188B3AFF62CFD722CB252C297CBA979ACCD02B"
+      ],
+      "interpretation": "五个媒体对象一致，正文为 ETF/股票-ETF 两个同源流程变体；共同媒体只计同源证据一次，文件正文定位仍分别保留。"
+    },
+    {
+      "relationId": "ETF-SM-02",
+      "kind": "SHARED_TEMPLATE_MEDIA",
+      "physicalFileIds": ["ETF-PHY-01", "ETF-PHY-04", "ETF-PHY-10", "ETF-PHY-11"],
+      "mediaSha256": [
+        "A3C6673A77934A4E48F23A8C787F8F319B2D9264F26485BE1E18558FADAFD826",
+        "E8931130C1D668F219F7F3A0B95E40233FF437B544DC136ECB1BA854BFF2A586",
+        "3140843C419FD80A87B4AABC3E6BB0329569BD0AD3175A130D5779BC14A9C830",
+        "4BD3161FB7FB78A50AFAD640846F57C0346A8697AC0B16D321C102A1A1B3A643",
+        "B8848579C871B671AE7E76171ED0927D7CEEC3229270567695D722646E3711D8"
+      ],
+      "interpretation": "跨 PPT 共用媒体可能是 logo、模板或通用装饰；不把媒体重复出现当作独立业务证据，也不以媒体推导隐藏公式。"
+    }
+  ],
+  "evidenceGroups": [
+    {
+      "evidenceGroupId": "ETF-EG-01-OBJECT-CHAIN",
+      "physicalFileIds": ["ETF-PHY-01", "ETF-PHY-02"],
+      "locators": ["ETF-PHY-01:S04-S08", "ETF-PHY-02:S08-S13"],
+      "supports": ["ETF 产品对象", "基金份额", "组合证券", "一级实物申赎", "二级交易"],
+      "activityLanding": ["ETF-01"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "evidenceGroupId": "ETF-EG-02-PCF-BASKET",
+      "physicalFileIds": ["ETF-PHY-01", "ETF-PHY-02", "ETF-PHY-03"],
+      "locators": ["ETF-PHY-01:S07-S15", "ETF-PHY-02:S08-S12", "ETF-PHY-03:P003-P019"],
+      "supports": ["PCF/申赎清单字段", "替代标志", "股票篮市值", "现金替代", "单位现金差额"],
+      "activityLanding": ["ETF-02"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "evidenceGroupId": "ETF-EG-03-NAV-CONSIDERATION",
+      "physicalFileIds": ["ETF-PHY-01", "ETF-PHY-03"],
+      "locators": ["ETF-PHY-01:S12-S15", "ETF-PHY-03:P003-P007", "ETF-PHY-03:P022-P028"],
+      "supports": ["创设单位净值", "单位现金差额", "申购对价来源", "估值/凭证衔接"],
+      "activityLanding": ["ETF-02"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "evidenceGroupId": "ETF-EG-04-LEDGER-SETTLEMENT",
+      "physicalFileIds": ["ETF-PHY-01", "ETF-PHY-02", "ETF-PHY-03"],
+      "locators": ["ETF-PHY-01:S17-S38", "ETF-PHY-02:S13-S19", "ETF-PHY-03:P029-P051"],
+      "supports": ["补券台账", "可退替代款", "应退替代款", "凭证关系", "证券/现金交收链", "实际补券成本与费用", "估值/TA/清算多源勾稽"],
+      "activityLanding": ["ETF-02", "ETF-03", "ETF-04"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "evidenceGroupId": "ETF-EG-05-CROSS-MARKET",
+      "physicalFileIds": ["ETF-PHY-05", "ETF-PHY-06"],
+      "locators": ["ETF-PHY-05:P004-P017", "ETF-PHY-06:P005-P017"],
+      "supports": ["跨沪深港分类", "汇率", "跨市场补券", "跨市场结转"],
+      "activityLanding": ["ADVANCED-ETF-CROSS-MARKET"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "evidenceGroupId": "ETF-EG-06-LINK-VALUATION",
+      "physicalFileIds": ["ETF-PHY-07", "ETF-PHY-08"],
+      "locators": ["ETF-PHY-07:P001-P015", "ETF-PHY-08:P007-P025"],
+      "supports": ["ETF 与联接基金估值增量", "影子/指数收益法价格关系"],
+      "activityLanding": ["ADVANCED-ETF-LINK"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "evidenceGroupId": "ETF-EG-07-SPECIAL-OPERATIONS",
+      "physicalFileIds": ["ETF-PHY-04", "ETF-PHY-09", "ETF-PHY-10", "ETF-PHY-11"],
+      "locators": ["ETF-PHY-04:S05-S08", "ETF-PHY-09:P001-P031", "ETF-PHY-10:S01-S16", "ETF-PHY-11:S03-S12"],
+      "supports": ["差异化分红", "折算拆分", "券结 ETF", "集中申购及特殊产品边界"],
+      "activityLanding": ["BUILDING-ETF-SPECIAL"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "businessConclusions": [
+    {
+      "conclusionId": "ETF-CONCLUSION-01",
+      "claim": "ETF 产品、基金份额、组合证券和 PCF/申赎清单是不同对象；一级申赎改变基金发行份额，二级市场份额转让不改变基金发行份额。",
+      "supportsRoutes": ["ETF-01"],
+      "sourceGroups": ["ETF-EG-01-OBJECT-CHAIN"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "conclusionId": "ETF-CONCLUSION-02",
+      "claim": "PCF 行逐行提供市场、证券、数量、替代标志和参考价格；股票篮市值、现金替代、创设单位净值和单位现金差额必须从不同来源字段连续计算。",
+      "supportsRoutes": ["ETF-02"],
+      "sourceGroups": ["ETF-EG-02-PCF-BASKET", "ETF-EG-03-NAV-CONSIDERATION"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "conclusionId": "ETF-CONCLUSION-03",
+      "claim": "ETF 台账和凭证承接现金替代、证券/现金交收、实际补券成本与费用、最终结算和多源封账；本批只训练资料充分的正常业务事件快照，不把历史差异或异常处置写入题面。",
+      "supportsRoutes": ["ETF-02", "ETF-03", "ETF-04"],
+      "sourceGroups": ["ETF-EG-04-LEDGER-SETTLEMENT"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "conclusionId": "ETF-CONCLUSION-04",
+      "claim": "跨市场、全球、互认/集中申购、券结增量、联接估值、差异化分红和折算拆分均有材料痕迹，但缺少本批所需的当前规则、权限和正常双样本闭合。",
+      "supportsRoutes": [],
+      "sourceGroups": ["ETF-EG-05-CROSS-MARKET", "ETF-EG-06-LINK-VALUATION", "ETF-EG-07-SPECIAL-OPERATIONS"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "activityLanding": {
+    "ETF-01": {
+      "routeFile": "content/routes/accounting/ACC-ETF-OBJECT-001.json",
+      "evidenceFile": "content/evidence/accounting/etf/r1-object-evidence.json",
+      "activities": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"]
+    },
+    "ETF-02": {
+      "routeFile": "content/routes/accounting/ACC-ETF-PCF-002.json",
+      "evidenceFile": "content/evidence/accounting/etf/r2-pcf-evidence.json",
+      "activities": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"]
+    },
+    "ETF-03": {
+      "routeFile": "content/routes/accounting/ACC-ETF-SETTLEMENT-003.json",
+      "evidenceFile": "content/evidence/accounting/etf/r3-settlement-evidence.json",
+      "activities": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"]
+    },
+    "ETF-04": {
+      "routeFile": "content/routes/accounting/ACC-ETF-CLOSE-004.json",
+      "evidenceFile": "content/evidence/accounting/etf/r4-close-evidence.json",
+      "activities": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"]
+    }
+  },
+  "syntheticFixtures": [
+    {"fixtureId": "ETF01-FIXTURE-DEMO-A", "routeId": "ACC-ETF-OBJECT-001", "answerChain": "shared-normal-snapshot.json#/fixtures/0/answerChain", "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"fixtureId": "ETF01-FIXTURE-COMP-B", "routeId": "ACC-ETF-OBJECT-001", "answerChain": "shared-normal-snapshot.json#/fixtures/1/answerChain", "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"fixtureId": "ETF02-FIXTURE-DEMO-A", "routeId": "ACC-ETF-PCF-002", "answerChain": "shared-normal-snapshot.json#/fixtures/2/answerChain", "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"fixtureId": "ETF02-FIXTURE-COMP-B", "routeId": "ACC-ETF-PCF-002", "answerChain": "shared-normal-snapshot.json#/fixtures/3/answerChain", "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"fixtureId": "ETF03-FIXTURE-DEMO-A", "routeId": "ACC-ETF-SETTLEMENT-003", "answerChain": "shared-normal-snapshot.json#/fixtures/4/answerChain", "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"fixtureId": "ETF03-FIXTURE-COMP-B", "routeId": "ACC-ETF-SETTLEMENT-003", "answerChain": "shared-normal-snapshot.json#/fixtures/5/answerChain", "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"fixtureId": "ETF04-FIXTURE-DEMO-A", "routeId": "ACC-ETF-CLOSE-004", "answerChain": "shared-normal-snapshot.json#/fixtures/6/answerChain", "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"fixtureId": "ETF04-FIXTURE-COMP-B", "routeId": "ACC-ETF-CLOSE-004", "answerChain": "shared-normal-snapshot.json#/fixtures/7/answerChain", "provenance": "SYNTHETIC_EDUCATIONAL"}
+  ],
+  "exclusionBoundary": {
+    "status": "BUILDING_DEFER",
+    "topics": ["跨境全球 ETF", "跨沪深港", "互认/集中申购", "券结 ETF 增量", "ETF 联接", "差异化分红", "折算拆分", "公司行为", "商品/黄金/期货 ETF"],
+    "reason": "材料包含历史流程、界面和风险提示，但本批没有闭合的当前规则版本、字段字典、价格/汇率/日历快照、权限矩阵和正常双样本资料包。"
+  }
+}

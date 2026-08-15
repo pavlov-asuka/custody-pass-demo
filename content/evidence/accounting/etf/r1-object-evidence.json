@@ -1,0 +1,95 @@
+{
+  "evidenceId": "ETF-EVID-R1-OBJECT-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "routeId": "ACC-ETF-OBJECT-001",
+  "routeCode": "ETF-01",
+  "title": "ETF-01 产品、份额、组合证券与一级/二级边界证据",
+  "scopeNotice": "本文件是 ETF-01 的私有证据、Decimal 答案链和原子 workItem 映射；不登记地图、发布清单或生产契约。",
+  "sharedEvidence": ["ETF-EVID-MATERIAL-AUDIT-001", "ETF-EVID-FIELDS-001", "ETF-EVID-SOURCE-STATE-001", "ETF-EVID-NORMAL-001"],
+  "materialAnchors": [
+    {"sourceMaterialCode": "ETF-MAT-INDEX-OPS", "locators": ["S04-S08", "S29-S31"], "teachingUse": "抽象 ETF 产品、基金份额、组合证券、一级实物申赎和二级交易的对象关系；历史界面不进入题面。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "ETF-MAT-SETTLEMENT", "locators": ["S08-S13", "S19"], "teachingUse": "补充 ETF 份额、组合证券和申赎交收对象的区分。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "ETF-MAT-FAQ", "locators": ["P003-P005", "P022-P028"], "teachingUse": "确认申赎凭证、台账和基金结果属于一级业务承接，不混同二级交易。", "provenance": "MATERIAL_ABSTRACTION"}
+  ],
+  "mappingClaims": [
+    {"claimId": "ETF01-CLAIM-01", "claim": "ETF 产品键、基金份额键和组合证券/篮子键是三个不同对象，必须分别读取和登记。", "sourceGroups": ["ETF-SRC-R1-OBJECT-REGISTER"], "activity": "FIELD_MAP", "provenance": "MATERIAL_ABSTRACTION"},
+    {"claimId": "ETF01-CLAIM-02", "claim": "一级申赎以篮子数量和每篮份额承接基金发行份额；二级交易只登记持有人之间的转让，不增加或减少基金发行份额。", "sourceGroups": ["ETF-SRC-R1-PCF-LINK", "ETF-SRC-R1-PRIMARY-CONFIRM", "ETF-SRC-R1-SECONDARY-TRADE"], "activity": "LEDGER_ENTRY", "provenance": "MATERIAL_ABSTRACTION"},
+    {"claimId": "ETF01-CLAIM-03", "claim": "本路线结束状态是二级交易已结算且发行份额不变，不提前进入 PCF 现金替代或估值计算。", "sourceGroups": ["ETF-SRC-R1-SECONDARY-TRADE"], "activity": "RECONCILIATION", "provenance": "CASE_POLICY"}
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "ETF01-FIXTURE-DEMO-A",
+      "sourceToField": [
+        {"sourceGroupId": "ETF-SRC-R1-OBJECT-REGISTER", "fields": ["product_key=ETF-EDU-A-01", "fund_share_key=ETF-SHARE-EDU-A-01", "basket_security_key=BASKET-ETF01-A-001"]},
+        {"sourceGroupId": "ETF-SRC-R1-PCF-LINK", "fields": ["basket_count=2", "shares_per_creation_unit=100000"]},
+        {"sourceGroupId": "ETF-SRC-R1-PRIMARY-CONFIRM", "fields": ["primary_created_shares=200000", "post_primary_issued_shares=5200000"]},
+        {"sourceGroupId": "ETF-SRC-R1-SECONDARY-TRADE", "fields": ["secondary_traded_shares=80000", "post_secondary_issued_shares=5200000"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "primary_created_shares", "formula": "Decimal('2') * Decimal('100000')", "result": "200000", "unit": "份", "precision": 0, "tolerance": "0"},
+        {"fieldId": "post_primary_issued_shares", "formula": "Decimal('5000000') + Decimal('200000')", "result": "5200000", "unit": "份", "precision": 0, "tolerance": "0"},
+        {"fieldId": "post_secondary_issued_shares", "formula": "Decimal('5200000') + Decimal('0')", "result": "5200000", "unit": "份", "precision": 0, "tolerance": "0"},
+        {"fieldId": "secondary_issued_delta", "formula": "Decimal('5200000') - Decimal('5200000')", "result": "0", "unit": "份", "precision": 0, "tolerance": "0"}
+      ],
+      "reconciliation": {"identityMatch": "YES", "primaryIssuedShares": "5200000", "secondaryIssuedDelta": "0", "finalState": "SECONDARY_SETTLED"}
+    },
+    "comprehensiveB": {
+      "fixtureId": "ETF01-FIXTURE-COMP-B",
+      "sourceToField": [
+        {"sourceMaterialId": "ETF01-B-OBJECT-REGISTER", "role": "OBJECT_REGISTER", "fields": ["product_key=ETF-EDU-B-01", "fund_share_key=ETF-SHARE-EDU-B-01", "basket_security_key=BASKET-ETF01-B-001"]},
+        {"sourceMaterialId": "ETF01-B-PCF-LINK", "role": "PCF_LINK", "fields": ["pcf_key=PCF-ETF01-B-001", "basket_count=3", "shares_per_creation_unit=120000"]},
+        {"sourceMaterialId": "ETF01-B-PRIMARY-CONFIRM", "role": "PRIMARY_CONFIRMATION", "fields": ["primary_created_shares=360000", "post_primary_issued_shares=7860000"]},
+        {"sourceMaterialId": "ETF01-B-SECONDARY-TRADE", "role": "SECONDARY_TRADE", "fields": ["secondary_traded_shares=95000", "post_secondary_issued_shares=7860000"]},
+        {"sourceMaterialId": "ETF01-B-RECON", "role": "RECONCILIATION", "fields": ["secondary_issued_delta=0", "final_state=SECONDARY_SETTLED"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "primary_created_shares", "formula": "Decimal('3') * Decimal('120000')", "result": "360000", "unit": "份", "precision": 0, "tolerance": "0"},
+        {"fieldId": "post_primary_issued_shares", "formula": "Decimal('7500000') + Decimal('360000')", "result": "7860000", "unit": "份", "precision": 0, "tolerance": "0"},
+        {"fieldId": "post_secondary_issued_shares", "formula": "Decimal('7860000') + Decimal('0')", "result": "7860000", "unit": "份", "precision": 0, "tolerance": "0"},
+        {"fieldId": "secondary_issued_delta", "formula": "Decimal('7860000') - Decimal('7860000')", "result": "0", "unit": "份", "precision": 0, "tolerance": "0"}
+      ],
+      "reconciliation": {"identityMatch": "YES", "primaryIssuedShares": "7860000", "secondaryIssuedDelta": "0", "finalState": "SECONDARY_SETTLED"},
+      "expectedConclusion": "产品、基金份额和组合证券对象分别可追溯；3篮×120000份=360000份，发行份额由7500000份变为7860000份，95000份二级交易不改变发行份额。"
+    }
+  },
+  "atomicWorkItems": [
+    {"workItemId": "etf01-b-product-source", "responseKind": "SELECT", "observableAction": "从对象登记资料定位 ETF 产品键", "fixtureValue": "ETF01_B_PRODUCT_FROM_REGISTER", "sourceMaterialIds": ["ETF01-B-OBJECT-REGISTER"], "scoreTargets": ["C-ETF01-OBJECT-ROLES"], "remediationTargetId": "ETF01-TARGET-PRODUCT"},
+    {"workItemId": "etf01-b-fund-share-source", "responseKind": "SELECT", "observableAction": "从对象登记资料定位基金份额对象键", "fixtureValue": "ETF01_B_SHARE_FROM_REGISTER", "sourceMaterialIds": ["ETF01-B-OBJECT-REGISTER"], "scoreTargets": ["C-ETF01-OBJECT-ROLES"], "remediationTargetId": "ETF01-TARGET-SHARE"},
+    {"workItemId": "etf01-b-basket-source", "responseKind": "SELECT", "observableAction": "从 PCF/申赎清单资料定位组合证券/篮子对象键", "fixtureValue": "ETF01_B_BASKET_FROM_PCF", "sourceMaterialIds": ["ETF01-B-PCF-LINK"], "scoreTargets": ["C-ETF01-PRIMARY-SECONDARY"], "remediationTargetId": "ETF01-TARGET-BASKET"},
+    {"workItemId": "etf01-b-basket-count", "responseKind": "NUMBER", "observableAction": "读取 Comprehensive B 的申赎篮子数量", "fixtureValue": "3", "unit": "篮", "precision": 0, "tolerance": "0", "sourceMaterialIds": ["ETF01-B-PCF-LINK"], "scoreTargets": ["P-ETF01-BASKET-QTY"], "remediationTargetId": "ETF01-TARGET-BASKET-QTY"},
+    {"workItemId": "etf01-b-created-shares", "responseKind": "NUMBER", "observableAction": "用篮子数量和每篮份额复算一级创设份额", "fixtureValue": "360000", "unit": "份", "precision": 0, "tolerance": "0", "sourceMaterialIds": ["ETF01-B-PCF-LINK", "ETF01-B-PRIMARY-CONFIRM"], "scoreTargets": ["P-ETF01-CREATED-SHARES", "M-ETF01-PRIMARY-ISSUANCE"], "remediationTargetId": "ETF01-TARGET-CREATED"},
+    {"workItemId": "etf01-b-post-primary-issued", "responseKind": "NUMBER", "observableAction": "登记一级确认后的基金发行份额", "fixtureValue": "7860000", "unit": "份", "precision": 0, "tolerance": "0", "sourceMaterialIds": ["ETF01-B-PRIMARY-CONFIRM"], "scoreTargets": ["P-ETF01-PRIMARY-LEDGER", "M-ETF01-PRIMARY-ISSUANCE"], "remediationTargetId": "ETF01-TARGET-PRIMARY-CLOSING"},
+    {"workItemId": "etf01-b-secondary-traded-shares", "responseKind": "NUMBER", "observableAction": "登记二级市场持有人转让份额", "fixtureValue": "95000", "unit": "份", "precision": 0, "tolerance": "0", "sourceMaterialIds": ["ETF01-B-SECONDARY-TRADE"], "scoreTargets": ["P-ETF01-SECONDARY-LEDGER", "E-ETF01-STRUCTURED"], "remediationTargetId": "ETF01-TARGET-SECONDARY"},
+    {"workItemId": "etf01-b-post-secondary-issued", "responseKind": "NUMBER", "observableAction": "登记二级交易后的基金发行份额", "fixtureValue": "7860000", "unit": "份", "precision": 0, "tolerance": "0", "sourceMaterialIds": ["ETF01-B-SECONDARY-TRADE", "ETF01-B-RECON"], "scoreTargets": ["P-ETF01-FINAL-ISSUED", "E-ETF01-STRUCTURED"], "remediationTargetId": "ETF01-TARGET-FINAL-ISSUED"},
+    {"workItemId": "etf01-b-secondary-issued-delta", "responseKind": "NUMBER", "observableAction": "复算二级交易对基金发行份额的变动", "fixtureValue": "0", "unit": "份", "precision": 0, "tolerance": "0", "sourceMaterialIds": ["ETF01-B-PRIMARY-CONFIRM", "ETF01-B-SECONDARY-TRADE", "ETF01-B-RECON"], "scoreTargets": ["R-ETF01-NO-ISSUANCE", "M-ETF01-SECONDARY-INVARIANT"], "remediationTargetId": "ETF01-TARGET-NO-ISSUANCE"},
+    {"workItemId": "etf01-b-conclusion", "responseKind": "TEXT", "observableAction": "用一句话汇总对象、一级创设和二级不改变发行份额结论", "fixtureValue": "ETF-EDU-B-01、360000份、7860000份、0份", "sourceMaterialIds": ["ETF01-B-OBJECT-REGISTER", "ETF01-B-PCF-LINK", "ETF01-B-PRIMARY-CONFIRM", "ETF01-B-SECONDARY-TRADE", "ETF01-B-RECON"], "scoreTargets": ["E-ETF01-TRACE"], "remediationTargetId": "ETF01-TARGET-CONCLUSION"}
+  ],
+  "coverage": {
+    "FIELD_MAP": ["etf01-b-product-source", "etf01-b-fund-share-source", "etf01-b-basket-source", "ACC-ETF-OBJECT-Q-01"],
+    "CALCULATION": ["etf01-b-basket-count", "etf01-b-created-shares", "etf01-b-post-primary-issued", "ACC-ETF-OBJECT-Q-02"],
+    "LEDGER_ENTRY": ["etf01-b-secondary-traded-shares", "etf01-b-post-secondary-issued", "ACC-ETF-OBJECT-Q-03"],
+    "RECONCILIATION": ["etf01-b-secondary-issued-delta", "ACC-ETF-OBJECT-Q-04"],
+    "SHORT_TEXT": ["etf01-b-conclusion", "ACC-ETF-OBJECT-Q-05"]
+  },
+  "dependencyPolicy": {
+    "hardPrerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+    "dependsOnRouteIds": [],
+    "plannedMapPrerequisites": ["ACC-NODE-DAILY-003", "ACC-NODE-STOCK-TRADE-001"],
+    "serialOrder": 1,
+    "stageGate": false,
+    "releaseRegistration": "PUBLISHED_IN_ACCOUNTING_2026.08.10",
+    "status": "PUBLISHED"
+  },
+  "fixturePolicy": {
+    "routeOwnsIndependentDemoA": "ETF01-FIXTURE-DEMO-A",
+    "routeOwnsIndependentComprehensiveB": "ETF01-FIXTURE-COMP-B",
+    "sharedWithOtherRoute": false,
+    "numericVariationNotice": "R1 A/B 使用不同产品键、日期、篮子数量、每篮份额、发行份额和二级成交份额。"
+  },
+  "exclusionBoundary": {
+    "status": "BUILDING_DEFER",
+    "topics": ["PCF 行现金替代公式", "创设单位净值", "单位现金差额", "补券台账", "可退/应退替代款", "跨市场和跨境", "券结增量", "联接估值", "公司行为"],
+    "reason": "这些主题由 ETF-02 或后续候选路线承接；ETF-01 只证明对象边界和一级/二级发行份额关系。"
+  }
+}

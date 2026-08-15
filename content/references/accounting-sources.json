@@ -384,6 +384,27 @@
       "locator": "content/evidence/accounting/fof 共享快照、字段字典、来源状态矩阵和 5 条路线证据文件",
       "contentUse": "FOF 模块全部 5 条路线",
       "reviewNote": "仅约束各独立脱敏案例明确给出的对象键、业务日、金额、份额、NAV、返还率、状态、来源版本、精度、容差和正常关闭条件，不外推为现行生产制度。"
+    },
+    {
+      "referenceId": "ACC-REF-ETF-MATERIALS-202608",
+      "title": "ETF 运营、清算、核算与特殊业务培训材料",
+      "locator": "指数化投资下的 ETF 运营 PPTX S04—S66；场内 ETF 清算 PPTX S02、S08—S19；ETF 核算 FAQ DOCX P003—P095；其余跨市场、联接、折算拆分、券结及集中申购材料按 content/evidence/accounting/etf/material-audit.json 稳定定位",
+      "contentUse": "路线 ACC-ETF-OBJECT-001、ACC-ETF-PCF-002、ACC-ETF-SETTLEMENT-003、ACC-ETF-CLOSE-004",
+      "reviewNote": "支持国内普通 ETF 的产品与市场边界、PCF/股票篮/现金替代、一级申赎三腿交收、补券成本、替代款结算及多来源正常封账。历史菜单、费率、时点、产品号、跨境规则和图片内不可可靠字段不固化。"
+    },
+    {
+      "referenceId": "ACC-REF-ETF-ROUTE-DECISIONS-202608",
+      "title": "ETF 高保真路线施工与验收决定",
+      "locator": "阶段 5 教学有效性复核、11 份物理材料对象级审计与 B0—B2 Luna Max 受控施工验收",
+      "contentUse": "ETF 模块全部 4 条路线",
+      "reviewNote": "冻结 4 条 REQUIRED 连续主链，不设阶段闸门；联接、跨沪深港、跨境全球、互认/集中申购、券结 ETF 增量、差异化分红、折算拆分及商品/黄金/期货 ETF 继续 BUILDING/DEFER。"
+    },
+    {
+      "referenceId": "ACC-REF-ETF-CASE-PARAMETERS-202608",
+      "title": "ETF 路线题面批准合成参数",
+      "locator": "content/evidence/accounting/etf 共享快照、字段字典、来源状态矩阵和 4 条路线证据文件",
+      "contentUse": "ETF 模块全部 4 条路线",
+      "reviewNote": "仅约束八套独立脱敏案例明确给出的对象键、PCF 字段、价格、替代标志、篮子数量、份额、现金差额、预付款、补券成本、费用、状态、精度和容差，不外推为现行生产制度。"
     }
   ]
 }

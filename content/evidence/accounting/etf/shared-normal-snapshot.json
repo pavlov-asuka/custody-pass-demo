@@ -1,0 +1,343 @@
+{
+  "evidenceId": "ETF-EVID-NORMAL-001",
+  "version": "1.1.0",
+  "scope": "ETF-01-04",
+  "title": "ETF B0-B2 八套独立正常资料快照与 Decimal 答案链",
+  "scopeNotice": "八个 fixture 分别归属四条路线的 Demo A 与 Comprehensive B；所有对象键、PCF、价格、溢价、NAV、现金差额、交收、补券、费用、结算、精度和容差均只在各自 ONLY_THIS_CASE 版本有效。",
+  "normalBoundary": {
+    "productType": "DOMESTIC_ORDINARY_EQUITY_ETF",
+    "participants": ["SYNTHETIC_INVESTOR", "SYNTHETIC_MANAGER", "SYNTHETIC_TA", "CUSTODY_ACCOUNTING"],
+    "transactionShape": "single_normal_primary_creation_with_separate_secondary_transfer_or_single_normal_creation_unit",
+    "excludedStates": ["cross_border", "mutual_recognition", "broker_settlement_increment", "link_fund", "corporate_action", "differential_dividend", "split", "late", "duplicate", "missing", "conflict", "rerun", "rollback", "revaluation", "redisclosure"],
+    "lastTeachableState": "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE",
+    "casePolicyNotice": "所有规则、价格、比例、NAV、精度和容差只属于对应案例版本，不外推为生产口径。"
+  },
+  "precisionPolicy": {
+    "money": {"unit": "元", "precision": 2, "tolerance": "0.01", "rounding": "final_display_only"},
+    "shares": {"unit": "份", "precision": 0, "tolerance": "0", "rounding": "final_display_only"},
+    "price": {"unit": "元/股", "precision": 2, "tolerance": "0.01", "rounding": "final_display_only"},
+    "rate": {"unit": "比例", "precision": 4, "tolerance": "0.00005", "rounding": "final_display_only"},
+    "calculationEngine": "Decimal",
+    "binaryFloatForbidden": true
+  },
+  "fixtures": [
+    {
+      "fixtureId": "ETF01-FIXTURE-DEMO-A",
+      "routeId": "ACC-ETF-OBJECT-001",
+      "fixtureType": "DEMONSTRATION_A",
+      "caseVersion": "ETF01-A-EDU-01",
+      "businessDate": "2030-06-14",
+      "objectKeys": {"productKey": "ETF-EDU-A-01", "fundShareKey": "ETF-SHARE-EDU-A-01", "basketSecurityKey": "BASKET-ETF01-A-001", "pcfKey": "PCF-ETF01-A-001", "primaryEventKey": "EVT-ETF01-A-PRIMARY-001", "secondaryTradeKey": "EVT-ETF01-A-SECONDARY-001"},
+      "sourceGroups": ["ETF-SRC-R1-OBJECT-REGISTER", "ETF-SRC-R1-PCF-LINK", "ETF-SRC-R1-PRIMARY-CONFIRM", "ETF-SRC-R1-SECONDARY-TRADE"],
+      "fields": [
+        {"fieldId": "product_key", "value": "ETF-EDU-A-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "product_type", "value": "DOMESTIC_ORDINARY_EQUITY_ETF", "unit": "productType", "provenance": "MATERIAL_ABSTRACTION"},
+        {"fieldId": "fund_share_key", "value": "ETF-SHARE-EDU-A-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "basket_security_key", "value": "BASKET-ETF01-A-001", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "pcf_key", "value": "PCF-ETF01-A-001", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "primary_event_key", "value": "EVT-ETF01-A-PRIMARY-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "secondary_trade_key", "value": "EVT-ETF01-A-SECONDARY-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "basket_count", "value": "2", "unit": "篮", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "shares_per_creation_unit", "value": "100000", "unit": "份/篮", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "opening_issued_shares", "value": "5000000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "primary_created_shares", "value": "200000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "post_primary_issued_shares", "value": "5200000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "secondary_traded_shares", "value": "80000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "post_secondary_issued_shares", "value": "5200000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "secondary_issued_delta", "value": "0", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "primary_state", "value": "PRIMARY_CONFIRMED", "unit": "state", "provenance": "CASE_POLICY"},
+        {"fieldId": "secondary_state", "value": "SECONDARY_SETTLED", "unit": "state", "provenance": "CASE_POLICY"},
+        {"fieldId": "object_identity_match", "value": "YES", "unit": "YES/NO", "provenance": "CASE_POLICY"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "ETF-SRC-R1-OBJECT-REGISTER", "fields": ["product_key=ETF-EDU-A-01", "fund_share_key=ETF-SHARE-EDU-A-01", "basket_security_key=BASKET-ETF01-A-001"]},
+          {"sourceGroupId": "ETF-SRC-R1-PCF-LINK", "fields": ["pcf_key=PCF-ETF01-A-001", "basket_count=2", "shares_per_creation_unit=100000"]},
+          {"sourceGroupId": "ETF-SRC-R1-PRIMARY-CONFIRM", "fields": ["primary_created_shares=200000", "primary_state=PRIMARY_CONFIRMED"]},
+          {"sourceGroupId": "ETF-SRC-R1-SECONDARY-TRADE", "fields": ["secondary_traded_shares=80000", "secondary_state=SECONDARY_SETTLED"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "primary_created_shares", "formula": "Decimal('2') * Decimal('100000')", "result": "200000", "unit": "份", "precision": 0, "tolerance": "0"},
+          {"fieldId": "post_primary_issued_shares", "formula": "Decimal('5000000') + Decimal('200000')", "result": "5200000", "unit": "份", "precision": 0, "tolerance": "0"},
+          {"fieldId": "post_secondary_issued_shares", "formula": "Decimal('5200000') + Decimal('0')", "result": "5200000", "unit": "份", "precision": 0, "tolerance": "0"},
+          {"fieldId": "secondary_issued_delta", "formula": "Decimal('5200000') - Decimal('5200000')", "result": "0", "unit": "份", "precision": 0, "tolerance": "0"}
+        ],
+        "reconciliation": {"identityMatch": "YES", "primaryIssuedShares": "5200000", "secondaryIssuedDelta": "0", "finalState": "SECONDARY_SETTLED"},
+        "expectedConclusion": "产品 ETF-EDU-A-01、基金份额 ETF-SHARE-EDU-A-01 与篮子 BASKET-ETF01-A-001 分属不同对象；2篮×100000份=200000份一级创设，发行份额由5000000份变为5200000份，80000份二级转让不改变发行份额。"
+      }
+    },
+    {
+      "fixtureId": "ETF01-FIXTURE-COMP-B",
+      "routeId": "ACC-ETF-OBJECT-001",
+      "fixtureType": "COMPREHENSIVE_B",
+      "caseVersion": "ETF01-B-EDU-01",
+      "businessDate": "2030-06-15",
+      "objectKeys": {"productKey": "ETF-EDU-B-01", "fundShareKey": "ETF-SHARE-EDU-B-01", "basketSecurityKey": "BASKET-ETF01-B-001", "pcfKey": "PCF-ETF01-B-001", "primaryEventKey": "EVT-ETF01-B-PRIMARY-001", "secondaryTradeKey": "EVT-ETF01-B-SECONDARY-001"},
+      "sourceGroups": ["ETF-SRC-R1-OBJECT-REGISTER", "ETF-SRC-R1-PCF-LINK", "ETF-SRC-R1-PRIMARY-CONFIRM", "ETF-SRC-R1-SECONDARY-TRADE"],
+      "fields": [
+        {"fieldId": "product_key", "value": "ETF-EDU-B-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "product_type", "value": "DOMESTIC_ORDINARY_EQUITY_ETF", "unit": "productType", "provenance": "MATERIAL_ABSTRACTION"},
+        {"fieldId": "fund_share_key", "value": "ETF-SHARE-EDU-B-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "basket_security_key", "value": "BASKET-ETF01-B-001", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "pcf_key", "value": "PCF-ETF01-B-001", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "primary_event_key", "value": "EVT-ETF01-B-PRIMARY-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "secondary_trade_key", "value": "EVT-ETF01-B-SECONDARY-001", "unit": "eventKey", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "basket_count", "value": "3", "unit": "篮", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "shares_per_creation_unit", "value": "120000", "unit": "份/篮", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "opening_issued_shares", "value": "7500000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "primary_created_shares", "value": "360000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "post_primary_issued_shares", "value": "7860000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "secondary_traded_shares", "value": "95000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "post_secondary_issued_shares", "value": "7860000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "secondary_issued_delta", "value": "0", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "primary_state", "value": "PRIMARY_CONFIRMED", "unit": "state", "provenance": "CASE_POLICY"},
+        {"fieldId": "secondary_state", "value": "SECONDARY_SETTLED", "unit": "state", "provenance": "CASE_POLICY"},
+        {"fieldId": "object_identity_match", "value": "YES", "unit": "YES/NO", "provenance": "CASE_POLICY"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "ETF-SRC-R1-OBJECT-REGISTER", "fields": ["product_key=ETF-EDU-B-01", "fund_share_key=ETF-SHARE-EDU-B-01", "basket_security_key=BASKET-ETF01-B-001"]},
+          {"sourceGroupId": "ETF-SRC-R1-PCF-LINK", "fields": ["pcf_key=PCF-ETF01-B-001", "basket_count=3", "shares_per_creation_unit=120000"]},
+          {"sourceGroupId": "ETF-SRC-R1-PRIMARY-CONFIRM", "fields": ["primary_created_shares=360000", "primary_state=PRIMARY_CONFIRMED"]},
+          {"sourceGroupId": "ETF-SRC-R1-SECONDARY-TRADE", "fields": ["secondary_traded_shares=95000", "secondary_state=SECONDARY_SETTLED"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "primary_created_shares", "formula": "Decimal('3') * Decimal('120000')", "result": "360000", "unit": "份", "precision": 0, "tolerance": "0"},
+          {"fieldId": "post_primary_issued_shares", "formula": "Decimal('7500000') + Decimal('360000')", "result": "7860000", "unit": "份", "precision": 0, "tolerance": "0"},
+          {"fieldId": "post_secondary_issued_shares", "formula": "Decimal('7860000') + Decimal('0')", "result": "7860000", "unit": "份", "precision": 0, "tolerance": "0"},
+          {"fieldId": "secondary_issued_delta", "formula": "Decimal('7860000') - Decimal('7860000')", "result": "0", "unit": "份", "precision": 0, "tolerance": "0"}
+        ],
+        "reconciliation": {"identityMatch": "YES", "primaryIssuedShares": "7860000", "secondaryIssuedDelta": "0", "finalState": "SECONDARY_SETTLED"},
+        "expectedConclusion": "ETF-EDU-B-01 的产品、份额和组合证券对象分别可追溯；3篮×120000份=360000份，7500000份一级发行份额承接为7860000份，95000份二级成交只改变持有人，不改变发行份额。"
+      }
+    },
+    {
+      "fixtureId": "ETF02-FIXTURE-DEMO-A",
+      "routeId": "ACC-ETF-PCF-002",
+      "fixtureType": "DEMONSTRATION_A",
+      "caseVersion": "ETF02-A-EDU-01",
+      "businessDate": "2030-06-16",
+      "objectKeys": {"productKey": "ETF-EDU-C-01", "pcfKey": "PCF-ETF02-A-001", "creationEventKey": "EVT-ETF02-A-CREATE-001"},
+      "sourceGroups": ["ETF-SRC-R2-PCF", "ETF-SRC-R2-MARKET", "ETF-SRC-R2-VALUATION", "ETF-SRC-R2-RESULT"],
+      "fields": [
+        {"fieldId": "product_key", "value": "ETF-EDU-C-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "pcf_key", "value": "PCF-ETF02-A-001", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_1_code", "value": "600101", "unit": "securityCode", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_1_market", "value": "SSE", "unit": "market", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_1_quantity", "value": "800", "unit": "股", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_1_substitution_flag", "value": "0_NO_CASH_SUBSTITUTION", "unit": "flag", "provenance": "MATERIAL_ABSTRACTION"},
+        {"fieldId": "security_1_reference_price", "value": "12.50", "unit": "元/股", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_1_market_value", "value": "10000.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_2_code", "value": "000201", "unit": "securityCode", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_2_market", "value": "SZSE", "unit": "market", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_2_quantity", "value": "1000", "unit": "股", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_2_substitution_flag", "value": "1_MUST_CASH_SUBSTITUTION", "unit": "flag", "provenance": "MATERIAL_ABSTRACTION"},
+        {"fieldId": "security_2_reference_price", "value": "8.40", "unit": "元/股", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_2_premium_rate", "value": "0.1000", "unit": "比例", "precision": 4, "tolerance": "0.00005", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_2_market_value", "value": "8400.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_2_cash_substitution", "value": "9240.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_code", "value": "600301", "unit": "securityCode", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_3_market", "value": "SSE", "unit": "market", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_3_quantity", "value": "500", "unit": "股", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_3_substitution_flag", "value": "2_ALLOWED_CASH_SUBSTITUTION", "unit": "flag", "provenance": "MATERIAL_ABSTRACTION"},
+        {"fieldId": "security_3_delivery_choice", "value": "CASH_SUBSTITUTE", "unit": "choice", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_reference_price", "value": "9.00", "unit": "元/股", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_premium_rate", "value": "0.0000", "unit": "比例", "precision": 4, "tolerance": "0.00005", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_market_value", "value": "4500.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_cash_substitution", "value": "4500.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "basket_market_value", "value": "22900.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "physical_security_value", "value": "10000.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "cash_substitution_total", "value": "13740.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "pre_voucher_asset_nav", "value": "1234567.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "pre_voucher_issued_capital", "value": "100000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "basket_share_quantity", "value": "2000", "unit": "份/篮", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "creation_unit_nav", "value": "24691.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "unit_cash_difference", "value": "1791.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "refund_amount", "value": "0.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "refund_status", "value": "NOT_PROCESSED_IN_THIS_ROUTE", "unit": "state", "provenance": "CASE_POLICY"},
+        {"fieldId": "substitution_premium_prepayment", "value": "840.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "initial_consideration", "value": "25531.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "unsettled_substitution_prepayment", "value": "840.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "creation_consideration", "value": "25531.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "actual_consideration", "value": "25531.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "consideration_difference", "value": "0.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "final_reconciliation_state", "value": "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT", "unit": "state", "provenance": "CASE_POLICY"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "ETF-SRC-R2-PCF", "fields": ["security_1_code=600101", "security_1_market=SSE", "security_1_quantity=800", "security_1_substitution_flag=0_NO_CASH_SUBSTITUTION", "security_2_code=000201", "security_2_market=SZSE", "security_2_quantity=1000", "security_2_substitution_flag=1_MUST_CASH_SUBSTITUTION", "security_3_code=600301", "security_3_market=SSE", "security_3_quantity=500", "security_3_substitution_flag=2_ALLOWED_CASH_SUBSTITUTION", "security_3_delivery_choice=CASH_SUBSTITUTE"]},
+          {"sourceGroupId": "ETF-SRC-R2-MARKET", "fields": ["security_1_reference_price=12.50", "security_2_reference_price=8.40", "security_3_reference_price=9.00", "security_2_premium_rate=0.1000", "security_3_premium_rate=0.0000"]},
+          {"sourceGroupId": "ETF-SRC-R2-VALUATION", "fields": ["pre_voucher_asset_nav=1234567.00", "pre_voucher_issued_capital=100000", "basket_share_quantity=2000"]},
+          {"sourceGroupId": "ETF-SRC-R2-RESULT", "fields": ["refund_amount=0.00", "refund_status=NOT_PROCESSED_IN_THIS_ROUTE", "substitution_premium_prepayment=840.00", "initial_consideration=25531.34", "unsettled_substitution_prepayment=840.00", "actual_consideration=25531.34", "final_reconciliation_state=INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "security_1_market_value", "formula": "Decimal('800') * Decimal('12.50')", "result": "10000.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "security_2_market_value", "formula": "Decimal('1000') * Decimal('8.40')", "result": "8400.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "security_2_cash_substitution", "formula": "Decimal('1000') * Decimal('8.40') * (Decimal('1.00') + Decimal('0.1000'))", "result": "9240.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "security_3_market_value", "formula": "Decimal('500') * Decimal('9.00')", "result": "4500.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "security_3_cash_substitution", "formula": "Decimal('500') * Decimal('9.00') * (Decimal('1.00') + Decimal('0.0000'))", "result": "4500.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "basket_market_value", "formula": "Decimal('10000.00') + Decimal('8400.00') + Decimal('4500.00')", "result": "22900.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "cash_substitution_total", "formula": "Decimal('9240.00') + Decimal('4500.00')", "result": "13740.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "creation_unit_nav", "formula": "Decimal('1234567.00') / Decimal('100000') * Decimal('2000')", "result": "24691.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "unit_cash_difference", "formula": "Decimal('24691.34') - Decimal('22900.00')", "result": "1791.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "substitution_premium_prepayment", "formula": "Decimal('9240.00') - Decimal('8400.00')", "result": "840.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "initial_consideration", "formula": "Decimal('24691.34') + Decimal('840.00')", "result": "25531.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "unsettled_substitution_prepayment", "formula": "Decimal('840.00') - Decimal('0.00')", "result": "840.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "creation_consideration", "formula": "Decimal('10000.00') + Decimal('13740.00') + Decimal('1791.34') - Decimal('0.00')", "result": "25531.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "consideration_difference", "formula": "Decimal('25531.34') - Decimal('25531.34')", "result": "0.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"basketMarketValue": "22900.00", "cashSubstitutionTotal": "13740.00", "creationUnitNAV": "24691.34", "unitCashDifference": "1791.34", "substitutionPremiumPrepayment": "840.00", "initialConsideration": "25531.34", "unsettledSubstitutionPrepayment": "840.00", "refundAmount": "0.00", "refundStatus": "NOT_PROCESSED_IN_THIS_ROUTE", "considerationDifference": "0.00", "finalState": "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"},
+        "expectedConclusion": "PCF 逐行读取市场、整数数量、替代标志和 deliveryChoice；股票篮参考市值22900.00元/篮，现金替代13740.00元/篮，1234567.00÷100000×2000=24691.34元/篮，单位现金差额1791.34元/篮，溢价预付款840.00元/篮，初始申购对价25531.34元/篮，现金替代预付款待结算余额840.00元/篮且结果零差异；实际补券成本和费用尚未形成，未来结算方向待后续资料确定。"
+      }
+    },
+    {
+      "fixtureId": "ETF02-FIXTURE-COMP-B",
+      "routeId": "ACC-ETF-PCF-002",
+      "fixtureType": "COMPREHENSIVE_B",
+      "caseVersion": "ETF02-B-EDU-01",
+      "businessDate": "2030-06-17",
+      "objectKeys": {"productKey": "ETF-EDU-D-01", "pcfKey": "PCF-ETF02-B-001", "creationEventKey": "EVT-ETF02-B-CREATE-001"},
+      "sourceGroups": ["ETF-SRC-R2-PCF", "ETF-SRC-R2-MARKET", "ETF-SRC-R2-VALUATION", "ETF-SRC-R2-RESULT"],
+      "fields": [
+        {"fieldId": "product_key", "value": "ETF-EDU-D-01", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "pcf_key", "value": "PCF-ETF02-B-001", "unit": "key", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_1_code", "value": "600401", "unit": "securityCode", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_1_market", "value": "SSE", "unit": "market", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_1_quantity", "value": "1200", "unit": "股", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_1_substitution_flag", "value": "0_NO_CASH_SUBSTITUTION", "unit": "flag", "provenance": "MATERIAL_ABSTRACTION"},
+        {"fieldId": "security_1_reference_price", "value": "7.25", "unit": "元/股", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_1_market_value", "value": "8700.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_2_code", "value": "000501", "unit": "securityCode", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_2_market", "value": "SZSE", "unit": "market", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_2_quantity", "value": "900", "unit": "股", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_2_substitution_flag", "value": "1_MUST_CASH_SUBSTITUTION", "unit": "flag", "provenance": "MATERIAL_ABSTRACTION"},
+        {"fieldId": "security_2_reference_price", "value": "11.20", "unit": "元/股", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_2_premium_rate", "value": "0.0500", "unit": "比例", "precision": 4, "tolerance": "0.00005", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_2_market_value", "value": "10080.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_2_cash_substitution", "value": "10584.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_code", "value": "600601", "unit": "securityCode", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_3_market", "value": "SSE", "unit": "market", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_3_quantity", "value": "750", "unit": "股", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "security_3_substitution_flag", "value": "2_ALLOWED_CASH_SUBSTITUTION", "unit": "flag", "provenance": "MATERIAL_ABSTRACTION"},
+        {"fieldId": "security_3_delivery_choice", "value": "CASH_SUBSTITUTE", "unit": "choice", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_reference_price", "value": "6.80", "unit": "元/股", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_premium_rate", "value": "0.0000", "unit": "比例", "precision": 4, "tolerance": "0.00005", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_market_value", "value": "5100.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "security_3_cash_substitution", "value": "5100.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "basket_market_value", "value": "23880.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "physical_security_value", "value": "8700.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "cash_substitution_total", "value": "15684.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "pre_voucher_asset_nav", "value": "2345678.00", "unit": "元", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "pre_voucher_issued_capital", "value": "200000", "unit": "份", "precision": 0, "tolerance": "0", "provenance": "CASE_POLICY"},
+        {"fieldId": "basket_share_quantity", "value": "2000", "unit": "份/篮", "precision": 0, "tolerance": "0", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "creation_unit_nav", "value": "23456.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "unit_cash_difference", "value": "-423.22", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "refund_amount", "value": "0.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "refund_status", "value": "NOT_PROCESSED_IN_THIS_ROUTE", "unit": "state", "provenance": "CASE_POLICY"},
+        {"fieldId": "substitution_premium_prepayment", "value": "504.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "initial_consideration", "value": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "unsettled_substitution_prepayment", "value": "504.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "creation_consideration", "value": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "actual_consideration", "value": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "SYNTHETIC_EDUCATIONAL"},
+        {"fieldId": "consideration_difference", "value": "0.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "provenance": "CASE_POLICY"},
+        {"fieldId": "final_reconciliation_state", "value": "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT", "unit": "state", "provenance": "CASE_POLICY"}
+      ],
+      "answerChain": {
+        "sourceToField": [
+          {"sourceGroupId": "ETF-SRC-R2-PCF", "fields": ["security_1_code=600401", "security_1_market=SSE", "security_1_quantity=1200", "security_1_substitution_flag=0_NO_CASH_SUBSTITUTION", "security_2_code=000501", "security_2_market=SZSE", "security_2_quantity=900", "security_2_substitution_flag=1_MUST_CASH_SUBSTITUTION", "security_3_code=600601", "security_3_market=SSE", "security_3_quantity=750", "security_3_substitution_flag=2_ALLOWED_CASH_SUBSTITUTION", "security_3_delivery_choice=CASH_SUBSTITUTE"]},
+          {"sourceGroupId": "ETF-SRC-R2-MARKET", "fields": ["security_1_reference_price=7.25", "security_2_reference_price=11.20", "security_3_reference_price=6.80", "security_2_premium_rate=0.0500", "security_3_premium_rate=0.0000"]},
+          {"sourceGroupId": "ETF-SRC-R2-VALUATION", "fields": ["pre_voucher_asset_nav=2345678.00", "pre_voucher_issued_capital=200000", "basket_share_quantity=2000"]},
+          {"sourceGroupId": "ETF-SRC-R2-RESULT", "fields": ["refund_amount=0.00", "refund_status=NOT_PROCESSED_IN_THIS_ROUTE", "substitution_premium_prepayment=504.00", "initial_consideration=23960.78", "unsettled_substitution_prepayment=504.00", "actual_consideration=23960.78", "final_reconciliation_state=INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]}
+        ],
+        "decimalSteps": [
+          {"fieldId": "security_1_market_value", "formula": "Decimal('1200') * Decimal('7.25')", "result": "8700.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "security_2_market_value", "formula": "Decimal('900') * Decimal('11.20')", "result": "10080.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "security_2_cash_substitution", "formula": "Decimal('900') * Decimal('11.20') * (Decimal('1.00') + Decimal('0.0500'))", "result": "10584.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "security_3_market_value", "formula": "Decimal('750') * Decimal('6.80')", "result": "5100.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "security_3_cash_substitution", "formula": "Decimal('750') * Decimal('6.80') * (Decimal('1.00') + Decimal('0.0000'))", "result": "5100.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "basket_market_value", "formula": "Decimal('8700.00') + Decimal('10080.00') + Decimal('5100.00')", "result": "23880.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "cash_substitution_total", "formula": "Decimal('10584.00') + Decimal('5100.00')", "result": "15684.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "creation_unit_nav", "formula": "Decimal('2345678.00') / Decimal('200000') * Decimal('2000')", "result": "23456.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "unit_cash_difference", "formula": "Decimal('23456.78') - Decimal('23880.00')", "result": "-423.22", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "substitution_premium_prepayment", "formula": "Decimal('10584.00') - Decimal('10080.00')", "result": "504.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "initial_consideration", "formula": "Decimal('23456.78') + Decimal('504.00')", "result": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "unsettled_substitution_prepayment", "formula": "Decimal('504.00') - Decimal('0.00')", "result": "504.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "creation_consideration", "formula": "Decimal('8700.00') + Decimal('15684.00') + Decimal('-423.22') - Decimal('0.00')", "result": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+          {"fieldId": "consideration_difference", "formula": "Decimal('23960.78') - Decimal('23960.78')", "result": "0.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"}
+        ],
+        "reconciliation": {"basketMarketValue": "23880.00", "cashSubstitutionTotal": "15684.00", "creationUnitNAV": "23456.78", "unitCashDifference": "-423.22", "substitutionPremiumPrepayment": "504.00", "initialConsideration": "23960.78", "unsettledSubstitutionPrepayment": "504.00", "refundAmount": "0.00", "refundStatus": "NOT_PROCESSED_IN_THIS_ROUTE", "considerationDifference": "0.00", "finalState": "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"},
+        "expectedConclusion": "PCF-B 逐行读取三只境内成分券的整数数量、替代标志、deliveryChoice 和案例价格来源；股票篮参考市值23880.00元/篮，现金替代15684.00元/篮，2345678.00÷200000×2000=23456.78元/篮，单位现金差额-423.22元/篮，溢价预付款504.00元/篮，初始申购对价23960.78元/篮，现金替代预付款待结算余额504.00元/篮并与结果资料零差异；实际补券成本和费用尚未形成，未来结算方向待后续资料确定。"
+      }
+    },
+    {
+      "fixtureId": "ETF03-FIXTURE-DEMO-A", "routeId": "ACC-ETF-SETTLEMENT-003", "fixtureType": "DEMONSTRATION_A", "caseVersion": "ETF03-A-EDU-01", "businessDate": "2030-06-18",
+      "objectKeys": {"productKey": "ETF-EDU-E-01", "pcfKey": "PCF-ETF03-A-001", "eventKey": "EVT-ETF03-A-001"},
+      "sourceGroups": ["ETF-SRC-R3-INSTRUCTION", "ETF-SRC-R3-PCF", "ETF-SRC-R3-CONFIRMATION", "ETF-SRC-R3-SECURITIES", "ETF-SRC-R3-CASH", "ETF-SRC-R3-DOWNSTREAM", "ETF-SRC-R3-LEDGER"],
+      "fields": [
+        {"fieldId":"event_key","value":"EVT-ETF03-A-001","unit":"eventKey","provenance":"SYNTHETIC_EDUCATIONAL"},
+        {"fieldId":"instruction_state","value":"INSTRUCTION_RECEIVED","unit":"state","provenance":"CASE_POLICY"}, {"fieldId":"pcf_validation_state","value":"PCF_VALIDATED","unit":"state","provenance":"CASE_POLICY"}, {"fieldId":"confirmation_state","value":"PRIMARY_CONFIRMED","unit":"state","provenance":"CASE_POLICY"},
+        {"fieldId":"basket_count","value":"2","unit":"篮","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"basket_share_quantity","value":"2000","unit":"份/篮","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"confirmed_basket_count","value":"2","unit":"篮","precision":0,"tolerance":"0","provenance":"CASE_POLICY"}, {"fieldId":"confirmed_share_quantity","value":"4000","unit":"份","precision":0,"tolerance":"0","provenance":"CASE_POLICY"},
+        {"fieldId":"security_per_basket_quantity","value":"800","unit":"股/篮","precision":0,"tolerance":"0","provenance":"CASE_POLICY"}, {"fieldId":"expected_security_quantity","value":"1600","unit":"股","precision":0,"tolerance":"0","provenance":"CASE_POLICY"}, {"fieldId":"delivered_security_quantity","value":"1600","unit":"股","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"securities_leg_difference","value":"0","unit":"股","precision":0,"tolerance":"0","provenance":"CASE_POLICY"},
+        {"fieldId":"cash_substitution_per_basket","value":"13740.00","unit":"元/篮","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"cash_difference_per_basket","value":"1791.34","unit":"元/篮","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"expected_cash_substitution","value":"27480.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"expected_cash_difference","value":"3582.68","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"expected_cash_total","value":"31062.68","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"settled_cash_substitution","value":"27480.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"settled_cash_difference","value":"3582.68","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"settled_cash_total","value":"31062.68","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"cash_substitution_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"cash_difference_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"cash_total_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"ta_confirmed_shares","value":"4000","unit":"份","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"clearing_confirmed_shares","value":"4000","unit":"份","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ledger_confirmed_shares","value":"4000","unit":"份","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ledger_security_quantity","value":"1600","unit":"股","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ledger_cash_total","value":"31062.68","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"r3_final_state","value":"PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT","unit":"state","provenance":"CASE_POLICY"}
+      ],
+      "answerChain": {"sourceToField":[{"sourceGroupId":"ETF-SRC-R3-INSTRUCTION","fields":["event_key","instruction_state","basket_count"]},{"sourceGroupId":"ETF-SRC-R3-PCF","fields":["pcf_validation_state","basket_share_quantity","security_per_basket_quantity","cash_substitution_per_basket","cash_difference_per_basket"]},{"sourceGroupId":"ETF-SRC-R3-CONFIRMATION","fields":["confirmation_state","confirmed_basket_count","confirmed_share_quantity"]},{"sourceGroupId":"ETF-SRC-R3-SECURITIES","fields":["expected_security_quantity","delivered_security_quantity","securities_leg_difference"]},{"sourceGroupId":"ETF-SRC-R3-CASH","fields":["expected_cash_substitution","expected_cash_difference","expected_cash_total","settled_cash_substitution","settled_cash_difference","settled_cash_total","cash_substitution_difference","cash_difference_difference","cash_total_difference"]},{"sourceGroupId":"ETF-SRC-R3-DOWNSTREAM","fields":["ta_confirmed_shares","clearing_confirmed_shares"]},{"sourceGroupId":"ETF-SRC-R3-LEDGER","fields":["ledger_confirmed_shares","ledger_security_quantity","ledger_cash_total","r3_final_state"]}], "decimalSteps":[
+        {"fieldId":"expected_security_quantity","formula":"Decimal('2') * Decimal('800')","result":"1600","unit":"股","precision":0,"tolerance":"0"}, {"fieldId":"expected_cash_substitution","formula":"Decimal('2') * Decimal('13740.00')","result":"27480.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"expected_cash_difference","formula":"Decimal('2') * Decimal('1791.34')","result":"3582.68","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"expected_cash_total","formula":"Decimal('27480.00') + Decimal('3582.68')","result":"31062.68","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"securities_leg_difference","formula":"Decimal('1600') - Decimal('1600')","result":"0","unit":"股","precision":0,"tolerance":"0"}, {"fieldId":"cash_substitution_difference","formula":"Decimal('27480.00') - Decimal('27480.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"cash_difference_difference","formula":"Decimal('3582.68') - Decimal('3582.68')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"cash_total_difference","formula":"Decimal('31062.68') - Decimal('31062.68')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}], "reconciliation":{"threeLegZero":true,"instructionConfirmationDifference":"0","instructionConfirmationShareDifference":"0","taConfirmationDifference":"0","clearingConfirmationDifference":"0","ledgerConfirmationDifference":"0","ledgerSecurityDifference":"0","ledgerCashDifference":"0.00","taClearingLedgerDifference":"0","finalState":"PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"}, "expectedConclusion":"状态来源顺序完整；证券1600股、现金替代27480.00元、单位现金差额3582.68元三腿及现金总额31062.68元全部零差，指令/确认、TA、清算和台账份额及台账证券/现金均为零差。"}
+    },
+    {
+      "fixtureId": "ETF03-FIXTURE-COMP-B", "routeId": "ACC-ETF-SETTLEMENT-003", "fixtureType": "COMPREHENSIVE_B", "caseVersion": "ETF03-B-EDU-01", "businessDate": "2030-06-19",
+      "objectKeys": {"productKey": "ETF-EDU-F-01", "pcfKey": "PCF-ETF03-B-001", "eventKey": "EVT-ETF03-B-001"},
+      "sourceGroups": ["ETF-SRC-R3-INSTRUCTION", "ETF-SRC-R3-PCF", "ETF-SRC-R3-CONFIRMATION", "ETF-SRC-R3-SECURITIES", "ETF-SRC-R3-CASH", "ETF-SRC-R3-DOWNSTREAM", "ETF-SRC-R3-LEDGER"],
+      "fields": [
+        {"fieldId":"event_key","value":"EVT-ETF03-B-001","unit":"eventKey","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"instruction_state","value":"INSTRUCTION_RECEIVED","unit":"state","provenance":"CASE_POLICY"}, {"fieldId":"pcf_validation_state","value":"PCF_VALIDATED","unit":"state","provenance":"CASE_POLICY"}, {"fieldId":"confirmation_state","value":"PRIMARY_CONFIRMED","unit":"state","provenance":"CASE_POLICY"},
+        {"fieldId":"basket_count","value":"3","unit":"篮","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"basket_share_quantity","value":"2000","unit":"份/篮","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"confirmed_basket_count","value":"3","unit":"篮","precision":0,"tolerance":"0","provenance":"CASE_POLICY"}, {"fieldId":"confirmed_share_quantity","value":"6000","unit":"份","precision":0,"tolerance":"0","provenance":"CASE_POLICY"},
+        {"fieldId":"security_per_basket_quantity","value":"1200","unit":"股/篮","precision":0,"tolerance":"0","provenance":"CASE_POLICY"}, {"fieldId":"expected_security_quantity","value":"3600","unit":"股","precision":0,"tolerance":"0","provenance":"CASE_POLICY"}, {"fieldId":"delivered_security_quantity","value":"3600","unit":"股","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"securities_leg_difference","value":"0","unit":"股","precision":0,"tolerance":"0","provenance":"CASE_POLICY"},
+        {"fieldId":"cash_substitution_per_basket","value":"15684.00","unit":"元/篮","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"cash_difference_per_basket","value":"-423.22","unit":"元/篮","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"expected_cash_substitution","value":"47052.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"expected_cash_difference","value":"-1269.66","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"expected_cash_total","value":"45782.34","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"settled_cash_substitution","value":"47052.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"settled_cash_difference","value":"-1269.66","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"settled_cash_total","value":"45782.34","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"cash_substitution_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"cash_difference_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"cash_total_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"ta_confirmed_shares","value":"6000","unit":"份","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"clearing_confirmed_shares","value":"6000","unit":"份","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ledger_confirmed_shares","value":"6000","unit":"份","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ledger_security_quantity","value":"3600","unit":"股","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ledger_cash_total","value":"45782.34","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"r3_final_state","value":"PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT","unit":"state","provenance":"CASE_POLICY"}
+      ],
+      "answerChain": {"sourceToField":[{"sourceGroupId":"ETF-SRC-R3-INSTRUCTION","fields":["event_key","instruction_state","basket_count"]},{"sourceGroupId":"ETF-SRC-R3-PCF","fields":["pcf_validation_state","basket_share_quantity","security_per_basket_quantity","cash_substitution_per_basket","cash_difference_per_basket"]},{"sourceGroupId":"ETF-SRC-R3-CONFIRMATION","fields":["confirmation_state","confirmed_basket_count","confirmed_share_quantity"]},{"sourceGroupId":"ETF-SRC-R3-SECURITIES","fields":["expected_security_quantity","delivered_security_quantity","securities_leg_difference"]},{"sourceGroupId":"ETF-SRC-R3-CASH","fields":["expected_cash_substitution","expected_cash_difference","expected_cash_total","settled_cash_substitution","settled_cash_difference","settled_cash_total","cash_substitution_difference","cash_difference_difference","cash_total_difference"]},{"sourceGroupId":"ETF-SRC-R3-DOWNSTREAM","fields":["ta_confirmed_shares","clearing_confirmed_shares"]},{"sourceGroupId":"ETF-SRC-R3-LEDGER","fields":["ledger_confirmed_shares","ledger_security_quantity","ledger_cash_total","r3_final_state"]}], "decimalSteps":[
+        {"fieldId":"expected_security_quantity","formula":"Decimal('3') * Decimal('1200')","result":"3600","unit":"股","precision":0,"tolerance":"0"}, {"fieldId":"expected_cash_substitution","formula":"Decimal('3') * Decimal('15684.00')","result":"47052.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"expected_cash_difference","formula":"Decimal('3') * Decimal('-423.22')","result":"-1269.66","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"expected_cash_total","formula":"Decimal('47052.00') + Decimal('-1269.66')","result":"45782.34","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"securities_leg_difference","formula":"Decimal('3600') - Decimal('3600')","result":"0","unit":"股","precision":0,"tolerance":"0"}, {"fieldId":"cash_substitution_difference","formula":"Decimal('47052.00') - Decimal('47052.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"cash_difference_difference","formula":"Decimal('-1269.66') - Decimal('-1269.66')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"cash_total_difference","formula":"Decimal('45782.34') - Decimal('45782.34')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}], "reconciliation":{"threeLegZero":true,"instructionConfirmationDifference":"0","instructionConfirmationShareDifference":"0","taConfirmationDifference":"0","clearingConfirmationDifference":"0","ledgerConfirmationDifference":"0","ledgerSecurityDifference":"0","ledgerCashDifference":"0.00","taClearingLedgerDifference":"0","finalState":"PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"}, "expectedConclusion":"状态来源顺序完整；证券3600股、现金替代47052.00元、单位现金差额-1269.66元三腿及现金总额45782.34元全部零差，指令/确认、TA、清算和台账份额及台账证券/现金均为零差。"}
+    },
+    {
+      "fixtureId":"ETF04-FIXTURE-DEMO-A","routeId":"ACC-ETF-CLOSE-004","fixtureType":"DEMONSTRATION_A","caseVersion":"ETF04-A-EDU-01","businessDate":"2030-06-20",
+      "objectKeys":{"productKey":"ETF-EDU-G-01","pcfKey":"PCF-ETF04-A-001","eventKey":"EVT-ETF04-A-001"}, "sourceGroups":["ETF-SRC-R4-UPSTREAM","ETF-SRC-R4-PCF","ETF-SRC-R4-ESTIMATE","ETF-SRC-R4-BUYIN","ETF-SRC-R4-FEE","ETF-SRC-R4-EVENT","ETF-SRC-R4-LEDGER","ETF-SRC-R4-MULTISOURCE"],
+      "fields":[
+        {"fieldId":"unsettled_substitution_prepayment","value":"25704.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"substitution_line_quantity","value":"1200","unit":"股","precision":0,"tolerance":"0","provenance":"CASE_POLICY"}, {"fieldId":"estimate_state","value":"NON_FINAL_ESTIMATE_ONLY","unit":"state","provenance":"CASE_POLICY"}, {"fieldId":"estimated_settlement_view_amount","value":"864.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"actual_buyin_quantity","value":"1200","unit":"股","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"actual_buyin_price","value":"20.48","unit":"元/股","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"actual_buyin_gross","value":"24576.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"substitution_fee","value":"120.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"actual_substitution_cost","value":"24696.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"signed_final_settlement_amount","value":"1008.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"final_settlement_direction","value":"RETURN_TO_AP","unit":"direction","provenance":"CASE_POLICY"}, {"fieldId":"final_settlement_amount","value":"1008.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"estimate_adjustment_amount","value":"144.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"event_settlement_amount","value":"1008.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ledger_settlement_amount","value":"1008.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"valuation_settlement_amount","value":"1008.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ta_settlement_amount","value":"1008.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"clearing_settlement_amount","value":"1008.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"event_remaining","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"ledger_remaining","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"event_ledger_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"valuation_event_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"ta_event_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"clearing_event_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"final_settlement_state","value":"SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE","unit":"state","provenance":"CASE_POLICY"}
+      ],
+      "answerChain":{"sourceToField":[{"sourceGroupId":"ETF-SRC-R4-UPSTREAM","fields":["unsettled_substitution_prepayment"]},{"sourceGroupId":"ETF-SRC-R4-PCF","fields":["substitution_line_quantity"]},{"sourceGroupId":"ETF-SRC-R4-ESTIMATE","fields":["estimate_state","estimated_settlement_view_amount"]},{"sourceGroupId":"ETF-SRC-R4-BUYIN","fields":["actual_buyin_quantity","actual_buyin_price"]},{"sourceGroupId":"ETF-SRC-R4-FEE","fields":["substitution_fee","actual_substitution_cost"]},{"sourceGroupId":"ETF-SRC-R4-EVENT","fields":["signed_final_settlement_amount","final_settlement_direction","final_settlement_amount","estimate_adjustment_amount","event_settlement_amount","event_remaining"]},{"sourceGroupId":"ETF-SRC-R4-LEDGER","fields":["ledger_settlement_amount","ledger_remaining","event_ledger_difference"]},{"sourceGroupId":"ETF-SRC-R4-MULTISOURCE","fields":["valuation_settlement_amount","ta_settlement_amount","clearing_settlement_amount","valuation_event_difference","ta_event_difference","clearing_event_difference","final_settlement_state"]}],"decimalSteps":[
+        {"fieldId":"actual_buyin_gross","formula":"Decimal('1200') * Decimal('20.48')","result":"24576.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"actual_substitution_cost","formula":"Decimal('24576.00') + Decimal('120.00')","result":"24696.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"signed_final_settlement_amount","formula":"Decimal('25704.00') - Decimal('24696.00')","result":"1008.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"final_settlement_amount","formula":"abs(Decimal('1008.00'))","result":"1008.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"estimate_adjustment_amount","formula":"Decimal('1008.00') - Decimal('864.00')","result":"144.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"event_remaining","formula":"Decimal('25704.00') - Decimal('24696.00') - Decimal('1008.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"event_ledger_difference","formula":"Decimal('1008.00') - Decimal('1008.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"valuation_event_difference","formula":"Decimal('1008.00') - Decimal('1008.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"ta_event_difference","formula":"Decimal('1008.00') - Decimal('1008.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"clearing_event_difference","formula":"Decimal('1008.00') - Decimal('1008.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}],"reconciliation":{"finalDirection":"RETURN_TO_AP","finalSettlementAmount":"1008.00","estimateAdjustmentAmount":"144.00","eventRemaining":"0.00","ledgerRemaining":"0.00","multiSourceZero":true,"finalState":"SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"},"expectedConclusion":"实际补券24576.00元加费用120.00元形成实际总成本24696.00元后，才判定退回申购人1008.00元；估计视图调整144.00元，事件与台账remaining均为0，五来源零差并正常封账。"}
+    },
+    {
+      "fixtureId":"ETF04-FIXTURE-COMP-B","routeId":"ACC-ETF-CLOSE-004","fixtureType":"COMPREHENSIVE_B","caseVersion":"ETF04-B-EDU-01","businessDate":"2030-06-21",
+      "objectKeys":{"productKey":"ETF-EDU-H-01","pcfKey":"PCF-ETF04-B-001","eventKey":"EVT-ETF04-B-001"}, "sourceGroups":["ETF-SRC-R4-UPSTREAM","ETF-SRC-R4-PCF","ETF-SRC-R4-ESTIMATE","ETF-SRC-R4-BUYIN","ETF-SRC-R4-FEE","ETF-SRC-R4-EVENT","ETF-SRC-R4-LEDGER","ETF-SRC-R4-MULTISOURCE"],
+      "fields":[
+        {"fieldId":"unsettled_substitution_prepayment","value":"44658.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"substitution_line_quantity","value":"1500","unit":"股","precision":0,"tolerance":"0","provenance":"CASE_POLICY"}, {"fieldId":"estimate_state","value":"NON_FINAL_ESTIMATE_ONLY","unit":"state","provenance":"CASE_POLICY"}, {"fieldId":"estimated_settlement_view_amount","value":"1593.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"actual_buyin_quantity","value":"1500","unit":"股","precision":0,"tolerance":"0","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"actual_buyin_price","value":"28.20","unit":"元/股","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"actual_buyin_gross","value":"42300.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"substitution_fee","value":"171.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"actual_substitution_cost","value":"42471.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"signed_final_settlement_amount","value":"2187.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"final_settlement_direction","value":"RETURN_TO_AP","unit":"direction","provenance":"CASE_POLICY"}, {"fieldId":"final_settlement_amount","value":"2187.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"estimate_adjustment_amount","value":"594.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"},
+        {"fieldId":"event_settlement_amount","value":"2187.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ledger_settlement_amount","value":"2187.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"valuation_settlement_amount","value":"2187.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"ta_settlement_amount","value":"2187.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"clearing_settlement_amount","value":"2187.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"SYNTHETIC_EDUCATIONAL"}, {"fieldId":"event_remaining","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"ledger_remaining","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"event_ledger_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"valuation_event_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"ta_event_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"clearing_event_difference","value":"0.00","unit":"元","precision":2,"tolerance":"0.01","provenance":"CASE_POLICY"}, {"fieldId":"final_settlement_state","value":"SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE","unit":"state","provenance":"CASE_POLICY"}
+      ],
+      "answerChain":{"sourceToField":[{"sourceGroupId":"ETF-SRC-R4-UPSTREAM","fields":["unsettled_substitution_prepayment"]},{"sourceGroupId":"ETF-SRC-R4-PCF","fields":["substitution_line_quantity"]},{"sourceGroupId":"ETF-SRC-R4-ESTIMATE","fields":["estimate_state","estimated_settlement_view_amount"]},{"sourceGroupId":"ETF-SRC-R4-BUYIN","fields":["actual_buyin_quantity","actual_buyin_price"]},{"sourceGroupId":"ETF-SRC-R4-FEE","fields":["substitution_fee","actual_substitution_cost"]},{"sourceGroupId":"ETF-SRC-R4-EVENT","fields":["signed_final_settlement_amount","final_settlement_direction","final_settlement_amount","estimate_adjustment_amount","event_settlement_amount","event_remaining"]},{"sourceGroupId":"ETF-SRC-R4-LEDGER","fields":["ledger_settlement_amount","ledger_remaining","event_ledger_difference"]},{"sourceGroupId":"ETF-SRC-R4-MULTISOURCE","fields":["valuation_settlement_amount","ta_settlement_amount","clearing_settlement_amount","valuation_event_difference","ta_event_difference","clearing_event_difference","final_settlement_state"]}],"decimalSteps":[
+        {"fieldId":"actual_buyin_gross","formula":"Decimal('1500') * Decimal('28.20')","result":"42300.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"actual_substitution_cost","formula":"Decimal('42300.00') + Decimal('171.00')","result":"42471.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"signed_final_settlement_amount","formula":"Decimal('44658.00') - Decimal('42471.00')","result":"2187.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"final_settlement_amount","formula":"abs(Decimal('2187.00'))","result":"2187.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"estimate_adjustment_amount","formula":"Decimal('2187.00') - Decimal('1593.00')","result":"594.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"event_remaining","formula":"Decimal('44658.00') - Decimal('42471.00') - Decimal('2187.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"event_ledger_difference","formula":"Decimal('2187.00') - Decimal('2187.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"valuation_event_difference","formula":"Decimal('2187.00') - Decimal('2187.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"ta_event_difference","formula":"Decimal('2187.00') - Decimal('2187.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}, {"fieldId":"clearing_event_difference","formula":"Decimal('2187.00') - Decimal('2187.00')","result":"0.00","unit":"元","precision":2,"tolerance":"0.01"}],"reconciliation":{"finalDirection":"RETURN_TO_AP","finalSettlementAmount":"2187.00","estimateAdjustmentAmount":"594.00","eventRemaining":"0.00","ledgerRemaining":"0.00","multiSourceZero":true,"finalState":"SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"},"expectedConclusion":"实际补券42300.00元加费用171.00元形成实际总成本42471.00元后，才判定退回申购人2187.00元；估计视图调整594.00元，事件与台账remaining均为0，五来源零差并正常封账。"}
+    }
+  ],
+  "answerChainRules": [
+    "所有对象、PCF、价格和结果字段先从对应案例资料组读取，再使用 Decimal。",
+    "ETF-01 primary_created_shares = basket_count * shares_per_creation_unit；篮数、份额和数量按整数精度 0。",
+    "ETF-01 secondary_issued_delta = post_secondary_issued_shares - post_primary_issued_shares = 0。",
+    "ETF-02 row_market_value = security_quantity * reference_price。",
+    "ETF-02 row_cash_substitution_amount = security_quantity * reference_price * (1 + substitution_premium_rate)；flag=0 不进入现金替代合计，flag=1 必须现金替代，flag=2 只有在 deliveryChoice=CASH_SUBSTITUTE 时才进入本案例现金交付合计。",
+    "ETF-02 creation_unit_nav = pre_voucher_asset_nav / pre_voucher_issued_capital * basket_share_quantity。",
+    "ETF-02 unit_cash_difference = creation_unit_nav - basket_market_value。",
+    "ETF-02 substitution_premium_prepayment = cash_substitution_total - 对应现金替代行参考市值；initial_consideration = creation_unit_nav + substitution_premium_prepayment；unsettled_substitution_prepayment = substitution_premium_prepayment - refund_amount，refund_amount=0 仅表示本路线已结算现金替代金额为 0，实际补券成本和费用形成后才判断未来结算方向。",
+    "ETF-02 creation_consideration = physical_security_value + cash_substitution_total + unit_cash_difference - refund_amount；该值与 initial_consideration 勾稽，但最终退补未在本路线闭合。",
+    "ETF-03 expected_security_quantity = basket_count * security_per_basket_quantity；expected_cash_substitution 与 expected_cash_difference 分别按每篮金额乘篮数，expected_cash_total 为两条现金腿之和。",
+    "ETF-03 指令、PCF 校验、确认、证券交收、现金交收来源不跳步；证券、现金替代、单位现金差额三腿及 TA/清算/台账份额全部零差。",
+    "ETF-04 actual_buyin_gross = actual_buyin_quantity * actual_buyin_price；actual_substitution_cost = actual_buyin_gross + substitution_fee；实际成本与费用形成后才判断最终结算方向。",
+    "ETF-04 signed_final_settlement_amount = unsettled_substitution_prepayment - actual_substitution_cost；最终金额取绝对值；事件和台账 remaining=0 且事件、台账、估值、TA、清算五来源零差后正常封账。"
+  ]
+}

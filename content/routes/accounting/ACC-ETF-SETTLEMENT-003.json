@@ -1,0 +1,103 @@
+{
+  "routeId": "ACC-ETF-SETTLEMENT-003",
+  "contentVersion": "2026.08.14-etf-b2",
+  "line": "ACCOUNTING",
+  "title": "国内普通 ETF 申赎确认、份额与证券/资金交收承接",
+  "summary": "沿申赎指令、PCF 校验、确认、证券交收、现金交收到 TA/清算/台账，承接确认份额并分别闭合证券、现金替代和单位现金差额三腿。",
+  "estimatedMinutes": 49,
+  "objectives": [
+    "从申赎指令、PCF 校验、确认、证券交收、现金交收及 TA/清算/台账资料定位同一业务事件",
+    "按状态来源证明 INSTRUCTION_RECEIVED 到 PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT 不跳步",
+    "用整数数量和 Decimal 金额复算证券、现金替代、单位现金差额及现金总额",
+    "分别证明三腿差额、现金总额差额以及 TA/清算/台账份额差额均为零"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {"cardId": "ACC-ETF-SETTLEMENT-003-KC-01", "type": "FLOW", "title": "状态必须由相应来源推动", "conclusion": "指令、PCF 校验、确认、证券交收和现金交收是连续但不同的状态证据。", "items": ["申购指令只证明业务已发起。", "PCF 校验只证明本事件的清单字段可用。", "确认资料形成后，证券与现金才进入各自交收来源。"]},
+        {"cardId": "ACC-ETF-SETTLEMENT-003-KC-02", "type": "KEY_POINT", "title": "三腿分别核对", "conclusion": "证券数量、现金替代金额和单位现金差额必须分别计算、交收和勾稽。", "items": ["证券腿按篮数乘每篮实物证券数量，数量 precision=0、tolerance=0。", "现金替代腿和单位现金差额腿按每篮金额乘篮数，金额 precision=2、tolerance=0.01。", "现金总额等于现金替代腿加单位现金差额腿。"]},
+        {"cardId": "ACC-ETF-SETTLEMENT-003-KC-03", "type": "KEY_POINT", "title": "指令/确认、TA、清算与台账共同收口", "conclusion": "指令与确认篮数/份额、TA、清算和台账份额一致，三腿及现金总额均零差，才形成正常交收完成状态。", "items": ["指令、确认、TA、清算和台账是独立来源。", "零差额必须保留来源键、单位和业务事件键。", "本路线不结算 R2 的现金替代预付款待结算余额。"]}
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {"caseId": "ETF03-A-EDU-01", "role": "ETF 运营核算岗", "product": "ETF-EDU-E-01", "date": "案例版本快照-ETF03-A-01", "purpose": "完成一笔国内普通 ETF 正常申购的确认、三腿交收和多来源勾稽"},
+      "steps": [
+        {"order": 1, "action": "从申购指令读取事件 EVT-ETF03-A-001、2 篮；从 PCF 校验读取每篮实物证券 800 股、每篮现金替代 13740.00 元、每篮单位现金差额 1791.34 元和每篮份额 2000 份。", "reason": "指令与 PCF 字段先按事件键闭合，不能由确认结果反推指令。"},
+        {"order": 2, "action": "读取确认状态 PRIMARY_CONFIRMED、确认篮数 2 篮和确认份额 4000 份，并按 INSTRUCTION_RECEIVED → PCF_VALIDATED → PRIMARY_CONFIRMED 核对来源顺序。", "reason": "每个状态必须由对应资料支持。"},
+        {"order": 3, "action": "计算证券腿 2×800=1600 股，与证券交收结果 1600 股比较，差额 0 股。", "reason": "证券数量使用整数精度和零容差。"},
+        {"order": 4, "action": "计算现金替代腿 2×13740.00=27480.00 元、单位现金差额腿 2×1791.34=3582.68 元、现金总额 31062.68 元；三项与现金交收结果分别比较，差额均为 0.00 元。", "reason": "两条现金腿不能只用总额互相自证。"},
+        {"order": 5, "action": "核对指令/确认篮数和份额、TA、清算和台账份额均为 2/4000 或 4000 份，台账证券 1600 股、台账现金 31062.68 元；全部来源和三腿零差后记录 PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT。", "reason": "该状态只关闭本路线正常交收，现金替代预付款仍由后续路线结算。"}
+      ],
+      "summary": "Demo A：2 篮、证券 1600 股、现金替代 27480.00 元、单位现金差额 3582.68 元、现金总额 31062.68 元、TA/清算/台账 4000 份；各差额为零，状态按来源顺序闭合。"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {"questionId": "ACC-ETF-SETTLEMENT-Q-01", "type": "FIELD_MAP", "prompt": "把 Demo A 的事件、PCF、确认、证券交收和下游勾稽字段映射到对应来源。", "fieldMappings": [
+          {"fieldId": "instructionSource", "label": "申购指令来源", "source": "正常申购资料包", "options": [{"optionId": "ETF03_A_INSTRUCTION", "text": "申购指令"}, {"optionId": "ETF03_A_LEDGER_AS_INSTRUCTION", "text": "交收台账"}]},
+          {"fieldId": "pcfSource", "label": "PCF 校验来源", "source": "正常申购资料包", "options": [{"optionId": "ETF03_A_PCF", "text": "PCF 校验结果"}, {"optionId": "ETF03_A_TA_AS_PCF", "text": "TA 结果"}]},
+          {"fieldId": "settlementSource", "label": "交收来源", "source": "正常申购资料包", "options": [{"optionId": "ETF03_A_SECURITIES_AND_CASH", "text": "证券交收结果与现金交收结果"}, {"optionId": "ETF03_A_CONFIRM_ONLY", "text": "只读取确认资料"}]}
+        ], "answer": ["ETF03_A_INSTRUCTION", "ETF03_A_PCF", "ETF03_A_SECURITIES_AND_CASH"], "explanation": "状态和三腿字段分别来自指令、PCF、确认、证券与现金交收来源。", "hints": ["先按事件键分来源。", "确认资料不等于交收结果。"]},
+        {"questionId": "ACC-ETF-SETTLEMENT-Q-02", "type": "CALCULATION", "prompt": "复算 Demo A 的证券腿、两条现金腿、现金总额和确认份额。", "calculation": {"fields": [
+          {"fieldId": "expectedSecurityQuantity", "label": "应交证券数量", "formula": "2 × 800", "placeholder": "请输入应交证券数量", "unit": "股", "precision": 0, "tolerance": 0},
+          {"fieldId": "expectedCashSubstitution", "label": "应交现金替代", "formula": "2 × 13740.00", "placeholder": "请输入现金替代金额", "unit": "元", "precision": 2, "tolerance": 0.01},
+          {"fieldId": "expectedCashDifference", "label": "应交单位现金差额合计", "formula": "2 × 1791.34", "placeholder": "请输入现金差额合计", "unit": "元", "precision": 2, "tolerance": 0.01},
+          {"fieldId": "expectedCashTotal", "label": "应交现金总额", "formula": "27480.00 + 3582.68", "placeholder": "请输入现金总额", "unit": "元", "precision": 2, "tolerance": 0.01},
+          {"fieldId": "confirmedShares", "label": "确认份额", "formula": "2 × 2000", "placeholder": "请输入确认份额", "unit": "份", "precision": 0, "tolerance": 0}
+        ]}, "answer": ["1600", "27480.00", "3582.68", "31062.68", "4000"], "explanation": "证券和份额保持整数；金额使用 Decimal 两位。", "hints": ["先按每篮数量/金额乘篮数。", "现金总额由两条现金腿相加。"]},
+        {"questionId": "ACC-ETF-SETTLEMENT-Q-03", "type": "LEDGER_ENTRY", "prompt": "补全 Demo A 的交收台账业务结果。", "ledgerEntries": [
+          {"entryId": "ledger-security", "direction": "SECURITIES_IN", "label": "台账证券数量", "amount": "1600", "placeholder": "请输入台账证券数量"},
+          {"entryId": "ledger-cash-substitution", "direction": "CASH_IN", "label": "台账现金替代", "amount": "27480.00", "placeholder": "请输入台账现金替代"},
+          {"entryId": "ledger-cash-difference", "direction": "CASH_IN", "label": "台账单位现金差额合计", "amount": "3582.68", "placeholder": "请输入台账现金差额"},
+          {"entryId": "ledger-cash-total", "direction": "CASH_IN", "label": "台账现金总额", "amount": "31062.68", "placeholder": "请输入台账现金总额"}
+        ], "answer": ["1600", "27480.00", "3582.68", "31062.68"], "explanation": "台账分别保留证券腿、两条现金腿和现金总额，不冻结正式科目借贷。", "hints": ["不要把两条现金腿合成一个来源字段。", "证券数量不是金额。"]},
+        {"questionId": "ACC-ETF-SETTLEMENT-Q-04", "type": "RECONCILIATION", "prompt": "核对 Demo A 的状态顺序、三腿和 TA/清算/台账。", "reconciliation": {"fields": [
+          {"fieldId": "stateChain", "label": "状态来源顺序", "kind": "SELECT", "formula": "逐来源核对状态", "placeholder": "请选择状态结论", "options": [{"optionId": "ETF03_A_STATE_CHAIN_COMPLETE", "text": "指令、PCF、确认、证券、现金和下游状态按来源闭合"}, {"optionId": "ETF03_A_STATE_JUMP", "text": "由台账结果反推全部上游状态"}]},
+          {"fieldId": "securityDiff", "label": "证券腿差额", "kind": "NUMBER", "formula": "1600 - 1600", "placeholder": "请输入证券腿差额", "precision": 0, "tolerance": 0},
+          {"fieldId": "cashSubDiff", "label": "现金替代腿差额", "kind": "NUMBER", "formula": "27480.00 - 27480.00", "placeholder": "请输入差额", "precision": 2, "tolerance": 0.01},
+          {"fieldId": "cashDifferenceDiff", "label": "单位现金差额腿差额", "kind": "NUMBER", "formula": "3582.68 - 3582.68", "placeholder": "请输入差额", "precision": 2, "tolerance": 0.01},
+          {"fieldId": "cashTotalDiff", "label": "现金总额差额", "kind": "NUMBER", "formula": "31062.68 - 31062.68", "placeholder": "请输入差额", "precision": 2, "tolerance": 0.01},
+          {"fieldId": "downstreamState", "label": "指令/确认、TA/清算/台账结论", "kind": "SELECT", "formula": "指令篮数=确认篮数；确认份额=TA=清算=台账=4000", "placeholder": "请选择下游结论", "options": [{"optionId": "ETF03_A_DOWNSTREAM_ZERO", "text": "指令/确认篮数和份额、TA、清算和台账份额均零差"}, {"optionId": "ETF03_A_DOWNSTREAM_UNCHECKED", "text": "只核对台账份额"}]}
+        ]}, "answer": ["ETF03_A_STATE_CHAIN_COMPLETE", "0", "0.00", "0.00", "0.00", "ETF03_A_DOWNSTREAM_ZERO"], "explanation": "状态来源不跳步，证券、两条现金腿和下游份额分别零差。", "hints": ["先核状态来源。", "再逐腿核差额。"]},
+        {"questionId": "ACC-ETF-SETTLEMENT-Q-05", "type": "SHORT_TEXT", "prompt": "用一句话写出 Demo A 的正常交收结论。", "textInput": {"label": "交收结论", "placeholder": "请写出状态顺序、三腿、TA/清算/台账和最终状态"}, "answer": ["事件 EVT-ETF03-A-001 按指令、PCF、确认、证券和现金来源顺序闭合；证券1600股、现金替代27480.00元、单位现金差额3582.68元、现金总额31062.68元及TA/清算/台账4000份均零差，状态为 PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT。"], "explanation": "短结论保留事件、来源顺序、三腿、下游结果和状态边界。", "hints": ["不要只写交收完成。", "保留三腿数值和零差。"]}
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {"role": "ETF 运营核算岗", "product": "ETF-EDU-F-01", "date": "案例版本快照-ETF03-B-01", "purpose": "依据正常资料包完成三篮 ETF 申购的状态、三腿交收和多来源勾稽"},
+      "sourceMaterials": [
+        {"materialId": "ETF03-B-INSTRUCTION", "title": "申购指令", "kind": "INSTRUCTION", "description": "脱敏合成的正常申购指令。", "fields": [{"fieldId": "eventKey", "label": "业务事件键", "value": "EVT-ETF03-B-001"}, {"fieldId": "instructionState", "label": "指令状态", "value": "INSTRUCTION_RECEIVED"}, {"fieldId": "basketCount", "label": "申购篮数", "value": "3", "unit": "篮"}]},
+        {"materialId": "ETF03-B-PCF-VALIDATION", "title": "PCF 校验结果", "kind": "CONFIRMATION", "description": "本案例版本的正常 PCF 校验字段。", "fields": [{"fieldId": "pcfKey", "label": "PCF 键", "value": "PCF-ETF03-B-001"}, {"fieldId": "pcfState", "label": "PCF 状态", "value": "PCF_VALIDATED"}, {"fieldId": "securityPerBasket", "label": "每篮实物证券数量", "value": "1200", "unit": "股/篮"}, {"fieldId": "cashSubstitutionPerBasket", "label": "每篮现金替代", "value": "15684.00", "unit": "元/篮"}, {"fieldId": "cashDifferencePerBasket", "label": "每篮单位现金差额", "value": "-423.22", "unit": "元/篮"}, {"fieldId": "sharesPerBasket", "label": "每篮形成份额", "value": "2000", "unit": "份/篮"}]},
+        {"materialId": "ETF03-B-CONFIRMATION", "title": "申购确认资料", "kind": "CONFIRMATION", "description": "正常申购确认结果。", "fields": [{"fieldId": "confirmationKey", "label": "确认键", "value": "CONF-ETF03-B-001"}, {"fieldId": "confirmationState", "label": "确认状态", "value": "PRIMARY_CONFIRMED"}, {"fieldId": "confirmedBasketCount", "label": "确认篮数", "value": "3", "unit": "篮"}, {"fieldId": "confirmedShares", "label": "确认份额", "value": "6000", "unit": "份"}]},
+        {"materialId": "ETF03-B-SECURITIES", "title": "证券交收结果", "kind": "STATEMENT", "description": "正常证券交收结果。", "fields": [{"fieldId": "securitiesState", "label": "证券交收状态", "value": "SECURITIES_SETTLED"}, {"fieldId": "deliveredSecurityQuantity", "label": "实交证券数量", "value": "3600", "unit": "股"}]},
+        {"materialId": "ETF03-B-CASH", "title": "现金交收结果", "kind": "STATEMENT", "description": "正常现金交收结果，分别列示两条现金腿。", "fields": [{"fieldId": "cashState", "label": "现金交收状态", "value": "CASH_SETTLED"}, {"fieldId": "settledCashSubstitution", "label": "实交现金替代", "value": "47052.00", "unit": "元"}, {"fieldId": "settledCashDifference", "label": "实交单位现金差额合计", "value": "-1269.66", "unit": "元"}, {"fieldId": "settledCashTotal", "label": "实交现金总额", "value": "45782.34", "unit": "元"}]},
+        {"materialId": "ETF03-B-TA-CLEARING", "title": "TA 与清算结果", "kind": "RECONCILIATION", "description": "独立下游正常结果。", "fields": [{"fieldId": "taShares", "label": "TA 确认份额", "value": "6000", "unit": "份"}, {"fieldId": "clearingShares", "label": "清算确认份额", "value": "6000", "unit": "份"}, {"fieldId": "downstreamState", "label": "下游状态", "value": "TA_CLEARING_CONFIRMED"}]},
+        {"materialId": "ETF03-B-LEDGER", "title": "ETF 交收台账", "kind": "LEDGER", "description": "正常台账及勾稽状态。", "fields": [{"fieldId": "ledgerSecurityQuantity", "label": "台账证券数量", "value": "3600", "unit": "股"}, {"fieldId": "ledgerCashTotal", "label": "台账现金总额", "value": "45782.34", "unit": "元"}, {"fieldId": "ledgerShares", "label": "台账确认份额", "value": "6000", "unit": "份"}, {"fieldId": "finalState", "label": "最终状态", "value": "PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"}]}
+      ],
+      "workItems": [
+        {"workItemId": "etf03-b-instruction-source", "type": "FIELD_MAP", "title": "定位申购指令", "instruction": "从申购指令定位事件键、状态和篮数。", "response": {"kind": "SELECT", "placeholder": "请选择指令来源", "options": [{"optionId": "ETF03_B_FROM_INSTRUCTION", "text": "ETF03-B-INSTRUCTION"}, {"optionId": "ETF03_B_FROM_LEDGER", "text": "ETF03-B-LEDGER"}]}},
+        {"workItemId": "etf03-b-pcf-source", "type": "FIELD_MAP", "title": "定位 PCF 校验", "instruction": "定位每篮证券、现金替代、单位现金差额和份额来源。", "response": {"kind": "SELECT", "placeholder": "请选择 PCF 来源", "options": [{"optionId": "ETF03_B_FROM_PCF", "text": "ETF03-B-PCF-VALIDATION"}, {"optionId": "ETF03_B_FROM_CASH", "text": "ETF03-B-CASH"}]}},
+        {"workItemId": "etf03-b-confirmation-source", "type": "FIELD_MAP", "title": "定位申购确认", "instruction": "定位确认键、确认状态、篮数和份额。", "response": {"kind": "SELECT", "placeholder": "请选择确认来源", "options": [{"optionId": "ETF03_B_FROM_CONFIRMATION", "text": "ETF03-B-CONFIRMATION"}, {"optionId": "ETF03_B_FROM_TA", "text": "ETF03-B-TA-CLEARING"}]}},
+        {"workItemId": "etf03-b-securities-source", "type": "FIELD_MAP", "title": "定位证券交收", "instruction": "定位证券交收状态和实交整数数量。", "response": {"kind": "SELECT", "placeholder": "请选择证券交收来源", "options": [{"optionId": "ETF03_B_FROM_SECURITIES", "text": "ETF03-B-SECURITIES"}, {"optionId": "ETF03_B_FROM_CONFIRM_ONLY", "text": "仅申购确认资料"}]}},
+        {"workItemId": "etf03-b-downstream-source", "type": "FIELD_MAP", "title": "定位现金和下游结果", "instruction": "定位现金交收、TA/清算和台账三个独立来源。", "response": {"kind": "SELECT", "placeholder": "请选择完整来源组", "options": [{"optionId": "ETF03_B_FROM_CASH_TA_LEDGER", "text": "现金交收 + TA/清算 + ETF 台账"}, {"optionId": "ETF03_B_FROM_LEDGER_ONLY", "text": "仅 ETF 台账"}]}},
+        {"workItemId": "etf03-b-expected-security-quantity", "type": "CALCULATION", "title": "计算应交证券数量", "instruction": "计算 3×1200；数量精度 0，容差 0 股。", "response": {"kind": "NUMBER", "placeholder": "请输入应交证券数量", "unit": "股", "precision": 0}},
+        {"workItemId": "etf03-b-expected-cash-substitution", "type": "CALCULATION", "title": "计算现金替代腿", "instruction": "计算 3×15684.00；金额精度 2，容差 ±0.01 元。", "response": {"kind": "NUMBER", "placeholder": "请输入现金替代合计", "unit": "元", "precision": 2}},
+        {"workItemId": "etf03-b-expected-cash-difference", "type": "CALCULATION", "title": "计算单位现金差额腿", "instruction": "计算 3×-423.22；金额精度 2，容差 ±0.01 元。", "response": {"kind": "NUMBER", "placeholder": "请输入单位现金差额合计", "unit": "元", "precision": 2}},
+        {"workItemId": "etf03-b-expected-cash-total", "type": "CALCULATION", "title": "计算现金总额", "instruction": "计算 47052.00 + (-1269.66)；金额精度 2，容差 ±0.01 元。", "response": {"kind": "NUMBER", "placeholder": "请输入现金总额", "unit": "元", "precision": 2}},
+        {"workItemId": "etf03-b-ledger-security-quantity", "type": "LEDGER_ENTRY", "title": "登记台账证券数量", "instruction": "从交收结果登记台账证券数量；数量精度 0，容差 0 股。", "response": {"kind": "NUMBER", "placeholder": "请输入台账证券数量", "unit": "股", "precision": 0}},
+        {"workItemId": "etf03-b-ledger-cash-total", "type": "LEDGER_ENTRY", "title": "登记台账现金总额", "instruction": "从两条现金腿登记台账现金总额；金额精度 2，容差 ±0.01 元。", "response": {"kind": "NUMBER", "placeholder": "请输入台账现金总额", "unit": "元", "precision": 2}},
+        {"workItemId": "etf03-b-state-chain", "type": "RECONCILIATION", "title": "核对状态来源顺序", "instruction": "按指令、PCF、确认、证券、现金和下游资料核对状态，不跳步。", "response": {"kind": "SELECT", "placeholder": "请选择状态结论", "options": [{"optionId": "ETF03_B_STATE_CHAIN_COMPLETE", "text": "全部状态由对应来源按顺序支持"}, {"optionId": "ETF03_B_STATE_CHAIN_INFERRED", "text": "由最终台账反推全部状态"}]}},
+        {"workItemId": "etf03-b-securities-leg-diff", "type": "RECONCILIATION", "title": "核对证券腿", "instruction": "计算应交 3600 - 实交 3600；数量精度 0，容差 0 股。", "response": {"kind": "NUMBER", "placeholder": "请输入证券腿差额", "unit": "股", "precision": 0}},
+        {"workItemId": "etf03-b-cash-substitution-diff", "type": "RECONCILIATION", "title": "核对现金替代腿", "instruction": "计算 47052.00 - 47052.00；金额精度 2，容差 ±0.01 元。", "response": {"kind": "NUMBER", "placeholder": "请输入现金替代差额", "unit": "元", "precision": 2}},
+        {"workItemId": "etf03-b-cash-difference-diff", "type": "RECONCILIATION", "title": "核对单位现金差额腿", "instruction": "计算 -1269.66 - (-1269.66)；金额精度 2，容差 ±0.01 元。", "response": {"kind": "NUMBER", "placeholder": "请输入单位现金差额腿差额", "unit": "元", "precision": 2}},
+        {"workItemId": "etf03-b-cash-total-diff", "type": "RECONCILIATION", "title": "核对现金总额", "instruction": "计算应交现金总额 45782.34 - 台账现金 45782.34；金额精度 2，容差 ±0.01 元。", "response": {"kind": "NUMBER", "placeholder": "请输入现金总额差额", "unit": "元", "precision": 2}},
+        {"workItemId": "etf03-b-ta-clearing-ledger-recon", "type": "RECONCILIATION", "title": "核对指令/确认、TA、清算和台账", "instruction": "比较指令/确认篮数和份额、TA/清算/台账份额并确认最终正常状态。", "response": {"kind": "SELECT", "placeholder": "请选择下游勾稽结论", "options": [{"optionId": "ETF03_B_TA_CLEARING_LEDGER_ZERO", "text": "指令/确认篮数和份额、TA、清算、台账均零差且状态为PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"}, {"optionId": "ETF03_B_LEDGER_ONLY", "text": "只以台账份额判断"}]}},
+        {"workItemId": "etf03-b-conclusion", "type": "SHORT_TEXT", "title": "写出正常交收结论", "instruction": "用一句短结论保留状态来源、三腿、现金总额、指令/确认与 TA/清算/台账零差和最终状态。", "response": {"kind": "TEXT", "placeholder": "请输入交收勾稽结论"}}
+      ],
+      "submissionNote": "全部数量和金额按案例版本快照计算；结论必须由独立来源和零差证据支持，不冻结正式科目或交收时点规则。"
+    }
+  },
+  "references": [
+    {"referenceId": "ETF03-REF-OPS", "title": "ETF 运营与交收因果链", "source": "ETF-MAT-INDEX-OPS S17-S38", "usage": "抽象指令、确认、证券/现金交收和台账关系。"},
+    {"referenceId": "ETF03-REF-SETTLEMENT", "title": "场内 ETF 清算对象", "source": "ETF-MAT-SETTLEMENT S08-S19", "usage": "区分份额、组合证券、现金替代、现金差额和交收结果。"},
+    {"referenceId": "ETF03-REF-CASE", "title": "正常案例版本快照", "source": "ETF03-FIXTURE-DEMO-A、ETF03-FIXTURE-COMP-B", "usage": "所有数量、金额、状态和容差仅适用于本案例。"}
+  ]
+}

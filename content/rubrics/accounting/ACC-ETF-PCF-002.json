@@ -1,0 +1,805 @@
+{
+  "routeId": "ACC-ETF-PCF-002",
+  "rubricVersion": "2026.08.14.1",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-ETF02-PCF-ROW-SOURCES",
+          "description": "能逐行定位 PCF 字段和案例市场价格来源。",
+          "weight": 10,
+          "evidenceRequirement": "三行来源均来自 PCF，价格来源来自案例市场价格表。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-row1-source",
+              "operator": "EQUALS",
+              "expected": "ETF02_B_ROW1_FROM_PCF"
+            },
+            {
+              "fieldId": "etf02-b-row2-source",
+              "operator": "EQUALS",
+              "expected": "ETF02_B_ROW2_FROM_PCF"
+            },
+            {
+              "fieldId": "etf02-b-row3-source",
+              "operator": "EQUALS",
+              "expected": "ETF02_B_ROW3_FROM_PCF"
+            },
+            {
+              "fieldId": "etf02-b-price-source",
+              "operator": "EQUALS",
+              "expected": "ETF02_B_PRICE_FROM_MARKET"
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-ROW-SOURCES"
+        },
+        {
+          "criterionId": "C-ETF02-FLAGS",
+          "description": "能把替代标志和凭证前估值资料放回正确来源。",
+          "weight": 8,
+          "evidenceRequirement": "估值计算使用凭证前估值资料，替代标志来自 PCF 行。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-valuation-source",
+              "operator": "EQUALS",
+              "expected": "ETF02_B_VALUATION_FROM_PRE_VOUCHER"
+            },
+            {
+              "fieldId": "etf02-b-row2-source",
+              "operator": "EQUALS",
+              "expected": "ETF02_B_ROW2_FROM_PCF"
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-VALUATION"
+        },
+        {
+          "criterionId": "C-ETF02-DELIVERY-CHOICE",
+          "description": "能区分必须现金替代、允许现金替代与本案例实际交付选择。",
+          "weight": 7,
+          "evidenceRequirement": "标志 1 按必须现金替代处理，标志 2 的本案例 deliveryChoice=CASH_SUBSTITUTE。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-row3-delivery-choice",
+              "operator": "EQUALS",
+              "expected": "ETF02_B_DELIVERY_CHOICE_CASH_SUBSTITUTE"
+            },
+            {
+              "fieldId": "etf02-b-row2-source",
+              "operator": "EQUALS",
+              "expected": "ETF02_B_ROW2_FROM_PCF"
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-DELIVERY-CHOICE"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-ETF02-ROW-VALUE",
+          "description": "能完成三行数量乘价格的市场价值计算。",
+          "weight": 7,
+          "evidenceRequirement": "三行市场价值分别为 8700.00、10080.00 和 5100.00 元。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-row1-market-value",
+              "operator": "NUMBER_EQUALS",
+              "expected": 8700,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "etf02-b-row2-market-value",
+              "operator": "NUMBER_EQUALS",
+              "expected": 10080,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "etf02-b-row3-market-value",
+              "operator": "NUMBER_EQUALS",
+              "expected": 5100,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-ROW-VALUES"
+        },
+        {
+          "criterionId": "P-ETF02-BASKET",
+          "description": "能合计股票篮参考市值。",
+          "weight": 6,
+          "evidenceRequirement": "三行市场价值合计为 23880.00 元/篮。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-basket-market-value",
+              "operator": "NUMBER_EQUALS",
+              "expected": 23880,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-BASKET"
+        },
+        {
+          "criterionId": "P-ETF02-CASH",
+          "description": "能按替代标志和案例参数合计现金替代。",
+          "weight": 6,
+          "evidenceRequirement": "现金替代合计为 15684.00 元/篮。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-cash-substitution-total",
+              "operator": "NUMBER_EQUALS",
+              "expected": 15684,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-CASH"
+        },
+        {
+          "criterionId": "P-ETF02-NAV",
+          "description": "能从凭证前估值资料计算创设单位净值。",
+          "weight": 6,
+          "evidenceRequirement": "2345678.00 ÷ 200000 × 2000 = 23456.78 元/篮。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-creation-unit-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 23456.78,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-NAV"
+        },
+        {
+          "criterionId": "P-ETF02-PREMIUM-BRIDGE",
+          "description": "能从现金替代金额与参考市值复算溢价预付款，并桥接到初始申购对价。",
+          "weight": 5,
+          "evidenceRequirement": "溢价预付款为 504.00 元/篮，创设单位净值 23456.78 + 504.00 = 初始申购对价 23960.78 元/篮。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-substitution-premium-prepayment",
+              "operator": "NUMBER_EQUALS",
+              "expected": 504,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "etf02-b-initial-consideration-bridge",
+              "operator": "NUMBER_EQUALS",
+              "expected": 23960.78,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-INITIAL-BRIDGE"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-ETF02-CASH-DIFF",
+          "description": "能识别单位现金差额的正负及其来源。",
+          "weight": 8,
+          "evidenceRequirement": "单位现金差额为 -423.22 元/篮，符号来自创设单位净值减股票篮参考市值。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-unit-cash-difference",
+              "operator": "NUMBER_EQUALS",
+              "expected": -423.22,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "etf02-b-creation-unit-nav",
+              "operator": "NUMBER_EQUALS",
+              "expected": 23456.78,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-CASH-DIFF"
+        },
+        {
+          "criterionId": "R-ETF02-RECON",
+          "description": "能把计算结果与台账/结果资料完成零差额勾稽。",
+          "weight": 8,
+          "evidenceRequirement": "初始对价与台账对价差额为零，同时保留现金替代预付款待结算的状态边界。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-consideration-recon",
+              "operator": "EQUALS",
+              "expected": "ETF02_B_INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"
+            },
+            {
+              "fieldId": "etf02-b-ledger-consideration",
+              "operator": "NUMBER_EQUALS",
+              "expected": 23960.78,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-RECON"
+        },
+        {
+          "criterionId": "R-ETF02-UNSETTLED-SUBSTITUTION",
+          "description": "能把溢价预付款、本路线已结算现金替代金额和现金替代预付款待结算余额分开登记。",
+          "weight": 9,
+          "evidenceRequirement": "溢价预付款 504.00 元 - 本路线已结算现金替代金额 0.00 元 = 现金替代预付款待结算余额 504.00 元；实际补券成本和费用尚未形成，不预判未来结算方向。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-unsettled-substitution-prepayment",
+              "operator": "NUMBER_EQUALS",
+              "expected": 504,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "etf02-b-substitution-premium-prepayment",
+              "operator": "NUMBER_EQUALS",
+              "expected": 504,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-UNSETTLED-SUBSTITUTION"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-ETF02-CONSIDER",
+          "description": "能把创设单位净值、溢价预付款、初始申购对价和台账对价以结构化金额表达。",
+          "weight": 10,
+          "evidenceRequirement": "申购对价与台账对价均为 23960.78 元/篮。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-creation-consideration",
+              "operator": "NUMBER_EQUALS",
+              "expected": 23960.78,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "etf02-b-ledger-consideration",
+              "operator": "NUMBER_EQUALS",
+              "expected": 23960.78,
+              "tolerance": 0.01
+            },
+            {
+              "fieldId": "etf02-b-initial-consideration-bridge",
+              "operator": "NUMBER_EQUALS",
+              "expected": 23960.78,
+              "tolerance": 0.01
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-CONSIDERATION"
+        },
+        {
+          "criterionId": "E-ETF02-CONCLUSION",
+          "description": "能用短结论保留 PCF 汇总、估值、溢价预付款、初始对价、现金替代预付款待结算余额、差额和状态边界。",
+          "weight": 10,
+          "evidenceRequirement": "短结论包含 23880.00、15684.00、23456.78、-423.22、23960.78 和 0.00。",
+          "evidenceRules": [
+            {
+              "fieldId": "etf02-b-conclusion",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "23880.00",
+                "15684.00",
+                "23456.78",
+                "-423.22",
+                "504.00",
+                "23960.78",
+                "0.00",
+                "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"
+              ]
+            }
+          ],
+          "remediationTargetId": "ETF02-TARGET-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-ETF02-NAV-DIFF",
+      "description": "必须完成创设单位净值、单位现金差额和净值到初始对价的溢价桥。",
+      "evidenceRequirement": "创设单位净值和单位现金差额均准确且符号正确，溢价预付款、初始申购对价和现金替代预付款待结算余额均完成桥接。",
+      "evidenceRules": [
+        {
+          "fieldId": "etf02-b-creation-unit-nav",
+          "operator": "NUMBER_EQUALS",
+          "expected": 23456.78,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "etf02-b-unit-cash-difference",
+          "operator": "NUMBER_EQUALS",
+          "expected": -423.22,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "etf02-b-substitution-premium-prepayment",
+          "operator": "NUMBER_EQUALS",
+          "expected": 504,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "etf02-b-initial-consideration-bridge",
+          "operator": "NUMBER_EQUALS",
+          "expected": 23960.78,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "etf02-b-unsettled-substitution-prepayment",
+          "operator": "NUMBER_EQUALS",
+          "expected": 504,
+          "tolerance": 0.01
+        }
+      ],
+      "remediationTargetId": "ETF02-TARGET-CASH-DIFF"
+    },
+    {
+      "requirementId": "M-ETF02-CONSIDERATION",
+      "description": "必须完成初始申购对价、台账对价和现金替代预付款待结算边界的勾稽状态。",
+      "evidenceRequirement": "初始申购对价与台账对价均为 23960.78 元/篮，差额为 0.00 元，且状态明确为初始对价已闭合但现金替代预付款待结算余额尚未结算。",
+      "evidenceRules": [
+        {
+          "fieldId": "etf02-b-creation-consideration",
+          "operator": "NUMBER_EQUALS",
+          "expected": 23960.78,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "etf02-b-ledger-consideration",
+          "operator": "NUMBER_EQUALS",
+          "expected": 23960.78,
+          "tolerance": 0.01
+        },
+        {
+          "fieldId": "etf02-b-consideration-recon",
+          "operator": "EQUALS",
+          "expected": "ETF02_B_INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"
+        }
+      ],
+      "remediationTargetId": "ETF02-TARGET-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "ETF02-TARGET-ROW-SOURCES",
+      "title": "回看 PCF 行来源",
+      "reason": "PCF 行没有逐行从 PCF 资料定位。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "etf02-b-row1-source",
+      "questionId": "ACC-ETF-PCF-Q-01"
+    },
+    {
+      "targetId": "ETF02-TARGET-ROW1",
+      "title": "回看第一行字段",
+      "reason": "第一行市场、数量或替代标志读取不完整。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-row1-source",
+      "questionId": "ACC-ETF-PCF-Q-01"
+    },
+    {
+      "targetId": "ETF02-TARGET-ROW2",
+      "title": "回看第二行字段",
+      "reason": "第二行市场、数量或替代标志读取不完整。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-row2-source",
+      "questionId": "ACC-ETF-PCF-Q-01"
+    },
+    {
+      "targetId": "ETF02-TARGET-ROW3",
+      "title": "回看第三行字段",
+      "reason": "第三行市场、数量或替代标志读取不完整。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-row3-source",
+      "questionId": "ACC-ETF-PCF-Q-01"
+    },
+    {
+      "targetId": "ETF02-TARGET-DELIVERY-CHOICE",
+      "title": "回看允许替代行交付选择",
+      "reason": "允许现金替代标志被错误地当成必然现金交付或必然实物交付。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "etf02-b-row3-delivery-choice",
+      "questionId": "ACC-ETF-PCF-Q-01"
+    },
+    {
+      "targetId": "ETF02-TARGET-PRICE",
+      "title": "回看价格来源",
+      "reason": "价格没有回到案例市场价格资料。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "etf02-b-price-source",
+      "questionId": "ACC-ETF-PCF-Q-01"
+    },
+    {
+      "targetId": "ETF02-TARGET-VALUATION",
+      "title": "回看凭证前估值来源",
+      "reason": "创设单位净值没有使用凭证前估值资料。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "etf02-b-valuation-source",
+      "questionId": "ACC-ETF-PCF-Q-01"
+    },
+    {
+      "targetId": "ETF02-TARGET-ROW-VALUES",
+      "title": "回算逐行市场价值",
+      "reason": "数量乘价格的逐行结果不正确。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-row1-market-value",
+      "questionId": "ACC-ETF-PCF-Q-02"
+    },
+    {
+      "targetId": "ETF02-TARGET-ROW1-VALUE",
+      "title": "回算第一行市场价值",
+      "reason": "第一行数量乘价格的市场价值没有按资料复算。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-row1-market-value",
+      "questionId": "ACC-ETF-PCF-Q-02"
+    },
+    {
+      "targetId": "ETF02-TARGET-ROW2-VALUE",
+      "title": "回算第二行市场价值",
+      "reason": "第二行市场价值没有按数量乘价格复算。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-row2-market-value",
+      "questionId": "ACC-ETF-PCF-Q-02"
+    },
+    {
+      "targetId": "ETF02-TARGET-ROW3-VALUE",
+      "title": "回算第三行市场价值",
+      "reason": "第三行市场价值没有按数量乘价格复算。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-row3-market-value",
+      "questionId": "ACC-ETF-PCF-Q-02"
+    },
+    {
+      "targetId": "ETF02-TARGET-BASKET",
+      "title": "回看股票篮合计",
+      "reason": "股票篮参考市值没有由三行市场价值合计得到。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-basket-market-value",
+      "questionId": "ACC-ETF-PCF-Q-04"
+    },
+    {
+      "targetId": "ETF02-TARGET-CASH",
+      "title": "回看现金替代合计",
+      "reason": "替代标志对应的现金替代没有正确合计。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-cash-substitution-total",
+      "questionId": "ACC-ETF-PCF-Q-03"
+    },
+    {
+      "targetId": "ETF02-TARGET-NAV",
+      "title": "回算创设单位净值",
+      "reason": "凭证前估值、基金资本和每篮份额的计算链不完整。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-creation-unit-nav",
+      "questionId": "ACC-ETF-PCF-Q-04"
+    },
+    {
+      "targetId": "ETF02-TARGET-CASH-DIFF",
+      "title": "回看单位现金差额",
+      "reason": "创设单位净值减股票篮参考市值的符号或数值不正确。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-unit-cash-difference",
+      "questionId": "ACC-ETF-PCF-Q-04"
+    },
+    {
+      "targetId": "ETF02-TARGET-PREMIUM-PREPAYMENT",
+      "title": "回算溢价预付款",
+      "reason": "现金替代中的溢价部分没有从替代金额与参考市值中单列。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-substitution-premium-prepayment",
+      "questionId": "ACC-ETF-PCF-Q-03"
+    },
+    {
+      "targetId": "ETF02-TARGET-INITIAL-BRIDGE",
+      "title": "回算初始对价桥",
+      "reason": "创设单位净值加溢价预付款没有桥接到初始申购对价。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-initial-consideration-bridge",
+      "questionId": "ACC-ETF-PCF-Q-04"
+    },
+    {
+      "targetId": "ETF02-TARGET-UNSETTLED-SUBSTITUTION",
+      "title": "登记现金替代预付款待结算余额",
+      "reason": "本路线已结算现金替代金额 0.00 元与现金替代预付款待结算余额没有分开登记。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-unsettled-substitution-prepayment",
+      "questionId": "ACC-ETF-PCF-Q-03"
+    },
+    {
+      "targetId": "ETF02-TARGET-CONSIDERATION",
+      "title": "回算申购对价",
+      "reason": "股票篮、现金替代、单位现金差额、溢价预付款和本路线已结算现金替代金额没有连续传递。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-creation-consideration",
+      "questionId": "ACC-ETF-PCF-Q-03"
+    },
+    {
+      "targetId": "ETF02-TARGET-LEDGER",
+      "title": "回看台账对价",
+      "reason": "台账申购对价没有从结果资料读取。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-ledger-consideration",
+      "questionId": "ACC-ETF-PCF-Q-03"
+    },
+    {
+      "targetId": "ETF02-TARGET-RECON",
+      "title": "回看对价勾稽",
+      "reason": "计算对价和台账结果没有完成零差额勾稽。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-consideration-recon",
+      "questionId": "ACC-ETF-PCF-Q-04"
+    },
+    {
+      "targetId": "ETF02-TARGET-CONCLUSION",
+      "title": "回写 PCF 综合结论",
+      "reason": "短结论没有保留主要金额结果和勾稽差额。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "etf02-b-conclusion",
+      "questionId": "ACC-ETF-PCF-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "ETF02-FIXTURE-COMP-B",
+    "sourceMaterialIds": [
+      "ETF02-B-PCF-SHEET",
+      "ETF02-B-MARKET-PRICE",
+      "ETF02-B-VALUATION",
+      "ETF02-B-RESULT",
+      "ETF02-B-RECON"
+    ],
+    "responses": {
+      "etf02-b-row1-source": "ETF02_B_ROW1_FROM_PCF",
+      "etf02-b-row2-source": "ETF02_B_ROW2_FROM_PCF",
+      "etf02-b-row3-source": "ETF02_B_ROW3_FROM_PCF",
+      "etf02-b-row3-delivery-choice": "ETF02_B_DELIVERY_CHOICE_CASH_SUBSTITUTE",
+      "etf02-b-price-source": "ETF02_B_PRICE_FROM_MARKET",
+      "etf02-b-valuation-source": "ETF02_B_VALUATION_FROM_PRE_VOUCHER",
+      "etf02-b-row1-market-value": "8700.00",
+      "etf02-b-row2-market-value": "10080.00",
+      "etf02-b-row3-market-value": "5100.00",
+      "etf02-b-basket-market-value": "23880.00",
+      "etf02-b-cash-substitution-total": "15684.00",
+      "etf02-b-substitution-premium-prepayment": "504.00",
+      "etf02-b-creation-unit-nav": "23456.78",
+      "etf02-b-unit-cash-difference": "-423.22",
+      "etf02-b-initial-consideration-bridge": "23960.78",
+      "etf02-b-unsettled-substitution-prepayment": "504.00",
+      "etf02-b-creation-consideration": "23960.78",
+      "etf02-b-ledger-consideration": "23960.78",
+      "etf02-b-consideration-recon": "ETF02_B_INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT",
+      "etf02-b-conclusion": "股票篮参考市值 23880.00 元/篮；现金替代 15684.00 元/篮；创设单位净值 23456.78 元/篮；单位现金差额 -423.22 元/篮；溢价预付款 504.00 元/篮；初始申购对价 23960.78 元/篮；现金替代预付款待结算余额 504.00 元/篮；与台账差额 0.00 元；状态为 INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT，未来结算方向待补券成本和费用形成。"
+    },
+    "responseMeta": {
+      "etf02-b-row1-market-value": {
+        "kind": "NUMBER",
+        "unit": "元",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-row2-market-value": {
+        "kind": "NUMBER",
+        "unit": "元",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-row3-market-value": {
+        "kind": "NUMBER",
+        "unit": "元",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-basket-market-value": {
+        "kind": "NUMBER",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-cash-substitution-total": {
+        "kind": "NUMBER",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-substitution-premium-prepayment": {
+        "kind": "NUMBER",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-creation-unit-nav": {
+        "kind": "NUMBER",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-unit-cash-difference": {
+        "kind": "NUMBER",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-initial-consideration-bridge": {
+        "kind": "NUMBER",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-unsettled-substitution-prepayment": {
+        "kind": "NUMBER",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-creation-consideration": {
+        "kind": "NUMBER",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      "etf02-b-ledger-consideration": {
+        "kind": "NUMBER",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      }
+    },
+    "evidenceSourceMapping": {
+      "etf02-b-row1-source": ["ETF02-B-PCF-SHEET"],
+      "etf02-b-row2-source": ["ETF02-B-PCF-SHEET"],
+      "etf02-b-row3-source": ["ETF02-B-PCF-SHEET"],
+      "etf02-b-row3-delivery-choice": ["ETF02-B-PCF-SHEET", "ETF02-B-RESULT"],
+      "etf02-b-price-source": ["ETF02-B-MARKET-PRICE"],
+      "etf02-b-valuation-source": ["ETF02-B-VALUATION"],
+      "etf02-b-row1-market-value": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"],
+      "etf02-b-row2-market-value": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"],
+      "etf02-b-row3-market-value": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"],
+      "etf02-b-basket-market-value": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"],
+      "etf02-b-cash-substitution-total": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"],
+      "etf02-b-substitution-premium-prepayment": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE", "ETF02-B-RESULT"],
+      "etf02-b-creation-unit-nav": ["ETF02-B-VALUATION"],
+      "etf02-b-unit-cash-difference": ["ETF02-B-VALUATION", "ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"],
+      "etf02-b-initial-consideration-bridge": ["ETF02-B-VALUATION", "ETF02-B-RESULT"],
+      "etf02-b-unsettled-substitution-prepayment": ["ETF02-B-RESULT", "ETF02-B-RECON"],
+      "etf02-b-creation-consideration": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE", "ETF02-B-VALUATION", "ETF02-B-RESULT"],
+      "etf02-b-ledger-consideration": ["ETF02-B-RESULT", "ETF02-B-RECON"],
+      "etf02-b-consideration-recon": ["ETF02-B-RESULT", "ETF02-B-RECON"],
+      "etf02-b-conclusion": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE", "ETF02-B-VALUATION", "ETF02-B-RESULT", "ETF02-B-RECON"]
+    },
+    "decimalChain": [
+      {
+        "fieldId": "security_1_market_value",
+        "formula": "Decimal('1200') * Decimal('7.25')",
+        "result": "8700.00",
+        "unit": "元",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "security_2_market_value",
+        "formula": "Decimal('900') * Decimal('11.20')",
+        "result": "10080.00",
+        "unit": "元",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "security_2_cash_substitution",
+        "formula": "Decimal('900') * Decimal('11.20') * (Decimal('1.00') + Decimal('0.0500'))",
+        "result": "10584.00",
+        "unit": "元",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "security_3_market_value",
+        "formula": "Decimal('750') * Decimal('6.80')",
+        "result": "5100.00",
+        "unit": "元",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "security_3_cash_substitution",
+        "formula": "Decimal('750') * Decimal('6.80') * (Decimal('1.00') + Decimal('0.0000'))",
+        "result": "5100.00",
+        "unit": "元",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "basket_market_value",
+        "formula": "Decimal('8700.00') + Decimal('10080.00') + Decimal('5100.00')",
+        "result": "23880.00",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "cash_substitution_total",
+        "formula": "Decimal('10584.00') + Decimal('5100.00')",
+        "result": "15684.00",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "substitution_premium_prepayment",
+        "formula": "Decimal('10584.00') - Decimal('10080.00')",
+        "result": "504.00",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "creation_unit_nav",
+        "formula": "Decimal('2345678.00') / Decimal('200000') * Decimal('2000')",
+        "result": "23456.78",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "unit_cash_difference",
+        "formula": "Decimal('23456.78') - Decimal('23880.00')",
+        "result": "-423.22",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "initial_consideration_bridge",
+        "formula": "Decimal('23456.78') + Decimal('504.00')",
+        "result": "23960.78",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "unsettled_substitution_prepayment",
+        "formula": "Decimal('504.00') - Decimal('0.00')",
+        "result": "504.00",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "creation_consideration",
+        "formula": "Decimal('8700.00') + Decimal('15684.00') + Decimal('-423.22') - Decimal('0.00')",
+        "result": "23960.78",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      },
+      {
+        "fieldId": "consideration_difference",
+        "formula": "Decimal('23960.78') - Decimal('23960.78')",
+        "result": "0.00",
+        "unit": "元/篮",
+        "precision": 2,
+        "tolerance": "0.01"
+      }
+    ],
+    "reconciliation": {
+      "basketMarketValue": "23880.00",
+      "cashSubstitutionTotal": "15684.00",
+      "creationUnitNAV": "23456.78",
+      "unitCashDifference": "-423.22",
+      "substitutionPremiumPrepayment": "504.00",
+      "initialConsideration": "23960.78",
+      "unsettledSubstitutionPrepayment": "504.00",
+      "refundAmount": "0.00",
+      "refundStatus": "NOT_PROCESSED_IN_THIS_ROUTE",
+      "creationConsideration": "23960.78",
+      "ledgerConsideration": "23960.78",
+      "considerationDifference": "0.00",
+      "finalState": "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"
+    },
+    "expectedConclusion": "PCF-B 逐行读取市场、整数数量、替代标志、deliveryChoice 和案例价格来源；股票篮参考市值23880.00元/篮、现金替代15684.00元/篮、创设单位净值23456.78元/篮、单位现金差额-423.22元/篮，溢价预付款504.00元/篮，初始申购对价23960.78元/篮，现金替代预付款待结算余额504.00元/篮，与结果资料零差异；实际补券成本和费用尚未形成，未来结算方向待后续资料确定。"
+  }
+}

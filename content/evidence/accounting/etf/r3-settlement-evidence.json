@@ -1,0 +1,93 @@
+{
+  "evidenceId": "ETF-EVID-R3-SETTLEMENT-001",
+  "version": "2026.08.14-etf-b2",
+  "scope": "ACC-ETF-SETTLEMENT-003",
+  "routeId": "ACC-ETF-SETTLEMENT-003",
+  "routeCode": "ETF-03",
+  "title": "国内普通 ETF 正常申购确认与三腿交收证据",
+  "scopeNotice": "所有状态、数量、金额、精度和容差均为 ONLY_THIS_CASE 的脱敏正常案例快照，不外推为生产交收时点或规则。",
+  "sharedEvidence": ["material-audit.json", "field-dictionary.json", "source-state-matrix.json", "deidentification-boundary.json", "shared-normal-snapshot.json"],
+  "materialAnchors": [
+    {"sourceMaterialCode": "ETF-MAT-INDEX-OPS", "locators": ["S17-S38"], "teachingUse": "抽象申购指令、确认、证券/现金交收、凭证和台账的连续关系。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "ETF-MAT-SETTLEMENT", "locators": ["S08-S13", "S19"], "teachingUse": "区分 ETF 份额、组合证券、现金替代、现金差额和正常交收对象。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "ETF-MAT-FAQ", "locators": ["P029-P051"], "teachingUse": "支持凭证、台账和交收结果的来源关系，不冻结历史菜单或科目。", "provenance": "MATERIAL_ABSTRACTION"}
+  ],
+  "mappingClaims": [
+    {"claimId": "ETF03-CLAIM-01", "claim": "申购指令、PCF 校验、确认、证券交收、现金交收和 TA/清算/台账各自推动对应状态，不能由最终台账反推上游。", "sourceGroups": ["ETF-SRC-R3-INSTRUCTION", "ETF-SRC-R3-PCF", "ETF-SRC-R3-CONFIRMATION", "ETF-SRC-R3-SECURITIES", "ETF-SRC-R3-CASH", "ETF-SRC-R3-DOWNSTREAM"], "activity": "FIELD_MAP", "provenance": "MATERIAL_ABSTRACTION"},
+    {"claimId": "ETF03-CLAIM-02", "claim": "证券腿使用整数数量；现金替代腿和单位现金差额腿使用 Decimal 金额并分别勾稽。", "sourceGroups": ["ETF-SRC-R3-PCF", "ETF-SRC-R3-SECURITIES", "ETF-SRC-R3-CASH"], "activity": "CALCULATION", "provenance": "CASE_POLICY"},
+    {"claimId": "ETF03-CLAIM-03", "claim": "三腿、现金总额以及 TA/清算/台账份额全部零差后，形成 PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT；该状态不结算 R2 预付款。", "sourceGroups": ["ETF-SRC-R3-CASH", "ETF-SRC-R3-DOWNSTREAM", "ETF-SRC-R3-LEDGER"], "activity": "RECONCILIATION", "provenance": "CASE_POLICY"}
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "ETF03-FIXTURE-DEMO-A",
+      "sourceToField": [
+        {"sourceGroupId": "ETF-SRC-R3-INSTRUCTION", "fields": ["event_key=EVT-ETF03-A-001", "basket_count=2", "instruction_state=INSTRUCTION_RECEIVED"]},
+        {"sourceGroupId": "ETF-SRC-R3-PCF", "fields": ["security_per_basket_quantity=800", "cash_substitution_per_basket=13740.00", "cash_difference_per_basket=1791.34", "basket_share_quantity=2000", "pcf_validation_state=PCF_VALIDATED"]},
+        {"sourceGroupId": "ETF-SRC-R3-CONFIRMATION", "fields": ["confirmed_basket_count=2", "confirmed_share_quantity=4000", "confirmation_state=PRIMARY_CONFIRMED"]},
+        {"sourceGroupId": "ETF-SRC-R3-SECURITIES", "fields": ["delivered_security_quantity=1600", "securities_state=SECURITIES_SETTLED"]},
+        {"sourceGroupId": "ETF-SRC-R3-CASH", "fields": ["settled_cash_substitution=27480.00", "settled_cash_difference=3582.68", "settled_cash_total=31062.68", "cash_state=CASH_SETTLED"]},
+        {"sourceGroupId": "ETF-SRC-R3-DOWNSTREAM", "fields": ["ta_confirmed_shares=4000", "clearing_confirmed_shares=4000"]},
+        {"sourceGroupId": "ETF-SRC-R3-LEDGER", "fields": ["ledger_confirmed_shares=4000", "ledger_security_quantity=1600", "ledger_cash_total=31062.68", "r3_final_state=PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]}
+      ],
+      "decimalSteps": [
+        {"fieldId": "expected_security_quantity", "formula": "Decimal('2') * Decimal('800')", "result": "1600", "unit": "股", "precision": 0, "tolerance": "0"},
+        {"fieldId": "expected_cash_substitution", "formula": "Decimal('2') * Decimal('13740.00')", "result": "27480.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "expected_cash_difference", "formula": "Decimal('2') * Decimal('1791.34')", "result": "3582.68", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "expected_cash_total", "formula": "Decimal('27480.00') + Decimal('3582.68')", "result": "31062.68", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "securities_leg_difference", "formula": "Decimal('1600') - Decimal('1600')", "result": "0", "unit": "股", "precision": 0, "tolerance": "0"},
+        {"fieldId": "cash_substitution_difference", "formula": "Decimal('27480.00') - Decimal('27480.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "cash_difference_difference", "formula": "Decimal('3582.68') - Decimal('3582.68')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "cash_total_difference", "formula": "Decimal('31062.68') - Decimal('31062.68')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}
+      ],
+      "reconciliation": {"securitiesLegDifference": "0", "cashSubstitutionDifference": "0.00", "cashDifferenceDifference": "0.00", "cashTotalDifference": "0.00", "instructionConfirmationDifference": "0", "instructionConfirmationShareDifference": "0", "taConfirmationDifference": "0", "clearingConfirmationDifference": "0", "ledgerConfirmationDifference": "0", "ledgerSecurityDifference": "0", "ledgerCashDifference": "0.00", "taClearingLedgerDifference": "0", "finalState": "PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"}
+    },
+    "comprehensiveB": {
+      "fixtureId": "ETF03-FIXTURE-COMP-B",
+      "sourceToField": [
+        {"sourceMaterialId": "ETF03-B-INSTRUCTION", "role": "INSTRUCTION", "fields": ["event_key=EVT-ETF03-B-001", "basket_count=3", "instruction_state=INSTRUCTION_RECEIVED"]},
+        {"sourceMaterialId": "ETF03-B-PCF-VALIDATION", "role": "PCF_VALIDATION", "fields": ["security_per_basket_quantity=1200", "cash_substitution_per_basket=15684.00", "cash_difference_per_basket=-423.22", "basket_share_quantity=2000", "pcf_validation_state=PCF_VALIDATED"]},
+        {"sourceMaterialId": "ETF03-B-CONFIRMATION", "role": "CONFIRMATION", "fields": ["confirmed_basket_count=3", "confirmed_share_quantity=6000", "confirmation_state=PRIMARY_CONFIRMED"]},
+        {"sourceMaterialId": "ETF03-B-SECURITIES", "role": "SECURITIES_SETTLEMENT", "fields": ["delivered_security_quantity=3600", "securities_state=SECURITIES_SETTLED"]},
+        {"sourceMaterialId": "ETF03-B-CASH", "role": "CASH_SETTLEMENT", "fields": ["settled_cash_substitution=47052.00", "settled_cash_difference=-1269.66", "settled_cash_total=45782.34", "cash_state=CASH_SETTLED"]},
+        {"sourceMaterialId": "ETF03-B-TA-CLEARING", "role": "DOWNSTREAM", "fields": ["ta_confirmed_shares=6000", "clearing_confirmed_shares=6000"]},
+        {"sourceMaterialId": "ETF03-B-LEDGER", "role": "LEDGER", "fields": ["ledger_security_quantity=3600", "ledger_cash_total=45782.34", "ledger_confirmed_shares=6000", "final_state=PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]}
+      ],
+      "decimalSteps": [
+        {"fieldId": "expected_security_quantity", "formula": "Decimal('3') * Decimal('1200')", "result": "3600", "unit": "股", "precision": 0, "tolerance": "0"},
+        {"fieldId": "expected_cash_substitution", "formula": "Decimal('3') * Decimal('15684.00')", "result": "47052.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "expected_cash_difference", "formula": "Decimal('3') * Decimal('-423.22')", "result": "-1269.66", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "expected_cash_total", "formula": "Decimal('47052.00') + Decimal('-1269.66')", "result": "45782.34", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "securities_leg_difference", "formula": "Decimal('3600') - Decimal('3600')", "result": "0", "unit": "股", "precision": 0, "tolerance": "0"},
+        {"fieldId": "cash_substitution_difference", "formula": "Decimal('47052.00') - Decimal('47052.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "cash_difference_difference", "formula": "Decimal('-1269.66') - Decimal('-1269.66')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "cash_total_difference", "formula": "Decimal('45782.34') - Decimal('45782.34')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}
+      ],
+      "reconciliation": {"securitiesLegDifference": "0", "cashSubstitutionDifference": "0.00", "cashDifferenceDifference": "0.00", "cashTotalDifference": "0.00", "instructionConfirmationDifference": "0", "instructionConfirmationShareDifference": "0", "taConfirmationDifference": "0", "clearingConfirmationDifference": "0", "ledgerConfirmationDifference": "0", "ledgerSecurityDifference": "0", "ledgerCashDifference": "0.00", "taShares": "6000", "clearingShares": "6000", "ledgerShares": "6000", "taClearingLedgerDifference": "0", "finalState": "PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"},
+      "expectedConclusion": "事件EVT-ETF03-B-001按指令、PCF、确认、证券和现金来源顺序闭合；证券3600股、现金替代47052.00元、单位现金差额-1269.66元、现金总额45782.34元及TA/清算/台账6000份均零差，状态为PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT。"
+    }
+  },
+  "atomicWorkItems": [
+    {"workItemId": "etf03-b-instruction-source", "responseKind": "SELECT", "observableAction": "定位申购指令事件键、篮数和状态", "fixtureValue": "ETF03_B_FROM_INSTRUCTION", "sourceMaterialIds": ["ETF03-B-INSTRUCTION"], "scoreTargets": ["C-ETF03-STATE-SOURCES", "M-ETF03-STATE-SOURCE"], "remediationTargetId": "ETF03-TARGET-INSTRUCTION"},
+    {"workItemId": "etf03-b-pcf-source", "responseKind": "SELECT", "observableAction": "定位PCF三腿参数", "fixtureValue": "ETF03_B_FROM_PCF", "sourceMaterialIds": ["ETF03-B-PCF-VALIDATION"], "scoreTargets": ["C-ETF03-STATE-SOURCES", "M-ETF03-STATE-SOURCE"], "remediationTargetId": "ETF03-TARGET-PCF"},
+    {"workItemId": "etf03-b-confirmation-source", "responseKind": "SELECT", "observableAction": "定位确认状态、篮数和份额", "fixtureValue": "ETF03_B_FROM_CONFIRMATION", "sourceMaterialIds": ["ETF03-B-CONFIRMATION"], "scoreTargets": ["C-ETF03-STATE-SOURCES", "M-ETF03-STATE-SOURCE"], "remediationTargetId": "ETF03-TARGET-CONFIRMATION"},
+    {"workItemId": "etf03-b-securities-source", "responseKind": "SELECT", "observableAction": "定位证券交收结果", "fixtureValue": "ETF03_B_FROM_SECURITIES", "sourceMaterialIds": ["ETF03-B-SECURITIES"], "scoreTargets": ["C-ETF03-STATE-SOURCES", "M-ETF03-STATE-SOURCE"], "remediationTargetId": "ETF03-TARGET-SECURITIES-SOURCE"},
+    {"workItemId": "etf03-b-downstream-source", "responseKind": "SELECT", "observableAction": "定位现金、TA/清算和台账来源", "fixtureValue": "ETF03_B_FROM_CASH_TA_LEDGER", "sourceMaterialIds": ["ETF03-B-CASH", "ETF03-B-TA-CLEARING", "ETF03-B-LEDGER"], "scoreTargets": ["C-ETF03-STATE-SOURCES", "R-ETF03-INDEPENDENT-RECON", "M-ETF03-STATE-SOURCE"], "remediationTargetId": "ETF03-TARGET-DOWNSTREAM-SOURCE"},
+    {"workItemId": "etf03-b-expected-security-quantity", "responseKind": "NUMBER", "observableAction": "按篮数复算应交证券整数数量", "fixtureValue": "3600", "unit": "股", "precision": 0, "tolerance": "0", "sourceMaterialIds": ["ETF03-B-INSTRUCTION", "ETF03-B-PCF-VALIDATION"], "scoreTargets": ["C-ETF03-THREE-LEGS", "P-ETF03-SECURITIES"], "remediationTargetId": "ETF03-TARGET-EXPECTED-SECURITY"},
+    {"workItemId": "etf03-b-expected-cash-substitution", "responseKind": "NUMBER", "observableAction": "复算现金替代腿", "fixtureValue": "47052.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF03-B-INSTRUCTION", "ETF03-B-PCF-VALIDATION"], "scoreTargets": ["C-ETF03-THREE-LEGS", "P-ETF03-CASH-CHAIN"], "remediationTargetId": "ETF03-TARGET-EXPECTED-CASH-SUB"},
+    {"workItemId": "etf03-b-expected-cash-difference", "responseKind": "NUMBER", "observableAction": "复算单位现金差额腿", "fixtureValue": "-1269.66", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF03-B-INSTRUCTION", "ETF03-B-PCF-VALIDATION"], "scoreTargets": ["C-ETF03-THREE-LEGS", "P-ETF03-CASH-CHAIN"], "remediationTargetId": "ETF03-TARGET-EXPECTED-CASH-DIFF"},
+    {"workItemId": "etf03-b-expected-cash-total", "responseKind": "NUMBER", "observableAction": "汇总两条现金腿", "fixtureValue": "45782.34", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF03-B-PCF-VALIDATION"], "scoreTargets": ["P-ETF03-CASH-CHAIN"], "remediationTargetId": "ETF03-TARGET-CASH-TOTAL"},
+    {"workItemId": "etf03-b-ledger-security-quantity", "responseKind": "NUMBER", "observableAction": "登记台账证券整数数量", "fixtureValue": "3600", "unit": "股", "precision": 0, "tolerance": "0", "sourceMaterialIds": ["ETF03-B-SECURITIES", "ETF03-B-LEDGER"], "scoreTargets": ["P-ETF03-SECURITIES", "R-ETF03-INDEPENDENT-RECON", "E-ETF03-LEDGER"], "remediationTargetId": "ETF03-TARGET-LEDGER-SECURITY"},
+    {"workItemId": "etf03-b-ledger-cash-total", "responseKind": "NUMBER", "observableAction": "登记台账现金总额", "fixtureValue": "45782.34", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF03-B-CASH", "ETF03-B-LEDGER"], "scoreTargets": ["P-ETF03-CASH-CHAIN", "R-ETF03-INDEPENDENT-RECON", "E-ETF03-LEDGER"], "remediationTargetId": "ETF03-TARGET-LEDGER-CASH"},
+    {"workItemId": "etf03-b-state-chain", "responseKind": "SELECT", "observableAction": "按来源顺序验证状态链", "fixtureValue": "ETF03_B_STATE_CHAIN_COMPLETE", "sourceMaterialIds": ["ETF03-B-INSTRUCTION", "ETF03-B-PCF-VALIDATION", "ETF03-B-CONFIRMATION", "ETF03-B-SECURITIES", "ETF03-B-CASH", "ETF03-B-TA-CLEARING"], "scoreTargets": ["C-ETF03-STATE-SOURCES", "R-ETF03-NO-STATE-JUMP", "M-ETF03-STATE-SOURCE"], "remediationTargetId": "ETF03-TARGET-STATE-CHAIN"},
+    {"workItemId": "etf03-b-securities-leg-diff", "responseKind": "NUMBER", "observableAction": "核对证券腿零差", "fixtureValue": "0", "unit": "股", "precision": 0, "tolerance": "0", "sourceMaterialIds": ["ETF03-B-PCF-VALIDATION", "ETF03-B-SECURITIES"], "scoreTargets": ["P-ETF03-SECURITIES", "P-ETF03-THREE-LEG-RECON", "M-ETF03-THREE-LEG-ZERO"], "remediationTargetId": "ETF03-TARGET-SECURITIES-DIFF"},
+    {"workItemId": "etf03-b-cash-substitution-diff", "responseKind": "NUMBER", "observableAction": "核对现金替代腿零差", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF03-B-PCF-VALIDATION", "ETF03-B-CASH"], "scoreTargets": ["P-ETF03-THREE-LEG-RECON", "M-ETF03-THREE-LEG-ZERO"], "remediationTargetId": "ETF03-TARGET-CASH-SUB-DIFF"},
+    {"workItemId": "etf03-b-cash-difference-diff", "responseKind": "NUMBER", "observableAction": "核对单位现金差额腿零差", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF03-B-PCF-VALIDATION", "ETF03-B-CASH"], "scoreTargets": ["P-ETF03-THREE-LEG-RECON", "M-ETF03-THREE-LEG-ZERO"], "remediationTargetId": "ETF03-TARGET-CASH-DIFF-DIFF"},
+    {"workItemId": "etf03-b-cash-total-diff", "responseKind": "NUMBER", "observableAction": "核对现金总额零差", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF03-B-CASH", "ETF03-B-LEDGER"], "scoreTargets": ["P-ETF03-THREE-LEG-RECON", "M-ETF03-THREE-LEG-ZERO"], "remediationTargetId": "ETF03-TARGET-CASH-TOTAL-DIFF"},
+    {"workItemId": "etf03-b-ta-clearing-ledger-recon", "responseKind": "SELECT", "observableAction": "核对指令/确认、TA、清算和台账份额零差", "fixtureValue": "ETF03_B_TA_CLEARING_LEDGER_ZERO", "sourceMaterialIds": ["ETF03-B-INSTRUCTION", "ETF03-B-CONFIRMATION", "ETF03-B-TA-CLEARING", "ETF03-B-LEDGER"], "scoreTargets": ["P-ETF03-DOWNSTREAM", "R-ETF03-INDEPENDENT-RECON", "M-ETF03-THREE-LEG-ZERO"], "remediationTargetId": "ETF03-TARGET-DOWNSTREAM-RECON"},
+    {"workItemId": "etf03-b-conclusion", "responseKind": "TEXT", "observableAction": "写出状态、三腿、指令/确认与多来源零差结论", "fixtureValue": "证券3600股、现金替代47052.00元、单位现金差额-1269.66元、现金总额45782.34元、指令/确认篮数和份额零差、TA/清算/台账6000份、零差、PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT", "sourceMaterialIds": ["ETF03-B-INSTRUCTION", "ETF03-B-PCF-VALIDATION", "ETF03-B-CONFIRMATION", "ETF03-B-SECURITIES", "ETF03-B-CASH", "ETF03-B-TA-CLEARING", "ETF03-B-LEDGER"], "scoreTargets": ["R-ETF03-NO-STATE-JUMP", "E-ETF03-CONCLUSION"], "remediationTargetId": "ETF03-TARGET-CONCLUSION"}
+  ],
+  "coverage": {"FIELD_MAP": ["etf03-b-instruction-source", "etf03-b-pcf-source", "etf03-b-confirmation-source", "etf03-b-securities-source", "etf03-b-downstream-source", "ACC-ETF-SETTLEMENT-Q-01"], "CALCULATION": ["etf03-b-expected-security-quantity", "etf03-b-expected-cash-substitution", "etf03-b-expected-cash-difference", "etf03-b-expected-cash-total", "ACC-ETF-SETTLEMENT-Q-02"], "LEDGER_ENTRY": ["etf03-b-ledger-security-quantity", "etf03-b-ledger-cash-total", "ACC-ETF-SETTLEMENT-Q-03"], "RECONCILIATION": ["etf03-b-state-chain", "etf03-b-securities-leg-diff", "etf03-b-cash-substitution-diff", "etf03-b-cash-difference-diff", "etf03-b-cash-total-diff", "etf03-b-ta-clearing-ledger-recon", "ACC-ETF-SETTLEMENT-Q-04"], "SHORT_TEXT": ["etf03-b-conclusion", "ACC-ETF-SETTLEMENT-Q-05"]},
+  "dependencyPolicy": {"hardPrerequisiteNodeIds": ["ACC-NODE-DAILY-003"], "dependsOnRouteIds": ["ACC-ETF-PCF-002"], "plannedMapPrerequisites": [], "serialOrder": 3, "stageGate": false, "releaseRegistration": "PUBLISHED_IN_ACCOUNTING_2026.08.10", "status": "PUBLISHED"},
+  "fixturePolicy": {"normalOnly": true, "independentDemoAndComprehensive": true, "binaryFloatForbidden": true, "integerQuantityPrecision": 0, "amountPrecision": 2, "amountTolerance": "0.01", "caseSnapshotOnly": true},
+  "exclusionBoundary": {"status": "BUILDING_DEFER", "topics": ["现金替代补券最终结算", "跨市场交收", "券结ETF增量", "迟到重复错配", "重跑回滚", "正式科目借贷"], "reason": "本路线只训练国内普通ETF正常申购确认与三腿交收；补券最终结算由R4承接，其他主题不进入题面。"}
+}

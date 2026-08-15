@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.9",
+  "version": "2026.08.10",
   "lines": [
     {
       "line": "CLEARING",
@@ -561,6 +561,57 @@
                   "order": 5,
                   "position": "CENTER",
                   "prerequisiteNodeIds": ["ACC-NODE-FOF-RETURN-004"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "ACC-MODULE-ETF",
+              "name": "ETF 核算业务",
+              "order": 9,
+              "nodes": [
+                {
+                  "nodeId": "ACC-NODE-ETF-OBJECT-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-ETF-OBJECT-001",
+                  "title": "看清 ETF 产品、份额与一级二级边界",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-DAILY-003", "ACC-NODE-STOCK-TRADE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-ETF-PCF-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-ETF-PCF-002",
+                  "title": "从 PCF 到股票篮、现金替代与创设单位净值",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-ETF-OBJECT-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-ETF-SETTLEMENT-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-ETF-SETTLEMENT-003",
+                  "title": "国内普通 ETF 申赎确认、份额与证券/资金交收承接",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-ETF-PCF-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "ACC-NODE-ETF-CLOSE-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "ACC-ETF-CLOSE-004",
+                  "title": "ETF 台账、补券、替代款与凭证/估值/对账闭环",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["ACC-NODE-ETF-SETTLEMENT-003"],
                   "contentAvailability": "PUBLISHED"
                 }
               ]

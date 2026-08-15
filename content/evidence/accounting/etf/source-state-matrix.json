@@ -1,0 +1,200 @@
+{
+  "evidenceId": "ETF-EVID-SOURCE-STATE-001",
+  "version": "1.1.0",
+  "scope": "ETF-01-04",
+  "title": "ETF B0-B2 来源、状态和活动落点矩阵",
+  "scopeNotice": "状态链是本批教学用状态，不是生产系统状态码；PCF、价格、替代标志、现金差额和对价都必须带案例版本。",
+  "sourcePriority": [
+    {"priority": 1, "sourceKind": "CASE_VERSIONED_OBJECT_REGISTER", "status": "ONLY_THIS_CASE"},
+    {"priority": 2, "sourceKind": "CASE_VERSIONED_PCF_OR_BASKET", "status": "ONLY_THIS_CASE"},
+    {"priority": 3, "sourceKind": "CASE_VERSIONED_MARKET_PRICE", "status": "ONLY_THIS_CASE"},
+    {"priority": 4, "sourceKind": "CASE_VERSIONED_PRE_VOUCHER_VALUATION", "status": "ONLY_THIS_CASE"},
+    {"priority": 5, "sourceKind": "CASE_VERSIONED_LEDGER_AND_RECONCILIATION", "status": "ONLY_THIS_CASE"}
+  ],
+  "sourceGroups": [
+    {
+      "sourceGroupId": "ETF-SRC-R1-OBJECT-REGISTER",
+      "label": "产品、份额和组合证券对象登记资料",
+      "provides": ["product_key", "product_type", "fund_share_key", "basket_security_key", "business_date", "case_version"],
+      "activityLanding": ["ETF-01"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "ETF-SRC-R1-PCF-LINK",
+      "label": "R1 申赎清单和篮子参数资料",
+      "provides": ["pcf_key", "basket_count", "shares_per_creation_unit"],
+      "activityLanding": ["ETF-01"],
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "sourceGroupId": "ETF-SRC-R1-PRIMARY-CONFIRM",
+      "label": "一级申赎确认资料",
+      "provides": ["primary_event_key", "primary_created_shares", "primary_state"],
+      "activityLanding": ["ETF-01"],
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "sourceGroupId": "ETF-SRC-R1-SECONDARY-TRADE",
+      "label": "二级市场交易资料",
+      "provides": ["secondary_trade_key", "secondary_traded_shares", "secondary_state"],
+      "activityLanding": ["ETF-01"],
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "sourceGroupId": "ETF-SRC-R2-PCF",
+      "label": "R2 PCF/申赎清单逐行资料",
+      "provides": ["pcf_key", "security_code", "security_market", "security_quantity", "substitution_flag", "delivery_choice", "substitution_premium_rate"],
+      "activityLanding": ["ETF-02"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "ETF-SRC-R2-MARKET",
+      "label": "案例市场价格资料",
+      "provides": ["reference_price", "price_source_key", "row_market_value"],
+      "activityLanding": ["ETF-02"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "sourceGroupId": "ETF-SRC-R2-VALUATION",
+      "label": "申赎凭证前预估值表资料",
+      "provides": ["pre_voucher_asset_nav", "pre_voucher_issued_capital", "basket_share_quantity", "creation_unit_nav"],
+      "activityLanding": ["ETF-02"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceGroupId": "ETF-SRC-R2-RESULT",
+      "label": "案例台账、申购对价和勾稽资料",
+      "provides": ["physical_security_value", "cash_substitution_total", "unit_cash_difference", "refund_amount", "refund_status", "substitution_premium_prepayment", "initial_consideration", "unsettled_substitution_prepayment", "creation_consideration", "actual_consideration", "consideration_difference", "final_reconciliation_state"],
+      "activityLanding": ["ETF-02"],
+      "provenance": "CASE_POLICY"
+    },
+    {"sourceGroupId": "ETF-SRC-R3-INSTRUCTION", "label": "R3 正常申购指令", "provides": ["event_key", "instruction_state", "basket_count"], "activityLanding": ["ETF-03"], "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"sourceGroupId": "ETF-SRC-R3-PCF", "label": "R3 已校验 PCF", "provides": ["pcf_key", "pcf_validation_state", "basket_share_quantity", "security_per_basket_quantity", "cash_substitution_per_basket", "cash_difference_per_basket"], "activityLanding": ["ETF-03"], "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceGroupId": "ETF-SRC-R3-CONFIRMATION", "label": "R3 一级申购确认", "provides": ["confirmation_state", "confirmed_basket_count", "confirmed_share_quantity"], "activityLanding": ["ETF-03"], "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"sourceGroupId": "ETF-SRC-R3-SECURITIES", "label": "R3 证券交收结果", "provides": ["delivered_security_quantity"], "activityLanding": ["ETF-03"], "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"sourceGroupId": "ETF-SRC-R3-CASH", "label": "R3 现金交收结果", "provides": ["settled_cash_substitution", "settled_cash_difference", "settled_cash_total"], "activityLanding": ["ETF-03"], "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"sourceGroupId": "ETF-SRC-R3-DOWNSTREAM", "label": "R3 TA 与清算结果", "provides": ["ta_confirmed_shares", "clearing_confirmed_shares"], "activityLanding": ["ETF-03"], "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"sourceGroupId": "ETF-SRC-R3-LEDGER", "label": "R3 ETF 台账与勾稽工作纸", "provides": ["ledger_confirmed_shares", "ledger_security_quantity", "ledger_cash_total", "securities_leg_difference", "cash_substitution_difference", "cash_difference_difference", "cash_total_difference", "r3_final_state"], "activityLanding": ["ETF-03"], "provenance": "CASE_POLICY"},
+    {"sourceGroupId": "ETF-SRC-R4-UPSTREAM", "label": "R4 上游现金替代预付款待结算资料", "provides": ["event_key", "unsettled_substitution_prepayment"], "activityLanding": ["ETF-04"], "provenance": "CASE_POLICY"},
+    {"sourceGroupId": "ETF-SRC-R4-PCF", "label": "R4 PCF 现金替代行", "provides": ["pcf_key", "substitution_line_quantity"], "activityLanding": ["ETF-04"], "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceGroupId": "ETF-SRC-R4-ESTIMATE", "label": "R4 非最终估计视图", "provides": ["estimate_state", "estimated_settlement_view_amount"], "activityLanding": ["ETF-04"], "provenance": "CASE_POLICY"},
+    {"sourceGroupId": "ETF-SRC-R4-BUYIN", "label": "R4 实际补券成交资料", "provides": ["actual_buyin_quantity", "actual_buyin_price", "actual_buyin_gross"], "activityLanding": ["ETF-04"], "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"sourceGroupId": "ETF-SRC-R4-FEE", "label": "R4 现金替代费用资料", "provides": ["substitution_fee", "actual_substitution_cost"], "activityLanding": ["ETF-04"], "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"sourceGroupId": "ETF-SRC-R4-EVENT", "label": "R4 业务事件工作纸", "provides": ["signed_final_settlement_amount", "final_settlement_direction", "final_settlement_amount", "estimate_adjustment_amount", "event_settlement_amount", "event_remaining"], "activityLanding": ["ETF-04"], "provenance": "CASE_POLICY"},
+    {"sourceGroupId": "ETF-SRC-R4-LEDGER", "label": "R4 ETF 台账", "provides": ["ledger_settlement_amount", "ledger_remaining", "event_ledger_difference"], "activityLanding": ["ETF-04"], "provenance": "SYNTHETIC_EDUCATIONAL"},
+    {"sourceGroupId": "ETF-SRC-R4-MULTISOURCE", "label": "R4 估值、TA 与清算结果", "provides": ["valuation_settlement_amount", "ta_settlement_amount", "clearing_settlement_amount", "valuation_event_difference", "ta_event_difference", "clearing_event_difference", "final_settlement_state"], "activityLanding": ["ETF-04"], "provenance": "SYNTHETIC_EDUCATIONAL"}
+  ],
+  "stateChain": [
+    {
+      "stateId": "PRODUCT_REGISTERED",
+      "entrySourceGroups": ["ETF-SRC-R1-OBJECT-REGISTER"],
+      "requiredFields": ["case_version", "product_key", "fund_share_key", "basket_security_key"],
+      "teachableIn": ["ETF-01"],
+      "notSufficientFor": ["PRIMARY_CONFIRMED", "SECONDARY_SETTLED", "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]
+    },
+    {
+      "stateId": "PRIMARY_APPLIED",
+      "entrySourceGroups": ["ETF-SRC-R1-OBJECT-REGISTER", "ETF-SRC-R1-PCF-LINK"],
+      "requiredFields": ["pcf_key", "basket_count", "shares_per_creation_unit"],
+      "teachableIn": ["ETF-01"],
+      "notSufficientFor": ["PRIMARY_CONFIRMED"]
+    },
+    {
+      "stateId": "PRIMARY_CONFIRMED",
+      "entrySourceGroups": ["ETF-SRC-R1-PRIMARY-CONFIRM", "ETF-SRC-R3-CONFIRMATION"],
+      "requiredFields": ["primary_event_key", "primary_created_shares", "post_primary_issued_shares", "confirmation_state", "confirmed_basket_count", "confirmed_share_quantity"],
+      "teachableIn": ["ETF-01", "ETF-03"],
+      "notSufficientFor": ["SECONDARY_SETTLED", "SECURITIES_SETTLED", "CASH_SETTLED"]
+    },
+    {
+      "stateId": "SECONDARY_SETTLED",
+      "entrySourceGroups": ["ETF-SRC-R1-SECONDARY-TRADE"],
+      "requiredFields": ["secondary_trade_key", "secondary_traded_shares", "post_secondary_issued_shares", "secondary_issued_delta"],
+      "teachableIn": ["ETF-01"],
+      "notSufficientFor": ["INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]
+    },
+    {
+      "stateId": "PCF_ROWS_READ",
+      "entrySourceGroups": ["ETF-SRC-R2-PCF", "ETF-SRC-R2-MARKET"],
+      "requiredFields": ["security_code", "security_market", "security_quantity", "substitution_flag", "delivery_choice", "reference_price"],
+      "teachableIn": ["ETF-02"],
+      "notSufficientFor": ["BASKET_VALUED", "UNIT_NAV_CONFIRMED"]
+    },
+    {
+      "stateId": "BASKET_VALUED",
+      "entrySourceGroups": ["ETF-SRC-R2-PCF", "ETF-SRC-R2-MARKET"],
+      "requiredFields": ["row_market_value", "basket_market_value", "physical_security_value"],
+      "teachableIn": ["ETF-02"],
+      "notSufficientFor": ["INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]
+    },
+    {
+      "stateId": "UNIT_NAV_CONFIRMED",
+      "entrySourceGroups": ["ETF-SRC-R2-VALUATION"],
+      "requiredFields": ["pre_voucher_asset_nav", "pre_voucher_issued_capital", "basket_share_quantity", "creation_unit_nav", "unit_cash_difference"],
+      "teachableIn": ["ETF-02"],
+      "notSufficientFor": ["INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]
+    },
+    {
+      "stateId": "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT",
+      "entrySourceGroups": ["ETF-SRC-R2-RESULT"],
+      "requiredFields": ["cash_substitution_total", "refund_amount", "refund_status", "substitution_premium_prepayment", "initial_consideration", "unsettled_substitution_prepayment", "creation_consideration", "actual_consideration", "consideration_difference", "final_reconciliation_state"],
+      "teachableIn": ["ETF-02"],
+      "notSufficientFor": ["PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT", "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"]
+    },
+    {"stateId": "INSTRUCTION_RECEIVED", "entrySourceGroups": ["ETF-SRC-R3-INSTRUCTION"], "requiredFields": ["event_key", "instruction_state", "basket_count"], "teachableIn": ["ETF-03"], "notSufficientFor": ["PCF_VALIDATED", "PRIMARY_CONFIRMED", "SECURITIES_SETTLED", "CASH_SETTLED"]},
+    {"stateId": "PCF_VALIDATED", "entrySourceGroups": ["ETF-SRC-R3-PCF"], "requiredFields": ["pcf_key", "pcf_validation_state", "security_per_basket_quantity", "cash_substitution_per_basket", "cash_difference_per_basket"], "teachableIn": ["ETF-03"], "notSufficientFor": ["PRIMARY_CONFIRMED", "SECURITIES_SETTLED", "CASH_SETTLED"]},
+    {"stateId": "SECURITIES_SETTLED", "entrySourceGroups": ["ETF-SRC-R3-SECURITIES"], "requiredFields": ["expected_security_quantity", "delivered_security_quantity", "securities_leg_difference"], "teachableIn": ["ETF-03"], "notSufficientFor": ["CASH_SETTLED", "PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]},
+    {"stateId": "CASH_SETTLED", "entrySourceGroups": ["ETF-SRC-R3-CASH"], "requiredFields": ["expected_cash_substitution", "expected_cash_difference", "expected_cash_total", "settled_cash_substitution", "settled_cash_difference", "settled_cash_total"], "teachableIn": ["ETF-03"], "notSufficientFor": ["PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]},
+    {"stateId": "PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT", "entrySourceGroups": ["ETF-SRC-R3-DOWNSTREAM", "ETF-SRC-R3-LEDGER"], "requiredFields": ["ta_confirmed_shares", "clearing_confirmed_shares", "ledger_confirmed_shares", "cash_substitution_difference", "cash_difference_difference", "cash_total_difference", "r3_final_state"], "teachableIn": ["ETF-03"], "notSufficientFor": ["SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"]},
+    {"stateId": "ACTUAL_SUBSTITUTION_COST_CONFIRMED", "entrySourceGroups": ["ETF-SRC-R4-BUYIN", "ETF-SRC-R4-FEE"], "requiredFields": ["actual_buyin_quantity", "actual_buyin_price", "actual_buyin_gross", "substitution_fee", "actual_substitution_cost"], "teachableIn": ["ETF-04"], "notSufficientFor": ["SUBSTITUTION_SETTLED", "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"]},
+    {"stateId": "SUBSTITUTION_SETTLED", "entrySourceGroups": ["ETF-SRC-R4-EVENT", "ETF-SRC-R4-LEDGER"], "requiredFields": ["signed_final_settlement_amount", "final_settlement_direction", "final_settlement_amount", "event_remaining", "ledger_remaining"], "teachableIn": ["ETF-04"], "notSufficientFor": ["SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"]},
+    {"stateId": "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE", "entrySourceGroups": ["ETF-SRC-R4-EVENT", "ETF-SRC-R4-LEDGER", "ETF-SRC-R4-MULTISOURCE"], "requiredFields": ["event_settlement_amount", "ledger_settlement_amount", "valuation_settlement_amount", "ta_settlement_amount", "clearing_settlement_amount", "event_remaining", "ledger_remaining", "event_ledger_difference", "valuation_event_difference", "ta_event_difference", "clearing_event_difference", "final_settlement_state"], "teachableIn": ["ETF-04"], "notSufficientFor": []}
+  ],
+  "activityLanding": {
+    "ETF-01": {
+      "focus": "产品/份额/组合证券对象边界与一级、二级份额状态",
+      "stepTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+      "states": ["PRODUCT_REGISTERED", "PRIMARY_APPLIED", "PRIMARY_CONFIRMED", "SECONDARY_SETTLED"],
+      "futureStatesExcluded": ["PCF_ROWS_READ", "BASKET_VALUED", "UNIT_NAV_CONFIRMED", "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]
+    },
+    "ETF-02": {
+      "focus": "PCF 逐行字段、股票篮市值、现金替代、创设单位净值、单位现金差额、初始申购对价和现金替代预付款待结算边界",
+      "stepTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+      "states": ["PCF_ROWS_READ", "BASKET_VALUED", "UNIT_NAV_CONFIRMED", "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"],
+      "futureStatesExcluded": ["PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT", "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE", "BROKER_SETTLEMENT_RECONCILED", "CROSS_MARKET_RECONCILED", "CORPORATE_ACTION_RECONCILED"]
+    },
+    "ETF-03": {
+      "focus": "正常一级申购的指令、PCF 校验、确认、证券交收、现金交收及 TA/清算/ETF 台账三腿勾稽",
+      "stepTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+      "states": ["INSTRUCTION_RECEIVED", "PCF_VALIDATED", "PRIMARY_CONFIRMED", "SECURITIES_SETTLED", "CASH_SETTLED", "PRIMARY_SETTLEMENT_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"],
+      "futureStatesExcluded": ["ACTUAL_SUBSTITUTION_COST_CONFIRMED", "SUBSTITUTION_SETTLED", "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"]
+    },
+    "ETF-04": {
+      "focus": "现金替代预付款、实际补券成本与费用、最终方向及金额、业务事件/台账/估值/TA/清算正常封账",
+      "stepTypes": ["FIELD_MAP", "CALCULATION", "LEDGER_ENTRY", "RECONCILIATION", "SHORT_TEXT"],
+      "states": ["ACTUAL_SUBSTITUTION_COST_CONFIRMED", "SUBSTITUTION_SETTLED", "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"],
+      "futureStatesExcluded": ["BROKER_SETTLEMENT_RECONCILED", "CROSS_MARKET_RECONCILED", "CORPORATE_ACTION_RECONCILED"]
+    }
+  },
+  "dependencyPolicy": {
+    "hardPrerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+    "serialRoutes": ["ACC-ETF-OBJECT-001", "ACC-ETF-PCF-002", "ACC-ETF-SETTLEMENT-003", "ACC-ETF-CLOSE-004"],
+    "plannedMapPrerequisites": {
+      "ACC-ETF-OBJECT-001": ["ACC-NODE-DAILY-003", "ACC-NODE-STOCK-TRADE-001"],
+      "ACC-ETF-PCF-002": ["ACC-NODE-ETF-OBJECT-001"],
+      "ACC-ETF-SETTLEMENT-003": ["ACC-NODE-ETF-PCF-002"],
+      "ACC-ETF-CLOSE-004": ["ACC-NODE-ETF-SETTLEMENT-003"]
+    },
+    "stageGate": false,
+    "releaseRegistration": "PUBLISHED_IN_ACCOUNTING_2026.08.10",
+    "mapRegistration": "PUBLISHED_IN_MAP_2026.08.10"
+  },
+  "deferBoundary": [
+    "跨境全球与跨沪深港的汇率/日历/补券",
+    "港交所互认与集中申购",
+    "券结 ETF 新增量",
+    "联接基金指数收益法/影子定价",
+    "差异化分红、折算拆分和公司行为",
+    "商品、黄金、期货 ETF"
+  ]
+}

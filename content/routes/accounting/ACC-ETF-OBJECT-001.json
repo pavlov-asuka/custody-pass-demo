@@ -1,0 +1,573 @@
+{
+  "routeId": "ACC-ETF-OBJECT-001",
+  "contentVersion": "2026.08.14.1",
+  "line": "ACCOUNTING",
+  "title": "看清 ETF 产品、份额与一级二级边界",
+  "summary": "用正常案例从产品登记、基金份额和组合证券三个对象出发，串起一级申赎、发行份额变化与二级交易后的发行份额勾稽。",
+  "estimatedMinutes": 28,
+  "objectives": [
+    "能从原始登记和申赎资料分别定位 ETF 产品、基金份额和组合证券/篮子。",
+    "能用篮子数量和每篮份额计算一级申赎形成的基金发行份额。",
+    "能把二级交易记为持有人间转让，并证明交易后基金发行份额不变。"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ACC-ETF-OBJECT-001-KC-01",
+          "type": "CATEGORIES",
+          "title": "三个对象先分开",
+          "conclusion": "产品、基金份额、组合证券是不同登记对象，不能用一个代码或一张结果表替代。",
+          "items": [
+            "产品对象回答是哪只 ETF 产品。",
+            "基金份额对象回答基金发行份额是多少。",
+            "组合证券/篮子对象回答一次申赎交付哪些证券及数量。"
+          ]
+        },
+        {
+          "cardId": "ACC-ETF-OBJECT-001-KC-02",
+          "type": "FLOW",
+          "title": "一级申赎形成发行份额",
+          "conclusion": "一级业务以篮子数量乘每篮份额承接基金发行份额的增减。",
+          "items": [
+            "先读申赎清单中的篮子数量和每篮份额。",
+            "再将本次形成的份额登记到基金发行份额。",
+            "最后用发行前后份额勾稽一级结果。"
+          ]
+        },
+        {
+          "cardId": "ACC-ETF-OBJECT-001-KC-03",
+          "type": "KEY_POINT",
+          "title": "二级交易只改变持有人转让",
+          "conclusion": "二级交易不改变基金发行份额；交易完成后，基金发行份额保持一级结果，不把成交量再次加到基金发行份额。",
+          "items": [
+            "读取二级成交数量作为转让记录。",
+            "将交易后的发行份额与一级结算后的发行份额比较。",
+            "差额为零才完成本路线的对象边界勾稽。"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "caseId": "ETF01-A-EDU-01",
+        "role": "ETF 运营核算岗",
+        "product": "ETF-EDU-A-01",
+        "date": "案例版本快照-2026-08-14",
+        "purpose": "完成一次正常一级形成与二级结算后的对象和发行份额确认"
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "从产品登记资料读取产品键 ETF-EDU-A-01、基金份额对象 ETF-SHARE-EDU-A-01 和组合证券篮子 BASKET-ETF01-A-001。",
+          "reason": "先固定三个对象的来源，避免把篮子证券或成交数量当成基金份额。"
+        },
+        {
+          "order": 2,
+          "action": "从申赎资料读取本次 2 个篮子、每篮 100000 份，计算一级形成份额 200000 份。",
+          "reason": "本案例篮数和份额均按整数记录，一级形成份额精度 0、容差 0。"
+        },
+        {
+          "order": 3,
+          "action": "将 200000 份登记到发行份额：5000000 + 200000 = 5200000 份。",
+          "reason": "一级确认是基金发行份额的变动来源。"
+        },
+        {
+          "order": 4,
+          "action": "读取二级成交 80000 份作为持有人间转让，并记录交易已结算。",
+          "reason": "二级成交数量需要留痕，但不重复进入基金发行份额。"
+        },
+        {
+          "order": 5,
+          "action": "勾稽二级结算后发行份额 5200000 份与一级结算后发行份额，差额 0 份。",
+          "reason": "发行份额不因二级交易改变，零差额是对象边界的业务结论。"
+        }
+      ],
+      "summary": "本案例快照链条为：2 × 100000 = 200000；5000000 + 200000 = 5200000；二级交易 80000 不改变发行份额，勾稽差额为 0。"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-ETF-OBJECT-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "在对象登记、基金份额登记和申赎清单之间，分别定位产品键、基金份额键和组合证券篮子键。",
+          "fieldMappings": [
+            {
+              "fieldId": "productKey",
+              "label": "产品键",
+              "source": "产品登记表",
+              "options": [
+                {
+                  "optionId": "ETF01_A_PRODUCT_FROM_REGISTER",
+                  "text": "ETF-EDU-A-01"
+                },
+                {
+                  "optionId": "ETF01_A_PRODUCT_FROM_TRADE",
+                  "text": "ETF-A-SECONDARY-80000"
+                }
+              ]
+            },
+            {
+              "fieldId": "fundShareKey",
+              "label": "基金份额键",
+              "source": "基金份额登记",
+              "options": [
+                {
+                  "optionId": "ETF01_A_SHARE_FROM_REGISTER",
+                  "text": "ETF-SHARE-EDU-A-01"
+                },
+                {
+                  "optionId": "ETF01_A_SHARE_FROM_BASKET",
+                  "text": "BASKET-ETF01-A-001"
+                }
+              ]
+            },
+            {
+              "fieldId": "basketKey",
+              "label": "组合证券篮子键",
+              "source": "申赎清单",
+              "options": [
+                {
+                  "optionId": "ETF01_A_BASKET_FROM_PCF",
+                  "text": "BASKET-ETF01-A-001"
+                },
+                {
+                  "optionId": "ETF01_A_BASKET_FROM_TRADE",
+                  "text": "ETF-A-SECONDARY-80000"
+                }
+              ]
+            }
+          ],
+          "answer": [
+            "ETF01_A_PRODUCT_FROM_REGISTER",
+            "ETF01_A_SHARE_FROM_REGISTER",
+            "ETF01_A_BASKET_FROM_PCF"
+          ],
+          "explanation": "产品键、基金份额键和组合证券篮子键分别来自对应资料，二级成交编号不能代替其中任何一个对象。",
+          "hints": [
+            "先看资料标题和字段标签，再看值。",
+            "二级成交量不是产品键，也不是篮子键。"
+          ]
+        },
+        {
+          "questionId": "ACC-ETF-OBJECT-Q-02",
+          "type": "CALCULATION",
+          "prompt": "本次正常一级业务有 2 个篮子，每篮形成 100000 份基金份额。计算本次形成的基金发行份额。",
+          "calculation": {
+            "fields": [
+              {
+                "fieldId": "createdShares",
+                "label": "本次形成份额",
+                "formula": "2 × 100000",
+                "placeholder": "请输入本次形成份额",
+                "unit": "份",
+                "precision": 0,
+                "tolerance": 0
+              }
+            ]
+          },
+          "answer": [
+            "200000"
+          ],
+          "explanation": "2 × 100000 = 200000 份。",
+          "hints": [
+            "篮子数量与每篮份额相乘。",
+            "结果按 2 位小数记录。"
+          ]
+        },
+        {
+          "questionId": "ACC-ETF-OBJECT-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全本案例的份额业务记录：一级形成 200000 份，二级已结算成交 80000 份，一级结算后发行份额为 5200000 份。",
+          "ledgerEntries": [
+            {
+              "entryId": "primary-created",
+              "direction": "INCREASE",
+              "label": "一级形成基金发行份额",
+              "amount": "200000",
+              "placeholder": "请输入一级形成份额"
+            },
+            {
+              "entryId": "secondary-transfer",
+              "direction": "TRANSFER",
+              "label": "二级持有人间转让",
+              "amount": "80000",
+              "placeholder": "请输入二级成交数量"
+            },
+            {
+              "entryId": "post-primary-issued",
+              "direction": "BALANCE",
+              "label": "一级结算后基金发行份额",
+              "amount": "5200000",
+              "placeholder": "请输入一级结算后发行份额"
+            }
+          ],
+          "answer": [
+            "200000",
+            "80000",
+            "5200000"
+          ],
+          "explanation": "一级形成份额进入发行份额记录，二级成交只记录转让，一级结算后发行份额为 5200000 份。",
+          "hints": [
+            "把一级形成和二级转让分成两类记录。",
+            "余额使用发行前份额加一级形成份额。"
+          ]
+        },
+        {
+          "questionId": "ACC-ETF-OBJECT-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "勾稽一级结算后发行份额、二级成交数量和二级结算后发行份额，确认二级交易是否改变基金发行份额。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "postPrimaryIssued",
+                "label": "一级结算后发行份额",
+                "kind": "NUMBER",
+                "formula": "5000000 + 200000",
+                "placeholder": "请输入一级结算后发行份额",
+                "precision": 0,
+                "tolerance": 0
+              },
+              {
+                "fieldId": "secondaryIssuedDelta",
+                "label": "二级后发行份额差额",
+                "kind": "NUMBER",
+                "formula": "二级后发行份额 - 一级结算后发行份额",
+                "placeholder": "请输入发行份额差额",
+                "precision": 0,
+                "tolerance": 0
+              },
+              {
+                "fieldId": "conclusion",
+                "label": "业务结论",
+                "kind": "SELECT",
+                "formula": "差额为零时确认二级交易未改变发行份额",
+                "placeholder": "请选择业务结论",
+                "options": [
+                  {
+                    "optionId": "ETF01_A_SECONDARY_SETTLED",
+                    "text": "二级已结算且发行份额未改变"
+                  },
+                  {
+                    "optionId": "ETF01_A_ISSUED_CHANGED",
+                    "text": "二级交易改变了基金发行份额"
+                  }
+                ]
+              }
+            ]
+          },
+          "answer": [
+            "5200000",
+            "0",
+            "ETF01_A_SECONDARY_SETTLED"
+          ],
+          "explanation": "5200000 - 5200000 = 0；二级成交已结算但发行份额未改变。",
+          "hints": [
+            "先复算一级结算后发行份额。",
+            "差额要比较发行份额，不比较持有人转让数量。"
+          ]
+        },
+        {
+          "questionId": "ACC-ETF-OBJECT-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出本案例的对象边界和最终发行份额结论。",
+          "textInput": {
+            "label": "对象与发行份额结论",
+            "placeholder": "请写出产品、一级形成份额、二级后发行份额和差额"
+          },
+          "answer": [
+            "产品 ETF-EDU-A-01；一级形成 200000 份；二级后发行份额 5200000 份；发行份额差额 0 份。"
+          ],
+          "explanation": "结论同时保留产品身份、一级形成结果、二级后发行份额和勾稽差额。",
+          "hints": [
+            "不要把二级成交 80000 份加到发行份额。",
+            "结论至少包含四个结构化结果。"
+          ]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "ETF 运营核算岗",
+        "product": "ETF-EDU-B-01",
+        "date": "案例版本快照-2026-08-14",
+        "purpose": "依据正常资料包完成对象识别、一级发行份额计算、二级转让记录和发行份额勾稽"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "ETF01-B-OBJECT-REGISTER",
+          "title": "ETF 产品与对象登记表",
+          "kind": "INSTRUCTION",
+          "description": "脱敏合成的产品登记与基金份额对象表，作为产品键和基金份额键的来源。",
+          "fields": [
+            {
+              "fieldId": "productKey",
+              "label": "产品键",
+              "value": "ETF-EDU-B-01"
+            },
+            {
+              "fieldId": "fundShareKey",
+              "label": "基金份额键",
+              "value": "ETF-SHARE-EDU-B-01"
+            },
+            {
+              "fieldId": "openingIssuedShares",
+              "label": "发行前基金份额",
+              "value": "7500000",
+              "unit": "份"
+            }
+          ]
+        },
+        {
+          "materialId": "ETF01-B-PCF-LINK",
+          "title": "申赎清单篮子关系表",
+          "kind": "PARAMETER",
+          "description": "脱敏合成的篮子关系资料，提供本次一级业务的篮子数量、每篮份额和组合证券篮子键。",
+          "fields": [
+            {
+              "fieldId": "basketKey",
+              "label": "组合证券篮子键",
+              "value": "BASKET-ETF01-B-001"
+            },
+            {
+              "fieldId": "basketCount",
+              "label": "本次篮子数量",
+              "value": "3",
+              "unit": "个篮"
+            },
+            {
+              "fieldId": "sharesPerCreationUnit",
+              "label": "每篮形成份额",
+              "value": "120000",
+              "unit": "份"
+            }
+          ]
+        },
+        {
+          "materialId": "ETF01-B-PRIMARY-CONFIRM",
+          "title": "一级业务确认单",
+          "kind": "CONFIRMATION",
+          "description": "脱敏合成的正常一级确认结果，用于确认形成份额和一级结算后发行份额。",
+          "fields": [
+            {
+              "fieldId": "createdShares",
+              "label": "本次形成份额",
+              "value": "360000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "postPrimaryIssuedShares",
+              "label": "一级结算后发行份额",
+              "value": "7860000",
+              "unit": "份"
+            }
+          ]
+        },
+        {
+          "materialId": "ETF01-B-SECONDARY-TRADE",
+          "title": "二级成交与结算表",
+          "kind": "STATEMENT",
+          "description": "脱敏合成的正常二级成交结算资料，用于记录持有人间转让数量。",
+          "fields": [
+            {
+              "fieldId": "secondaryTradedShares",
+              "label": "二级已结算成交数量",
+              "value": "95000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "postSecondaryIssuedShares",
+              "label": "二级结算后发行份额",
+              "value": "7860000",
+              "unit": "份"
+            }
+          ]
+        },
+        {
+          "materialId": "ETF01-B-RECON",
+          "title": "发行份额勾稽表",
+          "kind": "RECONCILIATION",
+          "description": "脱敏合成的正常结果勾稽表，用于确认二级结算没有改变基金发行份额。",
+          "fields": [
+            {
+              "fieldId": "secondaryIssuedDelta",
+              "label": "二级后与一级后发行份额差额",
+              "value": "0",
+              "unit": "份"
+            },
+            {
+              "fieldId": "settlementState",
+              "label": "结算状态",
+              "value": "ETF01_B_SECONDARY_SETTLED"
+            }
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "etf01-b-product-source",
+          "type": "FIELD_MAP",
+          "title": "定位 ETF 产品对象",
+          "instruction": "从 ETF 产品与对象登记表选择本案例产品键。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择产品键",
+            "options": [
+              {
+                "optionId": "ETF01_B_PRODUCT_FROM_REGISTER",
+                "text": "ETF-EDU-B-01"
+              },
+              {
+                "optionId": "ETF01_B_PRODUCT_FROM_TRADE",
+                "text": "ETF-B-SECONDARY-95000"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf01-b-fund-share-source",
+          "type": "FIELD_MAP",
+          "title": "定位基金份额对象",
+          "instruction": "从 ETF 产品与对象登记表选择基金份额键。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择基金份额键",
+            "options": [
+              {
+                "optionId": "ETF01_B_SHARE_FROM_REGISTER",
+                "text": "ETF-SHARE-EDU-B-01"
+              },
+              {
+                "optionId": "ETF01_B_SHARE_FROM_BASKET",
+                "text": "BASKET-ETF01-B-001"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf01-b-basket-source",
+          "type": "FIELD_MAP",
+          "title": "定位组合证券篮子对象",
+          "instruction": "从申赎清单篮子关系表选择组合证券篮子键。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择组合证券篮子键",
+            "options": [
+              {
+                "optionId": "ETF01_B_BASKET_FROM_PCF",
+                "text": "BASKET-ETF01-B-001"
+              },
+              {
+                "optionId": "ETF01_B_BASKET_FROM_TRADE",
+                "text": "ETF-B-SECONDARY-95000"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf01-b-basket-count",
+          "type": "CALCULATION",
+          "title": "读取篮子数量",
+          "instruction": "从申赎清单篮子关系表填入本次篮子数量；本案例快照整数精度 0，容差 0 个篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入篮子数量",
+            "unit": "个篮",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "etf01-b-created-shares",
+          "type": "CALCULATION",
+          "title": "计算一级形成份额",
+          "instruction": "按篮子数量 × 每篮形成份额计算本次形成份额；本案例快照整数精度 0，容差 0 份。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入本次形成份额",
+            "unit": "份",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "etf01-b-post-primary-issued",
+          "type": "CALCULATION",
+          "title": "计算一级结算后发行份额",
+          "instruction": "按发行前基金份额 + 本次形成份额计算一级结算后发行份额；本案例快照整数精度 0，容差 0 份。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入一级结算后发行份额",
+            "unit": "份",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "etf01-b-secondary-traded-shares",
+          "type": "LEDGER_ENTRY",
+          "title": "登记二级已结算成交",
+          "instruction": "从二级成交与结算表登记持有人间转让数量；本案例快照整数精度 0，容差 0 份。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入二级已结算成交数量",
+            "unit": "份",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "etf01-b-post-secondary-issued",
+          "type": "LEDGER_ENTRY",
+          "title": "登记二级结算后发行份额",
+          "instruction": "从二级成交与结算表登记二级结算后的基金发行份额；本案例快照整数精度 0，容差 0 份。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入二级结算后发行份额",
+            "unit": "份",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "etf01-b-secondary-issued-delta",
+          "type": "RECONCILIATION",
+          "title": "勾稽二级交易后的发行份额",
+          "instruction": "计算二级结算后发行份额 - 一级结算后发行份额；本案例快照整数精度 0，容差 0 份。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入发行份额差额",
+            "unit": "份",
+            "precision": 0
+          }
+        },
+        {
+          "workItemId": "etf01-b-conclusion",
+          "type": "SHORT_TEXT",
+          "title": "写出对象边界结论",
+          "instruction": "用一句短结论同时写出产品、一级形成份额、二级结算后发行份额及差额。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "请输入对象与发行份额结论"
+          }
+        }
+      ],
+      "submissionNote": "所有数量均按本案例版本快照保留 2 位小数；提交应能回到资料字段并完成一级与二级来源勾稽。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ETF01-REF-OBJECT",
+      "title": "ETF 产品、份额与对象边界材料",
+      "source": "ETF-MAT-INDEX-OPS S04-S08、S29-S31；ETF-MAT-SETTLEMENT S08-S13、S19",
+      "usage": "定位产品、基金份额、组合证券和一级/二级业务对象。"
+    },
+    {
+      "referenceId": "ETF01-REF-ACCOUNTING",
+      "title": "申赎凭证与份额结果材料",
+      "source": "ETF-MAT-FAQ P003-P005、P022-P028",
+      "usage": "把一级确认、发行份额记录和二级结算结果串成可勾稽的正常业务链。"
+    },
+    {
+      "referenceId": "ETF01-REF-CASE",
+      "title": "案例版本快照说明",
+      "source": "ETF01-FIXTURE-DEMO-A、ETF01-FIXTURE-COMP-B",
+      "usage": "本路线中的数量、精度和容差仅用于对应教学案例快照。"
+    }
+  ]
+}

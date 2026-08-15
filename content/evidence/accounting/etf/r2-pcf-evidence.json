@@ -1,0 +1,126 @@
+{
+  "evidenceId": "ETF-EVID-R2-PCF-002",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "routeId": "ACC-ETF-PCF-002",
+  "routeCode": "ETF-02",
+  "title": "ETF-02 PCF 逐行读取、现金替代、创设单位净值与对价证据",
+  "scopeNotice": "本文件是 ETF-02 的私有证据、Decimal 答案链和原子 workItem 映射；所有数值为 ONLY_THIS_CASE 案例版本，不是生产规则。",
+  "sharedEvidence": ["ETF-EVID-MATERIAL-AUDIT-001", "ETF-EVID-FIELDS-001", "ETF-EVID-SOURCE-STATE-001", "ETF-EVID-NORMAL-001"],
+  "materialAnchors": [
+    {"sourceMaterialCode": "ETF-MAT-INDEX-OPS", "locators": ["S07-S15", "S29-S36"], "teachingUse": "抽象股票篮、替代标志、创设单位净值、单位现金差额、估值表和申赎凭证的因果链。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "ETF-MAT-SETTLEMENT", "locators": ["S08-S13", "S19"], "teachingUse": "补充现金替代、现金差额和正常清算交收对象。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "ETF-MAT-FAQ", "locators": ["P003-P019", "P022-P030"], "teachingUse": "支持 PCF/替代金额、台账、销售凭证和现金替代预付款结算之间的来源关系；结算方向留待实际补券成本和费用资料。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "ETF-MAT-DIFFERENTIAL-DIVIDEND", "locators": ["S05-S06"], "teachingUse": "只说明本批为何固定案例价格和替代金额版本，不把差异化分红带入正常题面。", "provenance": "MATERIAL_ABSTRACTION"}
+  ],
+  "mappingClaims": [
+    {"claimId": "ETF02-CLAIM-01", "claim": "PCF 逐行字段需要同时读取证券代码、市场、整数数量、替代标志、允许替代行的 deliveryChoice 和案例价格来源；字段之间不能由证券名称或截图推测。", "sourceGroups": ["ETF-SRC-R2-PCF", "ETF-SRC-R2-MARKET"], "activity": "FIELD_MAP", "provenance": "MATERIAL_ABSTRACTION"},
+    {"claimId": "ETF02-CLAIM-02", "claim": "股票篮参考市值是各行数量乘参考价格的合计；flag=1 必须现金替代，flag=2 只有在 deliveryChoice=CASH_SUBSTITUTE 时按本案例溢价参数进入现金交付。", "sourceGroups": ["ETF-SRC-R2-PCF", "ETF-SRC-R2-MARKET"], "activity": "CALCULATION", "provenance": "CASE_POLICY"},
+    {"claimId": "ETF02-CLAIM-03", "claim": "创设单位净值和单位现金差额来自申赎凭证前估值与股票篮参考市值；溢价预付款、初始对价和现金替代预付款待结算余额再与结果资料和台账勾稽，实际补券成本和费用形成后才判断未来结算方向。", "sourceGroups": ["ETF-SRC-R2-VALUATION", "ETF-SRC-R2-RESULT"], "activity": "RECONCILIATION", "provenance": "MATERIAL_ABSTRACTION"}
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "ETF02-FIXTURE-DEMO-A",
+      "sourceToField": [
+        {"sourceGroupId": "ETF-SRC-R2-PCF", "fields": ["600101/SSE/800/0_NO_CASH_SUBSTITUTION", "000201/SZSE/1000/1_MUST_CASH_SUBSTITUTION", "600301/SSE/500/2_ALLOWED_CASH_SUBSTITUTION", "row3_deliveryChoice=CASH_SUBSTITUTE"]},
+        {"sourceGroupId": "ETF-SRC-R2-MARKET", "fields": ["prices=12.50,8.40,9.00", "premium=0.1000,0.0000"]},
+        {"sourceGroupId": "ETF-SRC-R2-VALUATION", "fields": ["pre_voucher_asset_nav=1234567.00", "pre_voucher_issued_capital=100000", "basket_share_quantity=2000"]},
+        {"sourceGroupId": "ETF-SRC-R2-RESULT", "fields": ["refund_amount=0.00", "refund_status=NOT_PROCESSED_IN_THIS_ROUTE", "substitution_premium_prepayment=840.00", "initial_consideration=25531.34", "unsettled_substitution_prepayment=840.00", "actual_consideration=25531.34", "final_reconciliation_state=INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "security_1_market_value", "formula": "Decimal('800') * Decimal('12.50')", "result": "10000.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "security_2_market_value", "formula": "Decimal('1000') * Decimal('8.40')", "result": "8400.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "security_2_cash_substitution", "formula": "Decimal('1000') * Decimal('8.40') * (Decimal('1.00') + Decimal('0.1000'))", "result": "9240.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "security_3_market_value", "formula": "Decimal('500') * Decimal('9.00')", "result": "4500.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "security_3_cash_substitution", "formula": "Decimal('500') * Decimal('9.00') * (Decimal('1.00') + Decimal('0.0000'))", "result": "4500.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "basket_market_value", "formula": "Decimal('10000.00') + Decimal('8400.00') + Decimal('4500.00')", "result": "22900.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "cash_substitution_total", "formula": "Decimal('9240.00') + Decimal('4500.00')", "result": "13740.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "creation_unit_nav", "formula": "Decimal('1234567.00') / Decimal('100000') * Decimal('2000')", "result": "24691.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "unit_cash_difference", "formula": "Decimal('24691.34') - Decimal('22900.00')", "result": "1791.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "substitution_premium_prepayment", "formula": "Decimal('9240.00') - Decimal('8400.00')", "result": "840.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "initial_consideration", "formula": "Decimal('24691.34') + Decimal('840.00')", "result": "25531.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "unsettled_substitution_prepayment", "formula": "Decimal('840.00') - Decimal('0.00')", "result": "840.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "creation_consideration", "formula": "Decimal('10000.00') + Decimal('13740.00') + Decimal('1791.34') - Decimal('0.00')", "result": "25531.34", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "consideration_difference", "formula": "Decimal('25531.34') - Decimal('25531.34')", "result": "0.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"}
+      ],
+      "reconciliation": {"basketMarketValue": "22900.00", "cashSubstitutionTotal": "13740.00", "creationUnitNAV": "24691.34", "unitCashDifference": "1791.34", "substitutionPremiumPrepayment": "840.00", "initialConsideration": "25531.34", "unsettledSubstitutionPrepayment": "840.00", "refundAmount": "0.00", "refundStatus": "NOT_PROCESSED_IN_THIS_ROUTE", "considerationDifference": "0.00", "finalState": "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"}
+    },
+    "comprehensiveB": {
+      "fixtureId": "ETF02-FIXTURE-COMP-B",
+      "sourceToField": [
+        {"sourceMaterialId": "ETF02-B-PCF-SHEET", "role": "PCF_ROWS", "fields": ["600401/SSE/1200/0_NO_CASH_SUBSTITUTION", "000501/SZSE/900/1_MUST_CASH_SUBSTITUTION", "600601/SSE/750/2_ALLOWED_CASH_SUBSTITUTION", "row3_deliveryChoice=CASH_SUBSTITUTE"]},
+        {"sourceMaterialId": "ETF02-B-MARKET-PRICE", "role": "MARKET_PRICE", "fields": ["prices=7.25,11.20,6.80", "premium=0.0500,0.0000", "price_source_key=SRC-ETF02-B-MARKET-001"]},
+        {"sourceMaterialId": "ETF02-B-VALUATION", "role": "PRE_VOUCHER_VALUATION", "fields": ["pre_voucher_asset_nav=2345678.00", "pre_voucher_issued_capital=200000", "basket_share_quantity=2000"]},
+        {"sourceMaterialId": "ETF02-B-RESULT", "role": "CONSIDERATION_RESULT", "fields": ["refund_amount=0.00", "refund_status=NOT_PROCESSED_IN_THIS_ROUTE", "substitution_premium_prepayment=504.00", "initial_consideration=23960.78", "unsettled_substitution_prepayment=504.00", "actual_consideration=23960.78"]},
+        {"sourceMaterialId": "ETF02-B-RECON", "role": "RECONCILIATION", "fields": ["consideration_difference=0.00", "final_state=INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "security_1_market_value", "formula": "Decimal('1200') * Decimal('7.25')", "result": "8700.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "security_2_market_value", "formula": "Decimal('900') * Decimal('11.20')", "result": "10080.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "security_2_cash_substitution", "formula": "Decimal('900') * Decimal('11.20') * (Decimal('1.00') + Decimal('0.0500'))", "result": "10584.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "security_3_market_value", "formula": "Decimal('750') * Decimal('6.80')", "result": "5100.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "security_3_cash_substitution", "formula": "Decimal('750') * Decimal('6.80') * (Decimal('1.00') + Decimal('0.0000'))", "result": "5100.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "basket_market_value", "formula": "Decimal('8700.00') + Decimal('10080.00') + Decimal('5100.00')", "result": "23880.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "cash_substitution_total", "formula": "Decimal('10584.00') + Decimal('5100.00')", "result": "15684.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "creation_unit_nav", "formula": "Decimal('2345678.00') / Decimal('200000') * Decimal('2000')", "result": "23456.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "unit_cash_difference", "formula": "Decimal('23456.78') - Decimal('23880.00')", "result": "-423.22", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "substitution_premium_prepayment", "formula": "Decimal('10584.00') - Decimal('10080.00')", "result": "504.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "initial_consideration", "formula": "Decimal('23456.78') + Decimal('504.00')", "result": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "unsettled_substitution_prepayment", "formula": "Decimal('504.00') - Decimal('0.00')", "result": "504.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "creation_consideration", "formula": "Decimal('8700.00') + Decimal('15684.00') + Decimal('-423.22') - Decimal('0.00')", "result": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "consideration_difference", "formula": "Decimal('23960.78') - Decimal('23960.78')", "result": "0.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01"}
+      ],
+      "reconciliation": {"basketMarketValue": "23880.00", "cashSubstitutionTotal": "15684.00", "creationUnitNAV": "23456.78", "unitCashDifference": "-423.22", "substitutionPremiumPrepayment": "504.00", "initialConsideration": "23960.78", "unsettledSubstitutionPrepayment": "504.00", "refundAmount": "0.00", "refundStatus": "NOT_PROCESSED_IN_THIS_ROUTE", "considerationDifference": "0.00", "finalState": "INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"},
+      "expectedConclusion": "PCF-B 逐行读取市场、整数数量、替代标志、deliveryChoice 和案例价格来源；股票篮参考市值23880.00元/篮、现金替代15684.00元/篮、创设单位净值23456.78元/篮、单位现金差额-423.22元/篮，溢价预付款504.00元/篮，初始申购对价23960.78元/篮，现金替代预付款待结算余额504.00元/篮并与结果资料零差异；实际补券成本和费用尚未形成，未来结算方向待后续资料确定。"
+    }
+  },
+  "atomicWorkItems": [
+    {"workItemId": "etf02-b-row1-source", "responseKind": "SELECT", "observableAction": "从 PCF 资料定位第一行证券的市场、数量和替代标志", "fixtureValue": "ETF02_B_ROW1_FROM_PCF", "sourceMaterialIds": ["ETF02-B-PCF-SHEET"], "scoreTargets": ["C-ETF02-PCF-ROW-SOURCES"], "remediationTargetId": "ETF02-TARGET-ROW1"},
+    {"workItemId": "etf02-b-row2-source", "responseKind": "SELECT", "observableAction": "从 PCF 资料定位第二行证券的市场、数量和替代标志", "fixtureValue": "ETF02_B_ROW2_FROM_PCF", "sourceMaterialIds": ["ETF02-B-PCF-SHEET"], "scoreTargets": ["C-ETF02-PCF-ROW-SOURCES"], "remediationTargetId": "ETF02-TARGET-ROW2"},
+    {"workItemId": "etf02-b-row3-source", "responseKind": "SELECT", "observableAction": "从 PCF 资料定位第三行证券的市场、数量和替代标志", "fixtureValue": "ETF02_B_ROW3_FROM_PCF", "sourceMaterialIds": ["ETF02-B-PCF-SHEET"], "scoreTargets": ["C-ETF02-FLAGS"], "remediationTargetId": "ETF02-TARGET-ROW3"},
+    {"workItemId": "etf02-b-row3-delivery-choice", "responseKind": "SELECT", "observableAction": "读取允许现金替代行的本案例实际交付选择", "fixtureValue": "ETF02_B_DELIVERY_CHOICE_CASH_SUBSTITUTE", "sourceMaterialIds": ["ETF02-B-PCF-SHEET", "ETF02-B-RESULT"], "scoreTargets": ["C-ETF02-DELIVERY-CHOICE"], "remediationTargetId": "ETF02-TARGET-DELIVERY-CHOICE"},
+    {"workItemId": "etf02-b-price-source", "responseKind": "SELECT", "observableAction": "从市场价格资料定位三行证券参考价格和价格来源键", "fixtureValue": "ETF02_B_PRICE_FROM_MARKET", "sourceMaterialIds": ["ETF02-B-MARKET-PRICE"], "scoreTargets": ["C-ETF02-PCF-ROW-SOURCES"], "remediationTargetId": "ETF02-TARGET-PRICE"},
+    {"workItemId": "etf02-b-valuation-source", "responseKind": "SELECT", "observableAction": "从申赎凭证前估值资料定位资产净值、实收资本数量和每篮份额", "fixtureValue": "ETF02_B_VALUATION_FROM_PRE_VOUCHER", "sourceMaterialIds": ["ETF02-B-VALUATION"], "scoreTargets": ["C-ETF02-FLAGS"], "remediationTargetId": "ETF02-TARGET-VALUATION"},
+    {"workItemId": "etf02-b-row1-market-value", "responseKind": "NUMBER", "observableAction": "计算第一行参考市值", "fixtureValue": "8700.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"], "scoreTargets": ["P-ETF02-ROW-VALUE"], "remediationTargetId": "ETF02-TARGET-ROW1-VALUE"},
+    {"workItemId": "etf02-b-row2-market-value", "responseKind": "NUMBER", "observableAction": "计算第二行参考市值", "fixtureValue": "10080.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"], "scoreTargets": ["P-ETF02-ROW-VALUE"], "remediationTargetId": "ETF02-TARGET-ROW2-VALUE"},
+    {"workItemId": "etf02-b-row3-market-value", "responseKind": "NUMBER", "observableAction": "计算第三行参考市值", "fixtureValue": "5100.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"], "scoreTargets": ["P-ETF02-ROW-VALUE"], "remediationTargetId": "ETF02-TARGET-ROW3-VALUE"},
+    {"workItemId": "etf02-b-basket-market-value", "responseKind": "NUMBER", "observableAction": "汇总三行参考市值得到股票篮市值", "fixtureValue": "23880.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"], "scoreTargets": ["P-ETF02-BASKET"], "remediationTargetId": "ETF02-TARGET-BASKET"},
+    {"workItemId": "etf02-b-cash-substitution-total", "responseKind": "NUMBER", "observableAction": "按替代标志和案例溢价汇总现金替代", "fixtureValue": "15684.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"], "scoreTargets": ["P-ETF02-CASH"], "remediationTargetId": "ETF02-TARGET-CASH"},
+    {"workItemId": "etf02-b-substitution-premium-prepayment", "responseKind": "NUMBER", "observableAction": "用现金替代金额减对应现金替代行参考市值计算溢价预付款", "fixtureValue": "504.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE", "ETF02-B-RESULT"], "scoreTargets": ["P-ETF02-PREMIUM-BRIDGE", "R-ETF02-UNSETTLED-SUBSTITUTION", "M-ETF02-NAV-DIFF"], "remediationTargetId": "ETF02-TARGET-PREMIUM-PREPAYMENT"},
+    {"workItemId": "etf02-b-creation-unit-nav", "responseKind": "NUMBER", "observableAction": "按申赎凭证前估值资料计算创设单位净值", "fixtureValue": "23456.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-VALUATION"], "scoreTargets": ["P-ETF02-NAV", "M-ETF02-NAV-DIFF"], "remediationTargetId": "ETF02-TARGET-NAV"},
+    {"workItemId": "etf02-b-unit-cash-difference", "responseKind": "NUMBER", "observableAction": "用创设单位净值减股票篮市值计算单位现金差额", "fixtureValue": "-423.22", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-VALUATION", "ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE"], "scoreTargets": ["R-ETF02-CASH-DIFF", "M-ETF02-NAV-DIFF"], "remediationTargetId": "ETF02-TARGET-CASH-DIFF"},
+    {"workItemId": "etf02-b-initial-consideration-bridge", "responseKind": "NUMBER", "observableAction": "用创设单位净值加溢价预付款复算初始申购对价", "fixtureValue": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-VALUATION", "ETF02-B-RESULT"], "scoreTargets": ["P-ETF02-PREMIUM-BRIDGE", "E-ETF02-CONSIDER", "M-ETF02-NAV-DIFF"], "remediationTargetId": "ETF02-TARGET-INITIAL-BRIDGE"},
+    {"workItemId": "etf02-b-unsettled-substitution-prepayment", "responseKind": "NUMBER", "observableAction": "用溢价预付款减本路线已结算现金替代金额登记现金替代预付款待结算余额；实际补券成本和费用尚未形成，不预判未来结算方向", "fixtureValue": "504.00", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-RESULT", "ETF02-B-RECON"], "scoreTargets": ["R-ETF02-UNSETTLED-SUBSTITUTION", "M-ETF02-NAV-DIFF"], "remediationTargetId": "ETF02-TARGET-UNSETTLED-SUBSTITUTION"},
+    {"workItemId": "etf02-b-creation-consideration", "responseKind": "NUMBER", "observableAction": "汇总实物组合价值、现金替代、单位现金差额和本路线已结算现金替代金额得到初始申购对价", "fixtureValue": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-PCF-SHEET", "ETF02-B-VALUATION", "ETF02-B-RESULT"], "scoreTargets": ["E-ETF02-CONSIDER", "M-ETF02-CONSIDERATION"], "remediationTargetId": "ETF02-TARGET-CONSIDERATION"},
+    {"workItemId": "etf02-b-ledger-consideration", "responseKind": "NUMBER", "observableAction": "把申购对价作为独立台账/结果字段登记", "fixtureValue": "23960.78", "unit": "元/篮", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF02-B-RESULT"], "scoreTargets": ["R-ETF02-RECON", "M-ETF02-CONSIDERATION"], "remediationTargetId": "ETF02-TARGET-LEDGER"},
+    {"workItemId": "etf02-b-consideration-recon", "responseKind": "SELECT", "observableAction": "勾稽初始对价与结果资料的差额并选择现金替代预付款待结算边界的状态", "fixtureValue": "ETF02_B_INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT", "sourceMaterialIds": ["ETF02-B-RESULT", "ETF02-B-RECON"], "scoreTargets": ["R-ETF02-RECON", "M-ETF02-CONSIDERATION"], "remediationTargetId": "ETF02-TARGET-RECON"},
+    {"workItemId": "etf02-b-conclusion", "responseKind": "TEXT", "observableAction": "用一句话汇总 PCF 逐行读取、现金替代、NAV、单位现金差额、溢价桥、现金替代预付款待结算余额和对价勾稽", "fixtureValue": "23880.00元/篮、15684.00元/篮、23456.78元/篮、-423.22元/篮、504.00元/篮、23960.78元/篮、现金替代预付款待结算余额504.00元/篮、零差异、INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT", "sourceMaterialIds": ["ETF02-B-PCF-SHEET", "ETF02-B-MARKET-PRICE", "ETF02-B-VALUATION", "ETF02-B-RESULT", "ETF02-B-RECON"], "scoreTargets": ["E-ETF02-CONCLUSION"], "remediationTargetId": "ETF02-TARGET-CONCLUSION"}
+  ],
+  "coverage": {
+    "FIELD_MAP": ["etf02-b-row1-source", "etf02-b-row2-source", "etf02-b-row3-source", "etf02-b-row3-delivery-choice", "etf02-b-price-source", "etf02-b-valuation-source", "ACC-ETF-PCF-Q-01"],
+    "CALCULATION": ["etf02-b-row1-market-value", "etf02-b-row2-market-value", "etf02-b-row3-market-value", "etf02-b-basket-market-value", "etf02-b-cash-substitution-total", "etf02-b-substitution-premium-prepayment", "etf02-b-creation-unit-nav", "etf02-b-unit-cash-difference", "etf02-b-creation-consideration", "ACC-ETF-PCF-Q-02"],
+    "LEDGER_ENTRY": ["etf02-b-unsettled-substitution-prepayment", "etf02-b-ledger-consideration", "ACC-ETF-PCF-Q-03"],
+    "RECONCILIATION": ["etf02-b-initial-consideration-bridge", "etf02-b-consideration-recon", "ACC-ETF-PCF-Q-04"],
+    "SHORT_TEXT": ["etf02-b-conclusion", "ACC-ETF-PCF-Q-05"]
+  },
+  "dependencyPolicy": {
+    "hardPrerequisiteNodeIds": ["ACC-NODE-DAILY-003"],
+    "dependsOnRouteIds": ["ACC-ETF-OBJECT-001"],
+    "plannedMapPrerequisites": ["ACC-NODE-ETF-OBJECT-001"],
+    "serialOrder": 2,
+    "stageGate": false,
+    "releaseRegistration": "PUBLISHED_IN_ACCOUNTING_2026.08.10",
+    "status": "PUBLISHED"
+  },
+  "fixturePolicy": {
+    "routeOwnsIndependentDemoA": "ETF02-FIXTURE-DEMO-A",
+    "routeOwnsIndependentComprehensiveB": "ETF02-FIXTURE-COMP-B",
+    "sharedWithOtherRoute": false,
+    "numericVariationNotice": "R2 A/B 使用不同产品键、PCF 键、三行证券、数量、价格、溢价、估值净值和对价。"
+  },
+  "exclusionBoundary": {
+    "status": "BUILDING_DEFER",
+    "topics": ["差异化分红", "现金替代预付款未来结算方向", "补券成本与费用", "跨市场汇率/日历", "跨境全球", "互认/集中申购", "券结 ETF", "联接估值", "折算拆分", "公司行为", "商品/黄金/期货 ETF"],
+    "reason": "本路线只闭合国内普通 ETF 单篮正常申购；后续主题缺少本批所需的当前版本规则、权限和独立正常双样本。"
+  }
+}

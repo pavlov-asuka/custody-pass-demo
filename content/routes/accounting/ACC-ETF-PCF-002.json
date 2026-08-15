@@ -1,0 +1,856 @@
+{
+  "routeId": "ACC-ETF-PCF-002",
+  "contentVersion": "2026.08.14.1",
+  "line": "ACCOUNTING",
+  "title": "从 PCF 到股票篮、现金替代与创设单位净值",
+  "summary": "用正常 PCF 资料逐行读取市场、数量、替代标志和价格来源，完成股票篮市值、现金替代、创设单位净值、单位现金差额及申购对价勾稽。",
+  "estimatedMinutes": 42,
+  "objectives": [
+    "能从 PCF 和市场资料逐行定位证券市场、数量、替代标志及案例价格来源。",
+    "能用 Decimal 计算股票篮参考市值和现金替代金额。",
+    "能从申赎凭证前估值计算创设单位净值、单位现金差额，并与申购对价和台账结果勾稽。"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "ACC-ETF-PCF-002-KC-01",
+          "type": "CATEGORIES",
+          "title": "PCF 一行就是一组来源字段",
+          "conclusion": "每行都要同时读取证券代码、市场、数量、替代标志和案例价格来源。",
+          "items": [
+            "市场和证券代码来自 PCF 行。",
+            "数量和替代标志决定该行如何进入计算。",
+            "价格来源必须能回到案例市场资料，不能凭名称推测。"
+          ]
+        },
+        {
+          "cardId": "ACC-ETF-PCF-002-KC-02",
+          "type": "FLOW",
+          "title": "先算股票篮，再算现金替代",
+          "conclusion": "股票篮参考市值由各行数量乘案例价格后合计，现金替代只按对应替代标志和案例参数进入。",
+          "items": [
+            "逐行计算证券参考市值。",
+            "标志 0 行保留实物交付；标志 1 表示必须现金替代；标志 2 表示允许现金替代，本案例另以 deliveryChoice=CASH_SUBSTITUTE 选择现金交付。",
+            "合计股票篮参考市值、实物交付市值和现金替代金额。"
+          ]
+        },
+        {
+          "cardId": "ACC-ETF-PCF-002-KC-03",
+          "type": "KEY_POINT",
+          "title": "估值与对价要闭合",
+          "conclusion": "创设单位净值来自凭证前资产净值、凭证前基金资本和每篮份额；单位现金差额及申购对价必须与台账结果一致。",
+          "items": [
+            "创设单位净值 = 凭证前资产净值 ÷ 凭证前基金资本 × 每篮份额。",
+            "单位现金差额 = 创设单位净值 - 股票篮参考市值。",
+            "单位现金差额 = 创设单位净值 - 股票篮参考市值；初始申购对价 = 创设单位净值 + 溢价预付款；本路线已结算现金替代金额为 0.00 元，溢价预付款作为现金替代预付款待结算余额保留；实际补券成本和费用形成后才判断结算方向。"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "caseId": "ETF02-A-EDU-01",
+        "role": "ETF 运营核算岗",
+        "product": "ETF-EDU-C-01",
+        "date": "案例版本快照-2026-08-14",
+        "purpose": "完成一组正常 PCF 行的市值、现金替代、单位净值和申购对价计算"
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "逐行读取 600101/SSE/800/标志 0、000201/SZSE/1000/标志 1（必须现金替代）、600301/SSE/500/标志 2（允许现金替代），并确认第三行 deliveryChoice=CASH_SUBSTITUTE 及价格来源。",
+          "reason": "只有完整读取 PCF 行字段，后续计算才能与原始资料对应。"
+        },
+        {
+          "order": 2,
+          "action": "按数量 × 参考价格计算三行市值 10000.00、8400.00、4500.00 元，股票篮参考市值合计 22900.00 元。",
+          "reason": "逐行结果先闭合，才能区分实物交付市值和现金替代金额。"
+        },
+        {
+          "order": 3,
+          "action": "标志 0 行实物交付市值 10000.00 元；标志 1 行必须现金替代 8400.00 × (1 + 0.1000) = 9240.00 元；标志 2 行虽允许现金替代，但本案例 deliveryChoice=CASH_SUBSTITUTE，现金替代 4500.00 元，合计 13740.00 元；溢价预付款为 9240.00 - 8400.00 = 840.00 元。",
+          "reason": "允许现金替代标志本身不等于现金交付；本案例另有交付选择。溢价、金额和容差均为本案例版本快照。"
+        },
+        {
+          "order": 4,
+          "action": "按 1234567.00 ÷ 100000 × 2000 = 24691.34 元计算创设单位净值，再以 24691.34 - 22900.00 = 1791.34 元得到单位现金差额。",
+          "reason": "估值链使用凭证前资产净值和凭证前基金资本，不能直接拿股票篮市值代替。"
+        },
+        {
+          "order": 5,
+          "action": "初始申购对价 = 创设单位净值 24691.34 + 溢价预付款 840.00 = 25531.34 元；独立复算 10000.00 + 13740.00 + 1791.34 - 0.00 = 25531.34 元，与结果资料及台账差额 0.00 元；现金替代预付款待结算金额为 840.00 元。",
+          "reason": "初始对价已完成跨来源勾稽，但实际补券成本和费用尚未形成，现金替代预付款的未来结算方向不能在本路线预判。"
+        }
+      ],
+      "summary": "本案例快照链条为：股票篮 22900.00 元；实物交付市值 10000.00 元；现金替代 13740.00 元；创设单位净值 24691.34 元；单位现金差额 1791.34 元；溢价预付款和现金替代预付款待结算余额 840.00 元；初始申购对价 25531.34 元并与结果资料相等；实际补券成本和费用留待未来结算。"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "ACC-ETF-PCF-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "从 PCF 行和市场资料分别定位一行的 PCF 来源与价格来源。",
+          "fieldMappings": [
+            {
+              "fieldId": "pcfRow",
+              "label": "PCF 行来源",
+              "source": "PCF 逐行表",
+              "options": [
+                {
+                  "optionId": "ETF02_A_PCF_AND_MARKET",
+                  "text": "PCF 行：证券代码、市场、数量、替代标志；价格：案例市场资料"
+                },
+                {
+                  "optionId": "ETF02_A_PCF_FROM_SUMMARY",
+                  "text": "只从汇总金额反推 PCF 行"
+                }
+              ]
+            },
+            {
+              "fieldId": "priceSource",
+              "label": "价格来源",
+              "source": "市场价格表",
+              "options": [
+                {
+                  "optionId": "ETF02_A_PRICE_FROM_MARKET",
+                  "text": "案例市场价格表"
+                },
+                {
+                  "optionId": "ETF02_A_PRICE_FROM_SECURITY_NAME",
+                  "text": "证券名称常识"
+                }
+              ]
+            }
+          ],
+          "answer": [
+            "ETF02_A_PCF_AND_MARKET",
+            "ETF02_A_PRICE_FROM_MARKET"
+          ],
+          "explanation": "PCF 行提供结构字段，案例市场资料提供价格，二者共同构成可追溯来源。",
+          "hints": [
+            "先找代码、市场、数量和标志，再找价格。",
+            "不能从证券名称猜价格。"
+          ]
+        },
+        {
+          "questionId": "ACC-ETF-PCF-Q-02",
+          "type": "CALCULATION",
+          "prompt": "000201/SZSE 行数量 1000、参考价格 8.40 元、标志 1（必须现金替代）、案例溢价 0.1000。计算该行现金替代金额。",
+          "calculation": {
+            "fields": [
+              {
+                "fieldId": "row2CashSubstitution",
+                "label": "第二行现金替代",
+                "formula": "1000 × 8.40 × (1 + 0.1000)",
+                "placeholder": "请输入现金替代金额",
+                "unit": "元",
+                "precision": 2,
+                "tolerance": 0.01
+              }
+            ]
+          },
+          "answer": [
+            "9240.00"
+          ],
+          "explanation": "1000 × 8.40 × 1.1000 = 9240.00 元。",
+          "hints": [
+            "先算该行参考市值 8400.00 元。",
+            "标志 1 使用本案例溢价 0.1000。"
+          ]
+        },
+        {
+          "questionId": "ACC-ETF-PCF-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "补全本案例的申赎台账金额：实物交付市值、现金替代合计、溢价预付款、单位现金差额、初始申购对价和现金替代预付款待结算金额。",
+          "ledgerEntries": [
+            {
+              "entryId": "physical-value",
+              "direction": "IN_KIND",
+              "label": "实物交付市值",
+              "amount": "10000.00",
+              "placeholder": "请输入实物交付市值"
+            },
+            {
+              "entryId": "cash-substitution",
+              "direction": "CASH",
+              "label": "现金替代合计",
+              "amount": "13740.00",
+              "placeholder": "请输入现金替代合计"
+            },
+            {
+              "entryId": "unit-cash-difference",
+              "direction": "CASH",
+              "label": "单位现金差额",
+              "amount": "1791.34",
+              "placeholder": "请输入单位现金差额"
+            },
+            {
+              "entryId": "substitution-premium-prepayment",
+              "direction": "CASH",
+              "label": "溢价预付款",
+              "amount": "840.00",
+              "placeholder": "请输入溢价预付款"
+            },
+            {
+              "entryId": "creation-consideration",
+              "direction": "CONSIDERATION",
+              "label": "初始申购对价",
+              "amount": "25531.34",
+              "placeholder": "请输入初始申购对价"
+            },
+            {
+              "entryId": "unsettled-substitution-prepayment",
+              "direction": "CASH",
+              "label": "现金替代预付款待结算金额",
+              "amount": "840.00",
+              "placeholder": "请输入现金替代预付款待结算金额"
+            }
+          ],
+          "answer": [
+            "10000.00",
+            "13740.00",
+            "1791.34",
+            "840.00",
+            "25531.34",
+            "840.00"
+          ],
+          "explanation": "台账需要同时保留实物、现金替代、单位现金差额、溢价预付款、初始申购对价和现金替代预付款待结算金额；本路线已结算现金替代金额为 0.00 元，实际补券成本和费用尚未形成。",
+          "hints": [
+            "实物交付市值只包括标志 0 行。",
+            "最终对价还要加单位现金差额。"
+          ]
+        },
+        {
+          "questionId": "ACC-ETF-PCF-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "完成股票篮、现金替代、创设单位净值、单位现金差额、溢价预付款、初始申购对价、现金替代预付款待结算金额和跨来源勾稽。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "basketMarketValue",
+                "label": "股票篮参考市值",
+                "kind": "NUMBER",
+                "formula": "10000.00 + 8400.00 + 4500.00",
+                "placeholder": "请输入股票篮参考市值",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "cashSubstitutionTotal",
+                "label": "现金替代合计",
+                "kind": "NUMBER",
+                "formula": "0.00 + 9240.00 + 4500.00",
+                "placeholder": "请输入现金替代合计",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "creationUnitNav",
+                "label": "创设单位净值",
+                "kind": "NUMBER",
+                "formula": "1234567.00 ÷ 100000 × 2000",
+                "placeholder": "请输入创设单位净值",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "unitCashDifference",
+                "label": "单位现金差额",
+                "kind": "NUMBER",
+                "formula": "24691.34 - 22900.00",
+                "placeholder": "请输入单位现金差额",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "substitutionPremiumPrepayment",
+                "label": "溢价预付款",
+                "kind": "NUMBER",
+                "formula": "9240.00 - 8400.00",
+                "placeholder": "请输入溢价预付款",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "initialConsideration",
+                "label": "初始申购对价",
+                "kind": "NUMBER",
+                "formula": "24691.34 + 840.00",
+                "placeholder": "请输入初始申购对价",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "unsettledSubstitutionPrepayment",
+                "label": "现金替代预付款待结算金额",
+                "kind": "NUMBER",
+                "formula": "840.00 - 0.00",
+                "placeholder": "请输入现金替代预付款待结算金额",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "considerationDelta",
+                "label": "申购对价勾稽差额",
+                "kind": "NUMBER",
+                "formula": "申购对价 - 台账对价",
+                "placeholder": "请输入勾稽差额",
+                "precision": 2,
+                "tolerance": 0.01
+              },
+              {
+                "fieldId": "conclusion",
+                "label": "业务结论",
+                "kind": "SELECT",
+                "formula": "勾稽差额为零时完成对价闭合",
+                "placeholder": "请选择业务结论",
+                "options": [
+                  {
+                    "optionId": "ETF02_A_INITIAL_RECONCILED_PENDING_SETTLEMENT",
+                    "text": "初始对价已与 PCF、估值、凭证和台账闭合，但现金替代预付款待结算余额为 840.00 元"
+                  },
+                  {
+                    "optionId": "ETF02_A_NOT_RECONCILED",
+                    "text": "对价尚未闭合"
+                  }
+                ]
+              }
+            ]
+          },
+          "answer": [
+            "22900.00",
+            "13740.00",
+            "24691.34",
+            "1791.34",
+            "840.00",
+            "25531.34",
+            "840.00",
+            "0.00",
+            "ETF02_A_INITIAL_RECONCILED_PENDING_SETTLEMENT"
+          ],
+          "explanation": "22900.00、13740.00、24691.34、1791.34、840.00 和 25531.34 均可由来源资料复算；初始对价与台账差额为 0.00 元，现金替代预付款待结算余额为 840.00 元，未来结算方向留待补券成本和费用形成。",
+          "hints": [
+            "先做逐行市值，再做汇总和估值。",
+            "最后比较申购对价与台账对价。"
+          ]
+        },
+        {
+          "questionId": "ACC-ETF-PCF-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出本案例的 PCF、现金替代、创设单位净值、溢价预付款、初始对价、现金替代预付款待结算余额和勾稽状态。",
+          "textInput": {
+            "label": "PCF 综合结论",
+            "placeholder": "请写出股票篮市值、现金替代、单位净值、溢价预付款、初始对价、现金替代预付款待结算余额、差额和状态"
+          },
+          "answer": [
+            "股票篮参考市值 22900.00 元；现金替代 13740.00 元；创设单位净值 24691.34 元；溢价预付款 840.00 元；初始申购对价 25531.34 元；现金替代预付款待结算余额 840.00 元；与台账差额 0.00 元，状态为初始对价已闭合且预付款待结算。"
+          ],
+          "explanation": "结论完整保留逐行计算汇总、估值结果、单位现金差额、溢价预付款、初始对价、现金替代预付款待结算余额和跨来源差额。",
+          "hints": [
+            "不要只写最终对价。",
+            "至少保留五个金额结果和一个勾稽差额。"
+          ]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "ETF 运营核算岗",
+        "product": "ETF-EDU-D-01",
+        "date": "案例版本快照-2026-08-14",
+        "purpose": "依据正常资料包逐行读取 PCF、市场、估值与结果资料，完成申购对价勾稽"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "ETF02-B-PCF-SHEET",
+          "title": "PCF 逐行资料",
+          "kind": "PARAMETER",
+          "description": "脱敏合成的国内普通 ETF 正常 PCF 行，提供市场、整数数量、替代标志和本案例交付选择。",
+          "fields": [
+            {
+              "fieldId": "row1",
+              "label": "第一行",
+              "value": "600401 / SSE / 1200 / flag 0_NO_CASH_SUBSTITUTION"
+            },
+            {
+              "fieldId": "row2",
+              "label": "第二行",
+              "value": "000501 / SZSE / 900 / flag 1_MUST_CASH_SUBSTITUTION"
+            },
+            {
+              "fieldId": "row3",
+              "label": "第三行",
+              "value": "600601 / SSE / 750 / flag 2_ALLOWED_CASH_SUBSTITUTION"
+            },
+            {
+              "fieldId": "row3DeliveryChoice",
+              "label": "第三行交付选择",
+              "value": "CASH_SUBSTITUTE"
+            }
+          ]
+        },
+        {
+          "materialId": "ETF02-B-MARKET-PRICE",
+          "title": "案例市场价格表",
+          "kind": "PARAMETER",
+          "description": "脱敏合成的正常市场价格资料，价格均为本案例版本快照。",
+          "fields": [
+            {
+              "fieldId": "row1Price",
+              "label": "600401 参考价格",
+              "value": "7.25",
+              "unit": "元/股"
+            },
+            {
+              "fieldId": "row2Price",
+              "label": "000501 参考价格",
+              "value": "11.20",
+              "unit": "元/股"
+            },
+            {
+              "fieldId": "row3Price",
+              "label": "600601 参考价格",
+              "value": "6.80",
+              "unit": "元/股"
+            },
+            {
+              "fieldId": "row2Premium",
+              "label": "第二行案例溢价",
+              "value": "0.0500"
+            }
+          ]
+        },
+        {
+          "materialId": "ETF02-B-VALUATION",
+          "title": "凭证前估值资料",
+          "kind": "VALUATION",
+          "description": "脱敏合成的凭证前资产净值、基金资本和每篮份额，用于计算创设单位净值。",
+          "fields": [
+            {
+              "fieldId": "preVoucherAssetNav",
+              "label": "凭证前资产净值",
+              "value": "2345678.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "preVoucherCapital",
+              "label": "凭证前基金资本",
+              "value": "200000",
+              "unit": "份"
+            },
+            {
+              "fieldId": "sharesPerCreationUnit",
+              "label": "每篮形成份额",
+              "value": "2000",
+              "unit": "份"
+            }
+          ]
+        },
+        {
+          "materialId": "ETF02-B-RESULT",
+          "title": "申购结果资料",
+          "kind": "CONFIRMATION",
+          "description": "脱敏合成的正常申购结果，提供本路线已结算现金替代金额、溢价预付款、初始申购对价和现金替代预付款待结算金额。",
+          "fields": [
+            {
+              "fieldId": "refundSubstitution",
+              "label": "本路线已结算现金替代金额",
+              "value": "0.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "refundStatus",
+              "label": "现金替代结算状态",
+              "value": "NOT_PROCESSED_IN_THIS_ROUTE"
+            },
+            {
+              "fieldId": "substitutionPremiumPrepayment",
+              "label": "溢价预付款",
+              "value": "504.00",
+              "unit": "元/篮"
+            },
+            {
+              "fieldId": "initialConsideration",
+              "label": "初始申购对价",
+              "value": "23960.78",
+              "unit": "元/篮"
+            },
+            {
+              "fieldId": "unsettledSubstitutionPrepayment",
+              "label": "现金替代预付款待结算金额",
+              "value": "504.00",
+              "unit": "元/篮"
+            },
+            {
+              "fieldId": "creationConsideration",
+              "label": "申购对价",
+              "value": "23960.78",
+              "unit": "元"
+            }
+          ]
+        },
+        {
+          "materialId": "ETF02-B-RECON",
+          "title": "PCF 对价勾稽表",
+          "kind": "RECONCILIATION",
+          "description": "脱敏合成的正常台账结果，用于与计算出的申购对价做跨来源勾稽。",
+          "fields": [
+            {
+              "fieldId": "ledgerConsideration",
+              "label": "台账申购对价",
+              "value": "23960.78",
+              "unit": "元"
+            },
+            {
+              "fieldId": "considerationDelta",
+              "label": "申购对价差额",
+              "value": "0.00",
+              "unit": "元"
+            },
+            {
+              "fieldId": "reconState",
+              "label": "勾稽状态",
+              "value": "ETF02_B_INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"
+            },
+            {
+              "fieldId": "initialConsideration",
+              "label": "初始申购对价",
+              "value": "23960.78",
+              "unit": "元/篮"
+            },
+            {
+              "fieldId": "substitutionPremiumPrepayment",
+              "label": "溢价预付款",
+              "value": "504.00",
+              "unit": "元/篮"
+            },
+            {
+              "fieldId": "unsettledSubstitutionPrepayment",
+              "label": "现金替代预付款待结算金额",
+              "value": "504.00",
+              "unit": "元/篮"
+            }
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "etf02-b-row1-source",
+          "type": "FIELD_MAP",
+          "title": "定位 PCF 第一行",
+          "instruction": "从 PCF 逐行资料选择第一行的完整来源字段。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择第一行来源",
+            "options": [
+              {
+                "optionId": "ETF02_B_ROW1_FROM_PCF",
+                "text": "600401 / SSE / 1200 / flag 0_NO_CASH_SUBSTITUTION"
+              },
+              {
+                "optionId": "ETF02_B_ROW1_FROM_MARKET",
+                "text": "只含 600401 的市场价格"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf02-b-row2-source",
+          "type": "FIELD_MAP",
+          "title": "定位 PCF 第二行",
+          "instruction": "从 PCF 逐行资料选择第二行的完整来源字段。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择第二行来源",
+            "options": [
+              {
+                "optionId": "ETF02_B_ROW2_FROM_PCF",
+                "text": "000501 / SZSE / 900 / flag 1_MUST_CASH_SUBSTITUTION"
+              },
+              {
+                "optionId": "ETF02_B_ROW2_FROM_MARKET",
+                "text": "只含 000501 的市场价格"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf02-b-row3-source",
+          "type": "FIELD_MAP",
+          "title": "定位 PCF 第三行",
+          "instruction": "从 PCF 逐行资料选择第三行的完整来源字段。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择第三行来源",
+            "options": [
+              {
+                "optionId": "ETF02_B_ROW3_FROM_PCF",
+                "text": "600601 / SSE / 750 / flag 2_ALLOWED_CASH_SUBSTITUTION"
+              },
+              {
+                "optionId": "ETF02_B_ROW3_FROM_MARKET",
+                "text": "只含 600601 的市场价格"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf02-b-row3-delivery-choice",
+          "type": "FIELD_MAP",
+          "title": "确认允许替代行的交付选择",
+          "instruction": "第三行标志 2 仅表示允许现金替代；从 PCF/结果资料确认本案例实际 deliveryChoice。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择第三行交付选择",
+            "options": [
+              {
+                "optionId": "ETF02_B_DELIVERY_CHOICE_CASH_SUBSTITUTE",
+                "text": "CASH_SUBSTITUTE：本案例选择现金交付"
+              },
+              {
+                "optionId": "ETF02_B_DELIVERY_CHOICE_IN_KIND",
+                "text": "IN_KIND：仅因允许现金替代标志就推定实物交付"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf02-b-price-source",
+          "type": "FIELD_MAP",
+          "title": "定位案例价格来源",
+          "instruction": "选择三行参考价格的来源。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择价格来源",
+            "options": [
+              {
+                "optionId": "ETF02_B_PRICE_FROM_MARKET",
+                "text": "案例市场价格表"
+              },
+              {
+                "optionId": "ETF02_B_PRICE_FROM_PCF_NAME",
+                "text": "证券名称或截图推测"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf02-b-valuation-source",
+          "type": "FIELD_MAP",
+          "title": "定位凭证前估值来源",
+          "instruction": "选择创设单位净值计算所需的资产净值、基金资本和每篮份额来源。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择估值来源",
+            "options": [
+              {
+                "optionId": "ETF02_B_VALUATION_FROM_PRE_VOUCHER",
+                "text": "凭证前估值资料"
+              },
+              {
+                "optionId": "ETF02_B_VALUATION_FROM_TRADE",
+                "text": "其他市场资料"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf02-b-row1-market-value",
+          "type": "CALCULATION",
+          "title": "计算第一行市值",
+          "instruction": "计算 1200 × 7.25；本案例快照精度 2 位，容差 ±0.01 元。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入第一行市值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-row2-market-value",
+          "type": "CALCULATION",
+          "title": "计算第二行市值",
+          "instruction": "计算 900 × 11.20；本案例快照精度 2 位，容差 ±0.01 元。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入第二行市值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-row3-market-value",
+          "type": "CALCULATION",
+          "title": "计算第三行市值",
+          "instruction": "计算 750 × 6.80；本案例快照精度 2 位，容差 ±0.01 元。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入第三行市值",
+            "unit": "元",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-basket-market-value",
+          "type": "CALCULATION",
+          "title": "合计股票篮参考市值",
+          "instruction": "合计三行参考市值；本案例快照精度 2 位，容差 ±0.01 元/篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入股票篮参考市值",
+            "unit": "元/篮",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-cash-substitution-total",
+          "type": "CALCULATION",
+          "title": "合计现金替代",
+          "instruction": "按替代标志和案例参数合计现金替代；本案例快照精度 2 位，容差 ±0.01 元/篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入现金替代合计",
+            "unit": "元/篮",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-substitution-premium-prepayment",
+          "type": "CALCULATION",
+          "title": "计算溢价预付款",
+          "instruction": "从现金替代行逐行读取现金替代金额和对应参考市值，计算现金替代合计 - 对应行参考市值；本案例快照精度 2 位，容差 ±0.01 元/篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入溢价预付款",
+            "unit": "元/篮",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-creation-unit-nav",
+          "type": "CALCULATION",
+          "title": "计算创设单位净值",
+          "instruction": "按凭证前资产净值 ÷ 凭证前基金资本 × 每篮形成份额计算；本案例快照精度 2 位，容差 ±0.01 元/篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入创设单位净值",
+            "unit": "元/篮",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-unit-cash-difference",
+          "type": "CALCULATION",
+          "title": "计算单位现金差额",
+          "instruction": "按创设单位净值 - 股票篮参考市值计算；本案例快照精度 2 位，容差 ±0.01 元/篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入单位现金差额",
+            "unit": "元/篮",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-initial-consideration-bridge",
+          "type": "RECONCILIATION",
+          "title": "勾稽净值与初始对价桥",
+          "instruction": "按创设单位净值 + 溢价预付款复算初始申购对价；本案例快照精度 2 位，容差 ±0.01 元/篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入初始申购对价",
+            "unit": "元/篮",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-unsettled-substitution-prepayment",
+          "type": "LEDGER_ENTRY",
+          "title": "登记现金替代预付款待结算金额",
+          "instruction": "按溢价预付款 - 本路线已结算现金替代金额登记现金替代预付款待结算余额；实际补券成本和费用尚未形成，本案例不预判未来结算方向；本案例快照精度 2 位，容差 ±0.01 元/篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入现金替代预付款待结算金额",
+            "unit": "元/篮",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-creation-consideration",
+          "type": "CALCULATION",
+          "title": "计算申购对价",
+          "instruction": "按实际交付组合证券价值 + 现金替代合计 + 单位现金差额 - 本路线已结算现金替代金额计算初始申购对价；本案例快照精度 2 位，容差 ±0.01 元/篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入申购对价",
+            "unit": "元/篮",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-ledger-consideration",
+          "type": "LEDGER_ENTRY",
+          "title": "读取台账申购对价",
+          "instruction": "从 PCF 对价勾稽表登记台账申购对价；本案例快照精度 2 位，容差 ±0.01 元/篮。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "请输入台账申购对价",
+            "unit": "元/篮",
+            "precision": 2
+          }
+        },
+        {
+          "workItemId": "etf02-b-consideration-recon",
+          "type": "RECONCILIATION",
+          "title": "勾稽申购对价",
+          "instruction": "比较计算出的初始申购对价与台账申购对价，并确认现金替代预付款待结算的案例状态。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "请选择申购对价勾稽结果",
+            "options": [
+              {
+                "optionId": "ETF02_B_INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT",
+                "text": "初始对价与台账对价差额为 0.00 元，现金替代预付款待结算余额为 504.00 元"
+              },
+              {
+                "optionId": "ETF02_B_NOT_RECONCILED",
+                "text": "计算对价与台账对价尚未闭合"
+              }
+            ]
+          }
+        },
+        {
+          "workItemId": "etf02-b-conclusion",
+          "type": "SHORT_TEXT",
+          "title": "写出 PCF 综合结论",
+          "instruction": "用一句短结论同时写出股票篮市值、现金替代、创设单位净值、单位现金差额、溢价预付款、初始申购对价、现金替代预付款待结算余额、勾稽差额和本路线状态边界。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "请输入 PCF、估值与对价结论"
+          }
+        }
+      ],
+      "submissionNote": "所有金额、数量和价格均按本案例版本快照保留指定精度；提交应同时留下 PCF 行、市场价格、估值资料、结果资料和台账的勾稽证据。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "ETF02-REF-PCF",
+      "title": "PCF、现金替代与估值因果链材料",
+      "source": "ETF-MAT-INDEX-OPS S07-S15、S29-S36；ETF-MAT-SETTLEMENT S08-S13、S19",
+      "usage": "定位 PCF 行、替代标志、股票篮、现金替代、创设单位净值和单位现金差额。"
+    },
+    {
+      "referenceId": "ETF02-REF-RESULT",
+      "title": "凭证、台账与对价材料",
+      "source": "ETF-MAT-FAQ P003-P019、P022-P030",
+      "usage": "把逐行计算、申赎凭证、估值结果和台账对价做跨来源勾稽。"
+    },
+    {
+      "referenceId": "ETF02-REF-CASE",
+      "title": "案例版本快照说明",
+      "source": "ETF02-FIXTURE-DEMO-A、ETF02-FIXTURE-COMP-B",
+      "usage": "本路线的 PCF、价格、溢价、净值、精度和容差只适用于对应教学案例快照。"
+    }
+  ]
+}

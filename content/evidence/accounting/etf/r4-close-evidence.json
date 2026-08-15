@@ -1,0 +1,104 @@
+{
+  "evidenceId": "ETF-EVID-R4-CLOSE-001",
+  "version": "2026.08.14-etf-b2",
+  "scope": "ACC-ETF-CLOSE-004",
+  "routeId": "ACC-ETF-CLOSE-004",
+  "routeCode": "ETF-04",
+  "title": "现金替代补券结算与正常封账证据",
+  "scopeNotice": "所有预付款、价格、费用、估计、方向、金额、精度和容差均为 ONLY_THIS_CASE 的脱敏正常案例快照；不冻结生产费率、科目、顺序或权限。",
+  "sharedEvidence": ["material-audit.json", "field-dictionary.json", "source-state-matrix.json", "deidentification-boundary.json", "shared-normal-snapshot.json"],
+  "materialAnchors": [
+    {"sourceMaterialCode": "ETF-MAT-INDEX-OPS", "locators": ["S17-S27", "S29-S38"], "teachingUse": "抽象补券台账、凭证、估值和结算的连续关系。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "ETF-MAT-SETTLEMENT", "locators": ["S08-S13", "S19"], "teachingUse": "区分现金替代、现金差额和退补款清算对象。", "provenance": "MATERIAL_ABSTRACTION"},
+    {"sourceMaterialCode": "ETF-MAT-FAQ", "locators": ["P022-P051"], "teachingUse": "支持销售凭证、补券、可退/应退替代款和台账关系；本路线只用完整正常案例。", "provenance": "MATERIAL_ABSTRACTION"}
+  ],
+  "mappingClaims": [
+    {"claimId": "ETF04-CLAIM-01", "claim": "R2 的 unsettledSubstitutionPrepayment 是中性待结算预付款；估计视图标记 NON_FINAL_ESTIMATE_ONLY，不能提前决定方向。", "sourceGroups": ["ETF-SRC-R4-UPSTREAM", "ETF-SRC-R4-ESTIMATE"], "activity": "FIELD_MAP", "provenance": "CASE_POLICY"},
+    {"claimId": "ETF04-CLAIM-02", "claim": "实际补券成交金额与费用形成实际总成本后，才以预付款减实际总成本判断 RETURN_TO_AP、NO_ADDITIONAL_CASH 或 ADDITIONAL_PAYMENT_FROM_AP。", "sourceGroups": ["ETF-SRC-R4-BUYIN", "ETF-SRC-R4-FEE", "ETF-SRC-R4-EVENT"], "activity": "CALCULATION", "provenance": "CASE_POLICY"},
+    {"claimId": "ETF04-CLAIM-03", "claim": "事件与台账 remaining 均为0，且事件、台账、估值、TA和清算全部零差后，形成 SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE。", "sourceGroups": ["ETF-SRC-R4-EVENT", "ETF-SRC-R4-LEDGER", "ETF-SRC-R4-MULTISOURCE"], "activity": "RECONCILIATION", "provenance": "CASE_POLICY"}
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "ETF04-FIXTURE-DEMO-A",
+      "sourceToField": [
+        {"sourceGroupId": "ETF-SRC-R4-UPSTREAM", "fields": ["unsettled_substitution_prepayment=25704.00", "upstream_state=INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]},
+        {"sourceGroupId": "ETF-SRC-R4-PCF", "fields": ["substitution_line_quantity=1200", "security_code=600701", "security_market=SSE"]},
+        {"sourceGroupId": "ETF-SRC-R4-ESTIMATE", "fields": ["estimated_settlement_view_amount=864.00", "estimate_state=NON_FINAL_ESTIMATE_ONLY"]},
+        {"sourceGroupId": "ETF-SRC-R4-BUYIN", "fields": ["actual_buyin_quantity=1200", "actual_buyin_price=20.48", "actual_buyin_gross=24576.00"]},
+        {"sourceGroupId": "ETF-SRC-R4-FEE", "fields": ["substitution_fee=120.00", "actual_substitution_cost=24696.00"]},
+        {"sourceGroupId": "ETF-SRC-R4-EVENT", "fields": ["final_settlement_direction=RETURN_TO_AP", "event_settlement_amount=1008.00", "event_remaining=0.00"]},
+        {"sourceGroupId": "ETF-SRC-R4-LEDGER", "fields": ["estimate_adjustment_amount=144.00", "ledger_settlement_amount=1008.00", "ledger_remaining=0.00"]},
+        {"sourceGroupId": "ETF-SRC-R4-MULTISOURCE", "fields": ["valuation_settlement_amount=1008.00", "ta_settlement_amount=1008.00", "clearing_settlement_amount=1008.00", "final_state=SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"]}
+      ],
+      "decimalSteps": [
+        {"fieldId": "actual_buyin_gross", "formula": "Decimal('1200') * Decimal('20.48')", "result": "24576.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "actual_substitution_cost", "formula": "Decimal('24576.00') + Decimal('120.00')", "result": "24696.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "signed_final_settlement_amount", "formula": "Decimal('25704.00') - Decimal('24696.00')", "result": "1008.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "final_settlement_amount", "formula": "abs(Decimal('1008.00'))", "result": "1008.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "estimate_adjustment_amount", "formula": "Decimal('1008.00') - Decimal('864.00')", "result": "144.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "event_remaining", "formula": "Decimal('25704.00') - Decimal('24696.00') - Decimal('1008.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "event_ledger_difference", "formula": "Decimal('1008.00') - Decimal('1008.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "valuation_event_difference", "formula": "Decimal('1008.00') - Decimal('1008.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "ta_event_difference", "formula": "Decimal('1008.00') - Decimal('1008.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "clearing_event_difference", "formula": "Decimal('1008.00') - Decimal('1008.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}
+      ],
+      "reconciliation": {"finalDirection": "RETURN_TO_AP", "finalSettlementAmount": "1008.00", "estimateAdjustmentAmount": "144.00", "eventRemaining": "0.00", "ledgerRemaining": "0.00", "eventLedgerDifference": "0.00", "valuationEventDifference": "0.00", "taEventDifference": "0.00", "clearingEventDifference": "0.00", "finalState": "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"}
+    },
+    "comprehensiveB": {
+      "fixtureId": "ETF04-FIXTURE-COMP-B",
+      "sourceToField": [
+        {"sourceMaterialId": "ETF04-B-UPSTREAM", "role": "UPSTREAM", "fields": ["unsettled_substitution_prepayment=44658.00", "upstream_state=INITIAL_CONSIDERATION_RECONCILED_PENDING_SUBSTITUTION_SETTLEMENT"]},
+        {"sourceMaterialId": "ETF04-B-PCF", "role": "PCF_SUBSTITUTION_LINE", "fields": ["substitution_line_quantity=1500", "security_code=600801", "security_market=SSE"]},
+        {"sourceMaterialId": "ETF04-B-ESTIMATE", "role": "NON_FINAL_ESTIMATE", "fields": ["estimated_settlement_view_amount=1593.00", "estimate_state=NON_FINAL_ESTIMATE_ONLY"]},
+        {"sourceMaterialId": "ETF04-B-BUYIN", "role": "ACTUAL_BUYIN", "fields": ["actual_buyin_quantity=1500", "actual_buyin_price=28.20", "actual_buyin_gross=42300.00"]},
+        {"sourceMaterialId": "ETF04-B-FEE", "role": "ACTUAL_FEE", "fields": ["substitution_fee=171.00", "actual_substitution_cost=42471.00"]},
+        {"sourceMaterialId": "ETF04-B-EVENT", "role": "EVENT_WORKPAPER", "fields": ["final_settlement_direction=RETURN_TO_AP", "event_settlement_amount=2187.00", "event_remaining=0.00"]},
+        {"sourceMaterialId": "ETF04-B-LEDGER", "role": "ETF_LEDGER", "fields": ["estimate_adjustment_amount=594.00", "ledger_settlement_amount=2187.00", "ledger_remaining=0.00"]},
+        {"sourceMaterialId": "ETF04-B-MULTISOURCE", "role": "VALUATION_TA_CLEARING", "fields": ["valuation_settlement_amount=2187.00", "ta_settlement_amount=2187.00", "clearing_settlement_amount=2187.00", "final_state=SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"]}
+      ],
+      "decimalSteps": [
+        {"fieldId": "actual_buyin_gross", "formula": "Decimal('1500') * Decimal('28.20')", "result": "42300.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "actual_substitution_cost", "formula": "Decimal('42300.00') + Decimal('171.00')", "result": "42471.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "signed_final_settlement_amount", "formula": "Decimal('44658.00') - Decimal('42471.00')", "result": "2187.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "final_settlement_amount", "formula": "abs(Decimal('2187.00'))", "result": "2187.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "estimate_adjustment_amount", "formula": "Decimal('2187.00') - Decimal('1593.00')", "result": "594.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "event_remaining", "formula": "Decimal('44658.00') - Decimal('42471.00') - Decimal('2187.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "event_ledger_difference", "formula": "Decimal('2187.00') - Decimal('2187.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "valuation_event_difference", "formula": "Decimal('2187.00') - Decimal('2187.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "ta_event_difference", "formula": "Decimal('2187.00') - Decimal('2187.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "clearing_event_difference", "formula": "Decimal('2187.00') - Decimal('2187.00')", "result": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01"}
+      ],
+      "reconciliation": {"unsettledSubstitutionPrepayment": "44658.00", "estimatedSettlementViewAmount": "1593.00", "actualBuyinGross": "42300.00", "substitutionFee": "171.00", "actualSubstitutionCost": "42471.00", "signedFinalSettlementAmount": "2187.00", "finalDirection": "RETURN_TO_AP", "finalSettlementAmount": "2187.00", "estimateAdjustmentAmount": "594.00", "eventRemaining": "0.00", "ledgerRemaining": "0.00", "eventLedgerDifference": "0.00", "valuationEventDifference": "0.00", "taEventDifference": "0.00", "clearingEventDifference": "0.00", "finalState": "SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE"},
+      "expectedConclusion": "预付款44658.00元与估计视图1593.00元分列；实际补券42300.00元及费用171.00元形成总成本42471.00元后，方向RETURN_TO_AP、最终结算2187.00元、估计调整594.00元，事件与台账remaining均为0.00元，事件/台账/估值/TA/清算零差并进入SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE。"
+    }
+  },
+  "atomicWorkItems": [
+    {"workItemId": "etf04-b-upstream-source", "responseKind": "SELECT", "observableAction": "定位R2中性预付款和上游状态", "fixtureValue": "ETF04_B_FROM_UPSTREAM", "sourceMaterialIds": ["ETF04-B-UPSTREAM"], "scoreTargets": ["C-ETF04-SOURCE-SEQUENCE", "R-ETF04-NO-PREMATURE-DIRECTION"], "remediationTargetId": "ETF04-TARGET-UPSTREAM"},
+    {"workItemId": "etf04-b-pcf-source", "responseKind": "SELECT", "observableAction": "定位PCF替代行和整数补券数量", "fixtureValue": "ETF04_B_FROM_PCF", "sourceMaterialIds": ["ETF04-B-PCF"], "scoreTargets": ["C-ETF04-SOURCE-SEQUENCE"], "remediationTargetId": "ETF04-TARGET-PCF"},
+    {"workItemId": "etf04-b-estimate-source", "responseKind": "SELECT", "observableAction": "定位NON_FINAL_ESTIMATE_ONLY视图", "fixtureValue": "ETF04_B_FROM_ESTIMATE", "sourceMaterialIds": ["ETF04-B-ESTIMATE"], "scoreTargets": ["C-ETF04-SOURCE-SEQUENCE", "C-ETF04-VIEW-DISTINCTION"], "remediationTargetId": "ETF04-TARGET-ESTIMATE"},
+    {"workItemId": "etf04-b-buyin-source", "responseKind": "SELECT", "observableAction": "定位实际补券成交资料", "fixtureValue": "ETF04_B_FROM_BUYIN", "sourceMaterialIds": ["ETF04-B-BUYIN"], "scoreTargets": ["C-ETF04-SOURCE-SEQUENCE", "R-ETF04-NO-PREMATURE-DIRECTION"], "remediationTargetId": "ETF04-TARGET-BUYIN-SOURCE"},
+    {"workItemId": "etf04-b-fee-source", "responseKind": "SELECT", "observableAction": "定位费用和实际总成本来源", "fixtureValue": "ETF04_B_FROM_FEE", "sourceMaterialIds": ["ETF04-B-FEE"], "scoreTargets": ["C-ETF04-SOURCE-SEQUENCE", "R-ETF04-NO-PREMATURE-DIRECTION"], "remediationTargetId": "ETF04-TARGET-FEE-SOURCE"},
+    {"workItemId": "etf04-b-result-source", "responseKind": "SELECT", "observableAction": "定位事件、台账、估值、TA和清算来源", "fixtureValue": "ETF04_B_FROM_EVENT_LEDGER_MULTI", "sourceMaterialIds": ["ETF04-B-EVENT", "ETF04-B-LEDGER", "ETF04-B-MULTISOURCE"], "scoreTargets": ["C-ETF04-SOURCE-SEQUENCE", "R-ETF04-MULTISOURCE-ZERO", "M-ETF04-MULTISOURCE-ZERO"], "remediationTargetId": "ETF04-TARGET-RESULT-SOURCE"},
+    {"workItemId": "etf04-b-buyin-gross", "responseKind": "NUMBER", "observableAction": "用实际数量乘价格复算补券成交金额", "fixtureValue": "42300.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-PCF", "ETF04-B-BUYIN"], "scoreTargets": ["P-ETF04-ACTUAL-COST"], "remediationTargetId": "ETF04-TARGET-BUYIN-GROSS"},
+    {"workItemId": "etf04-b-actual-cost", "responseKind": "NUMBER", "observableAction": "把成交金额和费用合成实际总成本", "fixtureValue": "42471.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-BUYIN", "ETF04-B-FEE"], "scoreTargets": ["C-ETF04-VIEW-DISTINCTION", "P-ETF04-ACTUAL-COST", "M-ETF04-REMAINING-ZERO"], "remediationTargetId": "ETF04-TARGET-ACTUAL-COST"},
+    {"workItemId": "etf04-b-signed-settlement", "responseKind": "NUMBER", "observableAction": "计算预付款减实际总成本的有符号金额", "fixtureValue": "2187.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-UPSTREAM", "ETF04-B-FEE"], "scoreTargets": ["P-ETF04-FINAL-SETTLEMENT"], "remediationTargetId": "ETF04-TARGET-SIGNED-SETTLEMENT"},
+    {"workItemId": "etf04-b-final-settlement-amount", "responseKind": "NUMBER", "observableAction": "取有符号金额绝对值得到最终金额", "fixtureValue": "2187.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-UPSTREAM", "ETF04-B-FEE", "ETF04-B-EVENT"], "scoreTargets": ["C-ETF04-VIEW-DISTINCTION", "P-ETF04-FINAL-SETTLEMENT", "M-ETF04-REMAINING-ZERO"], "remediationTargetId": "ETF04-TARGET-FINAL-AMOUNT"},
+    {"workItemId": "etf04-b-estimate-adjustment", "responseKind": "NUMBER", "observableAction": "计算最终金额与估计视图的调整", "fixtureValue": "594.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-ESTIMATE", "ETF04-B-EVENT", "ETF04-B-LEDGER"], "scoreTargets": ["P-ETF04-ESTIMATE-ADJUSTMENT"], "remediationTargetId": "ETF04-TARGET-ESTIMATE-ADJUSTMENT"},
+    {"workItemId": "etf04-b-event-remaining", "responseKind": "NUMBER", "observableAction": "复算事件remaining", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-UPSTREAM", "ETF04-B-FEE", "ETF04-B-EVENT"], "scoreTargets": ["P-ETF04-REMAINING", "M-ETF04-REMAINING-ZERO"], "remediationTargetId": "ETF04-TARGET-EVENT-REMAINING"},
+    {"workItemId": "etf04-b-ledger-remaining", "responseKind": "NUMBER", "observableAction": "独立复算台账remaining", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-UPSTREAM", "ETF04-B-LEDGER"], "scoreTargets": ["P-ETF04-REMAINING", "M-ETF04-REMAINING-ZERO"], "remediationTargetId": "ETF04-TARGET-LEDGER-REMAINING"},
+    {"workItemId": "etf04-b-event-settlement-entry", "responseKind": "NUMBER", "observableAction": "登记业务事件最终结算金额", "fixtureValue": "2187.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-EVENT"], "scoreTargets": ["E-ETF04-WORKPAPER", "M-ETF04-REMAINING-ZERO"], "remediationTargetId": "ETF04-TARGET-EVENT-ENTRY"},
+    {"workItemId": "etf04-b-ledger-settlement-entry", "responseKind": "NUMBER", "observableAction": "登记ETF台账最终结算金额", "fixtureValue": "2187.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-LEDGER"], "scoreTargets": ["E-ETF04-WORKPAPER"], "remediationTargetId": "ETF04-TARGET-LEDGER-ENTRY"},
+    {"workItemId": "etf04-b-ledger-adjustment-entry", "responseKind": "NUMBER", "observableAction": "登记台账估计调整", "fixtureValue": "594.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-ESTIMATE", "ETF04-B-LEDGER"], "scoreTargets": ["P-ETF04-ESTIMATE-ADJUSTMENT", "E-ETF04-WORKPAPER"], "remediationTargetId": "ETF04-TARGET-ADJUSTMENT-ENTRY"},
+    {"workItemId": "etf04-b-final-direction", "responseKind": "SELECT", "observableAction": "实际成本和费用形成后判断最终方向", "fixtureValue": "ETF04_B_RETURN_TO_AP", "sourceMaterialIds": ["ETF04-B-UPSTREAM", "ETF04-B-BUYIN", "ETF04-B-FEE", "ETF04-B-EVENT"], "scoreTargets": ["C-ETF04-VIEW-DISTINCTION", "P-ETF04-FINAL-SETTLEMENT", "R-ETF04-NO-PREMATURE-DIRECTION", "M-ETF04-REMAINING-ZERO"], "remediationTargetId": "ETF04-TARGET-FINAL-DIRECTION"},
+    {"workItemId": "etf04-b-event-ledger-diff", "responseKind": "NUMBER", "observableAction": "核对事件与台账零差", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-EVENT", "ETF04-B-LEDGER"], "scoreTargets": ["R-ETF04-MULTISOURCE-ZERO", "M-ETF04-MULTISOURCE-ZERO"], "remediationTargetId": "ETF04-TARGET-EVENT-LEDGER-DIFF"},
+    {"workItemId": "etf04-b-valuation-event-diff", "responseKind": "NUMBER", "observableAction": "核对估值与事件零差", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-EVENT", "ETF04-B-MULTISOURCE"], "scoreTargets": ["R-ETF04-MULTISOURCE-ZERO", "M-ETF04-MULTISOURCE-ZERO"], "remediationTargetId": "ETF04-TARGET-VALUATION-DIFF"},
+    {"workItemId": "etf04-b-ta-event-diff", "responseKind": "NUMBER", "observableAction": "核对TA与事件零差", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-EVENT", "ETF04-B-MULTISOURCE"], "scoreTargets": ["R-ETF04-MULTISOURCE-ZERO", "M-ETF04-MULTISOURCE-ZERO"], "remediationTargetId": "ETF04-TARGET-TA-DIFF"},
+    {"workItemId": "etf04-b-clearing-event-diff", "responseKind": "NUMBER", "observableAction": "核对清算与事件零差", "fixtureValue": "0.00", "unit": "元", "precision": 2, "tolerance": "0.01", "sourceMaterialIds": ["ETF04-B-EVENT", "ETF04-B-MULTISOURCE"], "scoreTargets": ["R-ETF04-MULTISOURCE-ZERO", "M-ETF04-MULTISOURCE-ZERO"], "remediationTargetId": "ETF04-TARGET-CLEARING-DIFF"},
+    {"workItemId": "etf04-b-normal-close-state", "responseKind": "SELECT", "observableAction": "确认remaining=0和五来源零差后的正常封账状态", "fixtureValue": "ETF04_B_NORMAL_CLOSE", "sourceMaterialIds": ["ETF04-B-EVENT", "ETF04-B-LEDGER", "ETF04-B-MULTISOURCE"], "scoreTargets": ["R-ETF04-MULTISOURCE-ZERO", "M-ETF04-MULTISOURCE-ZERO"], "remediationTargetId": "ETF04-TARGET-NORMAL-CLOSE"},
+    {"workItemId": "etf04-b-conclusion", "responseKind": "TEXT", "observableAction": "写出预付款、估计、实际成本、方向、remaining和五来源封账结论", "fixtureValue": "44658.00、1593.00、42300.00、171.00、42471.00、RETURN_TO_AP、2187.00、594.00、remaining 0.00、五来源零差、SUBSTITUTION_SETTLEMENT_RECONCILED_NORMAL_CLOSE", "sourceMaterialIds": ["ETF04-B-UPSTREAM", "ETF04-B-PCF", "ETF04-B-ESTIMATE", "ETF04-B-BUYIN", "ETF04-B-FEE", "ETF04-B-EVENT", "ETF04-B-LEDGER", "ETF04-B-MULTISOURCE"], "scoreTargets": ["E-ETF04-CONCLUSION"], "remediationTargetId": "ETF04-TARGET-CONCLUSION"}
+  ],
+  "coverage": {"FIELD_MAP": ["etf04-b-upstream-source", "etf04-b-pcf-source", "etf04-b-estimate-source", "etf04-b-buyin-source", "etf04-b-fee-source", "etf04-b-result-source", "ACC-ETF-CLOSE-Q-01"], "CALCULATION": ["etf04-b-buyin-gross", "etf04-b-actual-cost", "etf04-b-signed-settlement", "etf04-b-final-settlement-amount", "etf04-b-estimate-adjustment", "etf04-b-event-remaining", "etf04-b-ledger-remaining", "ACC-ETF-CLOSE-Q-02"], "LEDGER_ENTRY": ["etf04-b-event-settlement-entry", "etf04-b-ledger-settlement-entry", "etf04-b-ledger-adjustment-entry", "ACC-ETF-CLOSE-Q-03"], "RECONCILIATION": ["etf04-b-final-direction", "etf04-b-event-ledger-diff", "etf04-b-valuation-event-diff", "etf04-b-ta-event-diff", "etf04-b-clearing-event-diff", "etf04-b-normal-close-state", "ACC-ETF-CLOSE-Q-04"], "SHORT_TEXT": ["etf04-b-conclusion", "ACC-ETF-CLOSE-Q-05"]},
+  "dependencyPolicy": {"hardPrerequisiteNodeIds": ["ACC-NODE-DAILY-003"], "dependsOnRouteIds": ["ACC-ETF-SETTLEMENT-003"], "plannedMapPrerequisites": [], "serialOrder": 4, "stageGate": false, "releaseRegistration": "PUBLISHED_IN_ACCOUNTING_2026.08.10", "status": "PUBLISHED"},
+  "fixturePolicy": {"normalOnly": true, "independentDemoAndComprehensive": true, "binaryFloatForbidden": true, "integerQuantityPrecision": 0, "amountPrecision": 2, "amountTolerance": "0.01", "caseSnapshotOnly": true},
+  "exclusionBoundary": {"status": "BUILDING_DEFER", "topics": ["跨市场补券", "差异化分红", "正式科目借贷", "权限矩阵", "迟到重复错配", "重跑回滚", "强制关闭"], "reason": "本路线只闭合国内普通ETF单一正常现金替代补券结算；其他主题缺少本批独立正常双样本或当前权限/SOP。"}
+}
