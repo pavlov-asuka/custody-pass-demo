@@ -1,0 +1,559 @@
+{
+  "evidenceId": "CLR-IB-DVP-CLOSE-EVID-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "routeId": "CLR-IB-DVP-CLOSE-002",
+  "routeCode": "IB-DVP-CLOSE",
+  "title": "银行间 DVP 证券/资金交收与日终关闭证据",
+  "scopeNotice": "本文件只为 CLR-IB-DVP-CLOSE-002 提供私有答案链、材料定位和评分映射；结算合同键、业务日期、结算日、债券、面额、金额、账户标签、通道和 DVP/日终结果均为版本化教育案例参数，不登记地图或发布清单。",
+  "displayMappingDependencies": {
+    "CNY_10K": "万元",
+    "CNY": "元",
+    "NON_DIRECT": "非直联",
+    "CCDC": "中央国债登记结算有限责任公司",
+    "SHCH": "银行间市场清算所股份有限公司",
+    "accountRoles": "账户角色只映射为业务中文，不能把账户角色或DELIVER_SECURITIES落成业务资料标识；机构代码和内部系统/通道枚举也不得直接展示"
+  },
+  "dependencyPolicy": {
+    "dependsOnRouteIds": [
+      "CLR-IB-INSTRUCTION-001"
+    ],
+    "stageGate": false,
+    "worldBoundary": "只服务 CLEARING 银行间 DVP 次路线；不读取核算、监督、共同基础或其他清算分支的路线状态"
+  },
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "CLR-MAT-IB-CCDC",
+      "physicalFile": "project_materials/新人陪练案例库/清算/银行间/关于发布《中央国债登记结算有限责任公司债券交易结算规则》的通知.docx",
+      "locators": [
+        "P7",
+        "P9",
+        "P10",
+        "P11",
+        "P14"
+      ],
+      "teachingUse": "抽象 DVP 同步办理债券与款项、结算合同承接匹配指令、债券面额/结算金额字段、正常合同完成后的交割结果和账务/对账查询关系；该历史规则文本不用于固定时点、费用、菜单、账户格式或当前状态字典。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-IB-SHCH",
+      "physicalFile": "project_materials/新人陪练案例库/清算/银行间/关于发布《银行间市场清算所股份有限公司债券登记托管、清算结算业务规则》的公告.docx",
+      "locators": [
+        "P109",
+        "P113",
+        "P114",
+        "P115",
+        "P116",
+        "P117",
+        "P125",
+        "P126"
+      ],
+      "teachingUse": "交叉支持债券清算与资金清算的两腿关系、债券账户与资金结算账户对象边界、有效指令下的正常逐笔 DVP 处理；不带入失败条件、截止时点、费用或回购流程。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-IB-EXAMPLE",
+      "physicalFile": "project_materials/新人陪练案例库/清算/银行间/银行间例题.docx",
+      "locators": [
+        "P26-P30",
+        "P50-P54",
+        "T1.R1",
+        "T1.R2"
+      ],
+      "teachingUse": "仅作为 DVP、结算结果和题库口径的审计参照；题库中的菜单、费用、自动回款、固定时点和历史答案不作为本路线制度规则。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-IB-INTRO-2026",
+      "physicalFile": "project_materials/新人陪练案例库/清算/银行间/银行间债券结算业务简介2026（1).ppt",
+      "locators": [
+        "S5",
+        "S16",
+        "S21",
+        "S22",
+        "S24",
+        "S26"
+      ],
+      "teachingUse": "只使用可读的机构、账户、系统和 DVP 交收关系示意；S21/S22 的 OLE 对象无法按正文可靠读取，且材料间时点存在冲突，因此不固化自动回款、截止时刻或正式状态机。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-IB-INSTRUCTION-001",
+      "physicalFile": "Repository/content/routes/clearing/CLR-IB-INSTRUCTION-001.json；Repository/content/evidence/clearing/ib-instruction/CLR-IB-INSTRUCTION-001-evidence.json",
+      "locators": [
+        "route.steps.COMPREHENSIVE_PRACTICE",
+        "answerChains.comprehensiveB",
+        "atomicWorkItems"
+      ],
+      "teachingUse": "唯一前置；承接 CONFIRMED_FOR_SETTLEMENT 的同一业务键、结算日、债券面额、结算金额、DVP 方式和通道，不重复做前置指令匹配。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-BASE-001",
+      "physicalFile": "Repository/content/routes/clearing/CLR-BASE-001.json；Repository/content/evidence/clearing/base/CLR-BASE-001-evidence.json",
+      "locators": [
+        "route.steps",
+        "answerChains",
+        "atomicWorkItems"
+      ],
+      "teachingUse": "仅作为共同业务键、来源承接、Decimal、结果登记和零差工作纸的结构背景；本路线的解锁依赖不直接写入 BASE。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "exclusionBoundary": {
+    "allowed": [
+      "承接 CLR-IB-INSTRUCTION-001 正常结算确认的结算合同、债券账户、DVP 资金账户、外部交割结果和内部结算台账",
+      "买方视角下收到债券、支付结算金额的正常 DVP 两腿同步交收、账户余额复算、外部结果与内部台账零差对账及本案例日终关闭",
+      "结算金额直接承接前置输入；债券面额和资金金额按本案例精度使用 Decimal 字符串复算"
+    ],
+    "excluded": [
+      "回购（BUILDING）、分销、非 DVP、失败、重付、部分交收、缺钱、缺券、未完成结果和应急处理（DEFER）",
+      "系统故障、接口中断、文件损坏、重复或迟到资料以及任何异常案例",
+      "2005/2014 历史规则的固定时点、截止时刻、自动回款、费用、账户格式或正式状态机",
+      "净价、全价、应计利息、费用、资金头寸、会计分录、估值和结算金额的重新定价计算",
+      "真实机构客户、真实账号、凭据、Cookie、密钥、内网地址和生产业务数据"
+    ],
+    "boundaryPolicy": "排除项只用于说明路线边界，不形成 Demo A、Comprehensive B 或基础练习题面；DVP_SETTLED 与 EOD_CLOSED 只作为本案例结果值，不代表永久制度状态。"
+  },
+  "fixturePolicy": {
+    "provenance": "SYNTHETIC_EDUCATIONAL",
+    "version": "CLR-IB-DVP-CLOSE-EDU-1.0",
+    "scope": "ONLY_THIS_CASE",
+    "basis": "DVP 同步办理证券与资金、债券账户/资金结算账户对象、结算合同、交割结果和台账对账关系来自四份银行间材料的业务关系抽象；业务键、日期、债券代码、账户标签、余额、面额、金额、通道和结果为教育案例参数。",
+    "parameterPolicy": "所有业务键、日期、债券代码、账户标签、面额、金额、精度、容差、通道和结果值均标记为 CASE_POLICY/ONLY_THIS_CASE，不表示永久制度或当前状态字典。",
+    "precisionPolicy": {
+      "faceValue": {
+        "scale": 4,
+        "unit": "CNY_10K",
+        "tolerance": "0.0001",
+        "decimalStringRequired": true
+      },
+      "amount": {
+        "scale": 2,
+        "unit": "CNY",
+        "tolerance": "0.01",
+        "decimalStringRequired": true
+      },
+      "binaryFloatForbidden": true,
+      "calculationPolicy": "仅复算期初/变动/期末余额以及合同、外部结果与内部台账的一致性差额；结算金额直接承接合同，不计算净价、全价、应计利息或费用。"
+    },
+    "publicPrivateSplit": "公开 route 提供正常资料包与结构化工作纸；答案、规则、材料定位和补学映射只留在本 evidence 与 Rubric。"
+  },
+  "caseParameters": [
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "contract_id", "value": "SETTLE-CONTRACT-A-317", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "prior_confirmation_key", "value": "IB-A-20260818-731", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "prior_confirmation_bond_code", "value": "CGB-EDU-2026-A", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "prior_confirmation_face_value", "value": "120.0000 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "prior_confirmation_settlement_amount", "value": "1024560.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "business_key", "value": "IB-A-20260818-731", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "business_date", "value": "2026-08-18", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "settlement_date", "value": "2026-08-19", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "bond_code", "value": "CGB-EDU-2026-A", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "direction", "value": "DELIVER_SECURITIES", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "face_value", "value": "120.0000 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "settlement_amount", "value": "1024560.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "bond_rollforward", "value": "200.0000 + 120.0000 = 320.0000 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "cash_rollforward", "value": "3000000.00 - 1024560.00 = 1975440.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "account_labels", "value": "BUYER_BOND_ACCOUNT_A / BUYER_DVP_FUNDS_ACCOUNT_A", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "opening_face", "value": "200.0000 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "received_face", "value": "120.0000 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "closing_face", "value": "320.0000 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "opening_cash", "value": "3000000.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "closing_cash", "value": "1975440.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "method_channel", "value": "DVP / NON_DIRECT", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "result_status", "value": "DVP_SETTLED / EOD_CLOSED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-DEMO-A", "parameter": "difference_status", "value": "0.0000 CNY_10K / 0.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "contract_id", "value": "SETTLE-CONTRACT-B-682", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "prior_confirmation_key", "value": "IB-B-20260821-428", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "prior_confirmation_bond_code", "value": "CGB-EDU-2026-B", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "prior_confirmation_face_value", "value": "185.7500 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "prior_confirmation_settlement_amount", "value": "2487650.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "business_key", "value": "IB-B-20260821-428", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "business_date", "value": "2026-08-21", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "settlement_date", "value": "2026-08-24", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "bond_code", "value": "CGB-EDU-2026-B", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "direction", "value": "DELIVER_SECURITIES", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "face_value", "value": "185.7500 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "settlement_amount", "value": "2487650.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "bond_rollforward", "value": "400.0000 + 185.7500 = 585.7500 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "cash_rollforward", "value": "6000000.00 - 2487650.00 = 3512350.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "account_labels", "value": "BUYER_BOND_ACCOUNT_B / BUYER_DVP_FUNDS_ACCOUNT_B", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "opening_face", "value": "400.0000 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "received_face", "value": "185.7500 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "closing_face", "value": "585.7500 CNY_10K", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "opening_cash", "value": "6000000.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "closing_cash", "value": "3512350.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "method_channel", "value": "DVP / NON_DIRECT", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "result_status", "value": "DVP_SETTLED / EOD_CLOSED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-IB-DVP-COMP-B", "parameter": "difference_status", "value": "0.0000 CNY_10K / 0.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"}
+  ],
+  "ruleCatalog": [
+    {
+      "ruleId": "CLR-IB-DVP-RULE-CONTRACT-INHERIT",
+      "type": "SOURCE_INHERITANCE",
+      "fields": ["contract_id", "prior_confirmation_key", "prior_confirmation_bond_code", "prior_confirmation_face_value", "prior_confirmation_settlement_amount", "business_key", "business_date", "settlement_date", "bond_code", "direction", "face_value", "settlement_amount", "settlement_institution", "settlement_processing_system", "settlement_method", "channel"],
+      "condition": "独立结算合同键保留为合同身份，合同显式承接前置确认业务键、债券代码、面额、结算金额、方向、机构、系统、DVP和通道；结算金额直接取合同输入，不进行净价、全价、应计利息或费用计算",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-IB-DVP-RULE-ACCOUNT-ROLES",
+      "type": "OBJECT_BOUNDARY",
+      "fields": ["bond_account_role", "funds_account_role", "settlement_method", "channel"],
+      "condition": "债券账户承载收到面额，DVP 资金账户承载结算付款；DVP 是结算方式，NON_DIRECT 是通道，两者分开登记",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-IB-DVP-RULE-BOND-BALANCE",
+      "type": "DECIMAL_BALANCE",
+      "formula": "opening_face + received_face = closing_face",
+      "expected": "400.0000 + 185.7500 = 585.7500",
+      "precision": 4,
+      "tolerance": "0.0001",
+      "unit": "CNY_10K",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-IB-DVP-RULE-CASH-BALANCE",
+      "type": "DECIMAL_BALANCE",
+      "formula": "opening_cash - settlement_amount = closing_cash",
+      "expected": "6000000.00 - 2487650.00 = 3512350.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "unit": "CNY",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-IB-DVP-RULE-CROSS-SOURCE",
+      "type": "CROSS_SOURCE_RECONCILIATION",
+      "fields": ["contract_id", "bond_code", "received_face", "paid_amount", "bond_closing_face", "cash_closing_balance"],
+      "condition": "结算合同、外部交割结果、债券/资金账户和内部台账在本案例身份及证券/资金变动上一致",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-IB-DVP-RULE-ZERO-DIFFERENCE",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "external_face - ledger_face = 0.0000; external_amount - ledger_amount = 0.00; balance_differences = 0",
+      "expected": "0.0000 CNY_10K / 0.00 CNY",
+      "precision": "face=4; amount=2",
+      "tolerance": "face=0.0001; amount=0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-IB-DVP-RULE-EOD-CLOSE",
+      "type": "CASE_RESULT",
+      "fields": ["dvp_result_status", "eod_close_result"],
+      "condition": "仅在两腿完成、合同/账户/台账零差后记录 EOD_CLOSED；DVP_SETTLED 与 EOD_CLOSED 不是本路线之外的正式状态机",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-IB-DVP-RULE-CONCLUSION",
+      "type": "TRACEABLE_CONCLUSION",
+      "fields": ["contract_id", "business_key", "business_date", "settlement_date", "bond_code", "face_value", "settlement_amount", "bond_balance", "cash_balance", "differences", "settlement_method", "channel", "result_status"],
+      "condition": "短结论回指合同/业务身份、两条余额链、跨来源零差、DVP/通道和仅本案例结果，并说明结算金额直接承接合同",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "CLR-IB-DVP-DEMO-A",
+      "identity": {
+        "contractId": "SETTLE-CONTRACT-A-317",
+        "businessKey": "IB-A-20260818-731",
+        "businessDate": "2026-08-18",
+        "settlementDate": "2026-08-19",
+        "bondCode": "CGB-EDU-2026-A",
+        "direction": "DELIVER_SECURITIES",
+        "settlementInstitution": "CCDC",
+        "settlementProcessingSystem": "SETTLEMENT_PROCESSING_SYSTEM",
+        "faceValue": "120.0000",
+        "settlementAmount": "1024560.00",
+        "settlementMethod": "DVP",
+        "channel": "NON_DIRECT"
+      },
+      "sourceToRole": [
+        {"sourceMaterialId": "CLR-IB-DVP-A-SETTLEMENT-CONTRACT", "roleIds": ["SETTLEMENT_CONTRACT", "CONTRACT_INPUT"], "fields": ["contract_id", "prior_confirmation_key", "prior_confirmation_bond_code", "prior_confirmation_face_value", "prior_confirmation_settlement_amount", "business_key", "business_date", "settlement_date", "bond_code", "direction", "face_value", "settlement_amount", "settlement_institution", "settlement_processing_system", "settlement_method", "channel", "prior_confirmation_status"]},
+        {"sourceMaterialId": "CLR-IB-DVP-A-BOND-ACCOUNT", "roleIds": ["RECEIVING_SECURITIES_ACCOUNT"], "fields": ["contract_id", "business_key", "bond_code", "account_role", "account_label", "opening_face", "received_face", "closing_face", "statement_status"]},
+        {"sourceMaterialId": "CLR-IB-DVP-A-FUNDS-ACCOUNT", "roleIds": ["PAYER_FUNDS_ACCOUNT"], "fields": ["contract_id", "business_key", "account_role", "account_label", "opening_cash", "settlement_amount", "closing_cash", "statement_status"]},
+        {"sourceMaterialId": "CLR-IB-DVP-A-EXTERNAL-RESULT", "roleIds": ["EXTERNAL_DVP_RESULT"], "fields": ["contract_id", "business_key", "bond_code", "received_face", "paid_amount", "settlement_method", "channel", "dvp_result_status", "eod_close_result"]},
+        {"sourceMaterialId": "CLR-IB-DVP-A-INTERNAL-LEDGER", "roleIds": ["INTERNAL_LEDGER"], "fields": ["contract_id", "business_key", "bond_code", "bond_opening_face", "bond_received_face", "bond_closing_face", "cash_opening_balance", "cash_settlement_payment", "cash_closing_balance", "bond_difference", "cash_difference", "eod_close_result"]},
+        {"sourceMaterialId": "CLR-IB-DVP-A-RECONCILIATION", "roleIds": ["RECONCILIATION_REVIEWER"], "fields": ["contract_result_identity", "external_face_difference", "external_amount_difference", "bond_balance_difference", "cash_balance_difference", "dvp_result_status", "eod_close_result"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "bond_closing_face", "formula": "200.0000 + 120.0000", "result": "320.0000", "unit": "CNY_10K", "precision": 4, "tolerance": "0.0001", "inputOrigin": "债券账户资料"},
+        {"fieldId": "cash_closing_balance", "formula": "3000000.00 - 1024560.00", "result": "1975440.00", "unit": "CNY", "precision": 2, "tolerance": "0.01", "inputOrigin": "DVP 资金账户与结算合同"},
+        {"fieldId": "external_face_difference", "formula": "120.0000 - 120.0000", "result": "0.0000", "unit": "CNY_10K", "precision": 4, "tolerance": "0.0001", "inputOrigin": "外部结果与内部台账"},
+        {"fieldId": "external_amount_difference", "formula": "1024560.00 - 1024560.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01", "inputOrigin": "外部结果与内部台账"},
+        {"fieldId": "bond_balance_difference", "formula": "320.0000 - (200.0000 + 120.0000)", "result": "0.0000", "unit": "CNY_10K", "precision": 4, "tolerance": "0.0001", "inputOrigin": "内部台账余额复算"},
+        {"fieldId": "cash_balance_difference", "formula": "1975440.00 - (3000000.00 - 1024560.00)", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01", "inputOrigin": "内部台账余额复算"}
+      ],
+      "result": {
+        "contractId": "SETTLE-CONTRACT-A-317",
+        "businessKey": "IB-A-20260818-731",
+        "businessDate": "2026-08-18",
+        "settlementDate": "2026-08-19",
+        "bondCode": "CGB-EDU-2026-A",
+        "direction": "DELIVER_SECURITIES",
+        "settlementInstitution": "CCDC",
+        "settlementProcessingSystem": "SETTLEMENT_PROCESSING_SYSTEM",
+        "faceValue": "120.0000",
+        "settlementAmount": "1024560.00",
+        "settlementMethod": "DVP",
+        "channel": "NON_DIRECT",
+        "externalDvpResult": "DVP_SETTLED",
+        "internalLedgerResult": "DVP_SETTLED",
+        "bondDifference": "0.0000",
+        "cashDifference": "0.00",
+        "eodCloseResult": "EOD_CLOSED"
+      },
+      "reconciliation": {
+        "contractResultStatus": "MATCHED",
+        "ledgerStatus": "MATCHED",
+        "externalFaceDifference": "0.0000",
+        "externalAmountDifference": "0.00",
+        "bondBalanceDifference": "0.0000",
+        "cashBalanceDifference": "0.00",
+        "status": "RECONCILED_AND_CLOSED_FOR_CASE"
+      }
+    },
+    "comprehensiveB": {
+      "fixtureId": "CLR-IB-DVP-COMP-B",
+      "identity": {
+        "contractId": "SETTLE-CONTRACT-B-682",
+        "businessKey": "IB-B-20260821-428",
+        "businessDate": "2026-08-21",
+        "settlementDate": "2026-08-24",
+        "bondCode": "CGB-EDU-2026-B",
+        "direction": "DELIVER_SECURITIES",
+        "settlementInstitution": "CCDC",
+        "settlementProcessingSystem": "SETTLEMENT_PROCESSING_SYSTEM",
+        "faceValue": "185.7500",
+        "settlementAmount": "2487650.00",
+        "settlementMethod": "DVP",
+        "channel": "NON_DIRECT"
+      },
+      "sourceToRole": [
+        {"sourceMaterialId": "CLR-IB-DVP-B-SETTLEMENT-CONTRACT", "roleIds": ["SETTLEMENT_CONTRACT", "CONTRACT_INPUT"], "fields": ["contract_id", "prior_confirmation_key", "prior_confirmation_bond_code", "prior_confirmation_face_value", "prior_confirmation_settlement_amount", "business_key", "business_date", "settlement_date", "bond_code", "direction", "face_value", "settlement_amount", "settlement_institution", "settlement_processing_system", "settlement_method", "channel", "prior_confirmation_status"]},
+        {"sourceMaterialId": "CLR-IB-DVP-B-BOND-ACCOUNT", "roleIds": ["RECEIVING_SECURITIES_ACCOUNT"], "fields": ["contract_id", "business_key", "bond_code", "account_role", "account_label", "opening_face", "received_face", "closing_face", "statement_status"]},
+        {"sourceMaterialId": "CLR-IB-DVP-B-FUNDS-ACCOUNT", "roleIds": ["PAYER_FUNDS_ACCOUNT"], "fields": ["contract_id", "business_key", "account_role", "account_label", "opening_cash", "settlement_amount", "closing_cash", "statement_status"]},
+        {"sourceMaterialId": "CLR-IB-DVP-B-EXTERNAL-RESULT", "roleIds": ["EXTERNAL_DVP_RESULT"], "fields": ["contract_id", "business_key", "bond_code", "received_face", "paid_amount", "settlement_method", "channel", "dvp_result_status", "eod_close_result"]},
+        {"sourceMaterialId": "CLR-IB-DVP-B-INTERNAL-LEDGER", "roleIds": ["INTERNAL_LEDGER"], "fields": ["contract_id", "business_key", "bond_code", "bond_opening_face", "bond_received_face", "bond_closing_face", "cash_opening_balance", "cash_settlement_payment", "cash_closing_balance", "bond_difference", "cash_difference", "eod_close_result"]},
+        {"sourceMaterialId": "CLR-IB-DVP-B-RECONCILIATION", "roleIds": ["RECONCILIATION_REVIEWER"], "fields": ["contract_result_identity", "external_face_difference", "external_amount_difference", "bond_balance_difference", "cash_balance_difference", "dvp_result_status", "eod_close_result"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "bond_closing_face", "formula": "400.0000 + 185.7500", "result": "585.7500", "unit": "CNY_10K", "precision": 4, "tolerance": "0.0001", "inputOrigin": "债券账户资料与内部台账"},
+        {"fieldId": "cash_closing_balance", "formula": "6000000.00 - 2487650.00", "result": "3512350.00", "unit": "CNY", "precision": 2, "tolerance": "0.01", "inputOrigin": "DVP 资金账户、结算合同与内部台账"},
+        {"fieldId": "external_face_difference", "formula": "185.7500 - 185.7500", "result": "0.0000", "unit": "CNY_10K", "precision": 4, "tolerance": "0.0001", "inputOrigin": "外部 DVP 结果与内部台账"},
+        {"fieldId": "external_amount_difference", "formula": "2487650.00 - 2487650.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01", "inputOrigin": "外部 DVP 结果与内部台账"},
+        {"fieldId": "bond_balance_difference", "formula": "585.7500 - (400.0000 + 185.7500)", "result": "0.0000", "unit": "CNY_10K", "precision": 4, "tolerance": "0.0001", "inputOrigin": "内部台账余额复算"},
+        {"fieldId": "cash_balance_difference", "formula": "3512350.00 - (6000000.00 - 2487650.00)", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01", "inputOrigin": "内部台账余额复算"}
+      ],
+      "result": {
+        "contractId": "SETTLE-CONTRACT-B-682",
+        "businessKey": "IB-B-20260821-428",
+        "businessDate": "2026-08-21",
+        "settlementDate": "2026-08-24",
+        "bondCode": "CGB-EDU-2026-B",
+        "direction": "DELIVER_SECURITIES",
+        "settlementInstitution": "CCDC",
+        "settlementProcessingSystem": "SETTLEMENT_PROCESSING_SYSTEM",
+        "faceValue": "185.7500",
+        "settlementAmount": "2487650.00",
+        "settlementMethod": "DVP",
+        "channel": "NON_DIRECT",
+        "externalDvpResult": "DVP_SETTLED",
+        "internalLedgerResult": "DVP_SETTLED",
+        "bondDifference": "0.0000",
+        "cashDifference": "0.00",
+        "eodCloseResult": "EOD_CLOSED"
+      },
+      "reconciliation": {
+        "contractResultStatus": "MATCHED",
+        "ledgerStatus": "MATCHED",
+        "externalFaceDifference": "0.0000",
+        "externalAmountDifference": "0.00",
+        "bondBalanceDifference": "0.0000",
+        "cashBalanceDifference": "0.00",
+        "status": "RECONCILED_AND_CLOSED_FOR_CASE"
+      }
+    }
+  },
+  "atomicWorkItems": [
+    {
+      "workItemId": "clr-ib-dvp-b-field-contract",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-SETTLEMENT-CONTRACT"],
+        "fieldIds": ["contract_id", "prior_confirmation_key", "prior_confirmation_bond_code", "prior_confirmation_face_value", "prior_confirmation_settlement_amount", "business_key", "business_date", "settlement_date", "bond_code", "direction", "face_value", "settlement_amount", "settlement_institution", "settlement_processing_system", "settlement_method", "channel", "prior_confirmation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-INSTRUCTION", "CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-EXAMPLE", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "结算合同承接前置确认的身份、面额、结算金额、DVP 方式和通道"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-CONTRACT-INHERIT", "expected": "B_SETTLEMENT_CONTRACT_SOURCE", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-SOURCES", "criterionIds": ["C-CLR-IB-DVP-SOURCES", "P-CLR-IB-DVP-FIELD-MAP"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-IB-DVP-KC-01", "questionId": "CLR-IB-DVP-Q-01"}
+    },
+    {
+      "workItemId": "clr-ib-dvp-b-field-accounts-method",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-BOND-ACCOUNT", "CLR-IB-DVP-B-FUNDS-ACCOUNT", "CLR-IB-DVP-B-SETTLEMENT-CONTRACT"],
+        "fieldIds": ["account_role", "account_label", "settlement_institution", "settlement_processing_system", "settlement_method", "channel"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-SHCH", "CLR-IB-DVP-REF-INTRO", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "债券/资金账户角色与 DVP 方式、NON_DIRECT 通道分别登记"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-ACCOUNT-ROLES", "expected": "B_ACCOUNTS_AND_CONTRACT_SOURCE", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-SOURCES", "criterionIds": ["C-CLR-IB-DVP-SOURCES", "R-CLR-IB-DVP-METHOD-CHANNEL", "M-CLR-IB-DVP-TWO-LEGS-CLOSED"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-IB-DVP-KC-01", "questionId": "CLR-IB-DVP-Q-01"}
+    },
+    {
+      "workItemId": "clr-ib-dvp-b-bond-balance",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-BOND-ACCOUNT", "CLR-IB-DVP-B-INTERNAL-LEDGER"],
+        "fieldIds": ["opening_face", "received_face", "closing_face", "bond_opening_face", "bond_received_face", "bond_closing_face"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-SHCH", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "综合 B 债券账户和内部台账的期初、收到、期末面额链"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-BOND-BALANCE", "formula": "400.0000 + 185.7500 = 585.7500", "expected": "585.7500", "precision": 4, "tolerance": "0.0001", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-DECIMAL", "criterionIds": ["P-CLR-IB-DVP-DECIMAL", "M-CLR-IB-DVP-ZERO-DIFF-CLOSE"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "CLR-IB-DVP-Q-02"}
+    },
+    {
+      "workItemId": "clr-ib-dvp-b-cash-balance",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-FUNDS-ACCOUNT", "CLR-IB-DVP-B-SETTLEMENT-CONTRACT", "CLR-IB-DVP-B-INTERNAL-LEDGER"],
+        "fieldIds": ["opening_cash", "settlement_amount", "closing_cash", "cash_opening_balance", "cash_settlement_payment", "cash_closing_balance"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-SHCH", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "综合 B DVP 资金账户、合同输入和内部台账的付款/余额链"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-CASH-BALANCE", "formula": "6000000.00 - 2487650.00 = 3512350.00", "expected": "3512350.00", "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-DECIMAL", "criterionIds": ["P-CLR-IB-DVP-DECIMAL", "M-CLR-IB-DVP-ZERO-DIFF-CLOSE"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "CLR-IB-DVP-Q-02"}
+    },
+    {
+      "workItemId": "clr-ib-dvp-b-delivery-workpaper",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-SETTLEMENT-CONTRACT", "CLR-IB-DVP-B-BOND-ACCOUNT", "CLR-IB-DVP-B-FUNDS-ACCOUNT", "CLR-IB-DVP-B-EXTERNAL-RESULT", "CLR-IB-DVP-B-INTERNAL-LEDGER"],
+        "fieldIds": ["contract_id", "prior_confirmation_key", "prior_confirmation_bond_code", "prior_confirmation_face_value", "prior_confirmation_settlement_amount", "business_key", "business_date", "settlement_date", "bond_code", "direction", "face_value", "settlement_amount", "settlement_institution", "settlement_processing_system", "account_role", "opening_face", "received_face", "closing_face", "opening_cash", "settlement_method", "channel", "dvp_result_status", "bond_difference", "cash_difference", "eod_close_result"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-INSTRUCTION", "CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-SHCH", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "结构化交割工作纸把合同、两类账户、外部结果和内部台账放到同一业务键下"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-CROSS-SOURCE", "expected": ["SETTLE-CONTRACT-B-682", "IB-B-20260821-428", "CGB-EDU-2026-B", "185.7500", "2487650.00", "CCDC", "SETTLEMENT_PROCESSING_SYSTEM", "DVP", "NON_DIRECT", "DVP_SETTLED", "EOD_CLOSED"], "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-LEDGER", "criterionIds": ["C-CLR-IB-DVP-TWO-LEGS", "P-CLR-IB-DVP-DECIMAL", "M-CLR-IB-DVP-TWO-LEGS-CLOSED"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "CLR-IB-DVP-Q-03"}
+    },
+    {
+      "workItemId": "clr-ib-dvp-b-contract-result-match",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-SETTLEMENT-CONTRACT", "CLR-IB-DVP-B-EXTERNAL-RESULT", "CLR-IB-DVP-B-RECONCILIATION"],
+        "fieldIds": ["contract_id", "business_key", "bond_code", "face_value", "settlement_amount", "received_face", "paid_amount", "contract_result_identity"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-SHCH", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "合同与外部结果在合同键、债券面额和结算金额输入上对应"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-CROSS-SOURCE", "expected": "B_CONTRACT_RESULT_MATCH", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-RECON", "criterionIds": ["P-CLR-IB-DVP-RECON", "M-CLR-IB-DVP-ZERO-DIFF-CLOSE"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "CLR-IB-DVP-Q-04"}
+    },
+    {
+      "workItemId": "clr-ib-dvp-b-ledger-match",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-BOND-ACCOUNT", "CLR-IB-DVP-B-FUNDS-ACCOUNT", "CLR-IB-DVP-B-INTERNAL-LEDGER"],
+        "fieldIds": ["opening_face", "received_face", "closing_face", "opening_cash", "settlement_amount", "closing_cash", "bond_opening_face", "bond_received_face", "bond_closing_face", "cash_opening_balance", "cash_settlement_payment", "cash_closing_balance"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-SHCH", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "两类账户的余额变动与内部台账余额变动对应"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-CROSS-SOURCE", "expected": "B_LEDGER_MATCH", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-RECON", "criterionIds": ["P-CLR-IB-DVP-RECON", "M-CLR-IB-DVP-ZERO-DIFF-CLOSE"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "CLR-IB-DVP-Q-04"}
+    },
+    {
+      "workItemId": "clr-ib-dvp-b-zero-difference",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-EXTERNAL-RESULT", "CLR-IB-DVP-B-INTERNAL-LEDGER", "CLR-IB-DVP-B-RECONCILIATION"],
+        "fieldIds": ["external_face_difference", "external_amount_difference", "bond_difference", "cash_difference", "bond_balance_difference", "cash_balance_difference"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-BASE", "CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "外部结果、内部台账和余额复算的面额/金额差额均按案例精度为零"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-ZERO-DIFFERENCE", "expected": "B_ZERO_DIFFERENCE", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-RECON", "criterionIds": ["P-CLR-IB-DVP-RECON", "R-CLR-IB-DVP-CLOSE", "M-CLR-IB-DVP-ZERO-DIFF-CLOSE"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "CLR-IB-DVP-Q-04"}
+    },
+    {
+      "workItemId": "clr-ib-dvp-b-close-result",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-EXTERNAL-RESULT", "CLR-IB-DVP-B-INTERNAL-LEDGER", "CLR-IB-DVP-B-RECONCILIATION"],
+        "fieldIds": ["dvp_result_status", "eod_close_result", "bond_difference", "cash_difference"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-SHCH", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "两腿完成且合同/账户/台账零差后记录本案例 DVP 与日终结果"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-EOD-CLOSE", "expected": "B_DVP_SETTLED_EOD_CLOSED", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-CLOSE", "criterionIds": ["R-CLR-IB-DVP-CLOSE", "M-CLR-IB-DVP-TWO-LEGS-CLOSED", "M-CLR-IB-DVP-ZERO-DIFF-CLOSE"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-IB-DVP-KC-03", "questionId": "CLR-IB-DVP-Q-04"}
+    },
+    {
+      "workItemId": "clr-ib-dvp-b-conclusion",
+      "source": {
+        "materialIds": ["CLR-IB-DVP-B-SETTLEMENT-CONTRACT", "CLR-IB-DVP-B-BOND-ACCOUNT", "CLR-IB-DVP-B-FUNDS-ACCOUNT", "CLR-IB-DVP-B-EXTERNAL-RESULT", "CLR-IB-DVP-B-INTERNAL-LEDGER", "CLR-IB-DVP-B-RECONCILIATION"],
+        "fieldIds": ["contract_id", "prior_confirmation_key", "prior_confirmation_bond_code", "prior_confirmation_face_value", "prior_confirmation_settlement_amount", "business_key", "business_date", "settlement_date", "bond_code", "direction", "face_value", "settlement_amount", "settlement_institution", "settlement_processing_system", "opening_face", "received_face", "closing_face", "opening_cash", "closing_cash", "external_face_difference", "external_amount_difference", "settlement_method", "channel", "dvp_result_status", "eod_close_result"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-IB-DVP-REF-INSTRUCTION", "CLR-IB-DVP-REF-CCDC", "CLR-IB-DVP-REF-CASE"],
+        "anchor": "短结论回指合同/业务身份、两条余额链、零差、DVP/通道和仅本案例结果"
+      },
+      "rule": {"ruleId": "CLR-IB-DVP-RULE-CONCLUSION", "expected": ["SETTLE-CONTRACT-B-682", "IB-B-20260821-428", "CCDC", "SETTLEMENT_PROCESSING_SYSTEM", "DELIVER_SECURITIES", "DVP_SETTLED", "EOD_CLOSED"], "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-IB-DVP-CONCLUSION", "criterionIds": ["R-CLR-IB-DVP-INPUT-BOUNDARY", "E-CLR-IB-DVP-TRACEABLE-CONCLUSION"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "CLR-IB-DVP-Q-05"}
+    }
+  ],
+  "coverage": {
+    "FIELD_MAP": ["clr-ib-dvp-b-field-contract", "clr-ib-dvp-b-field-accounts-method"],
+    "CALCULATION": ["clr-ib-dvp-b-bond-balance", "clr-ib-dvp-b-cash-balance"],
+    "LEDGER_ENTRY": ["clr-ib-dvp-b-delivery-workpaper"],
+    "RECONCILIATION": ["clr-ib-dvp-b-contract-result-match", "clr-ib-dvp-b-ledger-match", "clr-ib-dvp-b-zero-difference", "clr-ib-dvp-b-close-result"],
+    "SHORT_TEXT": ["clr-ib-dvp-b-conclusion"]
+  },
+  "integrity": {
+    "workItemMappingCount": 10,
+    "uniqueWorkItemMappings": true,
+    "everyWorkItemHasSourceReferenceRuleRemediation": true,
+    "demoAndComprehensiveAreIsomorphic": true,
+    "sourceToRoleFieldSetsAreIsomorphic": true,
+    "resultFieldsAreIsomorphic": true,
+    "decimalChainStructureIsomorphic": true,
+    "demoAndComprehensiveUseDifferentContractKeysDatesBondsFaceValuesAndAmounts": true,
+    "allCaseValuesMarkedOnlyThisCase": true,
+    "decimalValuesAreStrings": true,
+    "normalCaseOnly": true,
+    "bothDvpLegsIncluded": true,
+    "actualDvpDeliveryIncluded": true,
+    "eodCloseIncluded": true,
+    "externalResultAndInternalLedgerIncluded": true,
+    "zeroDifferenceRequiredForClose": true,
+    "mapAndReleaseRegistration": false
+  }
+}

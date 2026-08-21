@@ -59,7 +59,7 @@ const user = { employeeNo: '10000002', displayName: '培训学员' };
 const worlds = {
   mapVersion: '2026.08.1',
   worlds: [
-    { line: 'CLEARING', name: '清算学习世界', description: '学习交收、资金与证券清算的核心流程。', availability: 'BUILDING', passedRequiredRoutes: 0, publishedRequiredRoutes: 0, progressPercent: 0, status: 'BUILDING' },
+    { line: 'CLEARING', name: '清算学习世界', description: '学习交收、资金与证券清算的核心流程。', availability: 'OPEN', passedRequiredRoutes: 0, publishedRequiredRoutes: 7, progressPercent: 0, status: 'NOT_STARTED' },
     { line: 'ACCOUNTING', name: '核算学习世界', description: '从原始业务资料出发，建立计算、账务处理与结果验证能力。', availability: 'OPEN', passedRequiredRoutes: 2, publishedRequiredRoutes: 6, progressPercent: 33, status: 'IN_PROGRESS' },
     { line: 'SUPERVISION', name: '监督学习世界', description: '学习投资监督、边界识别与风险报告。', availability: 'BUILDING', passedRequiredRoutes: 0, publishedRequiredRoutes: 0, progressPercent: 0, status: 'BUILDING' },
   ],
@@ -88,6 +88,51 @@ function mapResponse(currentState) {
     }],
     recommendedNodeId: 'N2',
     progress: { passedRequiredRoutes: 1, publishedRequiredRoutes: 6, percent: 17 },
+  };
+}
+
+function clearingMapResponse() {
+  const node = (nodeId, routeId, title, position, prerequisiteNodeIds) => ({
+    nodeId,
+    nodeType: 'ROUTE',
+    routeId,
+    title,
+    pathType: 'REQUIRED',
+    position,
+    state: nodeId === 'CLR-N1' ? 'IN_PROGRESS' : 'LOCKED',
+    locked: nodeId !== 'CLR-N1',
+    contentAvailability: 'PUBLISHED',
+    enterable: nodeId === 'CLR-N1',
+    completedSteps: nodeId === 'CLR-N1' ? 2 : 0,
+    totalSteps: 4,
+    prerequisiteNodeIds,
+  });
+  return {
+    line: 'CLEARING',
+    name: '清算学习世界',
+    mapVersion: '2026.08.11',
+    regions: [{
+      regionId: 'CLR-R1',
+      name: '清算基础与业务分支',
+      description: '从共同清算基础进入资金结算、场内清算和银行间清算。',
+      modules: [
+        { moduleId: 'CLR-M1', name: '共同清算基础', nodes: [node('CLR-N1', 'CLR-BASE-001', '清算对象、资料来源与结果勾稽', 'CENTER', [])] },
+        { moduleId: 'CLR-M2', name: '资金结算', nodes: [
+          node('CLR-N2', 'CLR-FUND-PAYMENT-001', '资金结算指令与付款/收款结果', 'LEFT', ['CLR-N1']),
+          node('CLR-N3', 'CLR-FUND-CLOSE-002', '资金结算结果与日终关闭', 'LEFT', ['CLR-N2']),
+        ] },
+        { moduleId: 'CLR-M3', name: '场内清算', nodes: [
+          node('CLR-N4', 'CLR-EX-CORE-001', '场内交易确认与证券/资金交收准备', 'CENTER', ['CLR-N1']),
+          node('CLR-N5', 'CLR-EX-FUNDS-002', '场内证券/资金结果与正常封账', 'CENTER', ['CLR-N4']),
+        ] },
+        { moduleId: 'CLR-M4', name: '银行间清算', nodes: [
+          node('CLR-N6', 'CLR-IB-INSTRUCTION-001', '银行间债券结算指令与结果确认', 'RIGHT', ['CLR-N1']),
+          node('CLR-N7', 'CLR-IB-DVP-CLOSE-002', '银行间 DVP 交收、对账与日终关闭', 'RIGHT', ['CLR-N6']),
+        ] },
+      ],
+    }],
+    recommendedNodeId: 'CLR-N1',
+    progress: { passedRequiredRoutes: 0, publishedRequiredRoutes: 7, percent: 0 },
   };
 }
 
@@ -168,7 +213,8 @@ async function run() {
       if (pathname === '/api/auth/logout') { loggedIn = false; return route.fulfill({ status: 204 }); }
       if (!loggedIn) return json({ code: 'UNAUTHORIZED', message: '未登录' }, 401);
       if (pathname === '/api/worlds') return json(worlds);
-      if (pathname === '/api/lines/ACCOUNTING/map') return json(mapResponse(mapScenario));
+       if (pathname === '/api/lines/CLEARING/map') return json(clearingMapResponse());
+       if (pathname === '/api/lines/ACCOUNTING/map') return json(mapResponse(mapScenario));
       if (pathname === '/api/routes/ACC-LIFE-ROLE-001') return json(routeOverview);
       if (pathname === '/api/routes/ACC-LIFE-ROLE-001/steps/BASIC_PRACTICE') {
         return json({ routeId: routeOverview.routeId, contentVersion: '2.0.0', stepType: 'BASIC_PRACTICE', content: practiceContent, completed: false });
@@ -225,13 +271,28 @@ async function run() {
     await settle(page);
     await shot(page, `01-worlds-${tag}.png`);
     if (tag === '1440') {
-      await page.locator('.world-card:not(.is-building)').screenshot({
+       await page.locator('.world-card', { hasText: '核算学习世界' }).screenshot({
         path: path.join(screenshotDir, '02-worlds-accounting-detail.png'),
       });
-      await page.locator('.world-card.is-building').first().screenshot({
+       await page.locator('.world-card', { hasText: '监督学习世界' }).screenshot({
         path: path.join(screenshotDir, '03-worlds-building-detail.png'),
       });
     }
+    await page.close();
+  }
+
+  // ============ 2.1 清算七节点地图 ============
+  {
+    const page = await newPage({ width: 1440, height: 900 });
+    await login(page);
+    await page.goto(`${baseUrl}/map/clearing`);
+    await page.getByTestId('learning-map').first().waitFor();
+    assert.equal(await page.locator('.map-node').count(), 7);
+    assert.equal(await page.locator('.map-node:enabled').count(), 1);
+    assert.equal(await page.locator('button.map-node[aria-label*="清算对象、资料来源与结果勾稽"]:enabled').count(), 1);
+    assert.equal(await page.locator('button.map-node[aria-label*="资金结算指令与付款/收款结果"]:disabled').count(), 1);
+    await settle(page, 900);
+    await shot(page, '04-clearing-map-1440.png');
     await page.close();
   }
 

@@ -151,19 +151,54 @@ foreach ($schemaFile in $schemaFiles) {
     }
 }
 
-$releasePath = Join-Path $contentRoot 'releases/ACCOUNTING_2026.08.10.json'
-$release = Read-Json $releasePath
-Test-JsonSchema $release $schemas['release-manifest.schema.json'] '$.release'
+$activeReleasePath = Join-Path $contentRoot 'releases/CUSTODY_2026.08.11.json'
+$legacyReleasePath = Join-Path $contentRoot 'releases/ACCOUNTING_2026.08.10.json'
+$activeRelease = Read-Json $activeReleasePath
+$legacyRelease = Read-Json $legacyReleasePath
+Test-JsonSchema $activeRelease $schemas['release-manifest.schema.json'] '$.activeRelease'
+Test-JsonSchema $legacyRelease $schemas['release-manifest.schema.json'] '$.legacyRelease'
 foreach ($field in @('releaseId', 'releasedAt', 'map', 'routes')) {
-    Require-Property $release $field '发布清单'
+    Require-Property $activeRelease $field '当前发布清单'
+    Require-Property $legacyRelease $field '旧核算发布清单'
 }
-if (@($release.routes).Count -lt 1) { throw '发布清单至少需要一条正式路线。' }
+if ($activeRelease.releaseId -ne 'CUSTODY_2026.08.11') {
+    throw '当前发布清单不是 CUSTODY_2026.08.11。'
+}
+if ($legacyRelease.releaseId -ne 'ACCOUNTING_2026.08.10') {
+    throw '旧核算发布清单标识已改变。'
+}
+if (@($activeRelease.routes).Count -ne 55) { throw '当前发布清单必须包含55条正式路线。' }
+if (@($legacyRelease.routes).Count -ne 48) { throw '旧核算发布清单必须保留48条路线。' }
 
-$mapPath = Join-Path $contentRoot $release.map.path
+$legacyMapPath = Join-Path $contentRoot $legacyRelease.map.path
+if (-not (Test-Path -LiteralPath $legacyMapPath -PathType Leaf)) {
+    throw "旧核算发布清单引用的地图不存在：$legacyMapPath"
+}
+$null = Read-Json $legacyMapPath
+foreach ($legacyEntry in @($legacyRelease.routes)) {
+    foreach ($field in @('routeId', 'contentVersion', 'rubricVersion', 'contentPath', 'rubricPath')) {
+        Require-Property $legacyEntry $field "旧发布路线 $($legacyEntry.routeId)"
+    }
+    $legacyContentPath = Join-Path $contentRoot $legacyEntry.contentPath
+    $legacyRubricPath = Join-Path $contentRoot $legacyEntry.rubricPath
+    if (-not (Test-Path -LiteralPath $legacyContentPath -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $legacyRubricPath -PathType Leaf)) {
+        throw "旧发布路线资产不存在：$($legacyEntry.routeId)"
+    }
+    $legacyRouteAsset = Read-Json $legacyContentPath
+    $legacyRubricAsset = Read-Json $legacyRubricPath
+    Test-JsonSchema $legacyRouteAsset $schemas['route.schema.json'] "$.legacyRoutes.$($legacyEntry.routeId)"
+    Test-JsonSchema $legacyRubricAsset $schemas['rubric.schema.json'] "$.legacyRubrics.$($legacyEntry.routeId)"
+}
+
+$mapPath = Join-Path $contentRoot $activeRelease.map.path
 $map = Read-Json $mapPath
 Test-JsonSchema $map $schemas['map.schema.json'] '$.map'
 foreach ($field in @('mapId', 'version', 'lines')) {
     Require-Property $map $field '地图资产'
+}
+if ($map.mapId -ne $activeRelease.map.id -or $map.version -ne $activeRelease.map.version) {
+    throw '当前发布清单与地图版本不一致。'
 }
 $lines = @($map.lines)
 if ($lines.Count -ne 3) { throw '地图必须恰好包含清算、核算、监督三条线。' }
@@ -175,13 +210,11 @@ $accounting = @($lines | Where-Object line -eq 'ACCOUNTING')
 $clearing = @($lines | Where-Object line -eq 'CLEARING')
 $supervision = @($lines | Where-Object line -eq 'SUPERVISION')
 if ($accounting.availability -ne 'OPEN' -or
-    $clearing.availability -ne 'BUILDING' -or
+    $clearing.availability -ne 'OPEN' -or
     $supervision.availability -ne 'BUILDING') {
     throw '三条线开放状态不符合当前产品决策。'
 }
-if (@($clearing[0].regions).Count -ne 0 -or @($supervision[0].regions).Count -ne 0) {
-    throw '清算或监督不得包含虚假地图内容。'
-}
+if (@($supervision[0].regions).Count -ne 0) { throw '监督地图必须保持空 regions。' }
 
 $nodeIds = @{}
 $routeNodes = @{}
@@ -204,8 +237,47 @@ foreach ($node in $routeNodes.Values) {
     }
 }
 
+$accountingNodes = @(
+    $accounting.regions | ForEach-Object { $_.modules } |
+        ForEach-Object { $_.nodes }
+)
+$clearingNodes = @(
+    $clearing.regions | ForEach-Object { $_.modules } |
+        ForEach-Object { $_.nodes }
+)
+if ($accountingNodes.Count -ne 48 -or
+    (@($accountingNodes | Where-Object pathType -eq 'REQUIRED').Count -ne 39) -or
+    (@($accountingNodes | Where-Object pathType -eq 'ADVANCED').Count -ne 9)) {
+    throw 'ACCOUNTING 地图必须保持48节点（39 REQUIRED、9 ADVANCED）。'
+}
+if ($clearingNodes.Count -ne 7 -or
+    (@($clearingNodes | Where-Object nodeType -eq 'ROUTE').Count -ne 7) -or
+    (@($clearingNodes | Where-Object pathType -eq 'REQUIRED').Count -ne 7) -or
+    (@($clearingNodes | Where-Object nodeType -eq 'STAGE_GATE').Count -ne 0)) {
+    throw 'CLEARING 地图必须恰好包含7个 REQUIRED ROUTE 节点且不含阶段闸门。'
+}
+$expectedClearingPrerequisites = @{
+    'CLR-BASE-001' = @()
+    'CLR-FUND-PAYMENT-001' = @('CLR-NODE-BASE-001')
+    'CLR-FUND-CLOSE-002' = @('CLR-NODE-FUND-PAYMENT-001')
+    'CLR-EX-CORE-001' = @('CLR-NODE-BASE-001')
+    'CLR-EX-FUNDS-002' = @('CLR-NODE-EX-CORE-001')
+    'CLR-IB-INSTRUCTION-001' = @('CLR-NODE-BASE-001')
+    'CLR-IB-DVP-CLOSE-002' = @('CLR-NODE-IB-INSTRUCTION-001')
+}
+foreach ($routeId in $expectedClearingPrerequisites.Keys) {
+    if (-not $routeNodes.ContainsKey($routeId)) {
+        throw "清算地图缺少正式路线节点：$routeId"
+    }
+    $actualPrerequisites = @($routeNodes[$routeId].prerequisiteNodeIds)
+    $expectedPrerequisites = @($expectedClearingPrerequisites[$routeId])
+    if (($actualPrerequisites -join '|') -ne ($expectedPrerequisites -join '|')) {
+        throw "清算地图前置不符合主链：$routeId"
+    }
+}
+
 $publishedRoutes = @{}
-foreach ($routeRelease in @($release.routes)) {
+foreach ($routeRelease in @($activeRelease.routes)) {
     foreach ($field in @('routeId', 'contentVersion', 'rubricVersion', 'contentPath', 'rubricPath')) {
         Require-Property $routeRelease $field "发布路线 $($routeRelease.routeId)"
     }
@@ -297,9 +369,25 @@ foreach ($routeRelease in @($release.routes)) {
     $publishedRoutes[$route.routeId] = $true
 }
 
+$activeRouteIds = @($activeRelease.routes | ForEach-Object { $_.routeId })
+$mapRouteIds = @($routeNodes.Keys)
+if ($activeRouteIds.Count -ne $mapRouteIds.Count -or
+    @($activeRouteIds | Where-Object { $mapRouteIds -notcontains $_ }).Count -ne 0 -or
+    @($mapRouteIds | Where-Object { $activeRouteIds -notcontains $_ }).Count -ne 0) {
+    throw '当前发布清单与地图正式路线集合不一致。'
+}
+$activeAccountingRoutes = @($activeRelease.routes | Where-Object { $_.contentPath -like 'routes/accounting/*.json' })
+$activeClearingRoutes = @($activeRelease.routes | Where-Object { $_.contentPath -like 'routes/clearing/*.json' })
+if ($activeAccountingRoutes.Count -ne 48 -or $activeClearingRoutes.Count -ne 7) {
+    throw '当前发布清单必须动态登记48条核算路线和7条清算路线。'
+}
+if (@($activeRelease.routes | Where-Object { $_.contentPath -notlike 'routes/accounting/*.json' -and $_.contentPath -notlike 'routes/clearing/*.json' }).Count -ne 0) {
+    throw '当前发布清单包含非 ACCOUNTING/CLEARING 正式资产。'
+}
+
 $exampleFiles = @(Get-ChildItem -LiteralPath $examplesRoot -File -Filter '*.json')
 foreach ($file in $exampleFiles) { $null = Read-Json $file.FullName }
 
 $allJson = @(Get-ChildItem -LiteralPath $contentRoot, $schemaRoot, $examplesRoot -Recurse -File -Filter '*.json')
 Write-Output ("正式内容与契约校验通过：{0} 个 JSON；{1} 条正式路线；4 份正式 Schema。" -f
-    $allJson.Count, $publishedRoutes.Count)
+    $allJson.Count, $activeRelease.routes.Count)

@@ -1,0 +1,332 @@
+{
+  "routeId": "CLR-FUND-CLOSE-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CLR-FUND-CLOSE-SOURCE-ROLES",
+          "description": "区分前置已执行结果、资金账户、内部资金账和三类外部对账资料的字段职责，能说明关闭结果不是某一份余额单独得出。",
+          "weight": 12,
+          "evidenceRequirement": "字段来源选择正确，并能把五类余额/结果来源放回对应角色。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-source-map", "operator": "EQUALS", "expected": "B_CLOSE_SOURCE_MAP"},
+            {"fieldId": "clr-fund-close-b-identity-reconciliation", "operator": "EQUALS", "expected": "B_IDENTITY_AND_SOURCES_MATCH"}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-SOURCES"
+        },
+        {
+          "criterionId": "C-CLR-FUND-CLOSE-CLOSE-CONDITIONS",
+          "description": "理解正常关闭前置：账户和日期可对应、余额链复算闭合、三类外部来源均已对账，再分别登记关闭和报表状态。",
+          "weight": 13,
+          "evidenceRequirement": "关闭前置选择为可正常关闭，且结果登记包含NORMAL_CLOSED与SENT。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-close-gate", "operator": "EQUALS", "expected": "B_NORMAL_CLOSE_READY"},
+            {"fieldId": "clr-fund-close-b-result-ledger", "operator": "CONTAINS_ALL", "expected": ["NORMAL_CLOSED", "SENT", "RECONCILED"]}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-GATE"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CLR-FUND-CLOSE-FIELD-READ",
+          "description": "从已执行结果、资金账户、内部资金账及三类外部资料读取业务键、账户、日期、收支、余额和状态，并保持来源分工，能回查CCBS差额。",
+          "weight": 8,
+          "evidenceRequirement": "来源映射与身份勾稽均完成。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-source-map", "operator": "EQUALS", "expected": "B_CLOSE_SOURCE_MAP"},
+            {"fieldId": "clr-fund-close-b-identity-reconciliation", "operator": "EQUALS", "expected": "B_IDENTITY_AND_SOURCES_MATCH"},
+            {"fieldId": "clr-fund-close-b-ccbs-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-CCBS-DIFF"
+        },
+        {
+          "criterionId": "P-CLR-FUND-CLOSE-DECIMAL-BALANCE",
+          "description": "按openingBalance + inflow - outflow复算综合B期末余额，并以两位小数和0.01容差判断。",
+          "weight": 8,
+          "evidenceRequirement": "理论closingBalance为435750.00。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-balance-calculation", "operator": "NUMBER_EQUALS", "expected": 435750, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-BALANCE"
+        },
+        {
+          "criterionId": "P-CLR-FUND-CLOSE-RESULT-LEDGER",
+          "description": "将业务键、账户、closingBalance、来源状态、关闭状态和报告状态登记到结构化正常业务结果。",
+          "weight": 7,
+          "evidenceRequirement": "结果工作纸能回指综合B身份、余额和输出状态。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-result-ledger", "operator": "CONTAINS_ALL", "expected": ["FUND-CLOSE-B-20260826-089", "FUND-ACCT-B-204", "435750.00", "NORMAL_CLOSED", "SENT"]}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-RESULT"
+        },
+        {
+          "criterionId": "P-CLR-FUND-CLOSE-RECONCILIATION",
+          "description": "先按账户和日期确认来源身份，再分别核对资金账户、内部资金账、CCBS、CCDC DVP、上海清算DVP及总差额，最后选择关闭前置。",
+          "weight": 7,
+          "evidenceRequirement": "身份勾稽、六项独立差额和关闭前置均完成。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-identity-reconciliation", "operator": "EQUALS", "expected": "B_IDENTITY_AND_SOURCES_MATCH"},
+            {"fieldId": "clr-fund-close-b-fund-account-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-internal-ledger-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-ccbs-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-ccdc-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-shanghai-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-total-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-close-gate", "operator": "EQUALS", "expected": "B_NORMAL_CLOSE_READY"}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-RECONCILIATION"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CLR-FUND-CLOSE-UPSTREAM",
+          "description": "把前置已执行并已入账结果作为本路线输入，不把本路线变成重复付款审核或重新执行。",
+          "weight": 6,
+          "evidenceRequirement": "结果登记或结论明确包含EXECUTED、POSTED和REGISTERED。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-result-ledger", "operator": "CONTAINS_ALL", "expected": ["EXECUTED", "POSTED", "REGISTERED"]}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-UPSTREAM"
+        },
+        {
+          "criterionId": "R-CLR-FUND-CLOSE-ALL-SOURCES",
+          "description": "不以内部资金账或单一外部资料代表全部结果，必须确认CCBS、CCDC DVP和上海清算DVP三个外部来源均为RECONCILED。",
+          "weight": 7,
+          "evidenceRequirement": "结论和关闭结果同时回指CCBS、CCDC DVP和上海清算DVP及其对账状态。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-close-gate", "operator": "EQUALS", "expected": "B_NORMAL_CLOSE_READY"},
+            {"fieldId": "clr-fund-close-b-result-ledger", "operator": "CONTAINS_ALL", "expected": ["CCBS", "CCDC DVP", "上海清算DVP", "RECONCILED"]},
+            {"fieldId": "clr-fund-close-b-ccbs-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-ccdc-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-shanghai-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-CCDC-DVP-DIFF"
+        },
+        {
+          "criterionId": "R-CLR-FUND-CLOSE-ZERO-DIFFERENCE",
+          "description": "把资金账户、内部资金账和三类外部来源的差额逐项记为零，不能用总差额掩盖某一来源未核对。",
+          "weight": 6,
+          "evidenceRequirement": "五类来源差额和总差额分别为0，结论逐项回指六项差额。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-fund-account-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-internal-ledger-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-ccbs-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-ccdc-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-shanghai-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-total-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-close-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["资金账户差0.00", "内部资金账差0.00", "CCBS差0.00", "CCDC DVP差0.00", "上海清算DVP差0.00", "总差额0.00"]}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-FUND-ACCOUNT-DIFF"
+        },
+        {
+          "criterionId": "R-CLR-FUND-CLOSE-REPORT-STATUS",
+          "description": "区分NORMAL_CLOSED与SENT，并确认上海清算DVP差额已闭合：只有关闭条件闭合后，才把报表发送状态登记为SENT。",
+          "weight": 6,
+          "evidenceRequirement": "结果登记和简短结论均包含关闭状态与报表状态。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-result-ledger", "operator": "CONTAINS_ALL", "expected": ["NORMAL_CLOSED", "SENT"]},
+            {"fieldId": "clr-fund-close-b-close-gate", "operator": "EQUALS", "expected": "B_NORMAL_CLOSE_READY"},
+            {"fieldId": "clr-fund-close-b-shanghai-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-SHANGHAI-DVP-DIFF"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CLR-FUND-CLOSE-TRACEABLE",
+          "description": "用简短、可追溯的业务结论回指关闭业务键、账户、余额、来源状态、差额和两个输出状态。",
+          "weight": 20,
+          "evidenceRequirement": "结论同时具备身份、数值、勾稽和状态信息，不只写泛化的完成判断。",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-close-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["FUND-CLOSE-B-20260826-089", "FUND-ACCT-B-204", "435750.00 CNY", "资金账户差0.00", "内部资金账差0.00", "CCBS差0.00", "CCDC DVP差0.00", "上海清算DVP差0.00", "总差额0.00", "CCBS", "CCDC DVP", "上海清算DVP", "NORMAL_CLOSED", "SENT"]}
+          ],
+          "remediationTargetId": "CLR-FUND-CLOSE-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CLR-FUND-CLOSE-BALANCE-ZERO",
+      "description": "资金账户、内部资金账、CCBS、CCDC DVP和上海清算DVP的余额差额及总差额必须逐项为0.00，且三类外部来源全部RECONCILED。",
+      "evidenceRequirement": "必须分别提交五类来源差额和总差额，不能只提交总差额；结论还需回指三类外部来源RECONCILED。",
+      "evidenceRules": [
+        {"fieldId": "clr-fund-close-b-fund-account-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-internal-ledger-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-ccbs-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-ccdc-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-shanghai-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-total-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["资金账户差0.00", "内部资金账差0.00", "CCBS差0.00", "CCDC DVP差0.00", "上海清算DVP差0.00", "总差额0.00", "CCBS", "CCDC DVP", "上海清算DVP", "RECONCILED"]}
+      ],
+      "remediationTargetId": "CLR-FUND-CLOSE-INTERNAL-LEDGER-DIFF"
+    },
+    {
+      "requirementId": "M-CLR-FUND-CLOSE-NORMAL-CLOSED",
+      "description": "只有前置结果已EXECUTED、POSTED、REGISTERED，账户和内部账状态可进入关闭，六项差额逐项为零且三类外部来源均RECONCILED时，才可登记NORMAL_CLOSED并将报表状态登记为SENT。",
+      "evidenceRequirement": "必须同时提交前置关键状态、六项独立差额、关闭前置、正常关闭状态和报表发送状态。",
+      "evidenceRules": [
+        {"fieldId": "clr-fund-close-b-identity-reconciliation", "operator": "EQUALS", "expected": "B_IDENTITY_AND_SOURCES_MATCH"},
+        {"fieldId": "clr-fund-close-b-fund-account-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-internal-ledger-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-ccbs-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-ccdc-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-shanghai-dvp-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-total-difference", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-close-b-close-gate", "operator": "EQUALS", "expected": "B_NORMAL_CLOSE_READY"},
+        {"fieldId": "clr-fund-close-b-result-ledger", "operator": "CONTAINS_ALL", "expected": ["EXECUTED", "POSTED", "REGISTERED", "NORMAL_CLOSED", "SENT", "RECONCILED"]}
+      ],
+      "remediationTargetId": "CLR-FUND-CLOSE-TOTAL-DIFF"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "CLR-FUND-CLOSE-SOURCES",
+      "title": "补学资金关闭资料来源",
+      "reason": "未能把已执行结果、余额来源和外部对账资料放回正确字段角色。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-FUND-CLOSE-KC-01",
+      "questionId": "CLR-FUND-CLOSE-Q-01"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-BALANCE",
+      "title": "补学余额链与Decimal复算",
+      "reason": "未能按openingBalance + inflow - outflow复算期末余额或正确判断零差。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-CLOSE-Q-02"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-RESULT",
+      "title": "补学正常业务结果登记",
+      "reason": "关闭结果缺少业务键、账户、余额、来源状态或输出状态。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "CLR-FUND-CLOSE-Q-03"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-RECONCILIATION",
+      "title": "补学多来源余额勾稽",
+      "reason": "未能按账户和日期对应各来源，或未逐项确认内部及外部余额差额。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-FUND-CLOSE-KC-02",
+      "questionId": "CLR-FUND-CLOSE-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-FUND-ACCOUNT-DIFF",
+      "title": "补学资金账户差额",
+      "reason": "未能独立核对资金账户closingBalance与理论余额的差额。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-CLOSE-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-INTERNAL-LEDGER-DIFF",
+      "title": "补学内部资金账差额",
+      "reason": "未能独立核对内部资金账closingBalance与资金账户余额的差额。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-CLOSE-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-CCBS-DIFF",
+      "title": "补学CCBS余额差额",
+      "reason": "未能独立核对CCBS外部余额与资金账户余额的差额。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-CLOSE-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-CCDC-DVP-DIFF",
+      "title": "补学CCDC DVP余额差额",
+      "reason": "未能独立核对CCDC DVP外部余额与资金账户余额的差额。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-CLOSE-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-SHANGHAI-DVP-DIFF",
+      "title": "补学上海清算DVP余额差额",
+      "reason": "未能独立核对上海清算DVP外部余额与资金账户余额的差额。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-CLOSE-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-TOTAL-DIFF",
+      "title": "补学总差额",
+      "reason": "未能在五项独立差额完成后汇总总差额。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-CLOSE-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-UPSTREAM",
+      "title": "补学前置结果承接",
+      "reason": "未能把已执行并已入账的前置结果作为关闭路线的输入。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-FUND-CLOSE-KC-01",
+      "questionId": "CLR-FUND-CLOSE-Q-01"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-GATE",
+      "title": "补学正常关闭与报表发送条件",
+      "reason": "未能区分关闭前置、NORMAL_CLOSED和SENT三个结果字段。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "CLR-FUND-CLOSE-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-CLOSE-CONCLUSION",
+      "title": "补学可追溯关闭结论",
+      "reason": "结论没有同时回指业务键、账户、余额、来源状态、差额和输出状态。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "CLR-FUND-CLOSE-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CLR-FUND-CLOSE-COMP-B",
+    "responses": {
+      "clr-fund-close-b-source-map": "B_CLOSE_SOURCE_MAP",
+      "clr-fund-close-b-balance-calculation": 435750.0,
+      "clr-fund-close-b-result-ledger": "closeKey=FUND-CLOSE-B-20260826-089; accountId=FUND-ACCT-B-204; businessDate=2026-08-26; openingBalance=480000.00 CNY; inflow=92500.00 CNY; outflow=136750.00 CNY; closingBalance=435750.00 CNY; executionStatus=EXECUTED; ledgerPostStatus=POSTED; resultRegisterStatus=REGISTERED; internalLedgerStatus=POSTED; CCBS=435750.00 CNY/RECONCILED; CCDC DVP=435750.00 CNY/RECONCILED; 上海清算DVP=435750.00 CNY/RECONCILED; closeStatus=NORMAL_CLOSED; reportStatus=SENT",
+      "clr-fund-close-b-identity-reconciliation": "B_IDENTITY_AND_SOURCES_MATCH",
+      "clr-fund-close-b-fund-account-difference": 0,
+      "clr-fund-close-b-internal-ledger-difference": 0,
+      "clr-fund-close-b-ccbs-difference": 0,
+      "clr-fund-close-b-ccdc-dvp-difference": 0,
+      "clr-fund-close-b-shanghai-dvp-difference": 0,
+      "clr-fund-close-b-total-difference": 0,
+      "clr-fund-close-b-close-gate": "B_NORMAL_CLOSE_READY",
+      "clr-fund-close-b-conclusion": "关闭业务键FUND-CLOSE-B-20260826-089，资金账户FUND-ACCT-B-204，业务日期2026-08-26；openingBalance 480000.00 CNY + inflow 92500.00 CNY - outflow 136750.00 CNY = closingBalance 435750.00 CNY。资金账户差0.00、内部资金账差0.00、CCBS差0.00、CCDC DVP差0.00、上海清算DVP差0.00、总差额0.00；CCBS、CCDC DVP和上海清算DVP均为RECONCILED，closeStatus=NORMAL_CLOSED，reportStatus=SENT。"
+    },
+    "decimalChain": {
+      "balance": "480000.00 + 92500.00 - 136750.00 = 435750.00 CNY",
+      "fundAccountDifference": "435750.00 - 435750.00 = 0.00 CNY",
+      "internalLedgerDifference": "435750.00 - 435750.00 = 0.00 CNY",
+      "ccbsDifference": "435750.00 - 435750.00 = 0.00 CNY",
+      "ccdcDvpDifference": "435750.00 - 435750.00 = 0.00 CNY",
+      "shanghaiDvpDifference": "435750.00 - 435750.00 = 0.00 CNY",
+      "totalDifference": "0.00 + 0.00 + 0.00 + 0.00 + 0.00 = 0.00 CNY",
+      "result": "executionStatus=EXECUTED; ledgerPostStatus=POSTED; CCBS/CCDC DVP/上海清算DVP=RECONCILED; closeStatus=NORMAL_CLOSED; reportStatus=SENT"
+    }
+  }
+}

@@ -1,0 +1,410 @@
+{
+  "routeId": "CLR-FUND-PAYMENT-001",
+  "contentVersion": "1.0.0",
+  "line": "CLEARING",
+  "title": "资金指令审核与正常支付执行",
+  "summary": "围绕一笔正常资金支付指令，核对业务依据、收付款账户、账户状态与锁定、支付日期和批准渠道，登记执行结果并把资金账余额接续到零差。",
+  "estimatedMinutes": 60,
+  "objectives": [
+    "从支付指令和业务依据中定位业务键、业务日期、支付金额、收付款账户及业务关系",
+    "按本案例资料核对收付款账户状态与锁定、支付日期和批准渠道，再承接正常执行结果",
+    "用 Decimal 字符串复算 openingCash - approvedPayment = closingCash，并核对指令、执行和资金账变动金额一致",
+    "按业务键、业务日期、账户、业务依据、渠道和状态完成跨来源勾稽，记录差额为零的正常结果"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "CLR-FUND-PAYMENT-KC-01",
+          "type": "CATEGORIES",
+          "title": "指令和业务依据要放在同一张工作纸上",
+          "conclusion": "指令告诉你要支付什么，业务依据说明这笔支付对应的业务关系；金额、日期和账户必须能相互对应。",
+          "items": [
+            "从指令读取业务键、支付金额、付款账户、收款账户和支付日期",
+            "从业务依据读取业务依据编号、业务类型、依据状态和批准金额",
+            "把业务依据与指令按业务键、日期、账户组合和金额逐项对应",
+            "金额和身份字段都来自资料，不用支付结果倒推审核结论"
+          ]
+        },
+        {
+          "cardId": "CLR-FUND-PAYMENT-KC-02",
+          "type": "FLOW",
+          "title": "先审核字段，再承接执行结果",
+          "conclusion": "收付款账户状态与锁定、支付日期和批准渠道都与指令及依据一致，才可以把正常执行结果登记回同一业务键。",
+          "items": [
+            "分别核对付款账户和收款账户的状态、锁定字段及账户组合",
+            "核对业务日期与支付日期，并确认业务依据处于本案例批准状态",
+            "把资料中的批准渠道与执行结果渠道逐项对应",
+            "执行结果保留执行日期、执行金额和正常执行状态"
+          ]
+        },
+        {
+          "cardId": "CLR-FUND-PAYMENT-KC-03",
+          "type": "KEY_POINT",
+          "title": "支付结果要接到账上",
+          "conclusion": "正常支付完成后，approvedPayment、executedPayment 和 fundsLedgerMovement 三个金额相等，openingCash 减去支付金额等于 closingCash，且两类差额均为零。",
+          "items": [
+            "用 openingCash - approvedPayment 独立计算 closingCash，金额保留两位小数",
+            "分别比较指令金额、执行金额和资金账支付变动金额",
+            "资金账登记同一业务键、业务日期、账户组合、渠道和结果状态",
+            "跨来源核对账户、依据、日期、渠道、状态和金额后再记录正常对账结果"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "资金结算处理岗",
+        "product": "场外资金正常支付教学案例",
+        "date": "2026-08-19",
+        "fixture": "CLR-FUND-PAYMENT-DEMO-A",
+        "facts": [
+          "支付指令的业务键为FUND-A-20260819-071，业务日期和支付日期均为2026-08-19，业务依据编号为BASIS-A-20260819-071，付款账户为PAY-ACCT-A-001，收款账户为REC-ACCT-A-001。",
+          "业务依据的业务类型为APPROVED_PAYMENT，依据状态为VALID，批准金额为26840.50 CNY；两方账户状态均为ACTIVE，锁定状态均为NOT_LOCKED。",
+          "本案例批准渠道为CASE_APPROVED_CHANNEL_A，指令状态为APPROVED；openingCash为125000.00 CNY。",
+          "正常执行结果的执行金额为26840.50 CNY，资金账支付变动为26840.50 CNY，closingCash为98159.50 CNY，执行和资金账状态分别为EXECUTED、POSTED。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "从支付指令和业务依据读取业务键FUND-A-20260819-071、日期、批准金额、付款账户、收款账户及依据编号，建立审核记录",
+          "reason": "业务键、日期、金额、账户和依据是确认这笔支付业务关系的身份字段。"
+        },
+        {
+          "order": 2,
+          "action": "逐项核对两方账户均为ACTIVE且NOT_LOCKED，依据状态为VALID，支付日期与业务日期一致，并记录批准渠道CASE_APPROVED_CHANNEL_A",
+          "reason": "账户、依据、日期和渠道共同决定指令是否具备本案例的正常执行条件。"
+        },
+        {
+          "order": 3,
+          "action": "按125000.00 - 26840.50计算closingCash为98159.50，并比较批准金额、执行金额和资金账支付变动均为26840.50",
+          "reason": "独立计算余额并比较三处金额，才能把支付结果接到资金账。"
+        },
+        {
+          "order": 4,
+          "action": "把执行日期、执行金额26840.50、执行渠道CASE_APPROVED_CHANNEL_A、执行状态EXECUTED和资金账状态POSTED登记到同一业务键",
+          "reason": "结果登记必须承接执行资料，不用指令状态替代执行结果，也不重复执行同一指令。"
+        },
+        {
+          "order": 5,
+          "action": "按业务键、日期、账户、依据、渠道和状态勾稽，确认金额链差额0.00、现金余额差额0.00后记录RECONCILED",
+          "reason": "身份字段一致且金额链和余额链都对上，才能形成可追溯的正常支付结论。"
+        }
+      ],
+      "summary": "业务依据与指令 → 账户/日期/渠道审核 → 余额和金额复算 → 执行与资金账登记 → 跨来源零差勾稽"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "CLR-FUND-PAYMENT-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "为 Demo A 的审核记录选择各组字段的主来源。",
+          "fieldMappings": [
+            {
+              "fieldId": "instruction-identity-source",
+              "label": "业务键、支付日期、收付款账户和批准金额",
+              "source": "Demo A 指令与业务依据",
+              "options": [
+                {"optionId": "A_INSTRUCTION_SOURCE", "text": "支付指令"},
+                {"optionId": "A_LEDGER_SOURCE", "text": "资金账记录"}
+              ]
+            },
+            {
+              "fieldId": "basis-source",
+              "label": "业务依据编号、业务类型、依据状态和依据金额",
+              "source": "Demo A 指令与业务依据",
+              "options": [
+                {"optionId": "A_BASIS_SOURCE", "text": "业务依据"},
+                {"optionId": "A_EXECUTION_SOURCE", "text": "执行确认"}
+              ]
+            },
+            {
+              "fieldId": "account-control-source",
+              "label": "账户状态、账户锁定和批准渠道",
+              "source": "Demo A 审核字段",
+              "options": [
+                {"optionId": "A_INSTRUCTION_SOURCE", "text": "支付指令"},
+                {"optionId": "A_RECON_SOURCE", "text": "对账资料"}
+              ]
+            },
+            {
+              "fieldId": "execution-source",
+              "label": "执行金额、执行渠道和执行结果",
+              "source": "Demo A 执行与资金账",
+              "options": [
+                {"optionId": "A_EXECUTION_SOURCE", "text": "执行确认"},
+                {"optionId": "A_BASIS_SOURCE", "text": "业务依据"}
+              ]
+            },
+            {
+              "fieldId": "reconciliation-source",
+              "label": "openingCash、closingCash和两类差额",
+              "source": "Demo A 资金账与对账资料",
+              "options": [
+                {"optionId": "A_RECON_SOURCE", "text": "对账资料"},
+                {"optionId": "A_EXECUTION_SOURCE", "text": "执行确认"}
+              ]
+            }
+          ],
+          "answer": ["A_INSTRUCTION_SOURCE", "A_BASIS_SOURCE", "A_INSTRUCTION_SOURCE", "A_EXECUTION_SOURCE", "A_RECON_SOURCE"],
+          "explanation": "指令承载身份和账户，业务依据承载业务关系，执行确认承载实际执行结果，对账资料承载余额和差额。",
+          "hints": ["先区分审核前资料和支付后资料，再看字段回答的是业务关系、执行结果还是对账结果。"]
+        },
+        {
+          "questionId": "CLR-FUND-PAYMENT-Q-02",
+          "type": "CALCULATION",
+          "prompt": "按 Demo A 的资料计算期末现金，并检查执行金额与指令金额、资金账支付变动金额的差额。金额保留两位小数。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "closing-cash", "label": "closingCash", "formula": "125000.00 - 26840.50", "placeholder": "输入期末现金", "unit": "CNY", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "execution-amount-difference", "label": "指令金额与执行金额差", "formula": "26840.50 - 26840.50", "placeholder": "输入金额差", "unit": "CNY", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "ledger-amount-difference", "label": "执行金额与资金账支付变动差", "formula": "26840.50 - 26840.50", "placeholder": "输入金额差", "unit": "CNY", "precision": 2, "tolerance": 0.01}
+            ]
+          },
+          "answer": ["98159.50", "0.00", "0.00"],
+          "explanation": "125000.00−26840.50=98159.50；26840.50−26840.50=0.00，两处金额差均为零。",
+          "hints": ["先用 openingCash 减批准支付金额，再分别比较三处金额。"]
+        },
+        {
+          "questionId": "CLR-FUND-PAYMENT-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把 Demo A 的正常执行结果登记到资金账工作纸，保留业务键、账户组合、金额、渠道和状态。",
+          "ledgerEntries": [
+            {"entryId": "payment-key", "direction": "业务键", "label": "支付业务键", "amount": "FUND-A-20260819-071", "placeholder": "输入业务键"},
+            {"entryId": "account-pair", "direction": "账户", "label": "付款/收款账户", "amount": "PAY-ACCT-A-001 / REC-ACCT-A-001", "placeholder": "输入账户组合"},
+            {"entryId": "ledger-amount", "direction": "PAYMENT_OUT", "label": "资金账支付变动", "amount": "26840.50", "placeholder": "输入金额"},
+            {"entryId": "ledger-channel", "direction": "渠道", "label": "执行渠道", "amount": "CASE_APPROVED_CHANNEL_A", "placeholder": "输入批准渠道"},
+            {"entryId": "ledger-status", "direction": "结果", "label": "执行/资金账状态", "amount": "EXECUTED / POSTED", "placeholder": "输入状态"}
+          ],
+          "answer": ["FUND-A-20260819-071", "PAY-ACCT-A-001 / REC-ACCT-A-001", "26840.50", "CASE_APPROVED_CHANNEL_A", "EXECUTED / POSTED"],
+          "explanation": "资金账记录回到同一业务键，金额按付款方向登记，并保留批准渠道和正常执行/入账状态。",
+          "hints": ["结果登记看执行确认和资金账资料，不用业务依据代替执行结果。"]
+        },
+        {
+          "questionId": "CLR-FUND-PAYMENT-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "完成 Demo A 的正常支付勾稽。先确认身份和审核字段，再计算金额链与现金余额差。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "review-identity", "label": "业务键、日期、账户、依据和渠道", "kind": "SELECT", "formula": "FUND-A-20260819-071 / 2026-08-19 / 账户组合 / BASIS-A-20260819-071 / CASE_APPROVED_CHANNEL_A一致", "placeholder": "选择身份结论", "options": [{"optionId": "A_REVIEW_FIELDS_MATCH", "text": "审核字段一致"}, {"optionId": "A_REVIEW_FIELDS_PENDING", "text": "仍需回查审核字段"}]},
+              {"fieldId": "amount-chain-difference", "label": "金额链差", "kind": "NUMBER", "formula": "26840.50 - 26840.50", "placeholder": "输入金额差", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "cash-balance-difference", "label": "现金余额差", "kind": "NUMBER", "formula": "98159.50 - (125000.00 - 26840.50)", "placeholder": "输入余额差", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "reconciliation-result", "label": "正常支付对账结果", "kind": "SELECT", "formula": "审核字段一致且两类差额为0.00", "placeholder": "选择对账结果", "options": [{"optionId": "A_RECONCILED_ZERO", "text": "已对账，差额为零"}, {"optionId": "A_RECONCILIATION_PENDING", "text": "尚未完成对账"}]}
+            ]
+          },
+          "answer": ["A_REVIEW_FIELDS_MATCH", "0.00", "0.00", "A_RECONCILED_ZERO"],
+          "explanation": "业务键、日期、账户、依据和渠道一致；金额链与 openingCash−支付金额的余额链均为0.00。",
+          "hints": ["身份字段先对应，再分别计算支付金额差和现金余额差。"]
+        },
+        {
+          "questionId": "CLR-FUND-PAYMENT-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话说明正常资金支付在登记执行结果前要先完成的审核动作。",
+          "textInput": {"label": "正常支付审核动作", "placeholder": "写一句资料可回查的审核动作"},
+          "answer": ["先核对业务依据、收付款账户状态与锁定、业务日期和批准渠道，再登记执行结果。"],
+          "explanation": "正常支付先完成身份和批准控制核对，再承接执行结果；这道基础题只练习审核动作的简短表达。",
+          "hints": ["写出业务依据、账户控制、日期和批准渠道，再说明之后才能登记执行结果。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "资金结算处理岗",
+        "product": "场外资金正常支付迁移案例",
+        "date": "2026-08-22",
+        "purpose": "从指令、业务依据、执行确认、资金账和对账资料中完成正常支付审核、金额复算、结果登记和跨来源勾稽。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "CLR-FUND-B-INSTRUCTION",
+          "title": "支付指令资料（综合B）",
+          "kind": "INSTRUCTION",
+          "description": "承载支付身份、业务日期、账户、账户状态与锁定、批准渠道和指令金额。",
+          "fields": [
+            {"fieldId": "payment_key", "label": "支付业务键", "value": "FUND-B-20260822-184"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-22"},
+            {"fieldId": "payment_date", "label": "支付日期", "value": "2026-08-22"},
+            {"fieldId": "business_basis_id", "label": "业务依据编号", "value": "BASIS-B-20260822-184"},
+            {"fieldId": "payer_account", "label": "付款账户", "value": "PAY-ACCT-B-002"},
+            {"fieldId": "payee_account", "label": "收款账户", "value": "REC-ACCT-B-002"},
+            {"fieldId": "payer_account_status", "label": "付款账户状态", "value": "ACTIVE"},
+            {"fieldId": "payee_account_status", "label": "收款账户状态", "value": "ACTIVE"},
+            {"fieldId": "payer_account_lock", "label": "付款账户锁定", "value": "NOT_LOCKED"},
+            {"fieldId": "payee_account_lock", "label": "收款账户锁定", "value": "NOT_LOCKED"},
+            {"fieldId": "approved_channel", "label": "批准渠道", "value": "CASE_APPROVED_CHANNEL_B"},
+            {"fieldId": "approved_payment_amount", "label": "批准支付金额", "value": "41725.80", "unit": "CNY"},
+            {"fieldId": "instruction_status", "label": "指令状态", "value": "APPROVED"},
+            {"fieldId": "duplicate_check_status", "label": "重复执行检查", "value": "NOT_PREVIOUSLY_EXECUTED"}
+          ]
+        },
+        {
+          "materialId": "CLR-FUND-B-BASIS",
+          "title": "业务依据资料（综合B）",
+          "kind": "PARAMETER",
+          "description": "承载本案例批准的业务关系、账户组合、日期、渠道和金额，不代表永久制度参数。",
+          "fields": [
+            {"fieldId": "basis_id", "label": "业务依据编号", "value": "BASIS-B-20260822-184"},
+            {"fieldId": "basis_status", "label": "依据状态", "value": "VALID"},
+            {"fieldId": "business_type", "label": "业务类型", "value": "APPROVED_PAYMENT"},
+            {"fieldId": "authorized_account_pair", "label": "批准账户组合", "value": "PAY-ACCT-B-002 / REC-ACCT-B-002"},
+            {"fieldId": "basis_date", "label": "依据业务日期", "value": "2026-08-22"},
+            {"fieldId": "authorized_channel", "label": "批准渠道", "value": "CASE_APPROVED_CHANNEL_B"},
+            {"fieldId": "authorized_amount", "label": "批准金额", "value": "41725.80", "unit": "CNY"}
+          ]
+        },
+        {
+          "materialId": "CLR-FUND-B-EXECUTION",
+          "title": "支付执行确认（综合B）",
+          "kind": "CONFIRMATION",
+          "description": "承载同一业务键的正常执行日期、执行金额、渠道、结果状态和唯一执行控制。",
+          "fields": [
+            {"fieldId": "payment_key", "label": "支付业务键", "value": "FUND-B-20260822-184"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-22"},
+            {"fieldId": "execution_date", "label": "执行日期", "value": "2026-08-22"},
+            {"fieldId": "payer_account", "label": "付款账户", "value": "PAY-ACCT-B-002"},
+            {"fieldId": "payee_account", "label": "收款账户", "value": "REC-ACCT-B-002"},
+            {"fieldId": "execution_channel", "label": "执行渠道", "value": "CASE_APPROVED_CHANNEL_B"},
+            {"fieldId": "executed_amount", "label": "执行金额", "value": "41725.80", "unit": "CNY"},
+            {"fieldId": "execution_result", "label": "执行结果", "value": "EXECUTED"},
+            {"fieldId": "execution_status", "label": "执行状态", "value": "EXECUTED"},
+            {"fieldId": "duplicate_control", "label": "重复执行控制", "value": "UNIQUE_EXECUTION"}
+          ]
+        },
+        {
+          "materialId": "CLR-FUND-B-LEDGER",
+          "title": "资金账记录（综合B）",
+          "kind": "LEDGER",
+          "description": "承载正常支付后的账户余额、资金账支付变动、业务键和入账状态。",
+          "fields": [
+            {"fieldId": "payment_key", "label": "支付业务键", "value": "FUND-B-20260822-184"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-22"},
+            {"fieldId": "account_pair", "label": "账户组合", "value": "PAY-ACCT-B-002 / REC-ACCT-B-002"},
+            {"fieldId": "opening_cash", "label": "openingCash", "value": "210000.00", "unit": "CNY"},
+            {"fieldId": "ledger_payment_amount", "label": "资金账支付变动", "value": "41725.80", "unit": "CNY"},
+            {"fieldId": "ledger_direction", "label": "资金账方向", "value": "PAYMENT_OUT"},
+            {"fieldId": "closing_cash", "label": "closingCash", "value": "168274.20", "unit": "CNY"},
+            {"fieldId": "ledger_status", "label": "资金账状态", "value": "POSTED"},
+            {"fieldId": "execution_reference", "label": "执行引用", "value": "FUND-B-20260822-184"}
+          ]
+        },
+        {
+          "materialId": "CLR-FUND-B-RECON",
+          "title": "支付勾稽资料（综合B）",
+          "kind": "RECONCILIATION",
+          "description": "把业务依据、执行确认和资金账的身份、金额、账户、日期、渠道及状态放在一起比较。",
+          "fields": [
+            {"fieldId": "payment_key", "label": "支付业务键", "value": "FUND-B-20260822-184"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-22"},
+            {"fieldId": "basis_id", "label": "业务依据编号", "value": "BASIS-B-20260822-184"},
+            {"fieldId": "account_match", "label": "账户组合核对", "value": "MATCH"},
+            {"fieldId": "basis_match", "label": "业务依据核对", "value": "MATCH"},
+            {"fieldId": "date_match", "label": "日期核对", "value": "MATCH"},
+            {"fieldId": "channel_match", "label": "渠道核对", "value": "MATCH"},
+            {"fieldId": "status_match", "label": "状态核对", "value": "MATCH"},
+            {"fieldId": "duplicate_control", "label": "重复执行控制", "value": "UNIQUE_EXECUTION"},
+            {"fieldId": "approved_amount", "label": "批准金额", "value": "41725.80", "unit": "CNY"},
+            {"fieldId": "executed_amount", "label": "执行金额", "value": "41725.80", "unit": "CNY"},
+            {"fieldId": "ledger_payment_amount", "label": "资金账支付变动", "value": "41725.80", "unit": "CNY"},
+            {"fieldId": "approved_executed_difference", "label": "批准金额与执行金额差额", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "executed_ledger_difference", "label": "执行金额与资金账支付变动差额", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "cash_balance_difference", "label": "现金余额差额", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "reconciliation_status", "label": "对账状态", "value": "RECONCILED"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "clr-fund-b-source-fields",
+          "type": "FIELD_MAP",
+          "title": "定位审核与结果来源",
+          "instruction": "从五份资料中选择承载支付身份、业务依据、执行结果、资金账和勾稽字段的来源组合。",
+          "response": {"kind": "SELECT", "placeholder": "选择来源组合", "options": [{"optionId": "B_SOURCE_MAP", "text": "指令—业务依据—执行确认—资金账—对账资料"}, {"optionId": "B_LEDGER_ONLY", "text": "只用资金账记录"}]}
+        },
+        {
+          "workItemId": "clr-fund-b-approval-controls",
+          "type": "FIELD_MAP",
+          "title": "定位批准控制字段",
+          "instruction": "选择能共同证明账户、依据、日期和批准渠道已对应的来源关系。",
+          "response": {"kind": "SELECT", "placeholder": "选择审核字段来源", "options": [{"optionId": "B_APPROVAL_SOURCES", "text": "指令与业务依据，并与执行确认交叉核对"}, {"optionId": "B_EXECUTION_ONLY", "text": "只看执行确认"}]}
+        },
+        {
+          "workItemId": "clr-fund-b-closing-cash",
+          "type": "CALCULATION",
+          "title": "复算 closingCash",
+          "instruction": "用 openingCash 减去批准支付金额，计算综合B的 closingCash。",
+          "response": {"kind": "NUMBER", "placeholder": "输入 closingCash", "unit": "CNY", "precision": 2}
+        },
+        {
+          "workItemId": "clr-fund-b-amount-chain",
+          "type": "CALCULATION",
+          "title": "核对批准金额与执行金额差",
+          "instruction": "用批准金额减执行金额，填写第一处金额差。金额保留两位小数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入批准与执行差额", "unit": "CNY", "precision": 2}
+        },
+        {
+          "workItemId": "clr-fund-b-execution-ledger",
+          "type": "LEDGER_ENTRY",
+          "title": "登记执行与资金账结果",
+          "instruction": "将综合B的业务键、日期、账户组合、资金账支付变动、批准渠道、执行状态、入账状态和重复执行控制登记到结果工作纸。",
+          "response": {"kind": "TEXT", "placeholder": "按字段填写执行与资金账结果"}
+        },
+        {
+          "workItemId": "clr-fund-b-identity-recon",
+          "type": "RECONCILIATION",
+          "title": "勾稽审核身份与正常控制",
+          "instruction": "选择业务键、日期、账户、业务依据、渠道、状态和重复执行控制均已对应的结论。",
+          "response": {"kind": "SELECT", "placeholder": "选择勾稽结论", "options": [{"optionId": "B_IDENTITIES_CHANNELS_MATCH", "text": "身份、账户、依据、日期、渠道和状态一致"}, {"optionId": "B_IDENTITIES_PENDING", "text": "仍有字段未对应"}]}
+        },
+        {
+          "workItemId": "clr-fund-b-cash-recon",
+          "type": "RECONCILIATION",
+          "title": "核对现金余额差",
+          "instruction": "用资金账 closingCash 减 openingCash 减批准支付金额后的理论余额，填写余额差。",
+          "response": {"kind": "NUMBER", "placeholder": "输入现金余额差", "unit": "CNY", "precision": 2}
+        },
+        {
+          "workItemId": "clr-fund-b-amount-recon",
+          "type": "RECONCILIATION",
+          "title": "核对执行金额与资金账金额差",
+          "instruction": "用执行金额减资金账支付变动，填写第二处金额差。金额保留两位小数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入执行与资金账差额", "unit": "CNY", "precision": 2}
+        },
+        {
+          "workItemId": "clr-fund-b-conclusion",
+          "type": "SHORT_TEXT",
+          "title": "写出正常支付结论",
+          "instruction": "用一句话写明业务键、日期、账户与依据、批准渠道、支付金额、closingCash、执行/入账状态和两类差额。",
+          "response": {"kind": "TEXT", "placeholder": "写一句可回查资料的支付结论"}
+        }
+      ],
+      "submissionNote": "请按资料顺序完成来源判断、审核字段、金额计算、结果登记和跨来源勾稽；金额填写两位小数，结论回指业务键和日期。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "CLR-FUND-REF-FLOW",
+      "title": "资金结算业务介绍：支付、指令审核与台账",
+      "source": "project_materials/新人陪练案例库/清算/资金/托管资金结算业务介绍202608.pptx S7、S10、S13；嵌入 Document1.docx P8、P12-P14",
+      "usage": "MATERIAL_ABSTRACTION：抽象指令审核、业务依据/账户核对、执行结果登记和资金账承接关系；不固化阈值、截止时刻、厂商菜单或内部账户。"
+    },
+    {
+      "referenceId": "CLR-FUND-REF-RECON",
+      "title": "资金例题：支付渠道与资金对账",
+      "source": "project_materials/新人陪练案例库/清算/资金/资金例题.docx P7-P10、P64-P68、P76-P80",
+      "usage": "MATERIAL_ABSTRACTION：抽象清算审核边界、支付渠道需要按批准字段核对、日终台账与对账资料分别核对；不复用历史金额、时间或具体系统答案。"
+    },
+    {
+      "referenceId": "CLR-FUND-REF-CASE",
+      "title": "正常支付教育案例参数",
+      "source": "CLR-FUND-PAYMENT-001 私有证据资产中的 Demo A 与 Comprehensive B",
+      "usage": "SYNTHETIC_EDUCATIONAL + ONLY_THIS_CASE：业务键、日期、账户标识、金额、渠道、状态、精度和容差仅用于本路线案例，不表示永久制度。"
+    },
+    {
+      "referenceId": "CLR-FUND-REF-BOUNDARY",
+      "title": "资金应急材料的排除边界",
+      "source": "project_materials/新人陪练案例库/清算/资金/托管业务应急预案介绍202608.pptx S3-S8、S9-S13",
+      "usage": "MATERIAL_ABSTRACTION：仅确认应急处置、系统中断和替代手段不属于本条正常支付主链；本路线不制作应急、失败、重付、余额不足或异常题面。"
+    }
+  ]
+}

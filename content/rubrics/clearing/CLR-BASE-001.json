@@ -1,0 +1,227 @@
+{
+  "routeId": "CLR-BASE-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CLR-BASE-OBJECT-SOURCES",
+          "description": "区分 SETTLEMENT_OBLIGATION 的身份字段及四类资料的业务作用",
+          "weight": 13,
+          "evidenceRequirement": "能从综合B定位指令、确认/成交和交收结果资料，并知道每类资料承载的字段不同",
+          "evidenceRules": [
+            {"fieldId": "clr-base-b-instruction-source", "operator": "EQUALS", "expected": "B_INSTRUCTION_SOURCE"},
+            {"fieldId": "clr-base-b-confirmation-source", "operator": "EQUALS", "expected": "B_CONFIRMATION_SOURCE"},
+            {"fieldId": "clr-base-b-settlement-source", "operator": "EQUALS", "expected": "B_SETTLEMENT_SOURCE"}
+          ],
+          "remediationTargetId": "CLR-BASE-SOURCES"
+        },
+        {
+          "criterionId": "C-CLR-BASE-ROLES",
+          "description": "保留资产类型、方向和交付/接收参与角色的边界",
+          "weight": 12,
+          "evidenceRequirement": "结果工作纸同时保留方向、交付方和接收方角色，不用资料名称替代参与角色",
+          "evidenceRules": [
+            {"fieldId": "clr-base-b-identity-check", "operator": "EQUALS", "expected": "B_KEYS_MATCH"},
+            {"fieldId": "clr-base-b-result-ledger", "operator": "CONTAINS_ALL", "expected": ["SECURITY", "RECEIVE", "DELIVERING_PARTICIPANT", "RECEIVING_PARTICIPANT"]}
+          ],
+          "remediationTargetId": "CLR-BASE-OBJECT"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CLR-BASE-FIELD-READ",
+          "description": "按资料类型读取并映射身份、确认和结果字段",
+          "weight": 10,
+          "evidenceRequirement": "指令、确认/成交、交收结果和对账来源选择均正确",
+          "evidenceRules": [
+            {"fieldId": "clr-base-b-instruction-source", "operator": "EQUALS", "expected": "B_INSTRUCTION_SOURCE"},
+            {"fieldId": "clr-base-b-confirmation-source", "operator": "EQUALS", "expected": "B_CONFIRMATION_SOURCE"},
+            {"fieldId": "clr-base-b-settlement-source", "operator": "EQUALS", "expected": "B_SETTLEMENT_SOURCE"}
+          ],
+          "remediationTargetId": "CLR-BASE-SOURCES"
+        },
+        {
+          "criterionId": "P-CLR-BASE-DECIMAL",
+          "description": "独立复算数量和金额并保持单位与精度",
+          "weight": 10,
+          "evidenceRequirement": "15×110=1650 unit，4800.00+7740.00=12540.00 CNY，数量精度为0、金额容差为0.01",
+          "evidenceRules": [
+            {"fieldId": "clr-base-b-quantity", "operator": "NUMBER_EQUALS", "expected": 1650, "tolerance": 0},
+            {"fieldId": "clr-base-b-amount", "operator": "NUMBER_EQUALS", "expected": 12540, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CLR-BASE-CALC"
+        },
+        {
+          "criterionId": "P-CLR-BASE-RESULT-RECON",
+          "description": "登记交收结果并完成身份和两类差额核对",
+          "weight": 10,
+          "evidenceRequirement": "工作纸保留综合B实际数量、金额、结果状态，身份对应且数量差与金额差均为零",
+          "evidenceRules": [
+            {"fieldId": "clr-base-b-result-ledger", "operator": "CONTAINS_ALL", "expected": ["BASE-B-20260821-284", "1650", "12540.00", "SETTLED"]},
+            {"fieldId": "clr-base-b-identity-check", "operator": "EQUALS", "expected": "B_KEYS_MATCH"},
+            {"fieldId": "clr-base-b-quantity-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "clr-base-b-amount-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CLR-BASE-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CLR-BASE-IDENTITY",
+          "description": "控制业务键、业务日期、资产类型和方向的错配",
+          "weight": 13,
+          "evidenceRequirement": "身份核对选择一致，结论回指综合B的业务键、日期、方向和资产类型",
+          "evidenceRules": [
+            {"fieldId": "clr-base-b-identity-check", "operator": "EQUALS", "expected": "B_KEYS_MATCH"},
+            {"fieldId": "clr-base-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["BASE-B-20260821-284", "2026-08-21", "SECURITY", "RECEIVE"]}
+          ],
+          "remediationTargetId": "CLR-BASE-IDENTITY"
+        },
+        {
+          "criterionId": "R-CLR-BASE-ZERO-DIFF",
+          "description": "控制交收结果与对账资料的数量、金额和状态闭合",
+          "weight": 12,
+          "evidenceRequirement": "数量差为0、金额差为0.00、结果状态为SETTLED并选择两类差额为零",
+          "evidenceRules": [
+            {"fieldId": "clr-base-b-quantity-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "clr-base-b-amount-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-base-b-reconciliation", "operator": "EQUALS", "expected": "B_RECONCILED_ZERO"},
+            {"fieldId": "clr-base-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["0", "0.00", "SETTLED"]}
+          ],
+          "remediationTargetId": "CLR-BASE-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CLR-BASE-TRACEABLE",
+          "description": "用短句写出可追溯的正常结果结论",
+          "weight": 20,
+          "evidenceRequirement": "一句话同时写明业务键、日期和方向、交收数量与金额、数量差、金额差和结果状态",
+          "evidenceRules": [
+            {"fieldId": "clr-base-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["BASE-B-20260821-284", "2026-08-21", "RECEIVE", "1650 unit", "12540.00 CNY", "数量差0", "金额差0.00", "SETTLED"]}
+          ],
+          "remediationTargetId": "CLR-BASE-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CLR-BASE-IDENTITY-CLOSED",
+      "description": "同一笔义务的身份和来源必须对应",
+      "evidenceRequirement": "指令、确认/成交、交收结果来源选择正确，业务键、日期、资产类型和方向核对一致",
+      "evidenceRules": [
+        {"fieldId": "clr-base-b-instruction-source", "operator": "EQUALS", "expected": "B_INSTRUCTION_SOURCE"},
+        {"fieldId": "clr-base-b-confirmation-source", "operator": "EQUALS", "expected": "B_CONFIRMATION_SOURCE"},
+        {"fieldId": "clr-base-b-settlement-source", "operator": "EQUALS", "expected": "B_SETTLEMENT_SOURCE"},
+        {"fieldId": "clr-base-b-identity-check", "operator": "EQUALS", "expected": "B_KEYS_MATCH"}
+      ],
+      "remediationTargetId": "CLR-BASE-IDENTITY"
+    },
+    {
+      "requirementId": "M-CLR-BASE-RESULT-ZERO",
+      "description": "数量、金额和结果状态必须同时对上",
+      "evidenceRequirement": "数量与金额独立复算，交收结果工作纸完整，数量差0、金额差0.00并选择两类差额为零",
+      "evidenceRules": [
+        {"fieldId": "clr-base-b-quantity", "operator": "NUMBER_EQUALS", "expected": 1650, "tolerance": 0},
+        {"fieldId": "clr-base-b-amount", "operator": "NUMBER_EQUALS", "expected": 12540, "tolerance": 0.01},
+        {"fieldId": "clr-base-b-result-ledger", "operator": "CONTAINS_ALL", "expected": ["1650", "12540.00", "SETTLED"]},
+        {"fieldId": "clr-base-b-quantity-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+        {"fieldId": "clr-base-b-amount-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-base-b-reconciliation", "operator": "EQUALS", "expected": "B_RECONCILED_ZERO"}
+      ],
+      "remediationTargetId": "CLR-BASE-RECON"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "CLR-BASE-OBJECT",
+      "title": "补学义务对象与参与角色",
+      "reason": "未能把资产类型、方向和交付/接收参与角色放回同一笔 SETTLEMENT_OBLIGATION",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-BASE-KC-02",
+      "questionId": "CLR-BASE-Q-04"
+    },
+    {
+      "targetId": "CLR-BASE-SOURCES",
+      "title": "补学四类资料来源",
+      "reason": "没有按资料作用区分指令、确认/成交、交收结果和对账资料",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-BASE-KC-01",
+      "questionId": "CLR-BASE-Q-01"
+    },
+    {
+      "targetId": "CLR-BASE-CALC",
+      "title": "补学数量与金额复算",
+      "reason": "数量或金额没有按本案例分项和精度独立计算",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-BASE-Q-02"
+    },
+    {
+      "targetId": "CLR-BASE-IDENTITY",
+      "title": "补学业务身份对应",
+      "reason": "业务键、业务日期、资产类型或方向没有在来源之间保持一致",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-BASE-KC-03",
+      "questionId": "CLR-BASE-Q-05"
+    },
+    {
+      "targetId": "CLR-BASE-RECON",
+      "title": "补学交收结果与零差对账",
+      "reason": "交收结果、数量差、金额差或正常对账结论没有同时完成",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "CLR-BASE-Q-05"
+    },
+    {
+      "targetId": "CLR-BASE-CONCLUSION",
+      "title": "补写可追溯结果结论",
+      "reason": "短结论缺少业务身份、数值结果、差额或结果状态",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "CLR-BASE-Q-03"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CLR-BASE-COMP-B",
+    "responses": {
+      "clr-base-b-instruction-source": "B_INSTRUCTION_SOURCE",
+      "clr-base-b-confirmation-source": "B_CONFIRMATION_SOURCE",
+      "clr-base-b-settlement-source": "B_SETTLEMENT_SOURCE",
+      "clr-base-b-quantity": 1650,
+      "clr-base-b-amount": 12540,
+      "clr-base-b-result-ledger": "businessKey=BASE-B-20260821-284; businessDate=2026-08-21; assetType=SECURITY; direction=RECEIVE; deliveringRole=DELIVERING_PARTICIPANT; receivingRole=RECEIVING_PARTICIPANT; quantity=1650 unit; amount=12540.00 CNY; status=SETTLED",
+      "clr-base-b-identity-check": "B_KEYS_MATCH",
+      "clr-base-b-quantity-diff": 0,
+      "clr-base-b-amount-diff": 0,
+      "clr-base-b-reconciliation": "B_RECONCILED_ZERO",
+      "clr-base-b-conclusion": "业务键BASE-B-20260821-284，业务日期2026-08-21，资产类型SECURITY，方向RECEIVE；交收数量1650 unit、金额12540.00 CNY，数量差0、金额差0.00，结果状态SETTLED。"
+    },
+    "decimalChain": {
+      "quantity": "15 × 110 = 1650 unit",
+      "amount": "4800.00 + 7740.00 = 12540.00 CNY",
+      "quantityDifference": "1650 - 1650 = 0 unit",
+      "amountDifference": "12540.00 - 12540.00 = 0.00 CNY",
+      "identity": "BASE-B-20260821-284 / 2026-08-21 / SECURITY / RECEIVE",
+      "result": "SETTLED; reconciliationStatus=RECONCILED"
+    }
+  }
+}

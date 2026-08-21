@@ -1,0 +1,310 @@
+{
+  "evidenceId": "CLR-FUND-PAYMENT-EVID-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "routeId": "CLR-FUND-PAYMENT-001",
+  "routeCode": "FUND-PAYMENT",
+  "title": "资金指令审核与正常支付执行证据链",
+  "scopeNotice": "本文件只为 CLR-FUND-PAYMENT-001 提供私有答案链、材料定位和评分映射；案例业务键、日期、账户标识、金额、渠道、状态、精度和容差均只适用于本案例版本。",
+  "dependencyPolicy": {
+    "dependsOnRouteIds": ["CLR-BASE-001"],
+    "stageGate": false,
+    "worldBoundary": "只服务 CLEARING 资金结算首路线，不读取 ACCOUNTING 或 SUPERVISION 的路线状态"
+  },
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "CLR-MAT-FUND-FLOW",
+      "physicalFile": "project_materials/新人陪练案例库/清算/资金/托管资金结算业务介绍202608.pptx",
+      "locators": ["S7", "S10", "S13", "EMBEDDED-Document1-P8", "EMBEDDED-Document1-P12-P14"],
+      "teachingUse": "MATERIAL_ABSTRACTION：抽象资金支付、指令审核、账户/依据校验、执行结果登记、资金账和对账的连续关系；不复制历史阈值、截止时刻、厂商菜单或内部账户。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-FUND-TEST",
+      "physicalFile": "project_materials/新人陪练案例库/清算/资金/资金例题.docx",
+      "locators": ["P7-P10", "P64-P68", "P76-P80"],
+      "teachingUse": "MATERIAL_ABSTRACTION：抽象清算审核边界、支付渠道存在批准字段、日终台账与对账资料分开核对；不复用历史金额、时间、系统或选项答案。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-FUND-EMERGENCY",
+      "physicalFile": "project_materials/新人陪练案例库/清算/资金/托管业务应急预案介绍202608.pptx",
+      "locators": ["S3-S8", "S9-S13", "EMBEDDED-Document1-P31-P35", "EMBEDDED-Document1-P86-P95"],
+      "teachingUse": "MATERIAL_ABSTRACTION：仅作为边界审计，确认应急处置、系统中断、替代渠道和远程处理不进入本条正常支付主链。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "exclusionBoundary": {
+    "allowed": [
+      "正常支付指令与业务依据的业务键、日期、金额、收付款账户、账户状态与锁定、批准渠道和状态字段",
+      "正常执行结果、资金账支付变动、openingCash、closingCash和跨来源零差勾稽",
+      "按本案例参数进行 Decimal 字符串复算和唯一执行控制登记"
+    ],
+    "excluded": [
+      "历史金额阈值、固定截止时刻、厂商名称、系统菜单和真实账户名称",
+      "支付失败、再次支付、重付、余额不足、异常指令、应急或替代处理",
+      "会计分录、券结基金佣金/备付金、银行间或场内分支专有规则",
+      "真实客户、真实业务凭据、内网地址、账号、密钥或联系人信息"
+    ],
+    "boundaryPolicy": "排除项只用于说明本路线不覆盖的范围，不形成题面案例、答案或评分条件。"
+  },
+  "fixturePolicy": {
+    "provenance": "SYNTHETIC_EDUCATIONAL",
+    "version": "CLR-FUND-PAYMENT-EDU-1.0",
+    "scope": "ONLY_THIS_CASE",
+    "basis": "业务对象、审核字段、执行承接和资金账关系来自三份资金材料的抽象，日期、业务键、账户标识、金额、渠道和状态为教育案例参数。",
+    "parameterPolicy": "所有数字、日期、业务键、账户标识、渠道、状态、精度和容差均为 CASE_POLICY/ONLY_THIS_CASE，不表示永久制度。",
+    "precisionPolicy": {
+      "amount": {"scale": 2, "unit": "CNY", "tolerance": "0.01"},
+      "cashBalance": {"scale": 2, "unit": "CNY", "tolerance": "0.01"}
+    },
+    "publicPrivateSplit": "公开 route 只呈现资料字段和作答结构；答案、规则和补学映射留在本目录。"
+  },
+  "caseParameters": [
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "payment_key", "value": "FUND-A-20260819-071", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "business_date", "value": "2026-08-19", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "business_basis_id", "value": "BASIS-A-20260819-071", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "payer_account", "value": "PAY-ACCT-A-001", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "payee_account", "value": "REC-ACCT-A-001", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "account_status_and_lock", "value": "ACTIVE / ACTIVE / NOT_LOCKED / NOT_LOCKED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "approved_channel", "value": "CASE_APPROVED_CHANNEL_A", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "approved_payment_amount", "value": "26840.50", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "opening_cash", "value": "125000.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "closing_cash", "value": "98159.50", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "execution_and_ledger_status", "value": "EXECUTED / POSTED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "duplicate_control", "value": "UNIQUE_EXECUTION", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "payment_date", "value": "2026-08-19", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "instruction_status", "value": "APPROVED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "basis_status", "value": "VALID", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "business_type", "value": "APPROVED_PAYMENT", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-DEMO-A", "parameter": "reconciliation_status", "value": "RECONCILED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "payment_key", "value": "FUND-B-20260822-184", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "business_date", "value": "2026-08-22", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "business_basis_id", "value": "BASIS-B-20260822-184", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "payer_account", "value": "PAY-ACCT-B-002", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "payee_account", "value": "REC-ACCT-B-002", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "account_status_and_lock", "value": "ACTIVE / ACTIVE / NOT_LOCKED / NOT_LOCKED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "approved_channel", "value": "CASE_APPROVED_CHANNEL_B", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "approved_payment_amount", "value": "41725.80", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "opening_cash", "value": "210000.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "closing_cash", "value": "168274.20", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "execution_and_ledger_status", "value": "EXECUTED / POSTED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "duplicate_control", "value": "UNIQUE_EXECUTION", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "payment_date", "value": "2026-08-22", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "instruction_status", "value": "APPROVED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "basis_status", "value": "VALID", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "business_type", "value": "APPROVED_PAYMENT", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-PAYMENT-COMP-B", "parameter": "reconciliation_status", "value": "RECONCILED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"}
+  ],
+  "ruleCatalog": [
+    {
+      "ruleId": "CLR-FUND-RULE-SOURCE-MAP",
+      "type": "SOURCE_FIELD_MAPPING",
+      "fields": ["payment_key", "business_date", "business_basis_id", "payer_account", "payee_account", "approved_payment_amount", "executed_amount", "ledger_payment_amount", "opening_cash", "closing_cash"],
+      "condition": "指令、业务依据、执行确认、资金账和对账资料按字段作用进入同一支付记录",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-RULE-APPROVAL-CONTROLS",
+      "type": "APPROVAL_FIELD_MATCH",
+      "fields": ["payer_account_status", "payee_account_status", "payer_account_lock", "payee_account_lock", "basis_status", "business_date", "payment_date", "approved_channel", "execution_channel"],
+      "condition": "账户状态与锁定、依据状态、业务/支付日期和批准/执行渠道均一致",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-RULE-CASH-BALANCE",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "opening_cash - approved_payment_amount = closing_cash",
+      "expected": "210000.00 - 41725.80 = 168274.20",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-RULE-AMOUNT-CHAIN",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "approved_payment_amount - executed_amount = 0.00",
+      "expected": "0.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-RULE-EXECUTED-LEDGER-AMOUNT",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "executed_amount - ledger_payment_amount = 0.00",
+      "expected": "0.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-RULE-RESULT-LEDGER",
+      "type": "RESULT_LEDGER",
+      "fields": ["payment_key", "business_date", "payer_account", "payee_account", "approved_channel", "executed_amount", "execution_status", "ledger_status", "duplicate_control"],
+      "condition": "执行确认和资金账结果回到同一业务键，金额、账户、渠道和状态完整登记",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-RULE-IDENTITY-RECON",
+      "type": "MATCH_KEY_AND_CONTROL",
+      "fields": ["payment_key", "business_date", "business_basis_id", "payer_account", "payee_account", "approved_channel", "execution_channel", "duplicate_control"],
+      "condition": "业务键、日期、依据、账户、渠道、状态和唯一执行控制跨来源一致",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-RULE-CASH-RECON",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "closing_cash - (opening_cash - approved_payment_amount) = 0.00",
+      "expected": "0.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-RULE-CONCLUSION",
+      "type": "TRACEABLE_CONCLUSION",
+      "fields": ["payment_key", "business_date", "business_basis_id", "payer_account", "payee_account", "approved_channel", "approved_payment_amount", "executed_amount", "ledger_payment_amount", "closing_cash", "execution_status", "ledger_status", "approved_executed_difference", "executed_ledger_difference", "cash_balance_difference", "reconciliation_status"],
+      "condition": "短结论逐项回指业务身份、审核控制、金额、余额、状态和差额",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "CLR-FUND-PAYMENT-DEMO-A",
+      "identity": {
+        "paymentKey": "FUND-A-20260819-071",
+        "businessDate": "2026-08-19",
+        "paymentDate": "2026-08-19",
+        "businessBasisId": "BASIS-A-20260819-071",
+        "payerAccount": "PAY-ACCT-A-001",
+        "payeeAccount": "REC-ACCT-A-001"
+      },
+      "sourceToRole": [
+        {"sourceMaterialId": "CLR-FUND-A-INSTRUCTION", "roleIds": ["PAYMENT_INSTRUCTION"], "fields": ["payment_key", "business_date", "payment_date", "payer_account", "payee_account", "payer_account_status", "payee_account_status", "payer_account_lock", "payee_account_lock", "approved_channel", "approved_payment_amount", "instruction_status", "duplicate_check_status"]},
+        {"sourceMaterialId": "CLR-FUND-A-BASIS", "roleIds": ["BUSINESS_BASIS"], "fields": ["basis_id", "basis_status", "business_type", "authorized_account_pair", "basis_date", "authorized_channel", "authorized_amount"]},
+        {"sourceMaterialId": "CLR-FUND-A-EXECUTION", "roleIds": ["PAYMENT_EXECUTION"], "fields": ["payment_key", "business_date", "execution_date", "payer_account", "payee_account", "execution_channel", "executed_amount", "execution_result", "execution_status", "duplicate_control"]},
+        {"sourceMaterialId": "CLR-FUND-A-LEDGER", "roleIds": ["FUNDS_LEDGER"], "fields": ["payment_key", "business_date", "account_pair", "opening_cash", "ledger_payment_amount", "closing_cash", "ledger_status"]},
+        {"sourceMaterialId": "CLR-FUND-A-RECON", "roleIds": ["RECONCILIATION"], "fields": ["payment_key", "business_date", "basis_id", "account_match", "basis_match", "date_match", "channel_match", "status_match", "duplicate_control", "approved_executed_difference", "executed_ledger_difference", "cash_balance_difference", "reconciliation_status"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "closing_cash", "formula": "125000.00 - 26840.50", "result": "98159.50", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "approved_executed_difference", "formula": "26840.50 - 26840.50", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "executed_ledger_difference", "formula": "26840.50 - 26840.50", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "cash_balance_difference", "formula": "98159.50 - (125000.00 - 26840.50)", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"}
+      ],
+      "result": {"paymentKey": "FUND-A-20260819-071", "businessDate": "2026-08-19", "businessBasisId": "BASIS-A-20260819-071", "payerAccount": "PAY-ACCT-A-001", "payeeAccount": "REC-ACCT-A-001", "approvedChannel": "CASE_APPROVED_CHANNEL_A", "paymentAmount": "26840.50", "executedAmount": "26840.50", "ledgerPaymentAmount": "26840.50", "openingCash": "125000.00", "closingCash": "98159.50", "executionStatus": "EXECUTED", "ledgerStatus": "POSTED", "duplicateControl": "UNIQUE_EXECUTION"},
+      "reconciliation": {"accountMatch": "MATCH", "basisMatch": "MATCH", "dateMatch": "MATCH", "channelMatch": "MATCH", "statusMatch": "MATCH", "approvedExecutedDifference": "0.00", "executedLedgerDifference": "0.00", "cashBalanceDifference": "0.00", "status": "RECONCILED"}
+    },
+    "comprehensiveB": {
+      "fixtureId": "CLR-FUND-PAYMENT-COMP-B",
+      "identity": {
+        "paymentKey": "FUND-B-20260822-184",
+        "businessDate": "2026-08-22",
+        "paymentDate": "2026-08-22",
+        "businessBasisId": "BASIS-B-20260822-184",
+        "payerAccount": "PAY-ACCT-B-002",
+        "payeeAccount": "REC-ACCT-B-002"
+      },
+      "sourceToRole": [
+        {"sourceMaterialId": "CLR-FUND-B-INSTRUCTION", "roleIds": ["PAYMENT_INSTRUCTION"], "fields": ["payment_key", "business_date", "payment_date", "payer_account", "payee_account", "payer_account_status", "payee_account_status", "payer_account_lock", "payee_account_lock", "approved_channel", "approved_payment_amount", "instruction_status", "duplicate_check_status"]},
+        {"sourceMaterialId": "CLR-FUND-B-BASIS", "roleIds": ["BUSINESS_BASIS"], "fields": ["basis_id", "basis_status", "business_type", "authorized_account_pair", "basis_date", "authorized_channel", "authorized_amount"]},
+        {"sourceMaterialId": "CLR-FUND-B-EXECUTION", "roleIds": ["PAYMENT_EXECUTION"], "fields": ["payment_key", "business_date", "execution_date", "payer_account", "payee_account", "execution_channel", "executed_amount", "execution_result", "execution_status", "duplicate_control"]},
+        {"sourceMaterialId": "CLR-FUND-B-LEDGER", "roleIds": ["FUNDS_LEDGER"], "fields": ["payment_key", "business_date", "account_pair", "opening_cash", "ledger_payment_amount", "closing_cash", "ledger_status"]},
+        {"sourceMaterialId": "CLR-FUND-B-RECON", "roleIds": ["RECONCILIATION"], "fields": ["payment_key", "business_date", "basis_id", "account_match", "basis_match", "date_match", "channel_match", "status_match", "duplicate_control", "approved_executed_difference", "executed_ledger_difference", "cash_balance_difference", "reconciliation_status"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "closing_cash", "formula": "210000.00 - 41725.80", "result": "168274.20", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "approved_executed_difference", "formula": "41725.80 - 41725.80", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "executed_ledger_difference", "formula": "41725.80 - 41725.80", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "cash_balance_difference", "formula": "168274.20 - (210000.00 - 41725.80)", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"}
+      ],
+      "result": {"paymentKey": "FUND-B-20260822-184", "businessDate": "2026-08-22", "businessBasisId": "BASIS-B-20260822-184", "payerAccount": "PAY-ACCT-B-002", "payeeAccount": "REC-ACCT-B-002", "approvedChannel": "CASE_APPROVED_CHANNEL_B", "paymentAmount": "41725.80", "executedAmount": "41725.80", "ledgerPaymentAmount": "41725.80", "openingCash": "210000.00", "closingCash": "168274.20", "executionStatus": "EXECUTED", "ledgerStatus": "POSTED", "duplicateControl": "UNIQUE_EXECUTION"},
+      "reconciliation": {"accountMatch": "MATCH", "basisMatch": "MATCH", "dateMatch": "MATCH", "channelMatch": "MATCH", "statusMatch": "MATCH", "approvedExecutedDifference": "0.00", "executedLedgerDifference": "0.00", "cashBalanceDifference": "0.00", "status": "RECONCILED"}
+    }
+  },
+  "atomicWorkItems": [
+    {
+      "workItemId": "clr-fund-b-source-fields",
+      "source": {"materialIds": ["CLR-FUND-B-INSTRUCTION", "CLR-FUND-B-BASIS", "CLR-FUND-B-EXECUTION", "CLR-FUND-B-LEDGER", "CLR-FUND-B-RECON"], "fieldIds": ["payment_key", "business_date", "business_basis_id", "payer_account", "payee_account", "approved_payment_amount", "executed_amount", "ledger_payment_amount", "opening_cash", "closing_cash"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-FUND-REF-FLOW", "CLR-FUND-REF-RECON"], "anchor": "指令、业务依据、执行确认、资金账和对账资料按字段作用组成一条正常支付资料链"},
+      "rule": {"ruleId": "CLR-FUND-RULE-SOURCE-MAP", "expected": "B_SOURCE_MAP", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-FUND-PAYMENT-SOURCES", "criterionIds": ["C-CLR-FUND-PAYMENT-SOURCES", "P-CLR-FUND-PAYMENT-FIELD-READ"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-FUND-PAYMENT-KC-01", "questionId": "CLR-FUND-PAYMENT-Q-01"}
+    },
+    {
+      "workItemId": "clr-fund-b-approval-controls",
+      "source": {"materialIds": ["CLR-FUND-B-INSTRUCTION", "CLR-FUND-B-BASIS", "CLR-FUND-B-EXECUTION"], "fieldIds": ["payer_account_status", "payee_account_status", "payer_account_lock", "payee_account_lock", "basis_status", "business_date", "payment_date", "approved_channel", "execution_channel", "duplicate_control"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-FUND-REF-FLOW", "CLR-FUND-REF-RECON"], "anchor": "账户状态与锁定、业务依据、日期、批准渠道和执行控制的逐项核对"},
+      "rule": {"ruleId": "CLR-FUND-RULE-APPROVAL-CONTROLS", "expected": "B_APPROVAL_SOURCES", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-FUND-PAYMENT-CONTROLS", "criterionIds": ["C-CLR-FUND-PAYMENT-CONTROLS", "R-CLR-FUND-PAYMENT-ACCOUNT-BASIS", "R-CLR-FUND-PAYMENT-DATE-CHANNEL"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-FUND-PAYMENT-KC-02", "questionId": "CLR-FUND-PAYMENT-Q-04"}
+    },
+    {
+      "workItemId": "clr-fund-b-closing-cash",
+      "source": {"materialIds": ["CLR-FUND-B-INSTRUCTION", "CLR-FUND-B-LEDGER", "CLR-FUND-B-RECON"], "fieldIds": ["approved_payment_amount", "opening_cash", "closing_cash"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-FUND-REF-FLOW", "CLR-FUND-REF-CASE"], "anchor": "综合B openingCash 减批准支付金额的 Decimal 现金余额链"},
+      "rule": {"ruleId": "CLR-FUND-RULE-CASH-BALANCE", "formula": "210000.00 - 41725.80 = 168274.20", "expected": "168274.20", "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-FUND-PAYMENT-CASH-CALC", "criterionIds": ["P-CLR-FUND-PAYMENT-DECIMAL"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "CLR-FUND-PAYMENT-Q-02"}
+    },
+    {
+      "workItemId": "clr-fund-b-amount-chain",
+      "source": {"materialIds": ["CLR-FUND-B-INSTRUCTION", "CLR-FUND-B-EXECUTION", "CLR-FUND-B-RECON"], "fieldIds": ["approved_payment_amount", "executed_amount", "approved_executed_difference"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-FUND-REF-FLOW", "CLR-FUND-REF-CASE"], "anchor": "批准金额与执行金额逐项比较，第一处差额为零"},
+      "rule": {"ruleId": "CLR-FUND-RULE-AMOUNT-CHAIN", "formula": "41725.80 - 41725.80 = 0.00", "expected": "0.00", "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-FUND-PAYMENT-APPROVED-EXECUTED", "criterionIds": ["P-CLR-FUND-PAYMENT-DECIMAL", "R-CLR-FUND-PAYMENT-ZERO-DIFF"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "CLR-FUND-PAYMENT-Q-02"}
+    },
+    {
+      "workItemId": "clr-fund-b-execution-ledger",
+      "source": {"materialIds": ["CLR-FUND-B-INSTRUCTION", "CLR-FUND-B-EXECUTION", "CLR-FUND-B-LEDGER"], "fieldIds": ["payment_key", "business_date", "payer_account", "payee_account", "approved_channel", "execution_channel", "executed_amount", "ledger_payment_amount", "execution_status", "ledger_status", "duplicate_control"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-FUND-REF-FLOW", "CLR-FUND-REF-CASE"], "anchor": "执行确认与资金账结果回到同一业务键并保留批准渠道和状态"},
+      "rule": {"ruleId": "CLR-FUND-RULE-RESULT-LEDGER", "expected": ["FUND-B-20260822-184", "2026-08-22", "PAY-ACCT-B-002 / REC-ACCT-B-002", "41725.80", "CASE_APPROVED_CHANNEL_B", "EXECUTED", "POSTED", "UNIQUE_EXECUTION"], "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-FUND-PAYMENT-LEDGER", "criterionIds": ["P-CLR-FUND-PAYMENT-RESULT-LEDGER", "R-CLR-FUND-PAYMENT-DUPLICATE"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-04", "questionId": "CLR-FUND-PAYMENT-Q-03"}
+    },
+    {
+      "workItemId": "clr-fund-b-identity-recon",
+      "source": {"materialIds": ["CLR-FUND-B-INSTRUCTION", "CLR-FUND-B-BASIS", "CLR-FUND-B-EXECUTION", "CLR-FUND-B-RECON"], "fieldIds": ["payment_key", "business_date", "business_basis_id", "basis_id", "payer_account", "payee_account", "account_match", "basis_match", "date_match", "channel_match", "status_match", "duplicate_control"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-FUND-REF-FLOW", "CLR-FUND-REF-RECON"], "anchor": "业务键、日期、依据、账户、渠道、状态和唯一执行控制跨来源一致"},
+      "rule": {"ruleId": "CLR-FUND-RULE-IDENTITY-RECON", "expected": "B_IDENTITIES_CHANNELS_MATCH", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-FUND-PAYMENT-CONTROLS", "criterionIds": ["C-CLR-FUND-PAYMENT-CONTROLS", "R-CLR-FUND-PAYMENT-ACCOUNT-BASIS", "R-CLR-FUND-PAYMENT-DATE-CHANNEL"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-FUND-PAYMENT-KC-02", "questionId": "CLR-FUND-PAYMENT-Q-04"}
+    },
+    {
+      "workItemId": "clr-fund-b-cash-recon",
+      "source": {"materialIds": ["CLR-FUND-B-LEDGER", "CLR-FUND-B-RECON"], "fieldIds": ["opening_cash", "approved_amount", "closing_cash", "cash_balance_difference"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-FUND-REF-FLOW", "CLR-FUND-REF-CASE"], "anchor": "资金账余额与 openingCash 减批准支付金额的理论余额对上"},
+      "rule": {"ruleId": "CLR-FUND-RULE-CASH-RECON", "formula": "168274.20 - (210000.00 - 41725.80) = 0.00", "expected": "0.00", "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-FUND-PAYMENT-RECON", "criterionIds": ["P-CLR-FUND-PAYMENT-RECON", "R-CLR-FUND-PAYMENT-ZERO-DIFF"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-FUND-PAYMENT-KC-03", "questionId": "CLR-FUND-PAYMENT-Q-04"}
+    },
+    {
+      "workItemId": "clr-fund-b-amount-recon",
+      "source": {"materialIds": ["CLR-FUND-B-EXECUTION", "CLR-FUND-B-LEDGER", "CLR-FUND-B-RECON"], "fieldIds": ["executed_amount", "ledger_payment_amount", "executed_ledger_difference"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-FUND-REF-RECON", "CLR-FUND-REF-CASE"], "anchor": "执行金额与资金账支付变动逐项比较，第二处差额为零"},
+      "rule": {"ruleId": "CLR-FUND-RULE-EXECUTED-LEDGER-AMOUNT", "formula": "41725.80 - 41725.80 = 0.00", "expected": "0.00", "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-FUND-PAYMENT-EXECUTED-LEDGER", "criterionIds": ["P-CLR-FUND-PAYMENT-RECON", "R-CLR-FUND-PAYMENT-ZERO-DIFF"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-FUND-PAYMENT-KC-03", "questionId": "CLR-FUND-PAYMENT-Q-04"}
+    },
+    {
+      "workItemId": "clr-fund-b-conclusion",
+      "source": {"materialIds": ["CLR-FUND-B-INSTRUCTION", "CLR-FUND-B-BASIS", "CLR-FUND-B-EXECUTION", "CLR-FUND-B-LEDGER", "CLR-FUND-B-RECON"], "fieldIds": ["payment_key", "business_date", "business_basis_id", "payer_account", "payee_account", "approved_channel", "approved_payment_amount", "executed_amount", "ledger_payment_amount", "closing_cash", "execution_status", "ledger_status", "approved_executed_difference", "executed_ledger_difference", "cash_balance_difference", "reconciliation_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-FUND-REF-FLOW", "CLR-FUND-REF-CASE"], "anchor": "短结论回指业务身份、审核控制、金额、余额、状态和差额"},
+      "rule": {"ruleId": "CLR-FUND-RULE-CONCLUSION", "expected": ["FUND-B-20260822-184", "2026-08-22", "PAY-ACCT-B-002", "REC-ACCT-B-002", "BASIS-B-20260822-184", "CASE_APPROVED_CHANNEL_B", "41725.80 CNY", "168274.20 CNY", "EXECUTED", "POSTED", "批准与执行差0.00", "执行与资金账差0.00", "现金余额差0.00", "RECONCILED"], "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-FUND-PAYMENT-CONCLUSION", "criterionIds": ["E-CLR-FUND-PAYMENT-TRACEABLE"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "CLR-FUND-PAYMENT-Q-05"}
+    }
+  ],
+  "coverage": {
+    "FIELD_MAP": ["clr-fund-b-source-fields", "clr-fund-b-approval-controls"],
+    "CALCULATION": ["clr-fund-b-closing-cash", "clr-fund-b-amount-chain"],
+    "LEDGER_ENTRY": ["clr-fund-b-execution-ledger"],
+    "RECONCILIATION": ["clr-fund-b-identity-recon", "clr-fund-b-cash-recon", "clr-fund-b-amount-recon"],
+    "SHORT_TEXT": ["clr-fund-b-conclusion"]
+  },
+  "integrity": {
+    "workItemMappingCount": 9,
+    "uniqueWorkItemMappings": true,
+    "everyWorkItemHasSourceReferenceRuleRemediation": true,
+    "demoAndComprehensiveAreIsomorphic": true,
+    "amountDifferencesAreIndependentlyObservable": true,
+    "demoAndComprehensiveUseDifferentKeysDatesAndNumbers": true,
+    "allCaseValuesMarkedOnlyThisCase": true,
+    "normalCaseOnly": true,
+    "mapAndReleaseRegistration": false
+  }
+}

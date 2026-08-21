@@ -300,10 +300,12 @@ const fieldTokenLabels: Record<string, string> = {
 
 const optionValueLabels: Record<string, string> = {
   ACCOUNTING_ONLY: '仅核算',
+  ACCOUNT_ROLES_COMPLETE: '账户角色已齐全',
   ACTIVE: '有效',
   AFTER_DISCLOSURE_DATE: '披露日期之后',
   ALL_ZERO_AND_REVIEW_CONFIRMED: '差额均为零且复核已确认',
   APPROVED_SNAPSHOT: '批准的来源快照',
+  APPROVED_FOR_CONFIRMATION: '已批准进入确认',
   BALANCED: '已平衡',
   BALANCE_SHEET: '资产负债表',
   BANK_STATEMENT: '银行对账单',
@@ -315,6 +317,7 @@ const optionValueLabels: Record<string, string> = {
   CANCELLED: '已撤销',
   CONFIRMED: '已确认',
   CUSTODIAN_INFO_MATCHED: '托管人信息一致',
+  CCDC: '中央国债登记结算有限责任公司',
   DATA_READY: '资料已就绪',
   DATA_RECEIVED: '资料已接收',
   HISTORICAL_DEFAULT: '历史默认值',
@@ -354,9 +357,13 @@ const optionValueLabels: Record<string, string> = {
   CASH_IN: '资金流入',
   CONSIDERATION: '申赎对价',
   DEDUCT: '扣减',
+  DELIVER_SECURITIES: '交付证券',
+  DELIVERING_PARTICIPANT: '交付方参与人',
+  DELIVERING_SECURITIES_ACCOUNT: '交付方证券账户',
   ESTIMATE_ADJUSTMENT: '估计金额调整',
   INCREASE: '增加',
   IN_KIND: '实物交付',
+  IDENTITY_MATCHED: '身份已匹配',
   LINK: '关联',
   PASS: '校验通过',
   POST: '登记',
@@ -378,10 +385,19 @@ const optionValueLabels: Record<string, string> = {
   NORMAL_CLOSE: '正常封账',
   CLOSE_NORMAL: '可正常封账',
   RECONCILED_NORMAL_CLOSE: '已对账并正常封账',
+  RECONCILED_FOR_CONFIRMATION: '已勾稽，可进入确认',
+  RECEIVER_FUNDS_ACCOUNT: '收款方资金账户',
+  RECEIVING_PARTICIPANT: '接收方参与人',
+  RECEIVING_SECURITIES_ACCOUNT: '接收方证券账户',
+  SETTLEMENT_PROCESSING_SYSTEM: '结算处理系统',
+  SHCH: '银行间市场清算所股份有限公司',
   SSE: '上海证券交易所',
   SZSE: '深圳证券交易所',
   SUBSTITUTION_SETTLED: '现金替代已结算',
   SECURITIES_SETTLED: '证券已交收',
+  DVP_AND_NON_DIRECT_SEPARATE: '已区分DVP方式与非直联通道',
+  DVP_SETTLED: 'DVP已完成交收',
+  EOD_CLOSED: '日终已关闭',
   NO_CASH_SUBSTITUTION: '不使用现金替代',
   MUST_CASH_SUBSTITUTION: '必须现金替代',
   ALLOWED_CASH_SUBSTITUTION: '允许现金替代',
@@ -390,6 +406,12 @@ const optionValueLabels: Record<string, string> = {
   SZHK_TZXX: '深港通权益通知数据',
   SYNTHETIC_EDUCATIONAL: '合成教学资料',
   YIELD: '收益指标',
+  CNY: '元',
+  CNY_10K: '万元',
+  CONFIRMED_FOR_SETTLEMENT: '已确认待结算',
+  NON_DIRECT: '非直联',
+  PAYER_FUNDS_ACCOUNT: '付款方资金账户',
+  SECURITIES_AND_FUNDS_ACCOUNTS: '证券与资金账户',
 };
 
 const optionTokenLabels: Record<string, string> = {
@@ -619,6 +641,7 @@ function optionTokenLabel(token: string): string | null {
 
 const inlineTechnicalLabels: Record<string, string> = {
   actualCash: '实际到账资金',
+  accountRole: '账户角色',
   approvedRate: '批准费率',
   approvedShares: '批准份额',
   sourceId: '来源标识',
@@ -656,7 +679,10 @@ const inlineTechnicalLabels: Record<string, string> = {
   taClosingShares: 'TA 期末份额',
   internalClosingShares: '内部期末份额',
   reserveOpen: '期初备付金',
+  settlementInstitution: '结算机构',
+  settlementProcessingSystem: '结算处理系统',
   formulaDiff: '公式差额',
+  fundsRole: '资金账户角色',
   reserveFormulaDiff: '备付金公式差额',
   calculatedMarketValue: '计算市值',
   comprehensiveB: '综合实务 B',
@@ -740,6 +766,8 @@ export function publicBusinessText(input: string | number): string {
 }
 
 const unitLabels: Record<string, string> = {
+  CNY: '元',
+  CNY_10K: '万元',
   key: '业务键',
   rate: '费率',
   date: '日期',
@@ -796,7 +824,7 @@ export function optionValueLabel(value: string, fieldId?: string, index?: number
     const prefix = datedCode[1].split('_').map(optionTokenLabel).filter((label): label is string => Boolean(label));
     if (prefix.length) return `${prefix.join(' · ')} ${datedCode[2]}-${datedCode[3]}-${datedCode[4]}`;
   }
-  if (!/^[A-Z][A-Z0-9_-]*$/.test(trimmed)) return trimmed;
+  if (!/^[A-Z][A-Z0-9_-]*$/.test(trimmed)) return publicBusinessText(trimmed);
   if (/^[A-Z]$/.test(trimmed)) return `第 ${trimmed.charCodeAt(0) - 64} 项`;
   const tokens = normalized.split('_').filter(Boolean);
   const labels = tokens

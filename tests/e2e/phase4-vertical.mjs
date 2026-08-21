@@ -289,8 +289,22 @@ async function run() {
 
   const worldCards = page.locator('.world-card');
   check('三世界入口数量为 3', (await worldCards.count()) === 3, `count=${await worldCards.count()}`);
-  check('清算显示内容建设中', await page.locator('.world-card', { hasText: '清算' }).locator('.building-tag').count() > 0);
+  check('清算开放且显示 7 条必修路线',
+    (await page.locator('.world-card', { hasText: '清算' }).locator('button', { hasText: '进入学习地图' }).count()) === 1
+      && (await page.locator('.world-card', { hasText: '清算' }).getByText('0 / 7 条必修路线', { exact: true }).count()) === 1);
   check('监督显示内容建设中', await page.locator('.world-card', { hasText: '监督' }).locator('.building-tag').count() > 0);
+  await page.locator('.world-card', { hasText: '清算' }).locator('button', { hasText: '进入学习地图' }).click();
+  await page.waitForSelector('[data-testid="learning-map"]', { timeout: 15000 });
+  check('清算地图显示 7 个节点', (await page.locator('.map-node').count()) === 7);
+  check('清算 BASE 可进入且后继仍锁定',
+    (await page.locator('button.map-node[aria-label*="清算对象、资料来源与结果勾稽"]:not([disabled])').count()) === 1
+      && (await page.locator('button.map-node[aria-label*="资金结算指令与付款/收款结果"][disabled]').count()) === 1);
+  check('清算地图请求 CLEARING 条线', await page.evaluate(async () => {
+    const response = await fetch('/api/lines/CLEARING/map', { credentials: 'include' });
+    return response.ok && (await response.json()).line === 'CLEARING';
+  }));
+  await page.locator('button.brand').click();
+  await page.waitForSelector('[data-testid="world-grid"]', { timeout: 15000 });
   await page.locator('.world-card', { hasText: '核算' }).locator('button', { hasText: '进入学习地图' }).click();
   await page.waitForSelector('[data-testid="learning-map"]', { timeout: 15000 });
   await shot(page, '03-map-before');

@@ -1,0 +1,742 @@
+{
+  "evidenceId": "CLR-FUND-CLOSE-EVID-002",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "routeId": "CLR-FUND-CLOSE-002",
+  "routeCode": "FUND-CLOSE",
+  "title": "资金结果多来源余额核对与正常日终关闭证据链",
+  "scopeNotice": "本文件只为CLR-FUND-CLOSE-002提供私有答案链、材料定位和评分映射；业务键、日期、账户标识、金额、来源状态、关闭状态、精度和容差均只适用于本案例版本。",
+  "dependencyPolicy": {
+    "dependsOnRouteIds": [
+      "CLR-FUND-PAYMENT-001"
+    ],
+    "stageGate": false,
+    "worldBoundary": "只服务CLEARING资金结算次路线；不读取ACCOUNTING或SUPERVISION路线状态，不重复前置路线的指令审核、渠道选择或执行处理。"
+  },
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "CLR-MAT-FUND-FLOW",
+      "physicalFile": "project_materials/新人陪练案例库/清算/资金/托管资金结算业务介绍202608.pptx",
+      "locators": [
+        "S7",
+        "S10",
+        "S13"
+      ],
+      "teachingUse": "MATERIAL_ABSTRACTION：抽象资金结果承接、资金账登记、资金账户核对、日终封账和资金账户报告发送之间的关系；不复制历史截止时刻、厂商菜单或真实账户。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-FUND-TEST",
+      "physicalFile": "project_materials/新人陪练案例库/清算/资金/资金例题.docx",
+      "locators": [
+        "P7-P10",
+        "P43-P56",
+        "P64-P68"
+      ],
+      "teachingUse": "MATERIAL_ABSTRACTION：抽象资金账户、收支/余额和对账字段的分别核对；不使用材料中的真实账户、历史比例、固定时点或系统选项。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-FUND-EMERGENCY",
+      "physicalFile": "project_materials/新人陪练案例库/清算/资金/托管业务应急预案介绍202608.pptx",
+      "locators": [
+        "S3-S8",
+        "S9-S13"
+      ],
+      "teachingUse": "MATERIAL_ABSTRACTION：仅用于确认应急运行、系统中断、替代处理和远程处理不进入本条正常日终主链。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "exclusionBoundary": {
+    "allowed": [
+      "CLR-FUND-PAYMENT-001已执行并已入账结果的正常承接",
+      "资金账户、内部资金账和CCBS/CCDC DVP/上海清算DVP外部资料的账户、日期、收支、余额和对账状态",
+      "openingBalance + inflow - outflow = closingBalance的Decimal复算、逐来源零差勾稽、NORMAL_CLOSED与SENT结果登记"
+    ],
+    "excluded": [
+      "失败、重付、余额不足、应急运行、系统中断、替代渠道或未完成结果",
+      "无依据调账、手工改写差额、强制关闭或用单一来源替代三类外部来源",
+      "真实账户号、客户数据、厂商菜单、固定截止时刻、内网地址、密钥和联系人信息",
+      "会计凭证、会计分录、券结基金佣金/备付金、银行间或场内分支专有规则"
+    ],
+    "boundaryPolicy": "排除项只用于说明本路线不覆盖的范围，不形成题面案例、参考答案或评分条件。"
+  },
+  "fixturePolicy": {
+    "provenance": "SYNTHETIC_EDUCATIONAL",
+    "version": "CLR-FUND-CLOSE-EDU-1.0",
+    "scope": "ONLY_THIS_CASE",
+    "basis": "业务对象、来源角色、余额链、逐来源勾稽和正常关闭关系来自三份资金材料的抽象；日期、业务键、账户标识、金额、外部来源类型、对账状态和关闭状态为教育案例参数。",
+    "parameterPolicy": "所有数字、日期、业务键、账户标识、来源类型、状态、精度和容差均为CASE_POLICY/ONLY_THIS_CASE，不表示永久制度、固定系统枚举或通用时点。",
+    "precisionPolicy": {
+      "amount": {
+        "scale": 2,
+        "unit": "CNY",
+        "tolerance": "0.01"
+      },
+      "balance": {
+        "scale": 2,
+        "unit": "CNY",
+        "tolerance": "0.01"
+      },
+      "difference": {
+        "scale": 2,
+        "unit": "CNY",
+        "tolerance": "0.01"
+      }
+    },
+    "publicPrivateSplit": "公开route只呈现资料字段和作答结构；答案、规则和补学映射留在本目录。"
+  },
+  "caseParameters": [
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "close_key", "value": "FUND-CLOSE-A-20260823-052", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "payment_result_key", "value": "FUND-PAY-A-20260823-052-01", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "business_date", "value": "2026-08-23", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "account_id", "value": "FUND-ACCT-A-101", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "opening_balance", "value": "300000.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "inflow", "value": "54000.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "outflow", "value": "78500.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "closing_balance", "value": "275500.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "external_source_types", "value": "CCBS / CCDC DVP / 上海清算DVP", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "all_reconciliation_status", "value": "RECONCILED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "all_balance_differences", "value": "0.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "close_status", "value": "NORMAL_CLOSED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-DEMO-A", "parameter": "report_status", "value": "SENT", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "close_key", "value": "FUND-CLOSE-B-20260826-089", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "payment_result_key", "value": "FUND-PAY-B-20260826-089-01", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "business_date", "value": "2026-08-26", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "account_id", "value": "FUND-ACCT-B-204", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "opening_balance", "value": "480000.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "inflow", "value": "92500.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "outflow", "value": "136750.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "closing_balance", "value": "435750.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "external_source_types", "value": "CCBS / CCDC DVP / 上海清算DVP", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "fund_account_difference", "value": "0.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "internal_ledger_difference", "value": "0.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "ccbs_difference", "value": "0.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "ccdc_dvp_difference", "value": "0.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "shanghai_dvp_difference", "value": "0.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "total_difference", "value": "0.00", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "all_reconciliation_status", "value": "RECONCILED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "close_status", "value": "NORMAL_CLOSED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-FUND-CLOSE-COMP-B", "parameter": "report_status", "value": "SENT", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"}
+  ],
+  "ruleCatalog": [
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-SOURCE-MAP",
+      "type": "SOURCE_FIELD_MAPPING",
+      "fields": ["close_key", "payment_result_key", "account_id", "business_date", "opening_balance", "inflow", "outflow", "closing_balance", "source_type", "reconciliation_status"],
+      "condition": "已执行结果承接收支；资金账户和内部资金账承接余额链；CCBS、CCDC DVP和上海清算DVP分别承接外部余额与对账状态。",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-BALANCE-CALC",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "opening_balance + inflow - outflow = closing_balance",
+      "expected": "480000.00 + 92500.00 - 136750.00 = 435750.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-FUND-ACCOUNT-DIFFERENCE",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "fund_account_closing_balance - (opening_balance + inflow - outflow) = 0.00",
+      "expected": "0.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-INTERNAL-LEDGER-DIFFERENCE",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "ledger_closing_balance - closing_balance = 0.00",
+      "expected": "0.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-CCBS-DIFFERENCE",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "ccbs_external_closing_balance - closing_balance = 0.00",
+      "expected": "0.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-CCDC-DVP-DIFFERENCE",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "ccdc_dvp_external_closing_balance - closing_balance = 0.00",
+      "expected": "0.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-SHANGHAI-DVP-DIFFERENCE",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "shanghai_dvp_external_closing_balance - closing_balance = 0.00",
+      "expected": "0.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-RESULT-LEDGER",
+      "type": "RESULT_LEDGER",
+      "fields": ["close_key", "account_id", "closing_balance", "execution_status", "ledger_post_status", "result_register_status", "source_type", "reconciliation_status", "close_status", "report_status"],
+      "condition": "正常业务结果工作纸登记业务身份、余额、前置结果状态、三类外部来源对账状态、NORMAL_CLOSED和SENT。",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-IDENTITY-RECON",
+      "type": "MATCH_KEY_AND_SOURCE",
+      "fields": ["close_key", "account_id", "business_date", "payment_result_key", "source_type"],
+      "condition": "已执行结果、资金账户、内部资金账和三类外部资料的账户及业务日期一致，来源角色均可回指。",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-ZERO-DIFFERENCE",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "fund_account_difference = internal_ledger_difference = ccbs_difference = ccdc_dvp_difference = shanghai_dvp_difference = total_difference = 0.00",
+      "expected": "0.00",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-CLOSE-GATE",
+      "type": "NORMAL_CLOSE_GATE",
+      "fields": ["all_reconciliation_status", "total_difference", "close_status", "report_status"],
+      "condition": "三类外部来源均为RECONCILED且各项差额为零时，关闭前置为B_NORMAL_CLOSE_READY，结果为NORMAL_CLOSED，报表为SENT。",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-FUND-CLOSE-RULE-CONCLUSION",
+      "type": "TRACEABLE_CONCLUSION",
+      "fields": ["close_key", "account_id", "business_date", "opening_balance", "inflow", "outflow", "closing_balance", "source_type", "external_closing_balance", "external_balance_difference", "reconciliation_status", "close_status", "report_status"],
+      "condition": "简短结论回指身份、余额、三类外部来源、逐项零差、NORMAL_CLOSED和SENT。",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "CLR-FUND-CLOSE-DEMO-A",
+      "identity": {
+        "closeKey": "FUND-CLOSE-A-20260823-052",
+        "paymentResultKey": "FUND-PAY-A-20260823-052-01",
+        "businessDate": "2026-08-23",
+        "accountId": "FUND-ACCT-A-101"
+      },
+      "sourceToRole": [
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-A-PAYMENT-RESULT",
+          "roleIds": ["EXECUTED_PAYMENT_RESULT"],
+          "fields": ["close_key", "payment_result_key", "account_id", "business_date", "executed_inflow_amount", "executed_outflow_amount", "execution_status", "ledger_post_status", "result_register_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-A-FUND-ACCOUNT",
+          "roleIds": ["FUND_ACCOUNT"],
+          "fields": ["account_id", "business_date", "opening_balance", "inflow", "outflow", "closing_balance", "account_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-A-INTERNAL-LEDGER",
+          "roleIds": ["INTERNAL_FUNDS_LEDGER"],
+          "fields": ["account_id", "business_date", "opening_balance", "ledger_inflow", "ledger_outflow", "ledger_closing_balance", "ledger_status", "close_candidate_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-A-CCBS",
+          "roleIds": ["EXTERNAL_RECONCILIATION"],
+          "fields": ["source_type", "account_id", "business_date", "external_closing_balance", "external_balance_difference", "reconciliation_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-A-CCDC-DVP",
+          "roleIds": ["EXTERNAL_RECONCILIATION"],
+          "fields": ["source_type", "account_id", "business_date", "external_closing_balance", "external_balance_difference", "reconciliation_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-A-SHANGHAI-DVP",
+          "roleIds": ["EXTERNAL_RECONCILIATION"],
+          "fields": ["source_type", "account_id", "business_date", "external_closing_balance", "external_balance_difference", "reconciliation_status"]
+        }
+      ],
+      "decimalChain": [
+        {"fieldId": "closing_balance", "formula": "300000.00 + 54000.00 - 78500.00", "result": "275500.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "fund_account_difference", "formula": "275500.00 - 275500.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "internal_ledger_difference", "formula": "275500.00 - 275500.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "ccbs_difference", "formula": "275500.00 - 275500.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "ccdc_dvp_difference", "formula": "275500.00 - 275500.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "shanghai_dvp_difference", "formula": "275500.00 - 275500.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "total_difference", "formula": "0.00 + 0.00 + 0.00 + 0.00 + 0.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"}
+      ],
+      "result": {
+        "closeKey": "FUND-CLOSE-A-20260823-052",
+        "paymentResultKey": "FUND-PAY-A-20260823-052-01",
+        "businessDate": "2026-08-23",
+        "accountId": "FUND-ACCT-A-101",
+        "openingBalance": "300000.00",
+        "inflow": "54000.00",
+        "outflow": "78500.00",
+        "closingBalance": "275500.00",
+        "executionStatus": "EXECUTED",
+        "ledgerPostStatus": "POSTED",
+        "resultRegisterStatus": "REGISTERED",
+        "fundAccountClosing": "275500.00",
+        "internalLedgerClosing": "275500.00",
+        "ccbsClosing": "275500.00",
+        "ccdcDvpClosing": "275500.00",
+        "shanghaiDvpClosing": "275500.00",
+        "closeStatus": "NORMAL_CLOSED",
+        "reportStatus": "SENT"
+      },
+      "reconciliation": {
+        "accountMatch": "MATCH",
+        "dateMatch": "MATCH",
+        "executionResultMatch": "MATCH",
+        "internalLedgerMatch": "MATCH",
+        "ccbsMatch": "MATCH",
+        "ccdcDvpMatch": "MATCH",
+        "shanghaiDvpMatch": "MATCH",
+        "fundAccountDifference": "0.00",
+        "internalLedgerDifference": "0.00",
+        "ccbsDifference": "0.00",
+        "ccdcDvpDifference": "0.00",
+        "shanghaiDvpDifference": "0.00",
+        "allExternalSources": "RECONCILED",
+        "totalDifference": "0.00",
+        "status": "NORMAL_CLOSED",
+        "reportStatus": "SENT"
+      }
+    },
+    "comprehensiveB": {
+      "fixtureId": "CLR-FUND-CLOSE-COMP-B",
+      "identity": {
+        "closeKey": "FUND-CLOSE-B-20260826-089",
+        "paymentResultKey": "FUND-PAY-B-20260826-089-01",
+        "businessDate": "2026-08-26",
+        "accountId": "FUND-ACCT-B-204"
+      },
+      "sourceToRole": [
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-B-PAYMENT-RESULT",
+          "roleIds": ["EXECUTED_PAYMENT_RESULT"],
+          "fields": ["close_key", "payment_result_key", "account_id", "business_date", "executed_inflow_amount", "executed_outflow_amount", "execution_status", "ledger_post_status", "result_register_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-B-FUND-ACCOUNT",
+          "roleIds": ["FUND_ACCOUNT"],
+          "fields": ["account_id", "business_date", "opening_balance", "inflow", "outflow", "closing_balance", "account_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-B-INTERNAL-LEDGER",
+          "roleIds": ["INTERNAL_FUNDS_LEDGER"],
+          "fields": ["account_id", "business_date", "opening_balance", "ledger_inflow", "ledger_outflow", "ledger_closing_balance", "ledger_status", "close_candidate_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-B-CCBS",
+          "roleIds": ["EXTERNAL_RECONCILIATION"],
+          "fields": ["source_type", "account_id", "business_date", "external_closing_balance", "external_balance_difference", "reconciliation_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-B-CCDC-DVP",
+          "roleIds": ["EXTERNAL_RECONCILIATION"],
+          "fields": ["source_type", "account_id", "business_date", "external_closing_balance", "external_balance_difference", "reconciliation_status"]
+        },
+        {
+          "sourceMaterialId": "CLR-FUND-CLOSE-B-SHANGHAI-DVP",
+          "roleIds": ["EXTERNAL_RECONCILIATION"],
+          "fields": ["source_type", "account_id", "business_date", "external_closing_balance", "external_balance_difference", "reconciliation_status"]
+        }
+      ],
+      "decimalChain": [
+        {"fieldId": "closing_balance", "formula": "480000.00 + 92500.00 - 136750.00", "result": "435750.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "fund_account_difference", "formula": "435750.00 - 435750.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "internal_ledger_difference", "formula": "435750.00 - 435750.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "ccbs_difference", "formula": "435750.00 - 435750.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "ccdc_dvp_difference", "formula": "435750.00 - 435750.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "shanghai_dvp_difference", "formula": "435750.00 - 435750.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "total_difference", "formula": "0.00 + 0.00 + 0.00 + 0.00 + 0.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"}
+      ],
+      "result": {
+        "closeKey": "FUND-CLOSE-B-20260826-089",
+        "paymentResultKey": "FUND-PAY-B-20260826-089-01",
+        "businessDate": "2026-08-26",
+        "accountId": "FUND-ACCT-B-204",
+        "openingBalance": "480000.00",
+        "inflow": "92500.00",
+        "outflow": "136750.00",
+        "closingBalance": "435750.00",
+        "executionStatus": "EXECUTED",
+        "ledgerPostStatus": "POSTED",
+        "resultRegisterStatus": "REGISTERED",
+        "fundAccountClosing": "435750.00",
+        "internalLedgerClosing": "435750.00",
+        "ccbsClosing": "435750.00",
+        "ccdcDvpClosing": "435750.00",
+        "shanghaiDvpClosing": "435750.00",
+        "closeStatus": "NORMAL_CLOSED",
+        "reportStatus": "SENT"
+      },
+      "reconciliation": {
+        "accountMatch": "MATCH",
+        "dateMatch": "MATCH",
+        "executionResultMatch": "MATCH",
+        "internalLedgerMatch": "MATCH",
+        "ccbsMatch": "MATCH",
+        "ccdcDvpMatch": "MATCH",
+        "shanghaiDvpMatch": "MATCH",
+        "fundAccountDifference": "0.00",
+        "internalLedgerDifference": "0.00",
+        "ccbsDifference": "0.00",
+        "ccdcDvpDifference": "0.00",
+        "shanghaiDvpDifference": "0.00",
+        "allExternalSources": "RECONCILED",
+        "totalDifference": "0.00",
+        "status": "NORMAL_CLOSED",
+        "reportStatus": "SENT"
+      }
+    }
+  },
+  "atomicWorkItems": [
+    {
+      "workItemId": "clr-fund-close-b-source-map",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-PAYMENT-RESULT", "CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-INTERNAL-LEDGER", "CLR-FUND-CLOSE-B-CCBS", "CLR-FUND-CLOSE-B-CCDC-DVP", "CLR-FUND-CLOSE-B-SHANGHAI-DVP"],
+        "fieldIds": ["close_key", "payment_result_key", "account_id", "business_date", "opening_balance", "inflow", "outflow", "closing_balance", "source_type", "reconciliation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-FLOW", "CLR-FUND-CLOSE-REF-RECON", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "已执行结果、资金账户、内部资金账和三类外部对账资料分别提供收支、余额、来源类型和状态字段。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-SOURCE-MAP",
+        "expected": "B_CLOSE_SOURCE_MAP",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-SOURCES",
+        "criterionIds": ["C-CLR-FUND-CLOSE-SOURCE-ROLES", "P-CLR-FUND-CLOSE-FIELD-READ"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "CLR-FUND-CLOSE-KC-01",
+        "questionId": "CLR-FUND-CLOSE-Q-01"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-balance-calculation",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-PAYMENT-RESULT", "CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-INTERNAL-LEDGER"],
+        "fieldIds": ["executed_inflow_amount", "executed_outflow_amount", "opening_balance", "inflow", "outflow", "closing_balance", "ledger_closing_balance"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-FLOW", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "综合B openingBalance + inflow - outflow的Decimal余额链。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-BALANCE-CALC",
+        "formula": "480000.00 + 92500.00 - 136750.00 = 435750.00",
+        "expected": "435750.00",
+        "precision": 2,
+        "tolerance": "0.01",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-BALANCE",
+        "criterionIds": ["P-CLR-FUND-CLOSE-DECIMAL-BALANCE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "CLR-FUND-CLOSE-Q-02"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-result-ledger",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-PAYMENT-RESULT", "CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-INTERNAL-LEDGER", "CLR-FUND-CLOSE-B-CCBS", "CLR-FUND-CLOSE-B-CCDC-DVP", "CLR-FUND-CLOSE-B-SHANGHAI-DVP"],
+        "fieldIds": ["close_key", "account_id", "business_date", "closing_balance", "execution_status", "ledger_post_status", "result_register_status", "source_type", "reconciliation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-FLOW", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "正常业务结果工作纸把业务身份、余额、前置状态、三类外部来源状态和关闭输出连成一条记录。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-RESULT-LEDGER",
+        "expected": ["FUND-CLOSE-B-20260826-089", "FUND-ACCT-B-204", "435750.00", "EXECUTED", "POSTED", "REGISTERED", "CCBS", "CCDC DVP", "上海清算DVP", "RECONCILED", "NORMAL_CLOSED", "SENT"],
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-RESULT",
+        "criterionIds": ["P-CLR-FUND-CLOSE-RESULT-LEDGER", "R-CLR-FUND-CLOSE-UPSTREAM", "R-CLR-FUND-CLOSE-REPORT-STATUS"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-04",
+        "questionId": "CLR-FUND-CLOSE-Q-03"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-identity-reconciliation",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-PAYMENT-RESULT", "CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-INTERNAL-LEDGER", "CLR-FUND-CLOSE-B-CCBS", "CLR-FUND-CLOSE-B-CCDC-DVP", "CLR-FUND-CLOSE-B-SHANGHAI-DVP"],
+        "fieldIds": ["close_key", "payment_result_key", "account_id", "business_date", "source_type", "external_closing_balance", "reconciliation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-FLOW", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "已执行结果、资金账户、内部资金账和三类外部资料的账户与业务日期一致，且每类来源都能被独立识别。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-IDENTITY-RECON",
+        "expected": "B_IDENTITY_AND_SOURCES_MATCH",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-RECONCILIATION",
+        "criterionIds": ["P-CLR-FUND-CLOSE-RECONCILIATION", "R-CLR-FUND-CLOSE-ALL-SOURCES"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "CLR-FUND-CLOSE-KC-02",
+        "questionId": "CLR-FUND-CLOSE-Q-04"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-fund-account-difference",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-FUND-ACCOUNT"],
+        "fieldIds": ["opening_balance", "inflow", "outflow", "closing_balance"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-RECON", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "资金账户closingBalance与openingBalance + inflow - outflow的理论余额逐项比较。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-FUND-ACCOUNT-DIFFERENCE",
+        "formula": "435750.00 - (480000.00 + 92500.00 - 136750.00) = 0.00",
+        "expected": "0.00",
+        "precision": 2,
+        "tolerance": "0.01",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-FUND-ACCOUNT-DIFF",
+        "criterionIds": ["P-CLR-FUND-CLOSE-RECONCILIATION", "R-CLR-FUND-CLOSE-ZERO-DIFFERENCE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "CLR-FUND-CLOSE-Q-04"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-internal-ledger-difference",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-INTERNAL-LEDGER"],
+        "fieldIds": ["closing_balance", "ledger_closing_balance"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-RECON", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "内部资金账closingBalance与资金账户closingBalance逐项比较。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-INTERNAL-LEDGER-DIFFERENCE",
+        "formula": "435750.00 - 435750.00 = 0.00",
+        "expected": "0.00",
+        "precision": 2,
+        "tolerance": "0.01",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-INTERNAL-LEDGER-DIFF",
+        "criterionIds": ["P-CLR-FUND-CLOSE-RECONCILIATION", "R-CLR-FUND-CLOSE-ZERO-DIFFERENCE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "CLR-FUND-CLOSE-Q-04"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-ccbs-difference",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-CCBS"],
+        "fieldIds": ["closing_balance", "external_closing_balance", "external_balance_difference", "reconciliation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-RECON", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "CCBS external_closing_balance与资金账户closingBalance逐项比较。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-CCBS-DIFFERENCE",
+        "formula": "435750.00 - 435750.00 = 0.00",
+        "expected": "0.00",
+        "precision": 2,
+        "tolerance": "0.01",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-CCBS-DIFF",
+        "criterionIds": ["P-CLR-FUND-CLOSE-RECONCILIATION", "R-CLR-FUND-CLOSE-ZERO-DIFFERENCE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "CLR-FUND-CLOSE-Q-04"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-ccdc-dvp-difference",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-CCDC-DVP"],
+        "fieldIds": ["closing_balance", "external_closing_balance", "external_balance_difference", "reconciliation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-RECON", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "CCDC DVP external_closing_balance与资金账户closingBalance逐项比较。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-CCDC-DVP-DIFFERENCE",
+        "formula": "435750.00 - 435750.00 = 0.00",
+        "expected": "0.00",
+        "precision": 2,
+        "tolerance": "0.01",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-CCDC-DVP-DIFF",
+        "criterionIds": ["P-CLR-FUND-CLOSE-RECONCILIATION", "R-CLR-FUND-CLOSE-ZERO-DIFFERENCE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "CLR-FUND-CLOSE-Q-04"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-shanghai-dvp-difference",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-SHANGHAI-DVP"],
+        "fieldIds": ["closing_balance", "external_closing_balance", "external_balance_difference", "reconciliation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-RECON", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "上海清算DVP external_closing_balance与资金账户closingBalance逐项比较。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-SHANGHAI-DVP-DIFFERENCE",
+        "formula": "435750.00 - 435750.00 = 0.00",
+        "expected": "0.00",
+        "precision": 2,
+        "tolerance": "0.01",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-SHANGHAI-DVP-DIFF",
+        "criterionIds": ["P-CLR-FUND-CLOSE-RECONCILIATION", "R-CLR-FUND-CLOSE-ZERO-DIFFERENCE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "CLR-FUND-CLOSE-Q-04"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-total-difference",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-INTERNAL-LEDGER", "CLR-FUND-CLOSE-B-CCBS", "CLR-FUND-CLOSE-B-CCDC-DVP", "CLR-FUND-CLOSE-B-SHANGHAI-DVP"],
+        "fieldIds": ["closing_balance", "ledger_closing_balance", "external_closing_balance", "external_balance_difference"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-RECON", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "五项独立余额差额相加形成总差额；总差额不能替代五项独立核对。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-ZERO-DIFFERENCE",
+        "formula": "0.00 + 0.00 + 0.00 + 0.00 + 0.00 = 0.00",
+        "expected": "0.00",
+        "precision": 2,
+        "tolerance": "0.01",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-TOTAL-DIFF",
+        "criterionIds": ["P-CLR-FUND-CLOSE-RECONCILIATION", "R-CLR-FUND-CLOSE-ZERO-DIFFERENCE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "CLR-FUND-CLOSE-Q-04"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-close-gate",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-PAYMENT-RESULT", "CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-INTERNAL-LEDGER", "CLR-FUND-CLOSE-B-CCBS", "CLR-FUND-CLOSE-B-CCDC-DVP", "CLR-FUND-CLOSE-B-SHANGHAI-DVP"],
+        "fieldIds": ["execution_status", "ledger_post_status", "result_register_status", "account_status", "ledger_status", "close_candidate_status", "reconciliation_status", "external_balance_difference"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-FLOW", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "前置结果已入账、账户和内部账可进入关闭、三类外部来源RECONCILED且差额为零后，才形成正常关闭前置。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-CLOSE-GATE",
+        "expected": "B_NORMAL_CLOSE_READY",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-GATE",
+        "criterionIds": ["C-CLR-FUND-CLOSE-CLOSE-CONDITIONS", "R-CLR-FUND-CLOSE-REPORT-STATUS"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-05",
+        "questionId": "CLR-FUND-CLOSE-Q-04"
+      }
+    },
+    {
+      "workItemId": "clr-fund-close-b-conclusion",
+      "source": {
+        "materialIds": ["CLR-FUND-CLOSE-B-PAYMENT-RESULT", "CLR-FUND-CLOSE-B-FUND-ACCOUNT", "CLR-FUND-CLOSE-B-INTERNAL-LEDGER", "CLR-FUND-CLOSE-B-CCBS", "CLR-FUND-CLOSE-B-CCDC-DVP", "CLR-FUND-CLOSE-B-SHANGHAI-DVP"],
+        "fieldIds": ["close_key", "account_id", "business_date", "opening_balance", "inflow", "outflow", "closing_balance", "source_type", "external_closing_balance", "external_balance_difference", "execution_status", "ledger_post_status", "result_register_status", "account_status", "ledger_status", "close_candidate_status", "reconciliation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["CLR-FUND-CLOSE-REF-FLOW", "CLR-FUND-CLOSE-REF-RECON", "CLR-FUND-CLOSE-REF-SOURCES"],
+        "anchor": "简短结论回指业务键、账户、余额公式、逐来源零差、三类外部来源状态和NORMAL_CLOSED/SENT。"
+      },
+      "rule": {
+        "ruleId": "CLR-FUND-CLOSE-RULE-CONCLUSION",
+        "expected": ["FUND-CLOSE-B-20260826-089", "FUND-ACCT-B-204", "435750.00 CNY", "资金账户差0.00", "内部资金账差0.00", "CCBS差0.00", "CCDC DVP差0.00", "上海清算DVP差0.00", "总差额0.00", "RECONCILED", "NORMAL_CLOSED", "SENT"],
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "CLR-FUND-CLOSE-CONCLUSION",
+        "criterionIds": ["E-CLR-FUND-CLOSE-TRACEABLE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-05",
+        "questionId": "CLR-FUND-CLOSE-Q-05"
+      }
+    }
+  ],
+  "coverage": {
+    "FIELD_MAP": ["clr-fund-close-b-source-map"],
+    "CALCULATION": ["clr-fund-close-b-balance-calculation"],
+    "LEDGER_ENTRY": ["clr-fund-close-b-result-ledger"],
+    "RECONCILIATION": ["clr-fund-close-b-identity-reconciliation", "clr-fund-close-b-fund-account-difference", "clr-fund-close-b-internal-ledger-difference", "clr-fund-close-b-ccbs-difference", "clr-fund-close-b-ccdc-dvp-difference", "clr-fund-close-b-shanghai-dvp-difference", "clr-fund-close-b-total-difference", "clr-fund-close-b-close-gate"],
+    "SHORT_TEXT": ["clr-fund-close-b-conclusion"]
+  },
+  "integrity": {
+    "workItemMappingCount": 12,
+    "uniqueWorkItemMappings": true,
+    "everyWorkItemHasSourceReferenceRuleRemediation": true,
+    "demoAndComprehensiveAreIsomorphic": true,
+    "sixBalanceDifferencesAreIndependentlyObservable": true,
+    "demoAndComprehensiveUseDifferentKeysDatesAndNumbers": true,
+    "allCaseValuesMarkedOnlyThisCase": true,
+    "normalCaseOnly": true,
+    "mapAndReleaseRegistration": false
+  }
+}

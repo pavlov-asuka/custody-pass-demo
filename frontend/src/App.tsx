@@ -35,7 +35,7 @@ export const router = createBrowserRouter([
     element: <ProtectedLayout />,
     children: [
       { path: '/worlds', element: <WorldsPage /> },
-      { path: '/map/accounting', element: <MapPage /> },
+      { path: '/map/:line', element: <MapPage /> },
       { path: '/learn/:routeId', element: <LearningPage /> },
       { path: '/attempts/:attemptId', element: <AttemptPage /> },
       { path: '/attempts/:attemptId/remediation', element: <RemediationPage /> },

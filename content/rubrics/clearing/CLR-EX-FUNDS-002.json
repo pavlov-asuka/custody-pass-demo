@@ -1,0 +1,237 @@
+{
+  "routeId": "CLR-EX-FUNDS-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CLR-EX-FUNDS-LAYERS",
+          "description": "区分前置四项义务、外部交收结果、内部证券/资金工作纸和结算勾稽资料的作用",
+          "weight": 13,
+          "evidenceRequirement": "能从综合B定位前置义务与外部交收结果来源，知道内部工作纸记录余额变化，结算资料负责差额和封账结论。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-core-source", "operator": "EQUALS", "expected": "B_CORE_OBLIGATION_SOURCE"},
+            {"fieldId": "clr-ex-b-external-source", "operator": "EQUALS", "expected": "B_EXTERNAL_RESULT_SOURCE"}
+          ],
+          "remediationTargetId": "CLR-EX-FUNDS-SOURCES"
+        },
+        {
+          "criterionId": "C-CLR-EX-FUNDS-BALANCE",
+          "description": "理解证券和资金两条余额链及收付方向",
+          "weight": 12,
+          "evidenceRequirement": "内部证券工作纸和内部资金工作纸均完整保留 opening、双向变动、closing 及结果状态，数量与金额单位不混用。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-securities-ledger", "operator": "CONTAINS_ALL", "expected": ["EX-B-20260821-284", "EXB-SEC-01", "openingSecurities=7600", "receive=2000", "deliver=700", "closingSecurities=8900", "POSTED"]},
+            {"fieldId": "clr-ex-b-cash-ledger", "operator": "CONTAINS_ALL", "expected": ["EX-B-20260821-284", "EXB-SEC-01", "openingCash=205000.00", "cashIn=18900.00", "cashOut=54100.00", "closingCash=169800.00", "POSTED"]}
+          ],
+          "remediationTargetId": "CLR-EX-FUNDS-LEDGER"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CLR-EX-FUNDS-SOURCE",
+          "description": "按资料层读取前置义务和外部交收结果",
+          "weight": 8,
+          "evidenceRequirement": "四项应交收对象从前置义务资料读取，实际证券/资金收付和结果状态从外部交收结果读取。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-core-source", "operator": "EQUALS", "expected": "B_CORE_OBLIGATION_SOURCE"},
+            {"fieldId": "clr-ex-b-external-source", "operator": "EQUALS", "expected": "B_EXTERNAL_RESULT_SOURCE"}
+          ],
+          "remediationTargetId": "CLR-EX-FUNDS-SOURCES"
+        },
+        {
+          "criterionId": "P-CLR-EX-FUNDS-BALANCE",
+          "description": "独立复算交收后证券数量和资金余额",
+          "weight": 12,
+          "evidenceRequirement": "用 openingSecurities + receive - deliver 复算 8900 share，用 openingCash + cashIn - cashOut 复算 169800.00 CNY。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-security-closing", "operator": "NUMBER_EQUALS", "expected": 8900, "tolerance": 0},
+            {"fieldId": "clr-ex-b-cash-closing", "operator": "NUMBER_EQUALS", "expected": 169800, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CLR-EX-FUNDS-BALANCE"
+        },
+        {
+          "criterionId": "P-CLR-EX-FUNDS-DOUBLE-LEG",
+          "description": "完成外部与内部证券/资金四条收付差额核对",
+          "weight": 10,
+          "evidenceRequirement": "收到证券、交付证券、收到资金和支付资金差额均为零，并能给出证券和资金工作纸的完整结果登记。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-security-receive-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "clr-ex-b-security-deliver-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "clr-ex-b-cash-in-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-ex-b-cash-out-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-ex-b-securities-ledger", "operator": "CONTAINS_ALL", "expected": ["EX-B-20260821-284", "EXB-SEC-01", "openingSecurities=7600", "receive=2000", "deliver=700", "closingSecurities=8900", "POSTED"]},
+            {"fieldId": "clr-ex-b-cash-ledger", "operator": "CONTAINS_ALL", "expected": ["EX-B-20260821-284", "EXB-SEC-01", "openingCash=205000.00", "cashIn=18900.00", "cashOut=54100.00", "closingCash=169800.00", "POSTED"]}
+          ],
+          "remediationTargetId": "CLR-EX-FUNDS-SECURITY-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CLR-EX-FUNDS-IDENTITY",
+          "description": "控制业务键、业务日期、证券代码和义务/结果错配",
+          "weight": 12,
+          "evidenceRequirement": "结论回指综合B业务键 EX-B-20260821-284、业务日期 2026-08-21 和证券 EXB-SEC-01，并确认前置义务与外部结果 MATCHED。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-obligation-result-match", "operator": "EQUALS", "expected": "B_OBLIGATION_RESULT_MATCH"},
+            {"fieldId": "clr-ex-funds-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["EX-B-20260821-284", "2026-08-21", "EXB-SEC-01"]}
+          ],
+          "remediationTargetId": "CLR-EX-FUNDS-SOURCES"
+        },
+        {
+          "criterionId": "R-CLR-EX-FUNDS-CLOSE",
+          "description": "控制证券/资金双腿未闭合时提前封账",
+          "weight": 13,
+          "evidenceRequirement": "证券和资金双向收付差、两条余额差均为零，且只有在义务/结果匹配后选择 NORMAL_CLOSED。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-securities-recon", "operator": "EQUALS", "expected": "B_SECURITIES_RECON_ZERO"},
+            {"fieldId": "clr-ex-b-cash-recon", "operator": "EQUALS", "expected": "B_CASH_RECON_ZERO"},
+            {"fieldId": "clr-ex-b-close-status", "operator": "EQUALS", "expected": "B_NORMAL_CLOSED"}
+          ],
+          "remediationTargetId": "CLR-EX-FUNDS-CLOSE"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CLR-EX-FUNDS-TRACEABLE",
+          "description": "用短句写出带身份、余额、双向差额和封账状态的结论",
+          "weight": 20,
+          "evidenceRequirement": "一句话同时写明业务键、业务日期、证券代码、交收后证券数量、资金余额、证券/资金差额和 NORMAL_CLOSED。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-funds-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["EX-B-20260821-284", "2026-08-21", "EXB-SEC-01", "8900 share", "169800.00 CNY", "证券双向差额0", "资金双向差额0.00", "NORMAL_CLOSED"]}
+          ],
+          "remediationTargetId": "CLR-EX-FUNDS-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CLR-EX-FUNDS-DOUBLE-LEG-ZERO",
+      "description": "证券和资金双向收付及余额链必须同时闭合",
+      "evidenceRequirement": "四条外部/内部收付差额均为零，证券和资金对账结论均为零差，且两个余额复算值正确。",
+      "evidenceRules": [
+        {"fieldId": "clr-ex-b-security-closing", "operator": "NUMBER_EQUALS", "expected": 8900, "tolerance": 0},
+        {"fieldId": "clr-ex-b-cash-closing", "operator": "NUMBER_EQUALS", "expected": 169800, "tolerance": 0.01},
+        {"fieldId": "clr-ex-b-security-receive-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+        {"fieldId": "clr-ex-b-security-deliver-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+        {"fieldId": "clr-ex-b-cash-in-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-ex-b-cash-out-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-ex-b-securities-recon", "operator": "EQUALS", "expected": "B_SECURITIES_RECON_ZERO"},
+        {"fieldId": "clr-ex-b-cash-recon", "operator": "EQUALS", "expected": "B_CASH_RECON_ZERO"}
+      ],
+      "remediationTargetId": "CLR-EX-FUNDS-SECURITY-RECON"
+    },
+    {
+      "requirementId": "M-CLR-EX-FUNDS-NORMAL-CLOSED",
+      "description": "义务与结果匹配且双向零差后才能记录本案例正常封账",
+      "evidenceRequirement": "同一业务身份和证券代码 EXB-SEC-01 下前置义务与外部结果 MATCHED，证券/资金双腿和余额均已闭合，封账状态选择 NORMAL_CLOSED。",
+      "evidenceRules": [
+        {"fieldId": "clr-ex-b-obligation-result-match", "operator": "EQUALS", "expected": "B_OBLIGATION_RESULT_MATCH"},
+        {"fieldId": "clr-ex-b-securities-recon", "operator": "EQUALS", "expected": "B_SECURITIES_RECON_ZERO"},
+        {"fieldId": "clr-ex-b-cash-recon", "operator": "EQUALS", "expected": "B_CASH_RECON_ZERO"},
+        {"fieldId": "clr-ex-b-close-status", "operator": "EQUALS", "expected": "B_NORMAL_CLOSED"},
+        {"fieldId": "clr-ex-funds-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["EXB-SEC-01"]}
+      ],
+      "remediationTargetId": "CLR-EX-FUNDS-CLOSE"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "CLR-EX-FUNDS-SOURCES",
+      "title": "重看前置义务、外部结果和结算资料的来源分工",
+      "reason": "来源层混淆会把应交收对象、实际结果或封账结论放错资料。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-EX-FUNDS-KC-01",
+      "questionId": "CLR-EX-FUNDS-Q-01"
+    },
+    {
+      "targetId": "CLR-EX-FUNDS-BALANCE",
+      "title": "重做证券和资金两条余额链",
+      "reason": "交收后数量和余额必须回到内部工作纸的 opening、双向变动和 closing 字段复算。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-EX-FUNDS-KC-02",
+      "questionId": "CLR-EX-FUNDS-Q-02"
+    },
+    {
+      "targetId": "CLR-EX-FUNDS-LEDGER",
+      "title": "补齐证券和资金工作纸结果登记",
+      "reason": "只有同时保留证券和资金双向变动、余额与状态，结果才可被复核。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-EX-FUNDS-KC-02",
+      "questionId": "CLR-EX-FUNDS-Q-03"
+    },
+    {
+      "targetId": "CLR-EX-FUNDS-SECURITY-RECON",
+      "title": "重做证券与资金双向零差勾稽",
+      "reason": "不能用单一总额或一条腿的零差代替收到/交付证券和收到/支付资金的完整核对。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "CLR-EX-FUNDS-Q-04"
+    },
+    {
+      "targetId": "CLR-EX-FUNDS-CLOSE",
+      "title": "按条件记录本案例正常封账",
+      "reason": "NORMAL_CLOSED 只能建立在身份一致、义务/结果匹配、双向零差和余额链闭合之后。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "CLR-EX-FUNDS-Q-04"
+    },
+    {
+      "targetId": "CLR-EX-FUNDS-CONCLUSION",
+      "title": "重写带身份、余额和差额的封账结论",
+      "reason": "结论需要能回指业务身份、交收后余额、双向差额和封账状态，不能只写“已完成”。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "CLR-EX-FUNDS-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CLR-EX-FUNDS-COMP-B",
+    "responses": {
+      "clr-ex-b-core-source": "B_CORE_OBLIGATION_SOURCE",
+      "clr-ex-b-external-source": "B_EXTERNAL_RESULT_SOURCE",
+      "clr-ex-b-security-closing": 8900,
+      "clr-ex-b-cash-closing": 169800,
+      "clr-ex-b-security-receive-diff": 0,
+      "clr-ex-b-security-deliver-diff": 0,
+      "clr-ex-b-cash-in-diff": 0,
+      "clr-ex-b-cash-out-diff": 0,
+      "clr-ex-b-securities-ledger": "businessKey=EX-B-20260821-284; securityCode=EXB-SEC-01; openingSecurities=7600 share; receive=2000 share; deliver=700 share; closingSecurities=8900 share; ledgerStatus=POSTED",
+      "clr-ex-b-cash-ledger": "businessKey=EX-B-20260821-284; securityCode=EXB-SEC-01; openingCash=205000.00 CNY; cashIn=18900.00 CNY; cashOut=54100.00 CNY; closingCash=169800.00 CNY; ledgerStatus=POSTED",
+      "clr-ex-b-obligation-result-match": "B_OBLIGATION_RESULT_MATCH",
+      "clr-ex-b-securities-recon": "B_SECURITIES_RECON_ZERO",
+      "clr-ex-b-cash-recon": "B_CASH_RECON_ZERO",
+      "clr-ex-b-close-status": "B_NORMAL_CLOSED",
+      "clr-ex-funds-b-conclusion": "业务键EX-B-20260821-284，业务日期2026-08-21，证券代码EXB-SEC-01；交收后证券数量8900 share、资金余额169800.00 CNY；义务与外部结果MATCHED，证券双向差额0、资金双向差额0.00，余额差均为0，状态NORMAL_CLOSED。"
+    },
+    "decimalChain": {
+      "securitiesClosing": "7600 + 2000 - 700 = 8900 share",
+      "cashClosing": "205000.00 + 18900.00 - 54100.00 = 169800.00 CNY",
+      "securityReceiveDifference": "2000 - 2000 = 0 share",
+      "securityDeliverDifference": "700 - 700 = 0 share",
+      "cashInDifference": "18900.00 - 18900.00 = 0.00 CNY",
+      "cashOutDifference": "54100.00 - 54100.00 = 0.00 CNY",
+      "securitiesBalanceDifference": "8900 - (7600 + 2000 - 700) = 0 share",
+      "cashBalanceDifference": "169800.00 - (205000.00 + 18900.00 - 54100.00) = 0.00 CNY",
+      "identity": "EX-B-20260821-284 / 2026-08-21 / EXB-SEC-01",
+      "status": "SETTLED; RECONCILED; NORMAL_CLOSED"
+    }
+  }
+}

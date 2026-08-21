@@ -1,0 +1,272 @@
+{
+  "evidenceId": "CLR-BASE-EVID-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "routeId": "CLR-BASE-001",
+  "routeCode": "BASE",
+  "title": "共同清算义务对象与零差结果证据",
+  "scopeNotice": "本文件只为 CLR-BASE-001 提供私有答案链、材料定位和评分映射；案例数字、身份值、角色值和状态值均只适用于本案例版本，不登记发布清单。",
+  "dependencyPolicy": {
+    "dependsOnRouteIds": [],
+    "stageGate": false,
+    "worldBoundary": "只服务 CLEARING 共同基础，不读取其他世界的路线状态"
+  },
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "CLR-MAT-FUND-FLOW",
+      "physicalFile": "project_materials/新人陪练案例库/清算/资金/托管资金结算业务介绍202608.pptx",
+      "locators": ["S7", "S13"],
+      "teachingUse": "抽象指令承接、结果登记、台账与对账之间的资料关系；不复制渠道、账户、时点或内部界面。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-EX-OBJECT",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内业务介绍.pptx",
+      "locators": ["S15", "S19", "S25", "S32"],
+      "teachingUse": "抽象清算义务、参与角色、资料承接和证券/资金结果关系；不带入具体市场、平台或分支规则。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-IB-INSTRUCTION",
+      "physicalFile": "project_materials/新人陪练案例库/清算/银行间/关于发布《中央国债登记结算有限责任公司债券交易结算规则》的通知.docx",
+      "locators": ["P10", "P11", "P14"],
+      "teachingUse": "抽象指令身份、方向、数量/金额、参与角色、结果状态和对账资料字段；不固化规则中的制度参数。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "CLR-MAT-FUND-RECON",
+      "physicalFile": "project_materials/新人陪练案例库/清算/资金/资金例题.docx",
+      "locators": ["P6-P7"],
+      "teachingUse": "确认日终台账与对账信息需要分别核对；题面只保留共同对象和结果关系。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "exclusionBoundary": {
+    "allowed": [
+      "SETTLEMENT_OBLIGATION 的业务键、业务日期、资产类型、方向、数量、金额、单位、参与角色和正常结果状态",
+      "指令、确认/成交、交收结果和对账四类资料的共同来源关系",
+      "同一业务键、日期和方向下数量差与金额差为零的本案例核对"
+    ],
+    "excluded": [
+      "资金、场内和银行间的分支专有规则",
+      "菜单、内部账户、真实客户或生产接口字段",
+      "固定时点、费率、制度阈值或其他永久参数",
+      "非正常结果状态、应急处理和改革专题",
+      "跨境市场、特殊资格和公司行为专题"
+    ],
+    "boundaryPolicy": "排除项只用于说明本路线不覆盖的范围，不形成题面案例、答案或评分条件。"
+  },
+  "fixturePolicy": {
+    "provenance": "SYNTHETIC_EDUCATIONAL",
+    "version": "CLR-BASE-EDU-1.0",
+    "scope": "ONLY_THIS_CASE",
+    "basis": "四份清算资料的共同字段和顺序来自材料抽象，数字与状态为教育案例参数。",
+    "parameterPolicy": "所有数字、日期、业务键、角色值、状态值、精度和容差均为 CASE_POLICY/ONLY_THIS_CASE，不表示永久制度。",
+    "precisionPolicy": {
+      "quantity": {"scale": 0, "unit": "unit", "tolerance": "0"},
+      "amount": {"scale": 2, "unit": "CNY", "tolerance": "0.01"}
+    },
+    "publicPrivateSplit": "公开 route 只呈现业务资料和作答结构；答案、规则和补学映射留在本目录。"
+  },
+  "caseParameters": [
+    {"fixtureId": "CLR-BASE-DEMO-A", "parameter": "business_key", "value": "BASE-A-20260818-017", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-DEMO-A", "parameter": "business_date", "value": "2026-08-18", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-DEMO-A", "parameter": "asset_type", "value": "SECURITY", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-DEMO-A", "parameter": "direction", "value": "RECEIVE", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-DEMO-A", "parameter": "unit", "value": "unit/CNY", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-DEMO-A", "parameter": "quantity_breakdown", "value": "12 × 200 = 2400", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-DEMO-A", "parameter": "amount_breakdown", "value": "7250.00 + 11500.00 = 18750.00", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-DEMO-A", "parameter": "roles", "value": "DELIVERING_PARTICIPANT / RECEIVING_PARTICIPANT / RECONCILIATION_REVIEWER", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-DEMO-A", "parameter": "status_chain", "value": "INSTRUCTION_ACCEPTED → CONFIRMED → SETTLED → RECONCILED", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-COMP-B", "parameter": "business_key", "value": "BASE-B-20260821-284", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-COMP-B", "parameter": "business_date", "value": "2026-08-21", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-COMP-B", "parameter": "asset_type", "value": "SECURITY", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-COMP-B", "parameter": "direction", "value": "RECEIVE", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-COMP-B", "parameter": "unit", "value": "unit/CNY", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-COMP-B", "parameter": "quantity_breakdown", "value": "15 × 110 = 1650", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-COMP-B", "parameter": "amount_breakdown", "value": "4800.00 + 7740.00 = 12540.00", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-COMP-B", "parameter": "status_chain", "value": "INSTRUCTION_ACCEPTED → CONFIRMED → SETTLED → RECONCILED", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-BASE-COMP-B", "parameter": "roles", "value": "DELIVERING_PARTICIPANT / RECEIVING_PARTICIPANT / RECONCILIATION_REVIEWER", "scope": "ONLY_THIS_CASE"}
+  ],
+  "ruleCatalog": [
+    {
+      "ruleId": "CLR-BASE-RULE-IDENTITY",
+      "type": "MATCH_KEY",
+      "fields": ["business_key", "business_date", "asset_type", "direction"],
+      "condition": "四份资料的业务键、业务日期、资产类型和方向一致",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-BASE-RULE-QUANTITY",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "quantity_batches × units_per_batch",
+      "precision": 0,
+      "tolerance": "0",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-BASE-RULE-AMOUNT",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "amount_component_a + amount_component_b",
+      "precision": 2,
+      "tolerance": "0.01",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-BASE-RULE-RESULT",
+      "type": "RESULT_LEDGER",
+      "fields": ["business_key", "business_date", "asset_type", "direction", "settled_quantity", "settled_amount", "settlement_status"],
+      "condition": "交收结果必须来自交收结果资料并回到同一笔义务",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-BASE-RULE-RECON",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "expected_quantity - result_quantity = 0 AND expected_amount - result_amount = 0.00",
+      "condition": "业务键、日期和方向对应后，数量差和金额差同时为零",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-BASE-RULE-CONCLUSION",
+      "type": "TRACEABLE_CONCLUSION",
+      "fields": ["business_key", "business_date", "asset_type", "direction", "settled_quantity", "settled_amount", "quantity_difference", "amount_difference", "settlement_status"],
+      "condition": "短结论逐项写出本案例身份、结果和差额字段",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "CLR-BASE-DEMO-A",
+      "identity": {"businessKey": "BASE-A-20260818-017", "businessDate": "2026-08-18", "assetType": "SECURITY", "direction": "RECEIVE"},
+      "sourceToRole": [
+        {"sourceMaterialId": "CLR-BASE-A-INSTRUCTION", "roleIds": ["DELIVERING_PARTICIPANT", "RECEIVING_PARTICIPANT", "RECONCILIATION_REVIEWER"], "fields": ["business_key", "business_date", "asset_type", "direction", "delivering_role", "receiving_role", "reconciliation_role"]},
+        {"sourceMaterialId": "CLR-BASE-A-CONFIRMATION", "roleIds": ["DELIVERING_PARTICIPANT", "RECEIVING_PARTICIPANT"], "fields": ["confirmed_quantity", "confirmed_amount", "confirmation_status"]},
+        {"sourceMaterialId": "CLR-BASE-A-SETTLEMENT", "roleIds": ["RECEIVING_PARTICIPANT"], "fields": ["settled_quantity", "settled_amount", "settlement_status"]},
+        {"sourceMaterialId": "CLR-BASE-A-RECONCILIATION", "roleIds": ["RECONCILIATION_REVIEWER"], "fields": ["expected_quantity", "result_quantity", "quantity_difference", "expected_amount", "result_amount", "amount_difference", "reconciliation_status"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "quantity", "formula": "12 × 200", "result": "2400", "unit": "unit", "precision": 0, "tolerance": "0"},
+        {"fieldId": "amount", "formula": "7250.00 + 11500.00", "result": "18750.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "quantity_difference", "formula": "2400 - 2400", "result": "0", "unit": "unit", "precision": 0, "tolerance": "0"},
+        {"fieldId": "amount_difference", "formula": "18750.00 - 18750.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"}
+      ],
+      "result": {"businessKey": "BASE-A-20260818-017", "businessDate": "2026-08-18", "direction": "RECEIVE", "quantity": "2400", "amount": "18750.00", "status": "SETTLED"},
+      "reconciliation": {"quantityDifference": "0", "amountDifference": "0.00", "status": "RECONCILED"}
+    },
+    "comprehensiveB": {
+      "fixtureId": "CLR-BASE-COMP-B",
+      "identity": {"businessKey": "BASE-B-20260821-284", "businessDate": "2026-08-21", "assetType": "SECURITY", "direction": "RECEIVE"},
+      "sourceToRole": [
+        {"sourceMaterialId": "CLR-BASE-B-INSTRUCTION", "roleIds": ["DELIVERING_PARTICIPANT", "RECEIVING_PARTICIPANT", "RECONCILIATION_REVIEWER"], "fields": ["business_key", "business_date", "asset_type", "direction", "delivering_role", "receiving_role", "reconciliation_role"]},
+        {"sourceMaterialId": "CLR-BASE-B-CONFIRMATION", "roleIds": ["DELIVERING_PARTICIPANT", "RECEIVING_PARTICIPANT"], "fields": ["confirmed_quantity", "confirmed_amount", "confirmation_status"]},
+        {"sourceMaterialId": "CLR-BASE-B-SETTLEMENT", "roleIds": ["RECEIVING_PARTICIPANT"], "fields": ["settled_quantity", "settled_amount", "settlement_status"]},
+        {"sourceMaterialId": "CLR-BASE-B-RECONCILIATION", "roleIds": ["RECONCILIATION_REVIEWER"], "fields": ["expected_quantity", "result_quantity", "quantity_difference", "expected_amount", "result_amount", "amount_difference", "reconciliation_status"]}
+      ],
+      "decimalChain": [
+        {"fieldId": "quantity", "formula": "15 × 110", "result": "1650", "unit": "unit", "precision": 0, "tolerance": "0"},
+        {"fieldId": "amount", "formula": "4800.00 + 7740.00", "result": "12540.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "quantity_difference", "formula": "1650 - 1650", "result": "0", "unit": "unit", "precision": 0, "tolerance": "0"},
+        {"fieldId": "amount_difference", "formula": "12540.00 - 12540.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"}
+      ],
+      "result": {"businessKey": "BASE-B-20260821-284", "businessDate": "2026-08-21", "direction": "RECEIVE", "quantity": "1650", "amount": "12540.00", "status": "SETTLED"},
+      "reconciliation": {"quantityDifference": "0", "amountDifference": "0.00", "status": "RECONCILED"}
+    }
+  },
+  "atomicWorkItems": [
+    {
+      "workItemId": "clr-base-b-instruction-source",
+      "source": {"materialIds": ["CLR-BASE-B-INSTRUCTION"], "fieldIds": ["business_key", "business_date", "asset_type", "direction", "delivering_role", "receiving_role", "reconciliation_role"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-FUND-FLOW", "CLR-BASE-REF-EX-OBJECT", "CLR-BASE-REF-IB-INSTRUCTION"], "anchor": "四类资料均先由指令资料建立身份"},
+      "rule": {"ruleId": "CLR-BASE-RULE-IDENTITY", "expected": "B_INSTRUCTION_SOURCE", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-SOURCES", "criterionIds": ["C-CLR-BASE-OBJECT-SOURCES", "P-CLR-BASE-FIELD-READ"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-BASE-KC-01", "questionId": "CLR-BASE-Q-01"}
+    },
+    {
+      "workItemId": "clr-base-b-confirmation-source",
+      "source": {"materialIds": ["CLR-BASE-B-CONFIRMATION"], "fieldIds": ["business_key", "business_date", "asset_type", "direction", "confirmed_quantity", "confirmed_amount", "confirmation_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-FUND-FLOW", "CLR-BASE-REF-EX-OBJECT", "CLR-BASE-REF-IB-INSTRUCTION"], "anchor": "确认/成交资料承接业务身份并确认数量和金额"},
+      "rule": {"ruleId": "CLR-BASE-RULE-IDENTITY", "expected": "B_CONFIRMATION_SOURCE", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-SOURCES", "criterionIds": ["C-CLR-BASE-OBJECT-SOURCES", "P-CLR-BASE-FIELD-READ"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-BASE-KC-01", "questionId": "CLR-BASE-Q-01"}
+    },
+    {
+      "workItemId": "clr-base-b-settlement-source",
+      "source": {"materialIds": ["CLR-BASE-B-SETTLEMENT"], "fieldIds": ["business_key", "business_date", "asset_type", "direction", "settled_quantity", "settled_amount", "settlement_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-FUND-FLOW", "CLR-BASE-REF-EX-OBJECT", "CLR-BASE-REF-IB-INSTRUCTION"], "anchor": "交收结果资料承载实际数量、金额和状态"},
+      "rule": {"ruleId": "CLR-BASE-RULE-RESULT", "expected": "B_SETTLEMENT_SOURCE", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-SOURCES", "criterionIds": ["C-CLR-BASE-OBJECT-SOURCES", "P-CLR-BASE-FIELD-READ"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-BASE-KC-01", "questionId": "CLR-BASE-Q-01"}
+    },
+    {
+      "workItemId": "clr-base-b-quantity",
+      "source": {"materialIds": ["CLR-BASE-B-INSTRUCTION"], "fieldIds": ["quantity_batches", "units_per_batch", "quantity", "unit"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-IB-INSTRUCTION", "CLR-BASE-REF-CASE"], "anchor": "综合B指令数量分项"},
+      "rule": {"ruleId": "CLR-BASE-RULE-QUANTITY", "formula": "15 × 110 = 1650", "expected": 1650, "precision": 0, "tolerance": "0", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-CALC", "criterionIds": ["P-CLR-BASE-DECIMAL"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "CLR-BASE-Q-02"}
+    },
+    {
+      "workItemId": "clr-base-b-amount",
+      "source": {"materialIds": ["CLR-BASE-B-INSTRUCTION"], "fieldIds": ["amount_component_a", "amount_component_b", "amount", "unit"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-IB-INSTRUCTION", "CLR-BASE-REF-CASE"], "anchor": "综合B指令金额分项"},
+      "rule": {"ruleId": "CLR-BASE-RULE-AMOUNT", "formula": "4800.00 + 7740.00 = 12540.00", "expected": 12540, "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-CALC", "criterionIds": ["P-CLR-BASE-DECIMAL"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-03", "questionId": "CLR-BASE-Q-02"}
+    },
+    {
+      "workItemId": "clr-base-b-result-ledger",
+      "source": {"materialIds": ["CLR-BASE-B-SETTLEMENT", "CLR-BASE-B-CONFIRMATION"], "fieldIds": ["business_key", "business_date", "asset_type", "direction", "settled_quantity", "settled_amount", "settlement_status", "delivering_role", "receiving_role"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-EX-OBJECT", "CLR-BASE-REF-FUND-FLOW", "CLR-BASE-REF-CASE"], "anchor": "交收结果工作纸承接结果资料并保留参与角色"},
+      "rule": {"ruleId": "CLR-BASE-RULE-RESULT", "expected": ["BASE-B-20260821-284", "1650", "12540.00", "SETTLED"], "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-OBJECT", "criterionIds": ["C-CLR-BASE-ROLES", "P-CLR-BASE-RESULT-RECON"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-BASE-KC-02", "questionId": "CLR-BASE-Q-04"}
+    },
+    {
+      "workItemId": "clr-base-b-identity-check",
+      "source": {"materialIds": ["CLR-BASE-B-INSTRUCTION", "CLR-BASE-B-CONFIRMATION", "CLR-BASE-B-SETTLEMENT", "CLR-BASE-B-RECONCILIATION"], "fieldIds": ["business_key", "business_date", "asset_type", "direction"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-FUND-FLOW", "CLR-BASE-REF-EX-OBJECT", "CLR-BASE-REF-IB-INSTRUCTION"], "anchor": "跨来源身份字段逐项对应"},
+      "rule": {"ruleId": "CLR-BASE-RULE-IDENTITY", "expected": "B_KEYS_MATCH", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-IDENTITY", "criterionIds": ["R-CLR-BASE-IDENTITY", "M-CLR-BASE-IDENTITY-CLOSED"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-BASE-KC-03", "questionId": "CLR-BASE-Q-05"}
+    },
+    {
+      "workItemId": "clr-base-b-quantity-diff",
+      "source": {"materialIds": ["CLR-BASE-B-RECONCILIATION", "CLR-BASE-B-SETTLEMENT"], "fieldIds": ["expected_quantity", "result_quantity", "quantity_difference"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-FUND-FLOW", "CLR-BASE-REF-CASE"], "anchor": "对账资料数量字段"},
+      "rule": {"ruleId": "CLR-BASE-RULE-RECON", "formula": "1650 - 1650 = 0", "expected": 0, "precision": 0, "tolerance": "0", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-RECON", "criterionIds": ["P-CLR-BASE-RESULT-RECON", "R-CLR-BASE-ZERO-DIFF"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "CLR-BASE-Q-05"}
+    },
+    {
+      "workItemId": "clr-base-b-amount-diff",
+      "source": {"materialIds": ["CLR-BASE-B-RECONCILIATION", "CLR-BASE-B-SETTLEMENT"], "fieldIds": ["expected_amount", "result_amount", "amount_difference"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-FUND-FLOW", "CLR-BASE-REF-CASE"], "anchor": "对账资料金额字段"},
+      "rule": {"ruleId": "CLR-BASE-RULE-RECON", "formula": "12540.00 - 12540.00 = 0.00", "expected": 0, "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-RECON", "criterionIds": ["P-CLR-BASE-RESULT-RECON", "R-CLR-BASE-ZERO-DIFF"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "CLR-BASE-Q-05"}
+    },
+    {
+      "workItemId": "clr-base-b-reconciliation",
+      "source": {"materialIds": ["CLR-BASE-B-RECONCILIATION", "CLR-BASE-B-SETTLEMENT"], "fieldIds": ["quantity_difference", "amount_difference", "reconciliation_status", "settlement_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-FUND-FLOW", "CLR-BASE-REF-CASE"], "anchor": "结果状态与对账状态共同记录"},
+      "rule": {"ruleId": "CLR-BASE-RULE-RECON", "expected": "B_RECONCILED_ZERO", "condition": "数量差0、金额差0.00且交收结果为SETTLED", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-RECON", "criterionIds": ["R-CLR-BASE-ZERO-DIFF", "M-CLR-BASE-RESULT-ZERO"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "CLR-BASE-Q-05"}
+    },
+    {
+      "workItemId": "clr-base-b-conclusion",
+      "source": {"materialIds": ["CLR-BASE-B-INSTRUCTION", "CLR-BASE-B-SETTLEMENT", "CLR-BASE-B-RECONCILIATION"], "fieldIds": ["business_key", "business_date", "asset_type", "direction", "settled_quantity", "settled_amount", "quantity_difference", "amount_difference", "settlement_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-BASE-REF-CASE", "CLR-BASE-REF-FUND-FLOW", "CLR-BASE-REF-EX-OBJECT"], "anchor": "一句话回指业务身份、数值和状态"},
+      "rule": {"ruleId": "CLR-BASE-RULE-CONCLUSION", "expected": ["BASE-B-20260821-284", "2026-08-21", "SECURITY", "RECEIVE", "1650 unit", "12540.00 CNY", "数量差0", "金额差0.00", "SETTLED"], "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-BASE-CONCLUSION", "criterionIds": ["E-CLR-BASE-TRACEABLE"], "materialStep": "DEMONSTRATION", "materialItemId": "DEMONSTRATION-STEP-05", "questionId": "CLR-BASE-Q-03"}
+    }
+  ],
+  "coverage": {
+    "FIELD_MAP": ["clr-base-b-instruction-source", "clr-base-b-confirmation-source", "clr-base-b-settlement-source"],
+    "CALCULATION": ["clr-base-b-quantity", "clr-base-b-amount"],
+    "LEDGER_ENTRY": ["clr-base-b-result-ledger"],
+    "RECONCILIATION": ["clr-base-b-identity-check", "clr-base-b-quantity-diff", "clr-base-b-amount-diff", "clr-base-b-reconciliation"],
+    "SHORT_TEXT": ["clr-base-b-conclusion"]
+  },
+  "integrity": {
+    "workItemMappingCount": 11,
+    "uniqueWorkItemMappings": true,
+    "everyWorkItemHasSourceReferenceRuleRemediation": true,
+    "demoAndComprehensiveAreIsomorphic": true,
+    "demoAndComprehensiveUseDifferentKeysDatesAndNumbers": true,
+    "allCaseValuesMarkedOnlyThisCase": true,
+    "normalCaseOnly": true,
+    "mapAndReleaseRegistration": false
+  }
+}

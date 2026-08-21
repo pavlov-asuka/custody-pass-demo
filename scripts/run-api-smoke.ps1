@@ -105,10 +105,52 @@ try {
     if ((@($worlds.worlds | Where-Object line -eq 'ACCOUNTING'))[0].availability -ne 'OPEN') {
         throw 'ACCOUNTING world is not OPEN'
     }
-    foreach ($buildingLine in @('CLEARING', 'SUPERVISION')) {
-        if ((@($worlds.worlds | Where-Object line -eq $buildingLine))[0].availability -ne 'BUILDING') {
-            throw "$buildingLine world is not BUILDING"
+    $accountingWorld = @($worlds.worlds | Where-Object line -eq 'ACCOUNTING')[0]
+    if ($accountingWorld.publishedRequiredRoutes -ne 39 -or
+        $accountingWorld.passedRequiredRoutes -ne 0 -or
+        $accountingWorld.progressPercent -ne 0) {
+        throw 'ACCOUNTING world required progress is not line-scoped'
+    }
+    $clearingWorld = @($worlds.worlds | Where-Object line -eq 'CLEARING')[0]
+    if ($clearingWorld.availability -ne 'OPEN' -or
+        $clearingWorld.publishedRequiredRoutes -ne 7 -or
+        $clearingWorld.passedRequiredRoutes -ne 0 -or
+        $clearingWorld.progressPercent -ne 0 -or
+        $clearingWorld.status -ne 'NOT_STARTED') {
+        throw 'CLEARING world is not OPEN with seven untouched required routes'
+    }
+    $supervisionWorld = @($worlds.worlds | Where-Object line -eq 'SUPERVISION')[0]
+    if ($supervisionWorld.availability -ne 'BUILDING' -or
+        $supervisionWorld.publishedRequiredRoutes -ne 0 -or
+        $supervisionWorld.passedRequiredRoutes -ne 0 -or
+        $supervisionWorld.progressPercent -ne 0 -or
+        $supervisionWorld.status -ne 'BUILDING') {
+        throw 'SUPERVISION world is not protected as BUILDING'
+    }
+
+    $clearingMap = Invoke-JsonApi -Method GET -Path '/api/lines/CLEARING/map'
+    $clearingNodes = @($clearingMap.regions | ForEach-Object modules |
+        ForEach-Object nodes | ForEach-Object { $_ })
+    if ($clearingNodes.Count -ne 7) { throw 'CLEARING map does not expose seven nodes' }
+    $baseNode = @($clearingNodes | Where-Object routeId -eq 'CLR-BASE-001')[0]
+    if ($null -eq $baseNode -or $baseNode.locked -or -not $baseNode.enterable) {
+        throw 'CLEARING BASE route should be unlocked and enterable'
+    }
+    foreach ($lockedRouteId in @('CLR-FUND-PAYMENT-001', 'CLR-EX-CORE-001',
+            'CLR-IB-INSTRUCTION-001', 'CLR-FUND-CLOSE-002', 'CLR-EX-FUNDS-002',
+            'CLR-IB-DVP-CLOSE-002')) {
+        $lockedNode = @($clearingNodes | Where-Object routeId -eq $lockedRouteId)[0]
+        if ($null -eq $lockedNode -or -not $lockedNode.locked -or $lockedNode.enterable) {
+            throw "CLEARING route should remain locked before BASE: $lockedRouteId"
         }
+    }
+    $clearingRoute = Invoke-JsonApi -Method GET -Path '/api/routes/CLR-BASE-001'
+    if ($clearingRoute.routeId -ne 'CLR-BASE-001' -or
+        $clearingRoute.state -ne 'NOT_STARTED' -or
+        -not $clearingRoute.enterable -or
+        [string]::IsNullOrWhiteSpace([string]$clearingRoute.contentVersion) -or
+        [string]::IsNullOrWhiteSpace([string]$clearingRoute.rubricVersion)) {
+        throw 'CLEARING BASE route is not publicly readable'
     }
 
     $mapBefore = Invoke-JsonApi -Method GET -Path '/api/lines/ACCOUNTING/map'
@@ -197,7 +239,7 @@ try {
     if ($history.historicalConclusion -ne 'PASSED') { throw 'history snapshot mismatch' }
 
     $null = Invoke-JsonApi -Method POST -Path '/api/auth/logout' -Headers $csrfHeaders
-    $summary = ("baseline-http-smoke=ok; user={0}; worlds=3; route={1}; attempt={2}; " +
+    $summary = ("baseline-http-smoke=ok; user={0}; worlds=3; clearingNodes=7; route={1}; attempt={2}; " +
         "status=COMPLETED; conclusion=PASSED; nextNodeUnlocked=true; records={3}") -f `
         $EmployeeNo, $routeId, $attempt.attemptId, $records.totalElements
     Write-Output $summary

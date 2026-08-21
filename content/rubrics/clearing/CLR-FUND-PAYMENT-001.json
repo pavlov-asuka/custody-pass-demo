@@ -1,0 +1,279 @@
+{
+  "routeId": "CLR-FUND-PAYMENT-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CLR-FUND-PAYMENT-SOURCES",
+          "description": "区分支付指令、业务依据、执行确认、资金账和对账资料各自承载的字段",
+          "weight": 13,
+          "evidenceRequirement": "能从综合B选择指令与业务依据的审核来源，并把执行、资金账和对账资料放在结果链中",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-source-fields", "operator": "EQUALS", "expected": "B_SOURCE_MAP"},
+            {"fieldId": "clr-fund-b-approval-controls", "operator": "EQUALS", "expected": "B_APPROVAL_SOURCES"}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-SOURCES"
+        },
+        {
+          "criterionId": "C-CLR-FUND-PAYMENT-CONTROLS",
+          "description": "理解账户状态与锁定、业务依据、业务日期、批准渠道和唯一执行控制的关系",
+          "weight": 12,
+          "evidenceRequirement": "勾稽结论同时覆盖账户、依据、日期、渠道、状态和重复执行控制",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-identity-recon", "operator": "EQUALS", "expected": "B_IDENTITIES_CHANNELS_MATCH"},
+            {"fieldId": "clr-fund-b-execution-ledger", "operator": "CONTAINS_ALL", "expected": ["CASE_APPROVED_CHANNEL_B", "EXECUTED", "POSTED", "UNIQUE_EXECUTION"]}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-CONTROLS"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CLR-FUND-PAYMENT-FIELD-READ",
+          "description": "按资料作用读取并映射支付身份、业务依据和批准控制字段",
+          "weight": 8,
+          "evidenceRequirement": "指令/业务依据/执行/资金账/对账来源选择完整，审核字段来源选择正确",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-source-fields", "operator": "EQUALS", "expected": "B_SOURCE_MAP"},
+            {"fieldId": "clr-fund-b-approval-controls", "operator": "EQUALS", "expected": "B_APPROVAL_SOURCES"}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-SOURCES"
+        },
+        {
+          "criterionId": "P-CLR-FUND-PAYMENT-DECIMAL",
+          "description": "独立复算现金余额，并分别核对批准—执行、执行—资金账两处金额差，金额保留两位小数",
+          "weight": 10,
+          "evidenceRequirement": "210000.00−41725.80=168274.20；批准金额、执行金额和资金账支付变动三笔金额均被读取，批准—执行差和执行—资金账差分别为0.00",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-closing-cash", "operator": "NUMBER_EQUALS", "expected": 168274.2, "tolerance": 0.01},
+            {"fieldId": "clr-fund-b-amount-chain", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-b-amount-recon", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-b-execution-ledger", "operator": "CONTAINS_ALL", "expected": ["approvedAmount=41725.80 CNY", "executedAmount=41725.80 CNY", "ledgerMovement=41725.80 CNY"]}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-APPROVED-EXECUTED"
+        },
+        {
+          "criterionId": "P-CLR-FUND-PAYMENT-RESULT-LEDGER",
+          "description": "把正常执行结果和资金账支付变动登记回同一业务键",
+          "weight": 7,
+          "evidenceRequirement": "结果登记保留业务键、日期、账户组合、支付金额、批准渠道、执行状态、入账状态和唯一执行控制",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-execution-ledger", "operator": "CONTAINS_ALL", "expected": ["FUND-B-20260822-184", "2026-08-22", "PAY-ACCT-B-002 / REC-ACCT-B-002", "41725.80", "CASE_APPROVED_CHANNEL_B", "EXECUTED", "POSTED", "UNIQUE_EXECUTION"]}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-LEDGER"
+        },
+        {
+          "criterionId": "P-CLR-FUND-PAYMENT-RECON",
+          "description": "完成三笔金额、两处独立金额差和现金余额的跨来源勾稽",
+          "weight": 5,
+          "evidenceRequirement": "批准金额、执行金额和资金账支付变动三笔金额有独立记录，批准—执行差、执行—资金账差和现金余额差均为0.00",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-cash-recon", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-b-amount-chain", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-b-amount-recon", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-b-execution-ledger", "operator": "CONTAINS_ALL", "expected": ["approvedAmount=41725.80 CNY", "executedAmount=41725.80 CNY", "ledgerMovement=41725.80 CNY"]}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-EXECUTED-LEDGER"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CLR-FUND-PAYMENT-ACCOUNT-BASIS",
+          "description": "控制收付款账户状态与锁定、业务依据和账户组合错配",
+          "weight": 7,
+          "evidenceRequirement": "勾稽结论确认账户、业务依据及依据编号与综合B资料一致",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-identity-recon", "operator": "EQUALS", "expected": "B_IDENTITIES_CHANNELS_MATCH"},
+            {"fieldId": "clr-fund-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["BASIS-B-20260822-184", "PAY-ACCT-B-002", "REC-ACCT-B-002", "ACTIVE", "NOT_LOCKED", "VALID"]}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-CONTROLS"
+        },
+        {
+          "criterionId": "R-CLR-FUND-PAYMENT-DATE-CHANNEL",
+          "description": "控制业务日期、支付日期和批准渠道与执行资料的错配",
+          "weight": 6,
+          "evidenceRequirement": "结果登记同时保留2026-08-22和本案例批准渠道，且勾稽字段一致",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-execution-ledger", "operator": "CONTAINS_ALL", "expected": ["2026-08-22", "CASE_APPROVED_CHANNEL_B"]},
+            {"fieldId": "clr-fund-b-identity-recon", "operator": "EQUALS", "expected": "B_IDENTITIES_CHANNELS_MATCH"}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-CONTROLS"
+        },
+        {
+          "criterionId": "R-CLR-FUND-PAYMENT-DUPLICATE",
+          "description": "在正常执行登记中保留唯一执行控制，避免同一支付被重复执行",
+          "weight": 6,
+          "evidenceRequirement": "执行结果登记含UNIQUE_EXECUTION，且勾稽结论确认状态字段一致",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-execution-ledger", "operator": "CONTAINS_ALL", "expected": ["UNIQUE_EXECUTION", "EXECUTED", "POSTED"]},
+            {"fieldId": "clr-fund-b-identity-recon", "operator": "EQUALS", "expected": "B_IDENTITIES_CHANNELS_MATCH"}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-DUPLICATE"
+        },
+        {
+          "criterionId": "R-CLR-FUND-PAYMENT-ZERO-DIFF",
+          "description": "控制批准金额、执行金额、资金账变动和余额结果不能留下未解释差额",
+          "weight": 6,
+          "evidenceRequirement": "批准—执行差、执行—资金账差和现金余额差均为0.00，且三笔金额及执行结果和资金账状态均已登记",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-amount-chain", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-b-amount-recon", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-b-cash-recon", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-fund-b-execution-ledger", "operator": "CONTAINS_ALL", "expected": ["approvedAmount=41725.80 CNY", "executedAmount=41725.80 CNY", "ledgerMovement=41725.80 CNY", "EXECUTED", "POSTED"]}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-RECON"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CLR-FUND-PAYMENT-TRACEABLE",
+          "description": "用一句业务短句写出可回查的正常支付结论",
+          "weight": 20,
+          "evidenceRequirement": "结论同时写明业务键、日期、账户与业务依据、批准渠道、支付金额、closingCash、执行/入账状态和两类差额",
+          "evidenceRules": [
+            {"fieldId": "clr-fund-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["FUND-B-20260822-184", "2026-08-22", "PAY-ACCT-B-002", "REC-ACCT-B-002", "BASIS-B-20260822-184", "ACTIVE", "NOT_LOCKED", "VALID", "CASE_APPROVED_CHANNEL_B", "41725.80 CNY", "168274.20 CNY", "EXECUTED", "POSTED", "批准与执行差0.00", "执行与资金账差0.00", "现金余额差0.00"]}
+          ],
+          "remediationTargetId": "CLR-FUND-PAYMENT-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CLR-FUND-PAYMENT-APPROVAL-CLOSED",
+      "description": "审核身份和批准控制必须同时闭合",
+      "evidenceRequirement": "支付指令、业务依据、执行确认的业务键、日期、账户、依据、状态和批准渠道一致，且唯一执行控制已登记",
+      "evidenceRules": [
+        {"fieldId": "clr-fund-b-source-fields", "operator": "EQUALS", "expected": "B_SOURCE_MAP"},
+        {"fieldId": "clr-fund-b-approval-controls", "operator": "EQUALS", "expected": "B_APPROVAL_SOURCES"},
+        {"fieldId": "clr-fund-b-identity-recon", "operator": "EQUALS", "expected": "B_IDENTITIES_CHANNELS_MATCH"},
+        {"fieldId": "clr-fund-b-execution-ledger", "operator": "CONTAINS_ALL", "expected": ["CASE_APPROVED_CHANNEL_B", "UNIQUE_EXECUTION", "EXECUTED"]}
+      ],
+      "remediationTargetId": "CLR-FUND-PAYMENT-CONTROLS"
+    },
+    {
+      "requirementId": "M-CLR-FUND-PAYMENT-CASH-LEDGER-CLOSED",
+      "description": "金额链、现金余额和资金账结果必须同时闭合",
+      "evidenceRequirement": "closingCash复算正确，批准/执行/资金账三笔金额一致，批准—执行差、执行—资金账差和现金余额差均为零，结果和入账状态齐全",
+      "evidenceRules": [
+        {"fieldId": "clr-fund-b-closing-cash", "operator": "NUMBER_EQUALS", "expected": 168274.2, "tolerance": 0.01},
+        {"fieldId": "clr-fund-b-amount-chain", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-b-amount-recon", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-fund-b-execution-ledger", "operator": "CONTAINS_ALL", "expected": ["approvedAmount=41725.80 CNY", "executedAmount=41725.80 CNY", "ledgerMovement=41725.80 CNY", "EXECUTED", "POSTED"]},
+        {"fieldId": "clr-fund-b-cash-recon", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01}
+      ],
+      "remediationTargetId": "CLR-FUND-PAYMENT-CASH-CALC"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "CLR-FUND-PAYMENT-SOURCES",
+      "title": "补学支付资料来源",
+      "reason": "没有按资料作用区分支付指令、业务依据、执行确认、资金账和对账资料",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-FUND-PAYMENT-KC-01",
+      "questionId": "CLR-FUND-PAYMENT-Q-01"
+    },
+    {
+      "targetId": "CLR-FUND-PAYMENT-CONTROLS",
+      "title": "补学账户与批准控制",
+      "reason": "账户状态或锁定、业务依据、日期、批准渠道和唯一执行控制没有一起核对",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-FUND-PAYMENT-KC-02",
+      "questionId": "CLR-FUND-PAYMENT-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-PAYMENT-CASH-CALC",
+      "title": "补学现金余额与金额链复算",
+      "reason": "没有用openingCash减支付金额复算closingCash，或没有把批准金额与执行金额比较",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-PAYMENT-Q-02"
+    },
+    {
+      "targetId": "CLR-FUND-PAYMENT-APPROVED-EXECUTED",
+      "title": "补学批准与执行金额差",
+      "reason": "未能把批准金额与执行金额作为第一处独立差额核对。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-PAYMENT-Q-02"
+    },
+    {
+      "targetId": "CLR-FUND-PAYMENT-EXECUTED-LEDGER",
+      "title": "补学执行与资金账金额差",
+      "reason": "未能把执行金额与资金账支付变动作为第二处独立差额核对。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-FUND-PAYMENT-Q-02"
+    },
+    {
+      "targetId": "CLR-FUND-PAYMENT-LEDGER",
+      "title": "补学执行结果与资金账登记",
+      "reason": "执行金额、账户、渠道或状态没有登记回同一业务键",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "CLR-FUND-PAYMENT-Q-03"
+    },
+    {
+      "targetId": "CLR-FUND-PAYMENT-RECON",
+      "title": "补学跨来源零差勾稽",
+      "reason": "批准/执行/资金账金额链或现金余额链没有分别计算并闭合",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-FUND-PAYMENT-KC-03",
+      "questionId": "CLR-FUND-PAYMENT-Q-04"
+    },
+    {
+      "targetId": "CLR-FUND-PAYMENT-DUPLICATE",
+      "title": "补学唯一执行控制",
+      "reason": "结果登记没有保留同一支付只执行一次的正常控制字段",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-04",
+      "questionId": "CLR-FUND-PAYMENT-Q-03"
+    },
+    {
+      "targetId": "CLR-FUND-PAYMENT-CONCLUSION",
+      "title": "补写可回查支付结论",
+      "reason": "短结论没有回指业务键、日期、账户、依据、金额、状态和差额",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "CLR-FUND-PAYMENT-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CLR-FUND-PAYMENT-COMP-B",
+    "responses": {
+      "clr-fund-b-source-fields": "B_SOURCE_MAP",
+      "clr-fund-b-approval-controls": "B_APPROVAL_SOURCES",
+      "clr-fund-b-closing-cash": 168274.2,
+      "clr-fund-b-amount-chain": 0,
+      "clr-fund-b-execution-ledger": "paymentKey=FUND-B-20260822-184; businessDate=2026-08-22; accountPair=PAY-ACCT-B-002 / REC-ACCT-B-002; payerAccount=PAY-ACCT-B-002; payeeAccount=REC-ACCT-B-002; approvedChannel=CASE_APPROVED_CHANNEL_B; approvedAmount=41725.80 CNY; executedAmount=41725.80 CNY; executionResult=EXECUTED; ledgerMovement=41725.80 CNY; ledgerStatus=POSTED; duplicateControl=UNIQUE_EXECUTION",
+      "clr-fund-b-identity-recon": "B_IDENTITIES_CHANNELS_MATCH",
+      "clr-fund-b-cash-recon": 0,
+      "clr-fund-b-amount-recon": 0,
+      "clr-fund-b-conclusion": "业务键FUND-B-20260822-184，业务日期2026-08-22；付款账户PAY-ACCT-B-002、收款账户REC-ACCT-B-002与业务依据BASIS-B-20260822-184一致，付款/收款账户状态ACTIVE、锁定NOT_LOCKED，依据状态VALID，批准渠道CASE_APPROVED_CHANNEL_B。批准、执行和资金账支付变动均为41725.80 CNY，210000.00 - 41725.80 = closingCash 168274.20 CNY；执行状态EXECUTED、入账状态POSTED，批准与执行差0.00、执行与资金账差0.00、现金余额差0.00，结果RECONCILED。"
+    },
+    "decimalChain": {
+      "cashBalance": "210000.00 - 41725.80 = 168274.20 CNY",
+      "approvedExecutedDifference": "41725.80 - 41725.80 = 0.00 CNY",
+      "executedLedgerDifference": "41725.80 - 41725.80 = 0.00 CNY",
+      "identity": "FUND-B-20260822-184 / 2026-08-22 / BASIS-B-20260822-184 / PAY-ACCT-B-002 / REC-ACCT-B-002 / CASE_APPROVED_CHANNEL_B",
+      "result": "EXECUTED; ledgerStatus=POSTED; reconciliationStatus=RECONCILED"
+    }
+  }
+}

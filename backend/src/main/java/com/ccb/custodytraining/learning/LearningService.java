@@ -46,21 +46,19 @@ public class LearningService {
         ObjectNode response = objectMapper.createObjectNode();
         response.put("mapVersion", catalog.map().path("version").asText());
         ArrayNode worlds = response.putArray("worlds");
-        List<String> requiredRouteIds = publishedRequiredRouteIds();
         for (JsonNode line : catalog.map().path("lines")) {
             ObjectNode world = worlds.addObject();
-            world.put("line", line.path("line").asText());
+            String lineName = line.path("line").asText();
+            List<String> requiredRouteIds = publishedRequiredRouteIds(lineName);
+            world.put("line", lineName);
             world.put("name", line.path("name").asText());
             world.put("description", line.path("description").asText());
             world.put("availability", line.path("availability").asText());
             world.put("sceneAssetId", line.path("sceneAssetId").asText());
-            int total = "ACCOUNTING".equals(line.path("line").asText())
-                    ? requiredRouteIds.size() : 0;
-            int passed = "ACCOUNTING".equals(line.path("line").asText())
-                    ? (int) requiredRouteIds.stream()
-                    .filter(routeId -> repository.hasPassed(userId, routeId)).count() : 0;
-            boolean hasActivity = "ACCOUNTING".equals(line.path("line").asText())
-                    && catalog.publishedRouteIds().stream()
+            int total = requiredRouteIds.size();
+            int passed = (int) requiredRouteIds.stream()
+                    .filter(routeId -> repository.hasPassed(userId, routeId)).count();
+            boolean hasActivity = requiredRouteIds.stream()
                     .map(routeId -> state(userId, routeId))
                     .anyMatch(routeState -> routeState != RouteState.NOT_STARTED);
             world.put("passedRequiredRoutes", passed);
@@ -73,13 +71,10 @@ public class LearningService {
     }
 
     public ObjectNode map(long userId, String lineName) {
-        if (!"ACCOUNTING".equals(lineName)) {
-            JsonNode line = findLine(lineName);
-            if (!"OPEN".equals(line.path("availability").asText())) {
-                throw new BusinessConflictException("CONTENT_BUILDING", "该学习世界内容建设中");
-            }
-        }
         JsonNode line = findLine(lineName);
+        if (!"OPEN".equals(line.path("availability").asText())) {
+            throw new BusinessConflictException("CONTENT_BUILDING", "该学习世界内容建设中");
+        }
         ObjectNode response = objectMapper.createObjectNode();
         response.put("line", line.path("line").asText());
         response.put("name", line.path("name").asText());
@@ -134,7 +129,7 @@ public class LearningService {
         }
         response.put("recommendedNodeId", recommended);
         ObjectNode progress = response.putObject("progress");
-        int total = publishedRequiredRouteIds().size();
+        int total = publishedRequiredRouteIds(lineName).size();
         progress.put("passedRequiredRoutes", passedCount);
         progress.put("publishedRequiredRoutes", total);
         progress.put("percent", total == 0 ? 0 : passedCount * 100 / total);
@@ -440,8 +435,9 @@ public class LearningService {
         if (conclusion != null && !Set.of("PASSED", "LEARNED_NOT_MASTERED").contains(conclusion)) {
             throw new BadRequestException("结论筛选无效");
         }
+        String repositoryLine = "CLEARING".equals(line) ? "CLR" : line;
         LearningRepository.RecordPage found = repository.attempts(
-                userId, line, conclusion, size, Math.multiplyExact(page, size));
+                userId, repositoryLine, conclusion, size, Math.multiplyExact(page, size));
         ObjectNode response = objectMapper.createObjectNode();
         ArrayNode items = response.putArray("items");
         for (LearningRepository.Attempt attempt : found.items()) {
@@ -784,9 +780,12 @@ public class LearningService {
         throw new NotFoundException("学习世界不存在");
     }
 
-    private List<String> publishedRequiredRouteIds() {
+    private List<String> publishedRequiredRouteIds(String lineName) {
         List<String> routeIds = new ArrayList<>();
         for (JsonNode line : catalog.map().path("lines")) {
+            if (!lineName.equals(line.path("line").asText())) {
+                continue;
+            }
             for (JsonNode region : line.path("regions")) {
                 for (JsonNode module : region.path("modules")) {
                     for (JsonNode node : module.path("nodes")) {

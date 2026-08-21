@@ -1,0 +1,218 @@
+{
+  "routeId": "CLR-IB-INSTRUCTION-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CLR-IB-BOUNDARY",
+          "description": "区分交易数据来源、结算机构、结算处理系统、证券/资金账户、结算方式和通道",
+          "weight": 13,
+          "evidenceRequirement": "能从综合B选出本方指令作为机构、系统和账户角色来源，并保持DVP与NON_DIRECT为不同字段",
+          "evidenceRules": [
+            {"fieldId": "clr-ib-b-field-institution-system-account", "operator": "EQUALS", "expected": "B_OUR_INSTRUCTION_SOURCE"},
+            {"fieldId": "clr-ib-b-field-method-channel", "operator": "EQUALS", "expected": "B_OUR_INSTRUCTION_SOURCE"},
+            {"fieldId": "clr-ib-b-confirmation-workpaper", "operator": "CONTAINS_ALL", "expected": ["CCDC", "SETTLEMENT_PROCESSING_SYSTEM", "DVP", "NON_DIRECT"]}
+          ],
+          "remediationTargetId": "CLR-IB-ROLES"
+        },
+        {
+          "criterionId": "C-CLR-IB-INSTRUCTION-FIELDS",
+          "description": "掌握银行间结算指令的业务身份、债券输入、金额输入、交割日和参与角色",
+          "weight": 12,
+          "evidenceRequirement": "确认工作纸同时保留业务键、日期、债券代码、方向、面额、结算金额、交割日和付券/收券角色",
+          "evidenceRules": [
+            {"fieldId": "clr-ib-b-confirmation-workpaper", "operator": "CONTAINS_ALL", "expected": ["IB-B-20260821-428", "2026-08-21", "2026-08-24", "CGB-EDU-2026-B", "DELIVER_SECURITIES", "185.7500", "2487650.00", "DELIVERING_SECURITIES_ACCOUNT", "RECEIVING_SECURITIES_ACCOUNT"]}
+          ],
+          "remediationTargetId": "CLR-IB-MATCH"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CLR-IB-FIELD-MAP",
+          "description": "按资料角色读取交易数据、任务、双边指令和确认来源",
+          "weight": 10,
+          "evidenceRequirement": "机构/系统/账户和方式/通道来源均选择综合B本方指令",
+          "evidenceRules": [
+            {"fieldId": "clr-ib-b-field-institution-system-account", "operator": "EQUALS", "expected": "B_OUR_INSTRUCTION_SOURCE"},
+            {"fieldId": "clr-ib-b-field-method-channel", "operator": "EQUALS", "expected": "B_OUR_INSTRUCTION_SOURCE"}
+          ],
+          "remediationTargetId": "CLR-IB-FLOW"
+        },
+        {
+          "criterionId": "P-CLR-IB-DECIMAL",
+          "description": "分别复算债券面额和结算金额的一致性并保留输入精度",
+          "weight": 10,
+          "evidenceRequirement": "185.7500−185.7500=0.0000 CNY_10K，2487650.00−2487650.00=0.00 CNY；不重算价格或利息",
+          "evidenceRules": [
+            {"fieldId": "clr-ib-b-face-value-check", "operator": "NUMBER_EQUALS", "expected": "0.0000", "tolerance": 0.0001},
+            {"fieldId": "clr-ib-b-settlement-amount-check", "operator": "NUMBER_EQUALS", "expected": "0.00", "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CLR-IB-DECIMAL"
+        },
+        {
+          "criterionId": "P-CLR-IB-CONFIRMATION",
+          "description": "完成确认工作纸、身份勾稽、零差勾稽和阶段状态登记",
+          "weight": 10,
+          "evidenceRequirement": "工作纸完整，身份一致，两类差额为零，批准检查通过并记录结算确认",
+          "evidenceRules": [
+            {"fieldId": "clr-ib-b-confirmation-workpaper", "operator": "CONTAINS_ALL", "expected": ["APPROVED_FOR_CONFIRMATION", "CONFIRMED_FOR_SETTLEMENT"]},
+            {"fieldId": "clr-ib-b-identity-match", "operator": "EQUALS", "expected": "B_IDENTITY_MATCHED"},
+            {"fieldId": "clr-ib-b-zero-difference", "operator": "EQUALS", "expected": "B_ZERO_DIFFERENCE"},
+            {"fieldId": "clr-ib-b-approval-confirmation", "operator": "EQUALS", "expected": "B_APPROVED_CONFIRMED"}
+          ],
+          "remediationTargetId": "CLR-IB-APPROVAL"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CLR-IB-METHOD-CHANNEL",
+          "description": "控制把直联/非直联通道误写成DVP或把结算机构、系统、账户混淆",
+          "weight": 13,
+          "evidenceRequirement": "确认工作纸同时保留DVP、NON_DIRECT、结算机构、结算处理系统和四类账户角色",
+          "evidenceRules": [
+            {"fieldId": "clr-ib-b-confirmation-workpaper", "operator": "CONTAINS_ALL", "expected": ["CCDC", "SETTLEMENT_PROCESSING_SYSTEM", "DELIVERING_SECURITIES_ACCOUNT", "RECEIVING_SECURITIES_ACCOUNT", "PAYER_FUNDS_ACCOUNT", "RECEIVER_FUNDS_ACCOUNT", "DVP", "NON_DIRECT"]},
+            {"fieldId": "clr-ib-b-field-method-channel", "operator": "EQUALS", "expected": "B_OUR_INSTRUCTION_SOURCE"}
+          ],
+          "remediationTargetId": "CLR-IB-ROLES"
+        },
+        {
+          "criterionId": "R-CLR-IB-STATUS-SCOPE",
+          "description": "控制确认阶段越界为实际交割或日终结果",
+          "weight": 12,
+          "evidenceRequirement": "确认状态为本案例的CONFIRMED_FOR_SETTLEMENT，并在结论中说明实际DVP交割留在后续路线",
+          "evidenceRules": [
+            {"fieldId": "clr-ib-b-approval-confirmation", "operator": "EQUALS", "expected": "B_APPROVED_CONFIRMED"},
+            {"fieldId": "clr-ib-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["CONFIRMED_FOR_SETTLEMENT", "DVP", "实际DVP交割不在本路线"]}
+          ],
+          "remediationTargetId": "CLR-IB-CONCLUSION"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CLR-IB-TRACEABLE-CONCLUSION",
+          "description": "用简短、专业且可追溯的语言给出结算确认结论",
+          "weight": 20,
+          "evidenceRequirement": "一句话写明业务身份、债券/金额输入、零差、机构、方式/通道、批准/确认状态和路线边界",
+          "evidenceRules": [
+            {"fieldId": "clr-ib-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["IB-B-20260821-428", "2026-08-21", "2026-08-24", "CGB-EDU-2026-B", "DELIVER_SECURITIES", "185.7500 CNY_10K", "2487650.00 CNY", "面额差0.0000", "金额差0.00", "CCDC", "DVP", "NON_DIRECT", "APPROVED_FOR_CONFIRMATION", "CONFIRMED_FOR_SETTLEMENT", "实际DVP交割不在本路线"]}
+          ],
+          "remediationTargetId": "CLR-IB-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CLR-IB-ROLE-METHOD-CLOSED",
+      "description": "机构、系统、账户、结算方式和通道必须分开且完整",
+      "evidenceRequirement": "本方指令来源选择正确，确认工作纸保留结算机构、结算处理系统、证券/资金账户角色、DVP和NON_DIRECT",
+      "evidenceRules": [
+        {"fieldId": "clr-ib-b-field-institution-system-account", "operator": "EQUALS", "expected": "B_OUR_INSTRUCTION_SOURCE"},
+        {"fieldId": "clr-ib-b-field-method-channel", "operator": "EQUALS", "expected": "B_OUR_INSTRUCTION_SOURCE"},
+        {"fieldId": "clr-ib-b-confirmation-workpaper", "operator": "CONTAINS_ALL", "expected": ["CCDC", "SETTLEMENT_PROCESSING_SYSTEM", "DELIVERING_SECURITIES_ACCOUNT", "RECEIVING_SECURITIES_ACCOUNT", "PAYER_FUNDS_ACCOUNT", "RECEIVER_FUNDS_ACCOUNT", "DVP", "NON_DIRECT"]}
+      ],
+      "remediationTargetId": "CLR-IB-ROLES"
+    },
+    {
+      "requirementId": "M-CLR-IB-CONFIRMATION-CLOSED",
+      "description": "身份、输入数值、批准检查和结算确认必须同时闭合",
+      "evidenceRequirement": "面额与结算金额差额均为零，身份匹配，批准检查通过，记录结算确认并明确不代表实际DVP交割",
+      "evidenceRules": [
+        {"fieldId": "clr-ib-b-face-value-check", "operator": "NUMBER_EQUALS", "expected": "0.0000", "tolerance": 0.0001},
+        {"fieldId": "clr-ib-b-settlement-amount-check", "operator": "NUMBER_EQUALS", "expected": "0.00", "tolerance": 0.01},
+        {"fieldId": "clr-ib-b-identity-match", "operator": "EQUALS", "expected": "B_IDENTITY_MATCHED"},
+        {"fieldId": "clr-ib-b-zero-difference", "operator": "EQUALS", "expected": "B_ZERO_DIFFERENCE"},
+        {"fieldId": "clr-ib-b-approval-confirmation", "operator": "EQUALS", "expected": "B_APPROVED_CONFIRMED"},
+        {"fieldId": "clr-ib-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["CONFIRMED_FOR_SETTLEMENT", "实际DVP交割不在本路线"]}
+      ],
+      "remediationTargetId": "CLR-IB-APPROVAL"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "CLR-IB-ROLES",
+      "title": "补学机构、系统、账户与方式边界",
+      "reason": "没有把结算机构、结算处理系统、证券/资金账户、DVP方式和非直联通道分开登记",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-IB-KC-01",
+      "questionId": "CLR-IB-Q-01"
+    },
+    {
+      "targetId": "CLR-IB-FLOW",
+      "title": "补学交易数据到双边指令",
+      "reason": "没有按交易数据、任务、双边指令、批准检查和结算确认的顺序承接字段",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-IB-KC-02",
+      "questionId": "CLR-IB-Q-03"
+    },
+    {
+      "targetId": "CLR-IB-DECIMAL",
+      "title": "补学面额与结算金额一致性复算",
+      "reason": "没有分别按本案例精度复算面额和结算金额差，或错误地从价格/利息推导金额",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "CLR-IB-Q-02"
+    },
+    {
+      "targetId": "CLR-IB-MATCH",
+      "title": "补学字段匹配与来源勾稽",
+      "reason": "业务键、日期、债券、方向、交割日或核心来源字段没有在本方与对手方资料之间对应",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-02",
+      "questionId": "CLR-IB-Q-05"
+    },
+    {
+      "targetId": "CLR-IB-APPROVAL",
+      "title": "补学批准检查与结算确认",
+      "reason": "没有在身份和两类差额闭合后完成批准工作纸并登记结算确认状态",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-IB-KC-03",
+      "questionId": "CLR-IB-Q-04"
+    },
+    {
+      "targetId": "CLR-IB-CONCLUSION",
+      "title": "补写阶段边界清楚的结论",
+      "reason": "结论缺少业务身份、输入金额/面额、零差、方式/通道、批准/确认状态或把确认写成实际交割；补学用基础短文本重写承接顺序和阶段边界。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "CLR-IB-Q-03"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CLR-IB-COMP-B",
+    "responses": {
+      "clr-ib-b-field-institution-system-account": "B_OUR_INSTRUCTION_SOURCE",
+      "clr-ib-b-field-method-channel": "B_OUR_INSTRUCTION_SOURCE",
+      "clr-ib-b-face-value-check": "0.0000",
+      "clr-ib-b-settlement-amount-check": "0.00",
+      "clr-ib-b-confirmation-workpaper": "businessKey=IB-B-20260821-428; businessDate=2026-08-21; settlementDate=2026-08-24; bondCode=CGB-EDU-2026-B; direction=DELIVER_SECURITIES; settlementInstitution=CCDC; settlementSystem=SETTLEMENT_PROCESSING_SYSTEM; deliveringSecuritiesAccount=DELIVERING_SECURITIES_ACCOUNT; receivingSecuritiesAccount=RECEIVING_SECURITIES_ACCOUNT; payerFundsAccount=PAYER_FUNDS_ACCOUNT; receiverFundsAccount=RECEIVER_FUNDS_ACCOUNT; faceValue=185.7500 CNY_10K; settlementAmount=2487650.00 CNY; settlementMethod=DVP; channel=NON_DIRECT; approvalStatus=APPROVED_FOR_CONFIRMATION; confirmationStatus=CONFIRMED_FOR_SETTLEMENT",
+      "clr-ib-b-identity-match": "B_IDENTITY_MATCHED",
+      "clr-ib-b-zero-difference": "B_ZERO_DIFFERENCE",
+      "clr-ib-b-approval-confirmation": "B_APPROVED_CONFIRMED",
+      "clr-ib-b-conclusion": "业务键IB-B-20260821-428，业务日期2026-08-21、交割日2026-08-24，债券CGB-EDU-2026-B，方向DELIVER_SECURITIES；面额185.7500 CNY_10K、结算金额2487650.00 CNY，面额差0.0000、金额差0.00；结算机构CCDC，结算方式DVP，通道NON_DIRECT，批准状态APPROVED_FOR_CONFIRMATION，结算确认状态CONFIRMED_FOR_SETTLEMENT；实际DVP交割不在本路线。"
+    },
+    "decimalChain": {
+      "faceValue": "185.7500 − 185.7500 = 0.0000 CNY_10K",
+      "settlementAmount": "2487650.00 − 2487650.00 = 0.00 CNY",
+      "identity": "IB-B-20260821-428 / 2026-08-21 / 2026-08-24 / CGB-EDU-2026-B / DELIVER_SECURITIES",
+      "boundary": "DVP + NON_DIRECT；CONFIRMED_FOR_SETTLEMENT；实际DVP交割不在本路线"
+    }
+  }
+}

@@ -1,0 +1,415 @@
+{
+  "evidenceId": "CLR-EX-CORE-001-EVIDENCE",
+  "version": "1.0.0",
+  "scope": "ROUTE_PRIVATE_EVIDENCE",
+  "provenance": "MATERIAL_ABSTRACTION_WITH_SYNTHETIC_EDUCATIONAL_FIXTURES",
+  "routeId": "CLR-EX-CORE-001",
+  "routeCode": "CLR-EX-CORE-001",
+  "title": "场内成交到交收准备证据映射",
+  "scopeNotice": "本资产只支撑正常场内交易确认、清算数据分层、证券/资金义务和交收准备。成交数据、清算结果、交收指令和准备对账是不同资料层；案例数字、日期、证券代码、业务键和状态均为本案例教育参数。",
+  "dependencyPolicy": {
+    "requiredRouteIds": ["CLR-BASE-001"],
+    "dependencyType": "CONTENT_PREREQUISITE",
+    "note": "只依赖共同基础路线，不写入核算或监督世界前置。"
+  },
+  "materialAnchors": [
+    {
+      "materialId": "CLR-EX-MAT-INTRO",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内业务介绍.pptx",
+      "locators": ["Slide 6", "Slide 13-16", "Slide 19-27", "Slide 29-34"],
+      "usageClass": "DIRECT",
+      "teachingUse": "支撑场内市场的托管行视角、登记结算机构、结算与交收定义、法人/分级结算、托管行模式和场内清算数据处理链。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "materialId": "CLR-EX-MAT-CASE",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内例题.docx",
+      "locators": ["P3-P65"],
+      "usageClass": "DIRECT_WITH_BOUNDARY",
+      "teachingUse": "用于核对场内岗位的成交、结算对象、托管行/券商模式和正常业务术语；其中历史时点、比例、账号和费率不进入本路线。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "materialId": "CLR-EX-MAT-SZ-SETTLEMENT",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/中国证券登记结算有限责任公司深圳分司证券资金结算业务指南（2022 年3 月修订版）.pdf",
+      "locators": ["PDF p8-9", "PDF p42-46", "PDF p47-50", "PDF p82-86"],
+      "usageClass": "DIRECT_WITH_VERSION_BOUNDARY",
+      "teachingUse": "支撑场内业务由成交结果和其他业务数据形成证券/资金清算结果、清算数据发送、交收对象和交收结果反馈的关系；版本中的具体时点、账户代码、接口文件、比例和结算方式清单不固化。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "materialId": "CLR-EX-MAT-SH-HK",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/202506中国证券登记结算有限责任公司上海分公司港股通存管结算业务指南.pdf",
+      "locators": ["PDF p5-14", "PDF p21-23", "PDF p30-34", "PDF p71-80"],
+      "usageClass": "BOUNDARY_ONLY",
+      "teachingUse": "确认港股通具有跨境存管、清算、交收、换汇和公司行为的专门安排；港股通保持BUILDING，不进入本路线案例。",
+      "provenance": "BOUNDARY_ONLY"
+    },
+    {
+      "materialId": "CLR-EX-MAT-SZ-HK",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/202506中国证券登记结算有限责任公司深圳分公司港股通存管结算业务指南.pdf",
+      "locators": ["PDF p6-19", "PDF p22-30", "PDF p35-39", "PDF p79-82"],
+      "usageClass": "BOUNDARY_ONLY",
+      "teachingUse": "确认港股通的专门账户、跨境结算、未交收头寸和公司行为边界；港股通保持BUILDING，不进入本路线案例。",
+      "provenance": "BOUNDARY_ONLY"
+    },
+    {
+      "materialId": "CLR-EX-MAT-SH-QFII",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/中国证券登记结算有限责任公司上海分公司合格境外机构投资者和人民币合格境外机构投资者境内证券投资登记结算业务指南.pdf",
+      "locators": ["PDF p1-8", "PDF p16-22"],
+      "usageClass": "BOUNDARY_ONLY",
+      "teachingUse": "确认QFII/RQFII在结算参与人、证券账户和托管/证券公司结算模式上有专门安排；QFII/RQFII本批DEFER。",
+      "provenance": "BOUNDARY_ONLY"
+    },
+    {
+      "materialId": "CLR-EX-MAT-BJ-QFII",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/中国证券登记结算有限责任公司北京分公司合格境外机构投资者和人民币合格境外构投资者境内证券投资登记结算业务指南.pdf",
+      "locators": ["PDF p1-8", "PDF p13-20"],
+      "usageClass": "BOUNDARY_ONLY",
+      "teachingUse": "确认北交所相关合格境外投资者有专门的结算参与人、账户和登记安排；QFII/RQFII本批DEFER。",
+      "provenance": "BOUNDARY_ONLY"
+    },
+    {
+      "materialId": "CLR-EX-MAT-SZ-QFII",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/中国证券登记结算有限责任公司深圳分公司合格境外机构投资者和人民币合格境外机构投资者境内证券投资登记结算业务指南.pdf",
+      "locators": ["PDF p1-8", "PDF p14-19"],
+      "usageClass": "BOUNDARY_ONLY",
+      "teachingUse": "确认深市合格境外投资者有专门的账户、托管和证券资金结算安排；QFII/RQFII本批DEFER。",
+      "provenance": "BOUNDARY_ONLY"
+    },
+    {
+      "materialId": "CLR-EX-MAT-SH-DVP-REFERENCE",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/关于修订并发布《中国证券登记结算有限责任公司上海分公司结算账户管理及资金结算业务指南（货银对付改革参考版）》的通知.pdf",
+      "locators": ["PDF p1-4", "PDF p5-9"],
+      "usageClass": "BOUNDARY_ONLY",
+      "teachingUse": "只确认该版本明示为货银对付改革测试参考，不能作为本路线的现行永久规则或正常案例参数。",
+      "provenance": "BOUNDARY_ONLY"
+    },
+    {
+      "materialId": "CLR-EX-MAT-BJ-DVP-REFERENCE",
+      "physicalFile": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/关于发布《中国证券登记结算有限责任公司北京分公司证券资金结算业务指南（货银对付改革参考版）》的通知.pdf",
+      "locators": ["PDF p1-3", "PDF p4-7"],
+      "usageClass": "BOUNDARY_ONLY",
+      "teachingUse": "只确认该版本明示为货银对付改革测试参考，不能作为本路线的现行永久规则或正常案例参数。",
+      "provenance": "BOUNDARY_ONLY"
+    }
+  ],
+  "exclusionBoundary": {
+    "allowed": [
+      "场内交易确认资料中的业务键、业务日期、证券代码、买卖方向、已确认成交数量和已确认成交金额",
+      "由成交结果形成的证券应收/应付与资金应收/应付清算对象",
+      "交收指令对清算对象的承接和正常交收准备状态",
+      "同一业务键和业务日期下买入/卖出四项对象逐项差额为零的本案例勾稽"
+    ],
+    "excluded": [
+      "2022年版本中的固定交收时点、批次、最低备付比例、费率、账户代码和接口文件名",
+      "上海、北京货银对付改革参考版的测试安排、标识、锁定、多批次和违约处置规则",
+      "港股通的跨境存管、换汇、T+2安排、公司行为和未交收头寸规则",
+      "QFII/RQFII的资格、专用账户和托管模式规则",
+      "失败、缺券、资金不足、部分交收、重付、公司行为和系统故障"
+    ],
+    "boundaryPolicy": "排除项只用于说明本路线不覆盖的范围，不形成Demo A、Comprehensive B、基础练习答案或评分条件。"
+  },
+  "fixturePolicy": {
+    "provenance": "SYNTHETIC_EDUCATIONAL",
+    "version": "CLR-EX-EDU-1.0",
+    "scope": "ONLY_THIS_CASE",
+    "basis": "场内业务介绍、场内例题和深圳证券资金结算指南提供成交确认、清算应收应付、结算数据、交收对象和结果反馈的业务关系；本案例数字与状态仅用于教学。",
+    "parameterPolicy": "Demo A和Comprehensive B的业务键、日期、证券代码、成交编号、数量、金额、单位、状态、精度和容差均为SYNTHETIC_EDUCATIONAL/ONLY_THIS_CASE，不表示永久制度、费率、时点或接口规则。",
+    "precisionPolicy": {
+      "quantity": {"scale": 0, "unit": "share", "tolerance": "0"},
+      "amount": {"scale": 2, "unit": "CNY", "tolerance": "0.01"}
+    },
+    "publicPrivateSplit": "公开route呈现业务资料、字段和作答结构；参考答案、证据规则和补学映射仅保留在本目录。"
+  },
+  "caseParameters": [
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "business_key", "value": "EX-A-20260818-017", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "business_date", "value": "2026-08-18", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "security_code", "value": "EXA-SEC-01", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "trade_1", "value": "EXA-SEC-01 / BUY / 1200 share / 37440.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "trade_2", "value": "EXA-SEC-01 / BUY / 800 share / 9680.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "trade_3", "value": "EXA-SEC-01 / SELL / 500 share / 23500.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "buy_security_quantity", "value": "1200 + 800 = 2000 share", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "buy_cash_amount", "value": "37440.00 + 9680.00 = 47120.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "sell_security_quantity", "value": "500 share", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "sell_cash_amount", "value": "23500.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-DEMO-A", "parameter": "statuses", "value": "CONFIRMED / CALCULATED / READY_FOR_SETTLEMENT / RECONCILED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "business_key", "value": "EX-B-20260821-284", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "business_date", "value": "2026-08-21", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "security_code", "value": "EXB-SEC-01", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "trade_1", "value": "EXB-SEC-01 / BUY / 900 share / 48600.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "trade_2", "value": "EXB-SEC-01 / BUY / 1100 share / 5500.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "trade_3", "value": "EXB-SEC-01 / SELL / 700 share / 18900.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "buy_security_quantity", "value": "900 + 1100 = 2000 share", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "buy_cash_amount", "value": "48600.00 + 5500.00 = 54100.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "sell_security_quantity", "value": "700 share", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "sell_cash_amount", "value": "18900.00 CNY", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"fixtureId": "CLR-EX-COMP-B", "parameter": "statuses", "value": "CONFIRMED / CALCULATED / READY_FOR_SETTLEMENT / RECONCILED", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"}
+  ],
+  "ruleCatalog": [
+    {
+      "ruleId": "CLR-EX-RULE-LAYERS",
+      "type": "SOURCE_LAYER_MAPPING",
+      "fields": ["trade_confirmation", "clearing_result", "settlement_instruction", "reconciliation"],
+      "condition": "成交确认、清算结果、交收指令和准备对账分别来自对应资料层",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-EX-RULE-SECURITY-CODE",
+      "type": "IDENTITY_RECONCILIATION",
+      "fields": ["business_key", "business_date", "security_code"],
+      "condition": "成交数据、清算结果、交收指令和准备对账资料的security_code必须在同一业务键和业务日期下完全一致，不同证券不能靠同数量或同金额通过",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-EX-RULE-BUY-QUANTITY",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "900 + 1100",
+      "expected": 2000,
+      "precision": 0,
+      "tolerance": "0",
+      "unit": "share",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-EX-RULE-BUY-CASH",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "48600.00 + 5500.00",
+      "expected": 54100,
+      "precision": 2,
+      "tolerance": "0.01",
+      "unit": "CNY",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-EX-RULE-SELL-QUANTITY",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "700",
+      "expected": 700,
+      "precision": 0,
+      "tolerance": "0",
+      "unit": "share",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-EX-RULE-SELL-CASH",
+      "type": "DECIMAL_CALCULATION",
+      "formula": "18900.00",
+      "expected": 18900,
+      "precision": 2,
+      "tolerance": "0.01",
+      "unit": "CNY",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-EX-RULE-OBLIGATIONS",
+      "type": "OBLIGATION_REGISTER",
+      "fields": ["buy_security_receivable", "buy_cash_payable", "sell_security_payable", "sell_cash_receivable"],
+      "condition": "证券数量和资金金额按买入/卖出方向分别登记，不做未经材料支持的净额替代",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-EX-RULE-DIFF",
+      "type": "ZERO_DIFFERENCE",
+      "formula": "clearing_result_object - settlement_instruction_object = 0",
+      "fields": ["buy_security_difference", "buy_cash_difference", "sell_security_difference", "sell_cash_difference"],
+      "precision": {"quantity": 0, "amount": 2},
+      "tolerance": {"quantity": "0", "amount": "0.01"},
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-EX-RULE-PREP",
+      "type": "PREPARED_FOR_SETTLEMENT",
+      "condition": "业务键、业务日期和security_code一致、四项对象差额均为零、交收准备状态为READY_FOR_SETTLEMENT",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "CLR-EX-RULE-CONCLUSION",
+      "type": "TRACEABLE_CONCLUSION",
+      "fields": ["business_key", "business_date", "security_code", "four_obligations", "four_differences", "instruction_status"],
+      "condition": "短结论逐项回指本案例身份、security_code、证券/资金对象、差额和交收准备状态",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "CLR-EX-DEMO-A",
+      "identity": {"businessKey": "EX-A-20260818-017", "businessDate": "2026-08-18", "securityCode": "EXA-SEC-01"},
+      "sourceToRole": [
+        {"sourceMaterialId": "CLR-EX-A-TRADE", "roleIds": ["TRADE_CONFIRMATION"], "fields": ["business_key", "business_date", "security_code", "trade_1_id", "trade_1_security", "trade_1_side", "trade_1_quantity", "trade_1_amount", "trade_2_id", "trade_2_security", "trade_2_side", "trade_2_quantity", "trade_2_amount", "trade_3_id", "trade_3_security", "trade_3_side", "trade_3_quantity", "trade_3_amount", "confirmation_status"]},
+        {"sourceMaterialId": "CLR-EX-A-CLEARING", "roleIds": ["CLEARING_RESULT"], "fields": ["business_key", "business_date", "security_code", "buy_security_receivable_quantity", "buy_cash_payable_amount", "sell_security_payable_quantity", "sell_cash_receivable_amount", "clearing_result_status"]},
+        {"sourceMaterialId": "CLR-EX-A-INSTRUCTION", "roleIds": ["SETTLEMENT_INSTRUCTION"], "fields": ["business_key", "business_date", "security_code", "buy_security_delivery_quantity", "buy_cash_payment_amount", "sell_security_delivery_quantity", "sell_cash_receipt_amount", "instruction_status"]},
+        {"sourceMaterialId": "CLR-EX-A-RECONCILIATION", "roleIds": ["PREP_RECONCILIATION"], "fields": ["business_key", "business_date", "security_code", "buy_security_difference", "buy_cash_difference", "sell_security_difference", "sell_cash_difference", "reconciliation_status"]}
+      ],
+      "tradeData": [
+        {"tradeId": "EXA-TRD-01", "security": "EXA-SEC-01", "side": "BUY", "quantity": "1200", "amount": "37440.00"},
+        {"tradeId": "EXA-TRD-02", "security": "EXA-SEC-01", "side": "BUY", "quantity": "800", "amount": "9680.00"},
+        {"tradeId": "EXA-TRD-03", "security": "EXA-SEC-01", "side": "SELL", "quantity": "500", "amount": "23500.00"}
+      ],
+      "decimalChain": [
+        {"fieldId": "buy_security_quantity", "formula": "1200 + 800", "result": "2000", "unit": "share", "precision": 0, "tolerance": "0"},
+        {"fieldId": "buy_cash_amount", "formula": "37440.00 + 9680.00", "result": "47120.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "sell_security_quantity", "formula": "500", "result": "500", "unit": "share", "precision": 0, "tolerance": "0"},
+        {"fieldId": "sell_cash_amount", "formula": "23500.00", "result": "23500.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "buy_security_difference", "formula": "2000 - 2000", "result": "0", "unit": "share", "precision": 0, "tolerance": "0"},
+        {"fieldId": "buy_cash_difference", "formula": "47120.00 - 47120.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "sell_security_difference", "formula": "500 - 500", "result": "0", "unit": "share", "precision": 0, "tolerance": "0"},
+        {"fieldId": "sell_cash_difference", "formula": "23500.00 - 23500.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"}
+      ],
+      "clearingResult": {"securityCode": "EXA-SEC-01", "buySecurityReceivable": "2000 share", "buyCashPayable": "47120.00 CNY", "sellSecurityPayable": "500 share", "sellCashReceivable": "23500.00 CNY", "status": "CALCULATED"},
+      "settlementInstruction": {"securityCode": "EXA-SEC-01", "buySecurityReceivable": "2000 share", "buyCashPayable": "47120.00 CNY", "sellSecurityPayable": "500 share", "sellCashReceivable": "23500.00 CNY", "status": "READY_FOR_SETTLEMENT"},
+      "reconciliation": {"securityCode": "EXA-SEC-01", "buySecurityDifference": "0", "buyCashDifference": "0.00", "sellSecurityDifference": "0", "sellCashDifference": "0.00", "status": "RECONCILED"}
+    },
+    "comprehensiveB": {
+      "fixtureId": "CLR-EX-COMP-B",
+      "identity": {"businessKey": "EX-B-20260821-284", "businessDate": "2026-08-21", "securityCode": "EXB-SEC-01"},
+      "sourceToRole": [
+        {"sourceMaterialId": "CLR-EX-B-TRADE", "roleIds": ["TRADE_CONFIRMATION"], "fields": ["business_key", "business_date", "security_code", "trade_1_id", "trade_1_security", "trade_1_side", "trade_1_quantity", "trade_1_amount", "trade_2_id", "trade_2_security", "trade_2_side", "trade_2_quantity", "trade_2_amount", "trade_3_id", "trade_3_security", "trade_3_side", "trade_3_quantity", "trade_3_amount", "confirmation_status"]},
+        {"sourceMaterialId": "CLR-EX-B-CLEARING", "roleIds": ["CLEARING_RESULT"], "fields": ["business_key", "business_date", "security_code", "buy_security_receivable_quantity", "buy_cash_payable_amount", "sell_security_payable_quantity", "sell_cash_receivable_amount", "clearing_result_status"]},
+        {"sourceMaterialId": "CLR-EX-B-INSTRUCTION", "roleIds": ["SETTLEMENT_INSTRUCTION"], "fields": ["business_key", "business_date", "security_code", "buy_security_delivery_quantity", "buy_cash_payment_amount", "sell_security_delivery_quantity", "sell_cash_receipt_amount", "instruction_status"]},
+        {"sourceMaterialId": "CLR-EX-B-RECONCILIATION", "roleIds": ["PREP_RECONCILIATION"], "fields": ["business_key", "business_date", "security_code", "buy_security_difference", "buy_cash_difference", "sell_security_difference", "sell_cash_difference", "reconciliation_status"]}
+      ],
+      "tradeData": [
+        {"tradeId": "EXB-TRD-01", "security": "EXB-SEC-01", "side": "BUY", "quantity": "900", "amount": "48600.00"},
+        {"tradeId": "EXB-TRD-02", "security": "EXB-SEC-01", "side": "BUY", "quantity": "1100", "amount": "5500.00"},
+        {"tradeId": "EXB-TRD-03", "security": "EXB-SEC-01", "side": "SELL", "quantity": "700", "amount": "18900.00"}
+      ],
+      "decimalChain": [
+        {"fieldId": "buy_security_quantity", "formula": "900 + 1100", "result": "2000", "unit": "share", "precision": 0, "tolerance": "0"},
+        {"fieldId": "buy_cash_amount", "formula": "48600.00 + 5500.00", "result": "54100.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "sell_security_quantity", "formula": "700", "result": "700", "unit": "share", "precision": 0, "tolerance": "0"},
+        {"fieldId": "sell_cash_amount", "formula": "18900.00", "result": "18900.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "buy_security_difference", "formula": "2000 - 2000", "result": "0", "unit": "share", "precision": 0, "tolerance": "0"},
+        {"fieldId": "buy_cash_difference", "formula": "54100.00 - 54100.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"},
+        {"fieldId": "sell_security_difference", "formula": "700 - 700", "result": "0", "unit": "share", "precision": 0, "tolerance": "0"},
+        {"fieldId": "sell_cash_difference", "formula": "18900.00 - 18900.00", "result": "0.00", "unit": "CNY", "precision": 2, "tolerance": "0.01"}
+      ],
+      "clearingResult": {"securityCode": "EXB-SEC-01", "buySecurityReceivable": "2000 share", "buyCashPayable": "54100.00 CNY", "sellSecurityPayable": "700 share", "sellCashReceivable": "18900.00 CNY", "status": "CALCULATED"},
+      "settlementInstruction": {"securityCode": "EXB-SEC-01", "buySecurityReceivable": "2000 share", "buyCashPayable": "54100.00 CNY", "sellSecurityPayable": "700 share", "sellCashReceivable": "18900.00 CNY", "status": "READY_FOR_SETTLEMENT"},
+      "reconciliation": {"securityCode": "EXB-SEC-01", "buySecurityDifference": "0", "buyCashDifference": "0.00", "sellSecurityDifference": "0", "sellCashDifference": "0.00", "status": "RECONCILED"},
+      "conclusion": "业务键EX-B-20260821-284，业务日期2026-08-21，证券代码EXB-SEC-01；买入证券应收2000 share、买入资金应付54100.00 CNY；卖出证券应付700 share、卖出资金应收18900.00 CNY；四项差额0，交收准备状态READY_FOR_SETTLEMENT。"
+    }
+  },
+  "atomicWorkItems": [
+    {
+      "workItemId": "clr-ex-b-trade-source",
+      "source": {"materialIds": ["CLR-EX-B-TRADE"], "fieldIds": ["business_key", "business_date", "security_code", "trade_1_security", "trade_2_security", "trade_3_security", "trade_1_side", "trade_1_quantity", "trade_1_amount", "confirmation_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-CASE", "CLR-EX-REF-SZ-GUIDE"], "anchor": "成交数据承载已确认成交身份、方向、数量和金额"},
+      "rule": {"ruleId": "CLR-EX-RULE-LAYERS", "expected": "B_TRADE_DATA", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-LAYERS", "criterionIds": ["C-CLR-EX-LAYERS", "P-CLR-EX-SOURCE"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-EX-KC-01", "questionId": "CLR-EX-Q-01"}
+    },
+    {
+      "workItemId": "clr-ex-b-clearing-layer",
+      "source": {"materialIds": ["CLR-EX-B-CLEARING"], "fieldIds": ["business_key", "business_date", "security_code", "buy_security_receivable_quantity", "buy_cash_payable_amount", "sell_security_payable_quantity", "sell_cash_receivable_amount", "clearing_result_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "清算结果承接成交结果并形成证券/资金应收应付对象"},
+      "rule": {"ruleId": "CLR-EX-RULE-LAYERS", "expected": "B_CLEARING_RESULT", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-LAYERS", "criterionIds": ["C-CLR-EX-LAYERS", "P-CLR-EX-SOURCE"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-EX-KC-01", "questionId": "CLR-EX-Q-01"}
+    },
+    {
+      "workItemId": "clr-ex-b-security-code-match",
+      "source": {"materialIds": ["CLR-EX-B-TRADE", "CLR-EX-B-CLEARING", "CLR-EX-B-INSTRUCTION", "CLR-EX-B-RECONCILIATION"], "fieldIds": ["business_key", "business_date", "trade_1_security", "trade_2_security", "trade_3_security", "security_code"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "成交、清算结果、交收指令和准备对账资料沿用同一security_code"},
+      "rule": {"ruleId": "CLR-EX-RULE-SECURITY-CODE", "expected": "B_SECURITY_CODE_MATCH", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-IDENTITY", "criterionIds": ["R-CLR-EX-IDENTITY", "M-CLR-EX-LAYERS-CLOSED"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-EX-KC-03", "questionId": "CLR-EX-Q-01"}
+    },
+    {
+      "workItemId": "clr-ex-b-buy-security-quantity",
+      "source": {"materialIds": ["CLR-EX-B-TRADE"], "fieldIds": ["trade_1_quantity", "trade_2_quantity", "trade_1_side", "trade_2_side"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "按成交方向汇总证券数量"},
+      "rule": {"ruleId": "CLR-EX-RULE-BUY-QUANTITY", "formula": "900 + 1100 = 2000", "expected": 2000, "precision": 0, "tolerance": "0", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-CALC", "criterionIds": ["P-CLR-EX-AGGREGATE"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-03", "questionId": "CLR-EX-Q-02"}
+    },
+    {
+      "workItemId": "clr-ex-b-buy-cash-amount",
+      "source": {"materialIds": ["CLR-EX-B-TRADE"], "fieldIds": ["trade_1_amount", "trade_2_amount", "trade_1_side", "trade_2_side"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "按成交方向汇总资金金额"},
+      "rule": {"ruleId": "CLR-EX-RULE-BUY-CASH", "formula": "48600.00 + 5500.00 = 54100.00", "expected": 54100, "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-CALC", "criterionIds": ["P-CLR-EX-AGGREGATE"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-03", "questionId": "CLR-EX-Q-02"}
+    },
+    {
+      "workItemId": "clr-ex-b-sell-security-quantity",
+      "source": {"materialIds": ["CLR-EX-B-TRADE"], "fieldIds": ["trade_3_quantity", "trade_3_side"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "按卖出方向保留证券应付数量"},
+      "rule": {"ruleId": "CLR-EX-RULE-SELL-QUANTITY", "formula": "700 = 700", "expected": 700, "precision": 0, "tolerance": "0", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-CALC", "criterionIds": ["P-CLR-EX-AGGREGATE"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-03", "questionId": "CLR-EX-Q-02"}
+    },
+    {
+      "workItemId": "clr-ex-b-sell-cash-amount",
+      "source": {"materialIds": ["CLR-EX-B-TRADE"], "fieldIds": ["trade_3_amount", "trade_3_side"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "按卖出方向保留资金应收金额"},
+      "rule": {"ruleId": "CLR-EX-RULE-SELL-CASH", "formula": "18900.00 = 18900.00", "expected": 18900, "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-CALC", "criterionIds": ["P-CLR-EX-AGGREGATE"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-03", "questionId": "CLR-EX-Q-02"}
+    },
+    {
+      "workItemId": "clr-ex-b-obligation-ledger",
+      "source": {"materialIds": ["CLR-EX-B-CLEARING", "CLR-EX-B-INSTRUCTION"], "fieldIds": ["security_code", "buy_security_receivable_quantity", "buy_cash_payable_amount", "sell_security_payable_quantity", "sell_cash_receivable_amount", "instruction_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "清算结果的四项证券/资金对象承接到交收准备工作纸"},
+      "rule": {"ruleId": "CLR-EX-RULE-OBLIGATIONS", "expected": "B_OBLIGATIONS_COMPLETE", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-OBJECTS", "criterionIds": ["C-CLR-EX-OBLIGATIONS", "P-CLR-EX-PREP"], "materialStep": "KNOWLEDGE_CARD", "materialItemId": "CLR-EX-KC-02", "questionId": "CLR-EX-Q-03"}
+    },
+    {
+      "workItemId": "clr-ex-b-buy-security-diff",
+      "source": {"materialIds": ["CLR-EX-B-CLEARING", "CLR-EX-B-INSTRUCTION", "CLR-EX-B-RECONCILIATION"], "fieldIds": ["security_code", "buy_security_receivable_quantity", "buy_security_delivery_quantity", "buy_security_difference"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "买入证券应收对象的清算结果与交收指令逐项核对"},
+      "rule": {"ruleId": "CLR-EX-RULE-DIFF", "formula": "2000 - 2000 = 0", "expected": 0, "precision": 0, "tolerance": "0", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-PREP", "criterionIds": ["P-CLR-EX-PREP", "R-CLR-EX-ZERO-DIFF"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-05", "questionId": "CLR-EX-Q-04"}
+    },
+    {
+      "workItemId": "clr-ex-b-buy-cash-diff",
+      "source": {"materialIds": ["CLR-EX-B-CLEARING", "CLR-EX-B-INSTRUCTION", "CLR-EX-B-RECONCILIATION"], "fieldIds": ["security_code", "buy_cash_payable_amount", "buy_cash_payment_amount", "buy_cash_difference"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "买入资金应付对象的清算结果与交收指令逐项核对"},
+      "rule": {"ruleId": "CLR-EX-RULE-DIFF", "formula": "54100.00 - 54100.00 = 0.00", "expected": 0, "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-PREP", "criterionIds": ["P-CLR-EX-PREP", "R-CLR-EX-ZERO-DIFF"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-05", "questionId": "CLR-EX-Q-04"}
+    },
+    {
+      "workItemId": "clr-ex-b-sell-security-diff",
+      "source": {"materialIds": ["CLR-EX-B-CLEARING", "CLR-EX-B-INSTRUCTION", "CLR-EX-B-RECONCILIATION"], "fieldIds": ["security_code", "sell_security_payable_quantity", "sell_security_delivery_quantity", "sell_security_difference"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "卖出证券应付对象的清算结果与交收指令逐项核对"},
+      "rule": {"ruleId": "CLR-EX-RULE-DIFF", "formula": "700 - 700 = 0", "expected": 0, "precision": 0, "tolerance": "0", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-PREP", "criterionIds": ["P-CLR-EX-PREP", "R-CLR-EX-ZERO-DIFF"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-05", "questionId": "CLR-EX-Q-04"}
+    },
+    {
+      "workItemId": "clr-ex-b-sell-cash-diff",
+      "source": {"materialIds": ["CLR-EX-B-CLEARING", "CLR-EX-B-INSTRUCTION", "CLR-EX-B-RECONCILIATION"], "fieldIds": ["security_code", "sell_cash_receivable_amount", "sell_cash_receipt_amount", "sell_cash_difference"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "卖出资金应收对象的清算结果与交收指令逐项核对"},
+      "rule": {"ruleId": "CLR-EX-RULE-DIFF", "formula": "18900.00 - 18900.00 = 0.00", "expected": 0, "precision": 2, "tolerance": "0.01", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-PREP", "criterionIds": ["P-CLR-EX-PREP", "R-CLR-EX-ZERO-DIFF"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-05", "questionId": "CLR-EX-Q-04"}
+    },
+    {
+      "workItemId": "clr-ex-b-prep-status",
+      "source": {"materialIds": ["CLR-EX-B-INSTRUCTION", "CLR-EX-B-RECONCILIATION"], "fieldIds": ["security_code", "instruction_status", "buy_security_difference", "buy_cash_difference", "sell_security_difference", "sell_cash_difference", "reconciliation_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-SZ-GUIDE"], "anchor": "四项差额为零后记录本案例交收准备状态"},
+      "rule": {"ruleId": "CLR-EX-RULE-PREP", "expected": "B_PREP_READY", "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-PREP", "criterionIds": ["P-CLR-EX-PREP", "R-CLR-EX-ZERO-DIFF"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-05", "questionId": "CLR-EX-Q-04"}
+    },
+    {
+      "workItemId": "clr-ex-core-b-conclusion",
+      "source": {"materialIds": ["CLR-EX-B-TRADE", "CLR-EX-B-CLEARING", "CLR-EX-B-INSTRUCTION", "CLR-EX-B-RECONCILIATION"], "fieldIds": ["business_key", "business_date", "security_code", "buy_security_receivable_quantity", "buy_cash_payable_amount", "sell_security_payable_quantity", "sell_cash_receivable_amount", "buy_security_difference", "buy_cash_difference", "sell_security_difference", "sell_cash_difference", "instruction_status"], "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+      "reference": {"referenceIds": ["CLR-EX-REF-INTRO", "CLR-EX-REF-CASE", "CLR-EX-REF-SZ-GUIDE"], "anchor": "一句话回指综合B身份、四项对象、四项差额和交收准备状态"},
+      "rule": {"ruleId": "CLR-EX-RULE-CONCLUSION", "expected": ["EX-B-20260821-284", "2026-08-21", "证券代码EXB-SEC-01", "买入证券应收2000 share", "买入资金应付54100.00 CNY", "卖出证券应付700 share", "卖出资金应收18900.00 CNY", "四项差额0", "READY_FOR_SETTLEMENT"], "scope": "ONLY_THIS_CASE"},
+      "remediation": {"remediationTargetId": "CLR-EX-CONCLUSION", "criterionIds": ["R-CLR-EX-IDENTITY", "E-CLR-EX-TRACEABLE"], "materialStep": "DEMONSTRATION", "materialItemId": "CLR-EX-DEMO-STEP-05", "questionId": "CLR-EX-Q-05"}
+    }
+  ],
+  "coverage": {
+    "FIELD_MAP": ["clr-ex-b-trade-source", "clr-ex-b-clearing-layer"],
+    "CALCULATION": ["clr-ex-b-buy-security-quantity", "clr-ex-b-buy-cash-amount", "clr-ex-b-sell-security-quantity", "clr-ex-b-sell-cash-amount"],
+    "LEDGER_ENTRY": ["clr-ex-b-obligation-ledger"],
+    "RECONCILIATION": ["clr-ex-b-security-code-match", "clr-ex-b-buy-security-diff", "clr-ex-b-buy-cash-diff", "clr-ex-b-sell-security-diff", "clr-ex-b-sell-cash-diff", "clr-ex-b-prep-status"],
+    "SHORT_TEXT": ["clr-ex-core-b-conclusion"]
+  },
+  "integrity": {
+    "workItemMappingCount": 14,
+    "uniqueWorkItemMappings": true,
+    "everyWorkItemHasSourceReferenceRuleRemediation": true,
+    "demoAndComprehensiveAreIsomorphic": true,
+    "basicShortTextCount": 1,
+    "comprehensiveShortTextCount": 1,
+    "demoAndComprehensiveUseDifferentKeysDatesNumbersAndSecurities": true,
+    "allCaseValuesMarkedSyntheticEducationalOnlyThisCase": true,
+    "quantityPrecisionZeroAndAmountTolerancePointZeroOne": true,
+    "normalCaseOnly": true,
+    "noFormalNettingAlgorithmInvented": true,
+    "noHistoricalTimesRatesInterfacesOrReformTestsAsPermanentRules": true,
+    "mapAndReleaseRegistration": false
+  }
+}

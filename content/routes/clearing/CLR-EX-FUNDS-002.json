@@ -1,0 +1,445 @@
+{
+  "routeId": "CLR-EX-FUNDS-002",
+  "contentVersion": "1.0.0",
+  "line": "CLEARING",
+  "title": "场内交收结果与正常封账",
+  "summary": "承接前置路线已确认的场内证券和资金义务，读取外部交收结果、内部证券/资金工作纸与结算资料，复算交收后余额，完成双向零差勾稽并记录本案例正常封账。",
+  "estimatedMinutes": 60,
+  "objectives": [
+    "承接 CLR-EX-CORE-001 已确认的买入证券应收、买入资金应付、卖出证券应付和卖出资金应收，不重做成交汇总",
+    "从外部交收结果、内部证券工作纸和内部资金工作纸读取交收后的收付方向、余额和结果状态",
+    "用 openingSecurities + receive - deliver = closingSecurities 以及 openingCash + cashIn - cashOut = closingCash 完成数量和金额复算",
+    "在业务键、业务日期、证券代码一致，义务与结果匹配，证券和资金双向差额均为零后，记录本案例的 NORMAL_CLOSED 状态"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "CLR-EX-FUNDS-KC-01",
+          "type": "CATEGORIES",
+          "title": "前置义务、外部结果和内部工作纸各有职责",
+          "conclusion": "前置路线给出应交收的四项义务，外部结果说明实际收付，内部证券和资金工作纸说明余额变化，结算资料负责身份、差额和封账结论。",
+          "items": [
+            "先读取 CLR-EX-CORE-001 已确认的业务键、业务日期、证券代码和四项证券/资金义务",
+            "外部交收结果承载实际收到证券、交付证券、收到资金和支付资金及其结果状态",
+            "内部证券工作纸承载 openingSecurities、receive、deliver、closingSecurities；内部资金工作纸承载 openingCash、cashIn、cashOut、closingCash",
+            "结算资料按同一业务身份比较义务与结果、外部结果与内部工作纸，并记录差额和本案例封账状态"
+          ]
+        },
+        {
+          "cardId": "CLR-EX-FUNDS-KC-02",
+          "type": "FLOW",
+          "title": "证券和资金分别走余额链",
+          "conclusion": "证券数量和资金金额不能互换，也不能用未经资料支持的净额替代双向收付；两条余额链都要独立复算。",
+          "items": [
+            "证券链：openingSecurities + receive - deliver = closingSecurities，数量按整数核对",
+            "资金链：openingCash + cashIn - cashOut = closingCash，金额保留两位小数",
+            "receive 与 cashIn 表示交收后增加，deliver 与 cashOut 表示交收后减少，方向要回到外部结果和内部工作纸",
+            "交收结果、证券余额和资金余额都按本案例资料逐项复算"
+          ]
+        },
+        {
+          "cardId": "CLR-EX-FUNDS-KC-03",
+          "type": "KEY_POINT",
+          "title": "双向零差才可以记录正常封账",
+          "conclusion": "同一业务键、日期和证券下，义务与结果匹配，证券收/付和资金收/付四条差额均为零，余额链也复算无差，才可记录本案例 NORMAL_CLOSED。",
+          "items": [
+            "先确认外部结果与前置四项义务的证券、资金方向和金额数量一致",
+            "分别比较外部收到证券与内部 receive、外部交付证券与内部 deliver",
+            "分别比较外部收到资金与内部 cashIn、外部支付资金与内部 cashOut，并复核两条 closing 余额链",
+            "NORMAL_CLOSED 只是本案例在全部条件满足后的结果，不表示所有业务均采用相同状态、时点或处理规则"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "场内交收结果核对岗",
+        "product": "单一正常场内证券交易批次的交收后结果",
+        "date": "2026-08-18",
+        "fixture": "CLR-EX-FUNDS-DEMO-A",
+        "facts": [
+          "承接 CLR-EX-CORE-001 的业务键 EX-A-20260818-017、证券 EXA-SEC-01 和四项义务：买入证券应收 2000 share、买入资金应付 47120.00 CNY、卖出证券应付 500 share、卖出资金应收 23500.00 CNY。",
+          "外部交收结果在同一业务键、业务日期和证券代码EXA-SEC-01下登记收到证券 2000 share、交付证券 500 share、收到资金 23500.00 CNY、支付资金 47120.00 CNY，结果状态为 SETTLED。",
+          "内部证券工作纸记录业务键、日期和证券代码EXA-SEC-01，以及 openingSecurities 4800 share、receive 2000 share、deliver 500 share、closingSecurities 6300 share；内部资金工作纸沿用同一证券代码，记录 openingCash 120000.00 CNY、cashIn 23500.00 CNY、cashOut 47120.00 CNY、closingCash 96380.00 CNY。",
+          "结算资料在同一业务键、业务日期和证券代码EXA-SEC-01下确认义务与结果 MATCHED，外部与内部证券收付差额、资金收付差额以及两条余额差额均为 0 或 0.00，对账状态为 RECONCILED，封账状态为 NORMAL_CLOSED。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "从 CLR-EX-CORE-001 的义务资料和外部交收结果读取业务键 EX-A-20260818-017、业务日期 2026-08-18、证券 EXA-SEC-01 及四项收付对象",
+          "reason": "前置义务回答应交收什么，外部结果回答实际发生了什么；先固定身份和方向才能比较两者。"
+        },
+        {
+          "order": 2,
+          "action": "分别读取内部证券工作纸的 openingSecurities、receive、deliver、closingSecurities 和内部资金工作纸的 openingCash、cashIn、cashOut、closingCash",
+          "reason": "证券和资金工作纸各自保留余额链，不能用外部结果或单一净额替代内部记录。"
+        },
+        {
+          "order": 3,
+          "action": "复算证券 4800 + 2000 - 500 = 6300 share，复算资金 120000.00 + 23500.00 - 47120.00 = 96380.00 CNY",
+          "reason": "两条余额链独立成立，才能确认交收后的证券数量和资金余额接续正确。"
+        },
+        {
+          "order": 4,
+          "action": "比较外部与内部的收到证券、交付证券、收到资金和支付资金四条差额，确认义务与结果 MATCHED 且各差额均为零",
+          "reason": "双向比较能发现收付方向遗漏或错配，不能只看证券或资金的一条腿。"
+        },
+        {
+          "order": 5,
+          "action": "确认两条余额差额为零、对账状态 RECONCILED 后，记录本案例封账状态 NORMAL_CLOSED",
+          "reason": "正常封账依赖身份、义务/结果匹配、双向零差和余额链同时闭合，不等同于交收准备状态。"
+        }
+      ],
+      "summary": "承接前置义务 → 读取外部结果和内部工作纸 → 复算证券/资金余额 → 双向零差勾稽 → 本案例正常封账"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "CLR-EX-FUNDS-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "为 Demo A 的交收后工作纸选择各组字段的主来源。",
+          "fieldMappings": [
+            {
+              "fieldId": "obligation-source",
+              "label": "四项应交收证券/资金义务",
+              "source": "Demo A 前置资料与交收结果",
+              "options": [
+                {"optionId": "A_CORE_OBLIGATION_SOURCE", "text": "CLR-EX-CORE-001 义务资料"},
+                {"optionId": "A_INTERNAL_LEDGER_SOURCE", "text": "内部资金工作纸"}
+              ]
+            },
+            {
+              "fieldId": "external-result-source",
+              "label": "实际收到/交付证券和收到/支付资金",
+              "source": "Demo A 外部交收与内部工作纸",
+              "options": [
+                {"optionId": "A_EXTERNAL_RESULT_SOURCE", "text": "外部交收结果"},
+                {"optionId": "A_RECON_SOURCE", "text": "结算勾稽资料"}
+              ]
+            },
+            {
+              "fieldId": "securities-balance-source",
+              "label": "openingSecurities、receive、deliver、closingSecurities",
+              "source": "Demo A 内部工作纸",
+              "options": [
+                {"optionId": "A_SECURITIES_WORKPAPER_SOURCE", "text": "内部证券工作纸"},
+                {"optionId": "A_EXTERNAL_RESULT_SOURCE", "text": "外部交收结果"}
+              ]
+            },
+            {
+              "fieldId": "cash-balance-source",
+              "label": "openingCash、cashIn、cashOut、closingCash",
+              "source": "Demo A 内部工作纸",
+              "options": [
+                {"optionId": "A_CASH_WORKPAPER_SOURCE", "text": "内部资金工作纸"},
+                {"optionId": "A_SECURITIES_WORKPAPER_SOURCE", "text": "内部证券工作纸"}
+              ]
+            },
+            {
+              "fieldId": "close-source",
+              "label": "义务/结果匹配、差额和封账状态",
+              "source": "Demo A 结算资料",
+              "options": [
+                {"optionId": "A_RECON_SOURCE", "text": "结算勾稽资料"},
+                {"optionId": "A_EXTERNAL_RESULT_SOURCE", "text": "外部交收结果"}
+              ]
+            }
+          ],
+          "answer": ["A_CORE_OBLIGATION_SOURCE", "A_EXTERNAL_RESULT_SOURCE", "A_SECURITIES_WORKPAPER_SOURCE", "A_CASH_WORKPAPER_SOURCE", "A_RECON_SOURCE"],
+          "explanation": "前置义务、外部实际结果、内部证券/资金余额链和结算勾稽各自来自对应资料层。",
+          "hints": ["先看字段回答的是应交收对象、实际结果、余额链还是封账结论。"]
+        },
+        {
+          "questionId": "CLR-EX-FUNDS-Q-02",
+          "type": "CALCULATION",
+          "prompt": "按 Demo A 的内部工作纸复算交收后的证券数量和资金余额，并计算一条证券收付差额和一条资金收付差额；数量保留整数，金额保留两位小数。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "closing-securities", "label": "closingSecurities", "formula": "4800 + 2000 - 500", "placeholder": "输入证券数量", "unit": "share", "precision": 0, "tolerance": 0},
+              {"fieldId": "closing-cash", "label": "closingCash", "formula": "120000.00 + 23500.00 - 47120.00", "placeholder": "输入资金余额", "unit": "CNY", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "security-receive-difference", "label": "收到证券差额", "formula": "2000 - 2000", "placeholder": "输入数量差", "unit": "share", "precision": 0, "tolerance": 0},
+              {"fieldId": "cash-in-difference", "label": "收到资金差额", "formula": "23500.00 - 23500.00", "placeholder": "输入金额差", "unit": "CNY", "precision": 2, "tolerance": 0.01}
+            ]
+          },
+          "answer": ["6300", "96380.00", "0", "0.00"],
+          "explanation": "证券余额为 4800 + 2000 - 500 = 6300 share；资金余额为 120000.00 + 23500.00 - 47120.00 = 96380.00 CNY；外部与内部收到证券和收到资金的差额均为零。",
+          "hints": ["证券用收到减交付，资金用流入减流出；不要把证券数量和资金金额放在同一条链。"]
+        },
+        {
+          "questionId": "CLR-EX-FUNDS-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把 Demo A 的交收后双腿结果登记到内部工作纸；这是业务结果登记，不是会计凭证。",
+          "ledgerEntries": [
+            {"entryId": "security-movement", "direction": "证券双向变动", "label": "收到/交付证券", "amount": "RECEIVE 2000 share / DELIVER 500 share", "placeholder": "输入证券收付"},
+            {"entryId": "security-closing", "direction": "证券余额", "label": "closingSecurities", "amount": "6300 share", "placeholder": "输入交收后证券数量"},
+            {"entryId": "cash-movement", "direction": "资金双向变动", "label": "收到/支付资金", "amount": "CASH_IN 23500.00 CNY / CASH_OUT 47120.00 CNY", "placeholder": "输入资金收付"},
+            {"entryId": "cash-closing", "direction": "资金余额", "label": "closingCash", "amount": "96380.00 CNY", "placeholder": "输入交收后资金余额"},
+            {"entryId": "close-status", "direction": "结果状态", "label": "本案例封账状态", "amount": "NORMAL_CLOSED", "placeholder": "输入封账状态"}
+          ],
+          "answer": ["RECEIVE 2000 share / DELIVER 500 share", "6300 share", "CASH_IN 23500.00 CNY / CASH_OUT 47120.00 CNY", "96380.00 CNY", "NORMAL_CLOSED"],
+          "explanation": "登记保留证券和资金两条双向变动、交收后余额及本案例封账状态，不填写会计科目。",
+          "hints": ["先保留收付方向，再登记各自余额；NORMAL_CLOSED 只在勾稽条件全部满足后记录。"]
+        },
+        {
+          "questionId": "CLR-EX-FUNDS-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "用 Demo A 的结算资料完成证券和资金双向零差勾稽，并选择正常封账状态。",
+          "reconciliation": {
+            "fields": [
+              {"fieldId": "obligation-result-match", "label": "义务与外部结果", "kind": "SELECT", "formula": "四项义务与外部收付对象一致", "placeholder": "选择匹配结论", "options": [{"optionId": "A_OBLIGATION_RESULT_MATCH", "text": "MATCHED"}, {"optionId": "A_OBLIGATION_RESULT_RECHECK", "text": "需回查"}]},
+              {"fieldId": "security-deliver-difference", "label": "交付证券差额", "kind": "NUMBER", "formula": "500 - 500", "placeholder": "输入数量差", "precision": 0, "tolerance": 0},
+              {"fieldId": "cash-out-difference", "label": "支付资金差额", "kind": "NUMBER", "formula": "47120.00 - 47120.00", "placeholder": "输入金额差", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "securities-balance-difference", "label": "证券余额差", "kind": "NUMBER", "formula": "6300 - (4800 + 2000 - 500)", "placeholder": "输入数量差", "precision": 0, "tolerance": 0},
+              {"fieldId": "cash-balance-difference", "label": "资金余额差", "kind": "NUMBER", "formula": "96380.00 - (120000.00 + 23500.00 - 47120.00)", "placeholder": "输入金额差", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "close-status", "label": "本案例封账状态", "kind": "SELECT", "formula": "身份一致、义务/结果匹配且双向差额和余额差为零", "placeholder": "选择封账状态", "options": [{"optionId": "A_NORMAL_CLOSED", "text": "NORMAL_CLOSED"}, {"optionId": "A_CLOSE_PENDING", "text": "PENDING_RECONCILIATION"}]}
+            ]
+          },
+          "answer": ["A_OBLIGATION_RESULT_MATCH", "0", "0.00", "0", "0.00", "A_NORMAL_CLOSED"],
+          "explanation": "义务与外部结果匹配，证券交付差、资金支付差和两条余额差均为零，才选择本案例 NORMAL_CLOSED。",
+          "hints": ["四项收付对象和两条余额链要同时闭合，不能只看总额或一条腿。"]
+        },
+        {
+          "questionId": "CLR-EX-FUNDS-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "为 Demo A 写一句正常封账微结论，带上证券代码、交收后证券数量、资金余额、双向零差和 NORMAL_CLOSED。",
+          "textInput": {"label": "正常封账微结论", "placeholder": "写明证券代码、交收后余额、双向零差和封账状态"},
+          "answer": ["证券代码EXA-SEC-01；交收后证券数量6300 share、资金余额96380.00 CNY；证券和资金双向差额均为0，状态NORMAL_CLOSED。"],
+          "explanation": "微结论必须回指本案例证券身份、两条余额链、双向零差和正常封账状态。",
+          "hints": ["不要只写“已封账”，至少保留证券代码、余额和状态。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "场内交收结果核对岗",
+        "product": "单一正常场内证券交易批次的交收后结果",
+        "date": "2026-08-21",
+        "purpose": "从前置义务、外部交收结果、内部证券/资金工作纸和结算勾稽资料中完成交收后余额复算、证券资金双向零差核对与本案例正常封账。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "CLR-EX-B-CORE",
+          "title": "前置四项场内清算义务（综合B）",
+          "kind": "STATEMENT",
+          "description": "承接 CLR-EX-CORE-001 的已确认场内证券/资金义务，不重新汇总成交。",
+          "fields": [
+            {"fieldId": "business_key", "label": "业务键", "value": "EX-B-20260821-284"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
+            {"fieldId": "security_code", "label": "证券代码", "value": "EXB-SEC-01"},
+            {"fieldId": "buy_security_receivable_quantity", "label": "买入证券应收数量", "value": "2000", "unit": "share"},
+            {"fieldId": "buy_cash_payable_amount", "label": "买入资金应付金额", "value": "54100.00", "unit": "CNY"},
+            {"fieldId": "sell_security_payable_quantity", "label": "卖出证券应付数量", "value": "700", "unit": "share"},
+            {"fieldId": "sell_cash_receivable_amount", "label": "卖出资金应收金额", "value": "18900.00", "unit": "CNY"},
+            {"fieldId": "obligation_status", "label": "义务状态", "value": "CALCULATED"}
+          ]
+        },
+        {
+          "materialId": "CLR-EX-B-EXTERNAL",
+          "title": "外部交收结果（综合B）",
+          "kind": "CONFIRMATION",
+          "description": "承载同一业务身份下实际收到/交付证券、收到/支付资金及交收结果状态。",
+          "fields": [
+            {"fieldId": "business_key", "label": "业务键", "value": "EX-B-20260821-284"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
+            {"fieldId": "security_code", "label": "证券代码", "value": "EXB-SEC-01"},
+            {"fieldId": "security_received_quantity", "label": "实际收到证券数量", "value": "2000", "unit": "share"},
+            {"fieldId": "security_delivered_quantity", "label": "实际交付证券数量", "value": "700", "unit": "share"},
+            {"fieldId": "cash_in_amount", "label": "实际收到资金金额", "value": "18900.00", "unit": "CNY"},
+            {"fieldId": "cash_out_amount", "label": "实际支付资金金额", "value": "54100.00", "unit": "CNY"},
+            {"fieldId": "settlement_result_status", "label": "外部交收结果状态", "value": "SETTLED"}
+          ]
+        },
+        {
+          "materialId": "CLR-EX-B-SECURITIES-WP",
+          "title": "内部证券余额工作纸（综合B）",
+          "kind": "LEDGER",
+          "description": "记录交收前证券数量、收到和交付变动以及交收后证券数量。",
+          "fields": [
+            {"fieldId": "business_key", "label": "业务键", "value": "EX-B-20260821-284"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
+            {"fieldId": "security_code", "label": "证券代码", "value": "EXB-SEC-01"},
+            {"fieldId": "opening_securities", "label": "openingSecurities", "value": "7600", "unit": "share"},
+            {"fieldId": "securities_received", "label": "receive", "value": "2000", "unit": "share"},
+            {"fieldId": "securities_delivered", "label": "deliver", "value": "700", "unit": "share"},
+            {"fieldId": "closing_securities", "label": "closingSecurities", "value": "8900", "unit": "share"},
+            {"fieldId": "securities_ledger_status", "label": "证券工作纸状态", "value": "POSTED"}
+          ]
+        },
+        {
+          "materialId": "CLR-EX-B-CASH-WP",
+          "title": "内部资金余额工作纸（综合B）",
+          "kind": "LEDGER",
+          "description": "记录交收前资金余额、收到和支付变动以及交收后资金余额。",
+          "fields": [
+            {"fieldId": "business_key", "label": "业务键", "value": "EX-B-20260821-284"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
+            {"fieldId": "security_code", "label": "关联证券代码", "value": "EXB-SEC-01"},
+            {"fieldId": "opening_cash", "label": "openingCash", "value": "205000.00", "unit": "CNY"},
+            {"fieldId": "cash_in", "label": "cashIn", "value": "18900.00", "unit": "CNY"},
+            {"fieldId": "cash_out", "label": "cashOut", "value": "54100.00", "unit": "CNY"},
+            {"fieldId": "closing_cash", "label": "closingCash", "value": "169800.00", "unit": "CNY"},
+            {"fieldId": "cash_ledger_status", "label": "资金工作纸状态", "value": "POSTED"}
+          ]
+        },
+        {
+          "materialId": "CLR-EX-B-RECON-CLOSE",
+          "title": "结算勾稽与封账资料（综合B）",
+          "kind": "RECONCILIATION",
+          "description": "在同一业务身份下记录义务与外部结果匹配、外部与内部四条收付差额、两条余额差额、对账状态和本案例封账状态。",
+          "fields": [
+            {"fieldId": "business_key", "label": "业务键", "value": "EX-B-20260821-284"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
+            {"fieldId": "security_code", "label": "证券代码", "value": "EXB-SEC-01"},
+            {"fieldId": "obligation_result_match", "label": "义务与结果匹配", "value": "MATCHED"},
+            {"fieldId": "security_receive_difference", "label": "收到证券差额", "value": "0", "unit": "share"},
+            {"fieldId": "security_deliver_difference", "label": "交付证券差额", "value": "0", "unit": "share"},
+            {"fieldId": "cash_in_difference", "label": "收到资金差额", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "cash_out_difference", "label": "支付资金差额", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "securities_difference", "label": "证券总差额", "value": "0", "unit": "share"},
+            {"fieldId": "cash_difference", "label": "资金总差额", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "securities_balance_difference", "label": "证券余额差", "value": "0", "unit": "share"},
+            {"fieldId": "cash_balance_difference", "label": "资金余额差", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "reconciliation_status", "label": "对账状态", "value": "RECONCILED"},
+            {"fieldId": "close_status", "label": "本案例封账状态", "value": "NORMAL_CLOSED"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "clr-ex-b-core-source",
+          "type": "FIELD_MAP",
+          "title": "定位前置四项义务来源",
+          "instruction": "从五份资料中选择承载业务键、证券代码和四项应交收证券/资金义务的来源，不重新汇总成交。",
+          "response": {"kind": "SELECT", "placeholder": "选择义务来源", "options": [{"optionId": "B_CORE_OBLIGATION_SOURCE", "text": "前置四项场内清算义务"}, {"optionId": "B_INTERNAL_SECURITIES_SOURCE", "text": "内部证券余额工作纸"}]}
+        },
+        {
+          "workItemId": "clr-ex-b-external-source",
+          "type": "FIELD_MAP",
+          "title": "定位外部交收结果来源",
+          "instruction": "选择承载实际收到/交付证券、收到/支付资金和外部交收结果状态的资料。",
+          "response": {"kind": "SELECT", "placeholder": "选择外部结果来源", "options": [{"optionId": "B_EXTERNAL_RESULT_SOURCE", "text": "外部交收结果"}, {"optionId": "B_RECON_SOURCE", "text": "结算勾稽与封账资料"}]}
+        },
+        {
+          "workItemId": "clr-ex-b-security-closing",
+          "type": "CALCULATION",
+          "title": "复算交收后证券数量",
+          "instruction": "用内部证券工作纸复算 closingSecurities，数量保留整数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入交收后证券数量", "unit": "share", "precision": 0}
+        },
+        {
+          "workItemId": "clr-ex-b-cash-closing",
+          "type": "CALCULATION",
+          "title": "复算交收后资金余额",
+          "instruction": "用内部资金工作纸复算 closingCash，金额保留两位小数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入交收后资金余额", "unit": "CNY", "precision": 2}
+        },
+        {
+          "workItemId": "clr-ex-b-security-receive-diff",
+          "type": "CALCULATION",
+          "title": "复算收到证券差额",
+          "instruction": "计算外部收到证券数量减内部 receive 数量，数量精度为整数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入收到证券差额", "unit": "share", "precision": 0}
+        },
+        {
+          "workItemId": "clr-ex-b-security-deliver-diff",
+          "type": "CALCULATION",
+          "title": "复算交付证券差额",
+          "instruction": "计算外部交付证券数量减内部 deliver 数量，数量精度为整数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入交付证券差额", "unit": "share", "precision": 0}
+        },
+        {
+          "workItemId": "clr-ex-b-cash-in-diff",
+          "type": "CALCULATION",
+          "title": "复算收到资金差额",
+          "instruction": "计算外部收到资金金额减内部 cashIn，金额保留两位小数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入收到资金差额", "unit": "CNY", "precision": 2}
+        },
+        {
+          "workItemId": "clr-ex-b-cash-out-diff",
+          "type": "CALCULATION",
+          "title": "复算支付资金差额",
+          "instruction": "计算外部支付资金金额减内部 cashOut，金额保留两位小数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入支付资金差额", "unit": "CNY", "precision": 2}
+        },
+        {
+          "workItemId": "clr-ex-b-securities-ledger",
+          "type": "LEDGER_ENTRY",
+          "title": "登记内部证券双向结果",
+          "instruction": "按字段填写内部证券工作纸的业务键、日期、证券代码、openingSecurities、receive、deliver、closingSecurities 和 POSTED 状态；这是业务结果登记，不是会计凭证。",
+          "response": {"kind": "TEXT", "placeholder": "输入完整的证券余额工作纸结果"}
+        },
+        {
+          "workItemId": "clr-ex-b-cash-ledger",
+          "type": "LEDGER_ENTRY",
+          "title": "登记内部资金双向结果",
+          "instruction": "按字段填写内部资金工作纸的业务键、日期、关联证券代码、openingCash、cashIn、cashOut、closingCash 和 POSTED 状态；这是业务结果登记，不是会计凭证。",
+          "response": {"kind": "TEXT", "placeholder": "输入完整的资金余额工作纸结果"}
+        },
+        {
+          "workItemId": "clr-ex-b-obligation-result-match",
+          "type": "RECONCILIATION",
+          "title": "核对义务与外部结果",
+          "instruction": "按业务键、业务日期、证券代码和四项方向比较前置义务与外部交收结果，选择匹配结论。",
+          "response": {"kind": "SELECT", "placeholder": "选择义务结果结论", "options": [{"optionId": "B_OBLIGATION_RESULT_MATCH", "text": "MATCHED"}, {"optionId": "B_OBLIGATION_RESULT_RECHECK", "text": "需回查义务或结果"}]}
+        },
+        {
+          "workItemId": "clr-ex-b-securities-recon",
+          "type": "RECONCILIATION",
+          "title": "完成证券双向零差勾稽",
+          "instruction": "确认收到证券差、交付证券差和证券余额差均为零，并选择证券对账结论。",
+          "response": {"kind": "SELECT", "placeholder": "选择证券对账结论", "options": [{"optionId": "B_SECURITIES_RECON_ZERO", "text": "证券双向差额和余额差均为零"}, {"optionId": "B_SECURITIES_RECON_PENDING", "text": "证券仍需回查"}]}
+        },
+        {
+          "workItemId": "clr-ex-b-cash-recon",
+          "type": "RECONCILIATION",
+          "title": "完成资金双向零差勾稽",
+          "instruction": "确认收到资金差、支付资金差和资金余额差均为零，并选择资金对账结论。",
+          "response": {"kind": "SELECT", "placeholder": "选择资金对账结论", "options": [{"optionId": "B_CASH_RECON_ZERO", "text": "资金双向差额和余额差均为零"}, {"optionId": "B_CASH_RECON_PENDING", "text": "资金仍需回查"}]}
+        },
+        {
+          "workItemId": "clr-ex-b-close-status",
+          "type": "RECONCILIATION",
+          "title": "记录本案例正常封账",
+          "instruction": "只有业务身份一致、义务与结果 MATCHED、证券和资金双向差额及两条余额差均为零时，才选择本案例封账状态。",
+          "response": {"kind": "SELECT", "placeholder": "选择封账状态", "options": [{"optionId": "B_NORMAL_CLOSED", "text": "NORMAL_CLOSED"}, {"optionId": "B_CLOSE_PENDING", "text": "PENDING_RECONCILIATION"}]}
+        },
+        {
+          "workItemId": "clr-ex-funds-b-conclusion",
+          "type": "SHORT_TEXT",
+          "title": "写出可追溯封账结论",
+          "instruction": "用一句话写明业务键、业务日期、证券代码、交收后证券数量、资金余额、义务/结果匹配、证券和资金双向差额及 NORMAL_CLOSED 状态。",
+          "response": {"kind": "TEXT", "placeholder": "写出一条可追溯的正常封账结论"}
+        }
+      ],
+      "submissionNote": "请按五份资料的字段和单位填写，完成本案例正常交收结果、余额复算、双向零差和封账结论。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "CLR-EX-FUNDS-REF-CORE",
+      "title": "场内前置路线的四项证券/资金义务",
+      "source": "Repository/content/routes/clearing/CLR-EX-CORE-001.json；Repository/content/evidence/clearing/ex-core/CLR-EX-CORE-001-evidence.json",
+      "usage": "承接前置路线已经确认的买入证券应收、买入资金应付、卖出证券应付和卖出资金应收；本路线不重做成交汇总，只处理交收后结果。"
+    },
+    {
+      "referenceId": "CLR-EX-FUNDS-REF-INTRO",
+      "title": "《场内业务介绍》",
+      "source": "project_materials/新人陪练案例库/清算/场内/场内业务介绍.pptx，Slide 6、13-16、19-27、29-34",
+      "usage": "用于理解托管行视角下场内市场、证券登记结算、清算与交收、法人/分级结算、托管行结算模式以及结算数据接收、结果处理和交收反馈的关系。"
+    },
+    {
+      "referenceId": "CLR-EX-FUNDS-REF-SZ-GUIDE",
+      "title": "《深圳分公司证券资金结算业务指南（2022年3月修订版）》",
+      "source": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/中国证券登记结算有限责任公司深圳分司证券资金结算业务指南（2022 年3 月修订版）.pdf，PDF p8-9、p42-50、p82-86",
+      "usage": "用于抽象成交结果和其他业务数据形成证券/资金清算结果、清算数据发送、交收对象、交收结果反馈及结算数据资料关系；该版本的具体时点、账户代码、接口文件、比例和结算方式清单不固化。"
+    },
+    {
+      "referenceId": "CLR-EX-FUNDS-REF-BOUNDARY",
+      "title": "港股通、QFII/RQFII 与货银对付改革参考材料（边界）",
+      "source": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/下列材料：202506上海、深圳港股通存管结算业务指南；上海、北京、深圳QFII/RQFII境内证券投资登记结算业务指南；上海、北京货银对付改革参考版指南",
+      "usage": "仅用于确认港股通的跨境存管/清算/交收与公司行为、QFII/RQFII的资格账户与托管安排、货银对付改革参考版的测试性质；港股通保持 BUILDING，QFII/RQFII、改革测试、公司行为、缺券失败和系统故障不进入本路线。"
+    }
+  ]
+}

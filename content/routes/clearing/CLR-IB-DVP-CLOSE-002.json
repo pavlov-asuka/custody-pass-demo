@@ -1,0 +1,519 @@
+{
+  "routeId": "CLR-IB-DVP-CLOSE-002",
+  "contentVersion": "1.0.0",
+  "line": "CLEARING",
+  "title": "银行间 DVP 交收与日终关闭",
+  "summary": "承接 CLR-IB-INSTRUCTION-001 的正常结算确认，读取结算合同、债券账户、DVP 资金账户、外部交割结果和内部台账，完成证券与资金同步交收、零差对账和本案例日终关闭。",
+  "estimatedMinutes": 60,
+  "objectives": [
+    "从已确认的银行间结算合同中定位业务键、业务日期、结算日、债券代码、债券面额、结算金额、结算方式和通道",
+    "分别读取买方债券账户与 DVP 资金账户的期初余额、交收变动和期末余额，保持证券账户与资金账户角色清楚",
+    "直接承接结算合同中的结算金额，不重算净价、全价、应计利息或费用，按本案例精度完成债券面额和资金余额的 Decimal 复算",
+    "用外部 DVP 交割结果和内部结算台账逐项核对合同、面额、金额、账户变动及两类差额，在两腿完成且差额为零后记录本案例日终关闭"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "CLR-IB-DVP-KC-01",
+          "type": "CATEGORIES",
+          "title": "合同、账户、结果和台账各自回答一个问题",
+          "conclusion": "结算合同说明这笔已确认业务要交收什么，债券账户和 DVP 资金账户说明两腿怎样变动，外部交割结果说明实际完成了什么，内部台账说明本方是否按同一合同记全。",
+          "items": [
+            "结算合同承接前置确认的业务键、结算日、债券代码、债券面额和结算金额；结算金额是本路线的输入",
+            "买方债券账户记录期初面额、收到面额和期末面额；DVP 资金账户记录期初余额、结算付款和期末余额",
+            "外部交割结果同时给出本合同的证券腿、资金腿和本案例 DVP 结果；不能只看其中一腿",
+            "内部结算台账把合同、两类账户变动和对账差额放在同一业务键下，供日终核对"
+          ]
+        },
+        {
+          "cardId": "CLR-IB-DVP-KC-02",
+          "type": "FLOW",
+          "title": "先承接合同，再把券款两腿对到台账",
+          "conclusion": "正常 DVP 交收的处理顺序是合同承接 → 两类账户读取 → 外部结果登记 → 内部台账复算 → 零差核对 → 本案例日终关闭。",
+          "items": [
+            "用业务键、业务日期、结算日和债券代码把前置确认与结算合同对应起来",
+            "从合同直接读取结算金额，分别找到买方收到的债券面额和 DVP 资金账户支付的金额",
+            "以外部交割结果作为已完成交收的来源，同时在内部台账登记证券腿和资金腿",
+            "按期初债券面额＋收到面额＝期末债券面额、期初资金余额－结算金额＝期末资金余额复算",
+            "把合同、外部结果和内部台账的面额/金额放在同一业务键下比较，两个差额均为零后记录本案例关闭结果"
+          ]
+        },
+        {
+          "cardId": "CLR-IB-DVP-KC-03",
+          "type": "KEY_POINT",
+          "title": "方式、通道和关闭结果不能混写",
+          "conclusion": "DVP 是结算方式，直联或非直联是通道；只有券款两腿都完成、合同与账户/台账零差，才可以记录本案例的正常关闭结果。",
+          "items": [
+            "结算方式和通道分别读取并登记，NON_DIRECT 不代表非 DVP，通道也不能代替结算方式",
+            "债券面额按本案例四位小数、容差 0.0001 CNY_10K；资金金额按两位小数、容差 0.01 CNY",
+            "结算金额直接承接结算合同和前置确认，不由净价、全价、应计利息或费用反推",
+            "外部结果和内部台账都证明证券腿、资金腿完成且债券差额、资金差额为零，才能记录本案例的 DVP_SETTLED 与 EOD_CLOSED"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "银行间清算结果处理岗",
+        "product": "单笔正常银行间 DVP 证券/资金交收教育案例",
+        "date": "2026-08-18",
+        "fixture": "CLR-IB-DVP-DEMO-A",
+        "facts": [
+          "前置确认已形成业务键 IB-A-20260818-731 的正常结算确认；独立结算合同键为 SETTLE-CONTRACT-A-317，合同承接业务日期 2026-08-18、结算日 2026-08-19、债券 CGB-EDU-2026-A、交易方向 DELIVER_SECURITIES、面额 120.0000 CNY_10K 和结算金额 1024560.00 CNY。",
+          "合同中的结算机构为 CCDC，结算处理系统为 SETTLEMENT_PROCESSING_SYSTEM，结算方式为 DVP，通道为 NON_DIRECT；本案例按本方买方视角记录债券账户角色 RECEIVING_SECURITIES_ACCOUNT 和 DVP 资金账户角色 PAYER_FUNDS_ACCOUNT，账户标签只用于本案例，不使用实际账号格式。",
+          "债券账户期初面额 200.0000 CNY_10K，收到面额 120.0000 CNY_10K，期末面额 320.0000 CNY_10K；DVP 资金账户期初余额 3000000.00 CNY，结算付款 1024560.00 CNY，期末余额 1975440.00 CNY。",
+          "外部交割结果记录本合同收到面额 120.0000 CNY_10K、支付金额 1024560.00 CNY，DVP 结果为 DVP_SETTLED；内部台账记录同一面额、金额和账户变动，债券差额 0.0000、资金差额 0.00，日终结果为 EOD_CLOSED。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "从前置确认和结算合同读取独立合同键 SETTLE-CONTRACT-A-317，并承接业务键 IB-A-20260818-731、业务日期 2026-08-18、结算日 2026-08-19、债券 CGB-EDU-2026-A、方向 DELIVER_SECURITIES、面额 120.0000 CNY_10K 和结算金额 1024560.00 CNY",
+          "reason": "合同把已确认业务的身份和待交收输入承接到结果处理；结算金额在本路线直接取合同输入。"
+        },
+        {
+          "order": 2,
+          "action": "分别读取买方债券账户和 DVP 资金账户，登记 CCDC、SETTLEMENT_PROCESSING_SYSTEM、RECEIVING_SECURITIES_ACCOUNT、PAYER_FUNDS_ACCOUNT、DVP 方式与 NON_DIRECT 通道，以及期初余额和本次变动",
+          "reason": "证券腿和资金腿有不同账户角色，方式与通道也回答不同问题，必须分栏保留。"
+        },
+        {
+          "order": 3,
+          "action": "把外部交割结果的收到面额 120.0000 CNY_10K、支付金额 1024560.00 CNY 和 DVP_SETTLED 登记到内部结算台账，并与合同键 SETTLE-CONTRACT-A-317 及业务键 IB-A-20260818-731 对应",
+          "reason": "外部结果证明两腿实际完成，内部台账要在同一合同下保留同样的面额和金额。"
+        },
+        {
+          "order": 4,
+          "action": "按 200.0000＋120.0000＝320.0000 CNY_10K、3000000.00－1024560.00＝1975440.00 CNY 复算两类期末余额，并分别核对外部结果与内部台账",
+          "reason": "两条 Decimal 链分别验证债券收到和资金支付后的余额，不能用金额推导面额或用价格/利息重算结算金额。"
+        },
+        {
+          "order": 5,
+          "action": "确认合同、外部结果和内部台账的面额/金额一致，债券差额 0.0000、资金差额 0.00，且两腿均为 DVP_SETTLED 后记录本案例日终结果 EOD_CLOSED",
+          "reason": "只有两腿完成、跨来源零差且账户余额复算闭合，才有足够依据记录本案例正常关闭。"
+        }
+      ],
+      "summary": "承接结算合同 → 读取两类账户 → 登记外部 DVP 结果 → 复算期末余额 → 零差对账并记录本案例关闭"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "CLR-IB-DVP-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "按 Demo A 资料，把结算合同、两类账户、外部交割结果和内部台账分别映射到正确的业务用途。",
+          "fieldMappings": [
+            {
+              "fieldId": "contract-source",
+              "label": "业务键、结算日、债券面额和结算金额主来源",
+              "source": "Demo A 正常资料包",
+              "options": [
+                {"optionId": "SETTLEMENT_CONTRACT", "text": "结算合同"},
+                {"optionId": "INTERNAL_LEDGER", "text": "内部结算台账"}
+              ]
+            },
+            {
+              "fieldId": "bond-account-source",
+              "label": "期初面额、收到面额和期末面额主来源",
+              "source": "Demo A 正常资料包",
+              "options": [
+                {"optionId": "BOND_ACCOUNT_STATEMENT", "text": "债券账户资料"},
+                {"optionId": "DVP_FUNDS_ACCOUNT_STATEMENT", "text": "DVP 资金账户资料"}
+              ]
+            },
+            {
+              "fieldId": "cash-account-source",
+              "label": "期初资金、结算付款和期末资金主来源",
+              "source": "Demo A 正常资料包",
+              "options": [
+                {"optionId": "DVP_FUNDS_ACCOUNT_STATEMENT", "text": "DVP 资金账户资料"},
+                {"optionId": "BOND_ACCOUNT_STATEMENT", "text": "债券账户资料"}
+              ]
+            },
+            {
+              "fieldId": "external-result-source",
+              "label": "实际 DVP 结果主来源",
+              "source": "Demo A 正常资料包",
+              "options": [
+                {"optionId": "EXTERNAL_DVP_RESULT", "text": "外部交割结果"},
+                {"optionId": "SETTLEMENT_CONTRACT", "text": "结算合同"}
+              ]
+            },
+            {
+              "fieldId": "ledger-source",
+              "label": "本方账户变动、差额和日终结果主来源",
+              "source": "Demo A 正常资料包",
+              "options": [
+                {"optionId": "INTERNAL_LEDGER", "text": "内部结算台账"},
+                {"optionId": "EXTERNAL_DVP_RESULT", "text": "外部交割结果"}
+              ]
+            }
+          ],
+          "answer": ["SETTLEMENT_CONTRACT", "BOND_ACCOUNT_STATEMENT", "DVP_FUNDS_ACCOUNT_STATEMENT", "EXTERNAL_DVP_RESULT", "INTERNAL_LEDGER"],
+          "explanation": "合同提供承接输入，债券账户和 DVP 资金账户分别提供两腿余额，外部结果提供实际完成情况，内部台账提供本方记载和关闭核对。",
+          "hints": ["先看字段回答的是要交收什么、账户怎样变动、外部是否完成，还是本方怎样记账。"]
+        },
+        {
+          "questionId": "CLR-IB-DVP-Q-02",
+          "type": "CALCULATION",
+          "prompt": "按 Demo A 账户资料完成两条余额链，债券面额保留 4 位小数，资金金额保留 2 位小数。结算金额直接取合同输入。",
+          "calculation": {
+            "fields": [
+              {"fieldId": "bond-closing-face", "label": "期末债券面额", "formula": "200.0000 + 120.0000", "placeholder": "输入期末面额", "unit": "CNY_10K", "precision": 4, "tolerance": 0.0001},
+              {"fieldId": "cash-closing-balance", "label": "期末资金余额", "formula": "3000000.00 - 1024560.00", "placeholder": "输入期末资金", "unit": "CNY", "precision": 2, "tolerance": 0.01}
+            ]
+          },
+          "answer": ["320.0000", "1975440.00"],
+          "explanation": "200.0000＋120.0000＝320.0000 CNY_10K；3000000.00－1024560.00＝1975440.00 CNY。结算金额不由价格或利息重算。",
+          "hints": ["债券腿是期初加收到，资金腿是期初减合同承接的付款；先保留单位和精度。"]
+        },
+        {
+          "questionId": "CLR-IB-DVP-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把 Demo A 已完成的两腿 DVP 交收登记到结构化交割工作纸，不填写本案例以外的账户格式。",
+          "ledgerEntries": [
+            {"entryId": "contract-key", "direction": "业务身份", "label": "结算合同键/前置业务键", "amount": "SETTLE-CONTRACT-A-317 / IB-A-20260818-731", "placeholder": "输入合同键和业务键"},
+            {"entryId": "bond-leg", "direction": "证券腿", "label": "收到面额/期末面额", "amount": "120.0000 / 320.0000 CNY_10K", "placeholder": "输入面额变动"},
+            {"entryId": "cash-leg", "direction": "资金腿", "label": "结算付款/期末余额", "amount": "1024560.00 / 1975440.00 CNY", "placeholder": "输入资金变动"},
+            {"entryId": "institution-system", "direction": "处理边界", "label": "结算机构/结算处理系统", "amount": "CCDC / SETTLEMENT_PROCESSING_SYSTEM", "placeholder": "输入机构和系统"},
+            {"entryId": "method-channel", "direction": "结算属性", "label": "结算方式/通道", "amount": "DVP / NON_DIRECT", "placeholder": "输入方式和通道"},
+            {"entryId": "result-close", "direction": "结果", "label": "DVP 结果/日终结果", "amount": "DVP_SETTLED / EOD_CLOSED", "placeholder": "输入本案例结果"}
+          ],
+          "answer": ["SETTLE-CONTRACT-A-317 / IB-A-20260818-731", "120.0000 / 320.0000 CNY_10K", "1024560.00 / 1975440.00 CNY", "CCDC / SETTLEMENT_PROCESSING_SYSTEM", "DVP / NON_DIRECT", "DVP_SETTLED / EOD_CLOSED"],
+          "explanation": "交割工作纸同时保留合同身份、证券腿、资金腿、方式/通道和本案例结果；两腿必须一起记录。",
+          "hints": ["收到债券增加债券账户面额，支付结算金额减少 DVP 资金账户余额；机构/系统、DVP 与 NON_DIRECT 分栏记录。"]
+        },
+        {
+          "questionId": "CLR-IB-DVP-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "用 Demo A 的结算合同、外部交割结果和内部台账完成跨来源零差与关闭核对。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "contract-result-identity",
+                "label": "合同与外部结果身份",
+                "kind": "SELECT",
+                "formula": "IB-A-20260818-731 / 2026-08-18 / 2026-08-19 / CGB-EDU-2026-A / DELIVER_SECURITIES 一致",
+                "placeholder": "选择身份结论",
+                "options": [
+                  {"optionId": "A_CONTRACT_RESULT_MATCH", "text": "合同与外部结果一致"},
+                  {"optionId": "A_CONTRACT_RESULT_PENDING", "text": "仍需对应身份"}
+                ]
+              },
+              {"fieldId": "external-face-difference", "label": "外部结果与台账面额差", "kind": "NUMBER", "formula": "120.0000 - 120.0000", "placeholder": "输入面额差", "precision": 4, "tolerance": 0.0001},
+              {"fieldId": "external-amount-difference", "label": "外部结果与台账金额差", "kind": "NUMBER", "formula": "1024560.00 - 1024560.00", "placeholder": "输入金额差", "precision": 2, "tolerance": 0.01},
+              {"fieldId": "bond-balance-difference", "label": "债券余额复算差", "kind": "NUMBER", "formula": "320.0000 - (200.0000 + 120.0000)", "placeholder": "输入债券余额差", "precision": 4, "tolerance": 0.0001},
+              {"fieldId": "cash-balance-difference", "label": "资金余额复算差", "kind": "NUMBER", "formula": "1975440.00 - (3000000.00 - 1024560.00)", "placeholder": "输入资金余额差", "precision": 2, "tolerance": 0.01},
+              {
+                "fieldId": "close-result",
+                "label": "DVP 与日终结果",
+                "kind": "SELECT",
+                "formula": "两腿完成且四类差额为零",
+                "placeholder": "选择关闭结果",
+                "options": [
+                  {"optionId": "A_DVP_SETTLED_EOD_CLOSED", "text": "本案例 DVP_SETTLED 且 EOD_CLOSED"},
+                  {"optionId": "A_CLOSE_PENDING", "text": "尚未形成正常关闭结果"}
+                ]
+              }
+            ]
+          },
+          "answer": ["A_CONTRACT_RESULT_MATCH", "0.0000", "0.00", "0.0000", "0.00", "A_DVP_SETTLED_EOD_CLOSED"],
+          "explanation": "合同与外部结果身份一致；外部/台账面额差和金额差、两类余额复算差均为零，记录本案例的 DVP_SETTLED 与 EOD_CLOSED。",
+          "hints": ["先核合同身份，再比较外部结果与台账，最后分别检查债券和资金余额链。", "结算方式、通道和本案例结果是不同字段。"]
+        },
+        {
+          "questionId": "CLR-IB-DVP-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出从前置确认到本案例日终关闭的正常承接顺序。",
+          "textInput": {
+            "label": "DVP正常承接顺序",
+            "placeholder": "写出合同、账户、外部结果、台账勾稽和关闭的顺序"
+          },
+          "answer": ["承接前置确认的结算合同，读取两类账户，登记外部DVP结果，复算内部台账并核对零差，最后记录本案例日终关闭。"],
+          "explanation": "这道基础短文本只练习正常DVP处理顺序；没有合同身份、两腿结果和零差核对，不能记录本案例关闭。",
+          "hints": ["按结算合同→两类账户→外部DVP结果→内部台账与零差→日终关闭写成一句话。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "银行间清算结果处理岗",
+        "product": "单笔正常银行间 DVP 证券/资金交收与日终关闭教育案例",
+        "date": "2026-08-21",
+        "purpose": "承接前置结算确认，从结算合同、债券账户、DVP 资金账户、外部交割结果和内部台账完成两腿交收、Decimal 余额复算、跨来源零差对账和本案例日终关闭。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "CLR-IB-DVP-B-SETTLEMENT-CONTRACT",
+          "title": "结算合同资料（综合 B）",
+          "kind": "CONFIRMATION",
+          "description": "承接 CLR-IB-INSTRUCTION-001 正常结算确认的结算合同，保留独立合同键，并显式承接前置确认业务键、债券、面额和结算金额输入。",
+          "fields": [
+            {"fieldId": "contract_id", "label": "结算合同键", "value": "SETTLE-CONTRACT-B-682"},
+            {"fieldId": "prior_confirmation_key", "label": "前置结算确认业务键", "value": "IB-B-20260821-428"},
+            {"fieldId": "prior_confirmation_bond_code", "label": "前置确认债券代码", "value": "CGB-EDU-2026-B"},
+            {"fieldId": "prior_confirmation_face_value", "label": "前置确认债券面额", "value": "185.7500", "unit": "CNY_10K"},
+            {"fieldId": "prior_confirmation_settlement_amount", "label": "前置确认结算金额", "value": "2487650.00", "unit": "CNY"},
+            {"fieldId": "business_key", "label": "业务键（承接前置确认）", "value": "IB-B-20260821-428"},
+            {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
+            {"fieldId": "settlement_date", "label": "结算日", "value": "2026-08-24"},
+            {"fieldId": "bond_code", "label": "债券代码", "value": "CGB-EDU-2026-B"},
+            {"fieldId": "direction", "label": "本方方向（承接前置确认）", "value": "DELIVER_SECURITIES"},
+            {"fieldId": "face_value", "label": "结算债券面额（承接前置输入）", "value": "185.7500", "unit": "CNY_10K"},
+            {"fieldId": "settlement_amount", "label": "结算金额（承接前置输入）", "value": "2487650.00", "unit": "CNY"},
+            {"fieldId": "settlement_institution", "label": "结算机构", "value": "CCDC"},
+            {"fieldId": "settlement_processing_system", "label": "结算处理系统", "value": "SETTLEMENT_PROCESSING_SYSTEM"},
+            {"fieldId": "settlement_method", "label": "结算方式", "value": "DVP"},
+            {"fieldId": "channel", "label": "通道", "value": "NON_DIRECT"},
+            {"fieldId": "prior_confirmation_status", "label": "前置确认状态（本案例）", "value": "CONFIRMED_FOR_SETTLEMENT"}
+          ]
+        },
+        {
+          "materialId": "CLR-IB-DVP-B-BOND-ACCOUNT",
+          "title": "买方债券账户资料（综合 B）",
+          "kind": "STATEMENT",
+          "description": "本方买方视角的债券账户变动，记录收到债券前后的面额。账户标签是教育案例角色标签，不是实际账号。",
+          "fields": [
+            {"fieldId": "contract_id", "label": "结算合同键", "value": "SETTLE-CONTRACT-B-682"},
+            {"fieldId": "business_key", "label": "业务键", "value": "IB-B-20260821-428"},
+            {"fieldId": "bond_code", "label": "债券代码", "value": "CGB-EDU-2026-B"},
+            {"fieldId": "account_role", "label": "债券账户角色", "value": "RECEIVING_SECURITIES_ACCOUNT"},
+            {"fieldId": "account_label", "label": "债券账户案例标签", "value": "BUYER_BOND_ACCOUNT_B"},
+            {"fieldId": "opening_face", "label": "期初面额", "value": "400.0000", "unit": "CNY_10K"},
+            {"fieldId": "received_face", "label": "本次收到面额", "value": "185.7500", "unit": "CNY_10K"},
+            {"fieldId": "closing_face", "label": "期末面额", "value": "585.7500", "unit": "CNY_10K"},
+            {"fieldId": "statement_status", "label": "账户记录结果（本案例）", "value": "DVP_SETTLED"}
+          ]
+        },
+        {
+          "materialId": "CLR-IB-DVP-B-FUNDS-ACCOUNT",
+          "title": "买方 DVP 资金账户资料（综合 B）",
+          "kind": "STATEMENT",
+          "description": "本方付款视角的 DVP 资金账户变动，记录结算金额付款前后的余额。账户标签是教育案例角色标签，不是实际账号。",
+          "fields": [
+            {"fieldId": "contract_id", "label": "结算合同键", "value": "SETTLE-CONTRACT-B-682"},
+            {"fieldId": "business_key", "label": "业务键", "value": "IB-B-20260821-428"},
+            {"fieldId": "account_role", "label": "资金账户角色", "value": "PAYER_FUNDS_ACCOUNT"},
+            {"fieldId": "account_label", "label": "DVP 资金账户案例标签", "value": "BUYER_DVP_FUNDS_ACCOUNT_B"},
+            {"fieldId": "opening_cash", "label": "期初资金余额", "value": "6000000.00", "unit": "CNY"},
+            {"fieldId": "settlement_amount", "label": "本次结算付款", "value": "2487650.00", "unit": "CNY"},
+            {"fieldId": "closing_cash", "label": "期末资金余额", "value": "3512350.00", "unit": "CNY"},
+            {"fieldId": "statement_status", "label": "账户记录结果（本案例）", "value": "DVP_SETTLED"}
+          ]
+        },
+        {
+          "materialId": "CLR-IB-DVP-B-EXTERNAL-RESULT",
+          "title": "外部 DVP 交割结果（综合 B）",
+          "kind": "CONFIRMATION",
+          "description": "外部结果资料承载本合同证券腿、资金腿和本案例 DVP 结果，供内部台账核对。",
+          "fields": [
+            {"fieldId": "contract_id", "label": "结算合同键", "value": "SETTLE-CONTRACT-B-682"},
+            {"fieldId": "business_key", "label": "业务键", "value": "IB-B-20260821-428"},
+            {"fieldId": "bond_code", "label": "债券代码", "value": "CGB-EDU-2026-B"},
+            {"fieldId": "received_face", "label": "外部收到面额", "value": "185.7500", "unit": "CNY_10K"},
+            {"fieldId": "paid_amount", "label": "外部支付金额", "value": "2487650.00", "unit": "CNY"},
+            {"fieldId": "settlement_method", "label": "结算方式", "value": "DVP"},
+            {"fieldId": "channel", "label": "通道", "value": "NON_DIRECT"},
+            {"fieldId": "dvp_result_status", "label": "DVP 结果（本案例）", "value": "DVP_SETTLED"},
+            {"fieldId": "eod_close_result", "label": "日终结果（本案例）", "value": "EOD_CLOSED"}
+          ]
+        },
+        {
+          "materialId": "CLR-IB-DVP-B-INTERNAL-LEDGER",
+          "title": "内部结算台账（综合 B）",
+          "kind": "LEDGER",
+          "description": "内部台账按同一合同登记债券账户和 DVP 资金账户的期初、变动、期末、差额及日终结果。",
+          "fields": [
+            {"fieldId": "contract_id", "label": "结算合同键", "value": "SETTLE-CONTRACT-B-682"},
+            {"fieldId": "business_key", "label": "业务键", "value": "IB-B-20260821-428"},
+            {"fieldId": "bond_code", "label": "债券代码", "value": "CGB-EDU-2026-B"},
+            {"fieldId": "bond_opening_face", "label": "台账期初面额", "value": "400.0000", "unit": "CNY_10K"},
+            {"fieldId": "bond_received_face", "label": "台账收到面额", "value": "185.7500", "unit": "CNY_10K"},
+            {"fieldId": "bond_closing_face", "label": "台账期末面额", "value": "585.7500", "unit": "CNY_10K"},
+            {"fieldId": "cash_opening_balance", "label": "台账期初资金", "value": "6000000.00", "unit": "CNY"},
+            {"fieldId": "cash_settlement_payment", "label": "台账结算付款", "value": "2487650.00", "unit": "CNY"},
+            {"fieldId": "cash_closing_balance", "label": "台账期末资金", "value": "3512350.00", "unit": "CNY"},
+            {"fieldId": "bond_difference", "label": "债券差额（本案例）", "value": "0.0000", "unit": "CNY_10K"},
+            {"fieldId": "cash_difference", "label": "资金差额（本案例）", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "eod_close_result", "label": "日终结果（本案例）", "value": "EOD_CLOSED"}
+          ]
+        },
+        {
+          "materialId": "CLR-IB-DVP-B-RECONCILIATION",
+          "title": "交割与日终对账资料（综合 B）",
+          "kind": "RECONCILIATION",
+          "description": "将合同、外部交割结果和内部台账按合同键、债券面额、结算金额和两类余额差额进行综合核对。",
+          "fields": [
+            {"fieldId": "contract_result_identity", "label": "合同与外部结果身份", "value": "MATCHED"},
+            {"fieldId": "external_face_difference", "label": "外部结果与台账面额差", "value": "0.0000", "unit": "CNY_10K"},
+            {"fieldId": "external_amount_difference", "label": "外部结果与台账金额差", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "bond_balance_difference", "label": "债券余额复算差", "value": "0.0000", "unit": "CNY_10K"},
+            {"fieldId": "cash_balance_difference", "label": "资金余额复算差", "value": "0.00", "unit": "CNY"},
+            {"fieldId": "dvp_result_status", "label": "DVP 结果（本案例）", "value": "DVP_SETTLED"},
+            {"fieldId": "eod_close_result", "label": "日终结果（本案例）", "value": "EOD_CLOSED"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "clr-ib-dvp-b-field-contract",
+          "type": "FIELD_MAP",
+          "title": "定位结算合同与承接金额",
+          "instruction": "选择承载综合 B 独立结算合同键、前置确认业务键、业务日期/结算日、CCDC、结算处理系统、债券代码/方向/面额、直接承接结算金额以及 DVP/通道的资料。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择结算合同来源",
+            "options": [
+              {"optionId": "B_SETTLEMENT_CONTRACT_SOURCE", "text": "CLR-IB-DVP-B-SETTLEMENT-CONTRACT"},
+              {"optionId": "B_EXTERNAL_RESULT_SOURCE", "text": "CLR-IB-DVP-B-EXTERNAL-RESULT"},
+              {"optionId": "B_INTERNAL_LEDGER_SOURCE", "text": "CLR-IB-DVP-B-INTERNAL-LEDGER"}
+            ]
+          }
+        },
+        {
+          "workItemId": "clr-ib-dvp-b-field-accounts-method",
+          "type": "FIELD_MAP",
+          "title": "区分两类账户、结算方式与通道",
+          "instruction": "选择承载买方债券账户、DVP 资金账户以及 DVP 方式和 NON_DIRECT 通道关系的资料，保持账户、方式和通道分别登记。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择两腿账户与属性来源",
+            "options": [
+              {"optionId": "B_ACCOUNTS_AND_CONTRACT_SOURCE", "text": "债券账户、DVP 资金账户与结算合同"},
+              {"optionId": "B_EXTERNAL_RESULT_ONLY", "text": "只看外部 DVP 结果"},
+              {"optionId": "B_LEDGER_ONLY", "text": "只看内部结算台账"}
+            ]
+          }
+        },
+        {
+          "workItemId": "clr-ib-dvp-b-bond-balance",
+          "type": "CALCULATION",
+          "title": "复算债券账户期末面额",
+          "instruction": "按综合 B 债券账户的期初面额 400.0000 加收到面额 185.7500，计算期末面额；保留 4 位小数，容差 0.0001 CNY_10K。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末债券面额", "unit": "CNY_10K", "precision": 4}
+        },
+        {
+          "workItemId": "clr-ib-dvp-b-cash-balance",
+          "type": "CALCULATION",
+          "title": "复算 DVP 资金账户期末余额",
+          "instruction": "按综合 B DVP 资金账户期初余额 6000000.00 减结算合同承接的付款 2487650.00，计算期末余额；保留 2 位小数，容差 0.01 CNY。",
+          "response": {"kind": "NUMBER", "placeholder": "输入期末资金余额", "unit": "CNY", "precision": 2}
+        },
+        {
+          "workItemId": "clr-ib-dvp-b-delivery-workpaper",
+          "type": "LEDGER_ENTRY",
+          "title": "完成结构化 DVP 交割工作纸",
+          "instruction": "根据结算合同、两类账户、外部交割结果和内部台账，登记独立合同键、前置确认业务键、业务日期/结算日、债券代码/方向/面额、结算金额、CCDC、结算处理系统、账户角色、结算方式/通道、两类差额和本案例结果；结算金额直接承接合同输入。",
+          "response": {"kind": "TEXT", "placeholder": "输入结构化 DVP 交割工作纸"}
+        },
+        {
+          "workItemId": "clr-ib-dvp-b-contract-result-match",
+          "type": "RECONCILIATION",
+          "title": "勾稽合同与外部 DVP 结果",
+          "instruction": "比较结算合同和外部交割结果的合同键、业务键、债券代码、收到面额、支付金额、DVP 方式与通道。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择合同与外部结果结论",
+            "options": [
+              {"optionId": "B_CONTRACT_RESULT_MATCH", "text": "合同与外部结果在本案例身份和两腿输入上一致"},
+              {"optionId": "B_CONTRACT_RESULT_PENDING", "text": "仍需对应合同或结果字段"}
+            ]
+          }
+        },
+        {
+          "workItemId": "clr-ib-dvp-b-ledger-match",
+          "type": "RECONCILIATION",
+          "title": "勾稽账户变动与内部台账",
+          "instruction": "比较债券账户、DVP 资金账户的期初/变动/期末与内部结算台账，确认两条余额链均闭合。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择账户与台账结论",
+            "options": [
+              {"optionId": "B_LEDGER_MATCH", "text": "账户变动与内部台账一致"},
+              {"optionId": "B_LEDGER_PENDING", "text": "仍有账户或台账字段未对应"}
+            ]
+          }
+        },
+        {
+          "workItemId": "clr-ib-dvp-b-zero-difference",
+          "type": "RECONCILIATION",
+          "title": "确认合同、账户和台账零差",
+          "instruction": "结合两条余额复算以及外部结果/内部台账字段，选择综合 B 的债券、资金和跨来源差额结论。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择零差结论",
+            "options": [
+              {"optionId": "B_ZERO_DIFFERENCE", "text": "外部/台账面额差0.0000、金额差0.00，债券/资金余额复算差也为零"},
+              {"optionId": "B_NONZERO_DIFFERENCE", "text": "至少一类合同、账户或台账差额不为零"}
+            ]
+          }
+        },
+        {
+          "workItemId": "clr-ib-dvp-b-close-result",
+          "type": "RECONCILIATION",
+          "title": "记录正常 DVP 与日终关闭结果",
+          "instruction": "在合同、两类账户、外部结果和内部台账均一致且两腿差额为零后，选择本案例的 DVP 与日终结果。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择本案例关闭结果",
+            "options": [
+              {"optionId": "B_DVP_SETTLED_EOD_CLOSED", "text": "本案例 DVP_SETTLED 且 EOD_CLOSED"},
+              {"optionId": "B_CLOSE_PENDING", "text": "尚未形成正常关闭结果"}
+            ]
+          }
+        },
+        {
+          "workItemId": "clr-ib-dvp-b-conclusion",
+          "type": "SHORT_TEXT",
+          "title": "写出可追溯的交收关闭结论",
+          "instruction": "用一句短结论写明合同键/业务键、业务日期和结算日、债券及面额、结算金额输入、两类账户余额链、外部结果与内部台账零差、DVP 方式与 NON_DIRECT 通道，并注明 DVP_SETTLED 与 EOD_CLOSED 仅为本案例结果。",
+          "response": {"kind": "TEXT", "placeholder": "输入一句可追溯的正常交收与关闭结论"}
+        }
+      ],
+      "submissionNote": "请按资料来源、Decimal 复算、结构化交割工作纸和跨来源勾稽顺序提交；结算金额直接承接结算合同，不重算净价、全价、应计利息或费用。只有券款两腿完成、合同/账户/台账零差并满足本案例结果条件，才记录本案例正常关闭。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "CLR-IB-DVP-REF-BASE",
+      "title": "共同清算对象与零差勾稽框架",
+      "source": "Repository/content/routes/clearing/CLR-BASE-001.json；Repository/content/evidence/clearing/base/CLR-BASE-001-evidence.json",
+      "usage": "承接业务键、业务日期、来源对应、结果登记和零差对账的共同工作纸结构。"
+    },
+    {
+      "referenceId": "CLR-IB-DVP-REF-INSTRUCTION",
+      "title": "银行间结算指令与前置确认",
+      "source": "Repository/content/routes/clearing/CLR-IB-INSTRUCTION-001.json；Repository/content/evidence/clearing/ib-instruction/CLR-IB-INSTRUCTION-001-evidence.json",
+      "usage": "唯一前置；承接 CONFIRMED_FOR_SETTLEMENT 的同一业务键、结算日、债券面额、结算金额、DVP 方式与通道。"
+    },
+    {
+      "referenceId": "CLR-IB-DVP-REF-CCDC",
+      "title": "中央结算公司材料中的 DVP 与交割单关系",
+      "source": "project_materials/新人陪练案例库/清算/银行间/关于发布《中央国债登记结算有限责任公司债券交易结算规则》的通知.docx P9-P11、P14",
+      "usage": "抽象 DVP 同步办理债券与款项、结算合同作为交收依据、债券面额/金额字段和正常合同完成后可取得交割结果；历史文本不用于固定时点、费用或当前状态字典。"
+    },
+    {
+      "referenceId": "CLR-IB-DVP-REF-SHCH",
+      "title": "上海清算所材料中的账户与正常两腿处理关系",
+      "source": "project_materials/新人陪练案例库/清算/银行间/关于发布《银行间市场清算所股份有限公司债券登记托管、清算结算业务规则》的公告.docx P109-P117、P125-P126",
+      "usage": "交叉支持债券账户与资金结算账户分工、全额逐笔结算及正常情况下先确认债券足额并同步办理资金与债券；不采用材料中的失败、截止时点或回购规则。"
+    },
+    {
+      "referenceId": "CLR-IB-DVP-REF-EXAMPLE",
+      "title": "银行间例题的审计边界",
+      "source": "project_materials/新人陪练案例库/清算/银行间/银行间例题.docx P26-P30、P50-P54、T1.R1-T1.R2",
+      "usage": "仅作为 DVP、结算结果和题库口径的审计参照；题库中的菜单、费用、自动回款或时点与其他材料存在口径差异，不作为本路线规则。"
+    },
+    {
+      "referenceId": "CLR-IB-DVP-REF-INTRO",
+      "title": "银行间业务简介的对象示意",
+      "source": "project_materials/新人陪练案例库/清算/银行间/银行间债券结算业务简介2026（1).ppt S5、S16、S21、S22、S24、S26",
+      "usage": "仅使用可读的机构、账户、系统和交收关系示意；旧 PPT 的 OLE 对象不可按正文可靠读取，且时点存在冲突，不固化自动回款、关闭时刻或系统状态机。"
+    },
+    {
+      "referenceId": "CLR-IB-DVP-REF-CASE",
+      "title": "本路线版本化正常教育案例",
+      "source": "content/evidence/clearing/ib-dvp-close/CLR-IB-DVP-CLOSE-002-evidence.json",
+      "usage": "记录 Demo A/Comprehensive B 的业务键、日期、债券、面额、金额、余额链、精度、容差和仅本案例结果。"
+    }
+  ]
+}

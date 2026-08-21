@@ -24,6 +24,7 @@ function worldStatusText(world: World): string {
 function WorldCard({ world }: { world: World }) {
   const navigate = useNavigate();
   const building = world.availability === 'BUILDING';
+  const mapPath = `/map/${world.line.toLowerCase()}`;
 
   return (
     <article className={`world-card ${building ? 'is-building' : ''}`}>
@@ -32,29 +33,24 @@ function WorldCard({ world }: { world: World }) {
         <span className="world-card__kicker">{worldKickers[world.line]}</span>
         <h2>{world.name}</h2>
         <p className="world-card__goal">{world.description}</p>
-        {building ? (
-          <div className="world-card__status">
-            <span className="building-tag">内容建设中</span>
+        <div className="world-card__status">
+          <div className="world-card__progress-line">
+            <strong>{building ? '内容建设中' : worldStatusText(world)}</strong>
+            <span>{world.passedRequiredRoutes} / {world.publishedRequiredRoutes} 条必修路线</span>
           </div>
-        ) : (
-          <>
-            <div className="world-card__status">
-              <div className="world-card__progress-line">
-                <strong>{worldStatusText(world)}</strong>
-                <span>{world.passedRequiredRoutes} / {world.publishedRequiredRoutes} 条必修路线</span>
-              </div>
-              <div className="b3-progress" aria-hidden="true">
-                <span style={{ width: `${world.progressPercent}%` }} />
-              </div>
-            </div>
+          <div className="b3-progress" aria-hidden="true">
+            <span style={{ width: `${world.progressPercent}%` }} />
+          </div>
+          {building && <span className="building-tag">内容建设中</span>}
+        </div>
+        {!building && (
             <button
               className="b3-btn b3-btn--primary b3-btn--wide world-card__action"
               type="button"
-              onClick={() => navigate('/map/accounting')}
+              onClick={() => navigate(mapPath)}
             >
               进入学习地图 <ArrowRight size={20} />
             </button>
-          </>
         )}
       </div>
     </article>

@@ -1,0 +1,241 @@
+{
+  "routeId": "CLR-EX-CORE-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-CLR-EX-LAYERS",
+          "description": "区分成交数据、清算结果和交收指令三层资料的业务作用",
+          "weight": 13,
+          "evidenceRequirement": "能从综合B定位成交确认层和清算结果层，并知道交收指令承接清算结果而非替代成交确认。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-trade-source", "operator": "EQUALS", "expected": "B_TRADE_DATA"},
+            {"fieldId": "clr-ex-b-clearing-layer", "operator": "EQUALS", "expected": "B_CLEARING_RESULT"}
+          ],
+          "remediationTargetId": "CLR-EX-LAYERS"
+        },
+        {
+          "criterionId": "C-CLR-EX-OBLIGATIONS",
+          "description": "区分证券义务和资金义务，并保留买入与卖出方向",
+          "weight": 12,
+          "evidenceRequirement": "四项对象登记同时包含买入证券应收、买入资金应付、卖出证券应付和卖出资金应收，数量与金额单位不混用。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-obligation-ledger", "operator": "EQUALS", "expected": "B_OBLIGATIONS_COMPLETE"}
+          ],
+          "remediationTargetId": "CLR-EX-OBJECTS"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-CLR-EX-SOURCE",
+          "description": "按资料层读取成交确认和清算对象",
+          "weight": 8,
+          "evidenceRequirement": "成交数量/金额从成交数据读取，四项应收应付从清算结果读取。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-trade-source", "operator": "EQUALS", "expected": "B_TRADE_DATA"},
+            {"fieldId": "clr-ex-b-clearing-layer", "operator": "EQUALS", "expected": "B_CLEARING_RESULT"}
+          ],
+          "remediationTargetId": "CLR-EX-LAYERS"
+        },
+        {
+          "criterionId": "P-CLR-EX-AGGREGATE",
+          "description": "用已确认成交数量和金额按买卖方向完成四项汇总",
+          "weight": 12,
+          "evidenceRequirement": "独立复算综合B买入证券、买入资金、卖出证券和卖出资金，数量精度为0，金额容差为0.01。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-buy-security-quantity", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0},
+            {"fieldId": "clr-ex-b-buy-cash-amount", "operator": "NUMBER_EQUALS", "expected": 54100, "tolerance": 0.01},
+            {"fieldId": "clr-ex-b-sell-security-quantity", "operator": "NUMBER_EQUALS", "expected": 700, "tolerance": 0},
+            {"fieldId": "clr-ex-b-sell-cash-amount", "operator": "NUMBER_EQUALS", "expected": 18900, "tolerance": 0.01}
+          ],
+          "remediationTargetId": "CLR-EX-CALC"
+        },
+        {
+          "criterionId": "P-CLR-EX-PREP",
+          "description": "登记四项交收准备对象并完成逐项差额核对",
+          "weight": 10,
+          "evidenceRequirement": "对象工作纸完整，买入证券、买入资金、卖出证券和卖出资金差额均为零，并记录本案例准备状态。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-obligation-ledger", "operator": "EQUALS", "expected": "B_OBLIGATIONS_COMPLETE"},
+            {"fieldId": "clr-ex-b-buy-security-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "clr-ex-b-buy-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-ex-b-sell-security-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "clr-ex-b-sell-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-ex-b-prep-status", "operator": "EQUALS", "expected": "B_PREP_READY"}
+          ],
+          "remediationTargetId": "CLR-EX-PREP"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-CLR-EX-IDENTITY",
+          "description": "控制业务键、业务日期、证券代码和资料层错配",
+          "weight": 13,
+          "evidenceRequirement": "结论回指综合B业务键EX-B-20260821-284、业务日期2026-08-21和证券代码EXB-SEC-01，并保持成交、清算结果、交收指令和对账资料的同一身份；不同证券不能靠同数量金额通过。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-trade-source", "operator": "EQUALS", "expected": "B_TRADE_DATA"},
+            {"fieldId": "clr-ex-b-security-code-match", "operator": "EQUALS", "expected": "B_SECURITY_CODE_MATCH"},
+            {"fieldId": "clr-ex-core-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["EX-B-20260821-284", "2026-08-21", "证券代码EXB-SEC-01"]}
+          ],
+          "remediationTargetId": "CLR-EX-IDENTITY"
+        },
+        {
+          "criterionId": "R-CLR-EX-ZERO-DIFF",
+          "description": "控制证券与资金准备对象的遗漏、方向混淆和差额未闭合",
+          "weight": 12,
+          "evidenceRequirement": "四项差额均为零，并明确交收准备状态为READY_FOR_SETTLEMENT；不得把准备状态写成已完成交收。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-b-buy-security-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "clr-ex-b-buy-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-ex-b-sell-security-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+            {"fieldId": "clr-ex-b-sell-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+            {"fieldId": "clr-ex-b-prep-status", "operator": "EQUALS", "expected": "B_PREP_READY"}
+          ],
+          "remediationTargetId": "CLR-EX-PREP"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-CLR-EX-TRACEABLE",
+          "description": "用短句写出可追溯的交收准备结论",
+          "weight": 20,
+          "evidenceRequirement": "一句话同时写明业务键、业务日期、证券代码、四项证券/资金对象、四项差额和READY_FOR_SETTLEMENT状态。",
+          "evidenceRules": [
+            {"fieldId": "clr-ex-core-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["EX-B-20260821-284", "2026-08-21", "证券代码EXB-SEC-01", "买入证券应收2000 share", "买入资金应付54100.00 CNY", "卖出证券应付700 share", "卖出资金应收18900.00 CNY", "四项差额0", "READY_FOR_SETTLEMENT"]}
+          ],
+          "remediationTargetId": "CLR-EX-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-CLR-EX-LAYERS-CLOSED",
+      "description": "成交、清算结果和交收准备三层资料必须正确对应",
+      "evidenceRequirement": "成交确认来源、清算结果来源和四项对象登记均正确，不能用成交数据直接替代清算结果或交收指令。",
+      "evidenceRules": [
+        {"fieldId": "clr-ex-b-trade-source", "operator": "EQUALS", "expected": "B_TRADE_DATA"},
+        {"fieldId": "clr-ex-b-clearing-layer", "operator": "EQUALS", "expected": "B_CLEARING_RESULT"},
+        {"fieldId": "clr-ex-b-obligation-ledger", "operator": "EQUALS", "expected": "B_OBLIGATIONS_COMPLETE"},
+        {"fieldId": "clr-ex-b-security-code-match", "operator": "EQUALS", "expected": "B_SECURITY_CODE_MATCH"}
+      ],
+      "remediationTargetId": "CLR-EX-LAYERS"
+    },
+    {
+      "requirementId": "M-CLR-EX-PREP-ZERO",
+      "description": "证券和资金四项交收准备对象必须同时闭合",
+          "evidenceRequirement": "四项汇总值正确，证券代码一致，四项清算结果与交收指令差额均为零，并选择READY_FOR_SETTLEMENT。",
+      "evidenceRules": [
+        {"fieldId": "clr-ex-b-buy-security-quantity", "operator": "NUMBER_EQUALS", "expected": 2000, "tolerance": 0},
+        {"fieldId": "clr-ex-b-buy-cash-amount", "operator": "NUMBER_EQUALS", "expected": 54100, "tolerance": 0.01},
+        {"fieldId": "clr-ex-b-sell-security-quantity", "operator": "NUMBER_EQUALS", "expected": 700, "tolerance": 0},
+        {"fieldId": "clr-ex-b-sell-cash-amount", "operator": "NUMBER_EQUALS", "expected": 18900, "tolerance": 0.01},
+        {"fieldId": "clr-ex-b-buy-security-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+        {"fieldId": "clr-ex-b-buy-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-ex-b-sell-security-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0},
+        {"fieldId": "clr-ex-b-sell-cash-diff", "operator": "NUMBER_EQUALS", "expected": 0, "tolerance": 0.01},
+        {"fieldId": "clr-ex-b-security-code-match", "operator": "EQUALS", "expected": "B_SECURITY_CODE_MATCH"},
+        {"fieldId": "clr-ex-b-prep-status", "operator": "EQUALS", "expected": "B_PREP_READY"}
+      ],
+      "remediationTargetId": "CLR-EX-PREP"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "CLR-EX-LAYERS",
+      "title": "重看成交、清算结果和交收指令的资料层",
+      "reason": "资料层混淆会把已确认成交误当作清算结果或交收准备对象。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-EX-KC-01",
+      "questionId": "CLR-EX-Q-01"
+    },
+    {
+      "targetId": "CLR-EX-OBJECTS",
+      "title": "重看证券义务与资金义务的四项登记",
+      "reason": "没有分开证券数量和资金金额，无法确认买卖双方各自的交收对象。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-EX-KC-02",
+      "questionId": "CLR-EX-Q-03"
+    },
+    {
+      "targetId": "CLR-EX-CALC",
+      "title": "重做买卖方向的数量和金额汇总",
+      "reason": "汇总值必须直接回到已确认成交数据，并保持证券整数和资金两位小数。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "CLR-EX-DEMO-STEP-03",
+      "questionId": "CLR-EX-Q-02"
+    },
+    {
+      "targetId": "CLR-EX-PREP",
+      "title": "重做四项交收准备差额核对",
+      "reason": "交收准备状态只在四项对象逐项对上时成立，不能用单一总额或成交状态代替。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "CLR-EX-DEMO-STEP-05",
+      "questionId": "CLR-EX-Q-04"
+    },
+    {
+      "targetId": "CLR-EX-IDENTITY",
+      "title": "重看业务键和业务日期的跨来源对应",
+      "reason": "业务键、日期或证券代码错配会把不同批次的证券和资金对象放入同一张准备表。",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "CLR-EX-KC-03",
+      "questionId": "CLR-EX-Q-01"
+    },
+    {
+      "targetId": "CLR-EX-CONCLUSION",
+      "title": "重写带字段和差额的准备结论",
+      "reason": "结论需要能回指业务键、日期、四项对象、差额和准备状态，不能只写“已完成”。",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "CLR-EX-DEMO-STEP-05",
+      "questionId": "CLR-EX-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "CLR-EX-COMP-B",
+    "responses": {
+      "clr-ex-b-trade-source": "B_TRADE_DATA",
+      "clr-ex-b-clearing-layer": "B_CLEARING_RESULT",
+      "clr-ex-b-security-code-match": "B_SECURITY_CODE_MATCH",
+      "clr-ex-b-buy-security-quantity": 2000,
+      "clr-ex-b-buy-cash-amount": 54100,
+      "clr-ex-b-sell-security-quantity": 700,
+      "clr-ex-b-sell-cash-amount": 18900,
+      "clr-ex-b-obligation-ledger": "B_OBLIGATIONS_COMPLETE",
+      "clr-ex-b-buy-security-diff": 0,
+      "clr-ex-b-buy-cash-diff": 0,
+      "clr-ex-b-sell-security-diff": 0,
+      "clr-ex-b-sell-cash-diff": 0,
+      "clr-ex-b-prep-status": "B_PREP_READY",
+      "clr-ex-core-b-conclusion": "业务键EX-B-20260821-284，业务日期2026-08-21，证券代码EXB-SEC-01；买入证券应收2000 share、买入资金应付54100.00 CNY；卖出证券应付700 share、卖出资金应收18900.00 CNY；四项差额0，交收准备状态READY_FOR_SETTLEMENT。"
+    },
+    "decimalChain": {
+      "buySecurityQuantity": "900 + 1100 = 2000 share",
+      "buyCashAmount": "48600.00 + 5500.00 = 54100.00 CNY",
+      "sellSecurityQuantity": "700 = 700 share",
+      "sellCashAmount": "18900.00 = 18900.00 CNY",
+      "buySecurityDifference": "2000 - 2000 = 0 share",
+      "buyCashDifference": "54100.00 - 54100.00 = 0.00 CNY",
+      "sellSecurityDifference": "700 - 700 = 0 share",
+      "sellCashDifference": "18900.00 - 18900.00 = 0.00 CNY",
+      "identity": "EX-B-20260821-284 / 2026-08-21 / EXB-SEC-01",
+      "status": "READY_FOR_SETTLEMENT; reconciliationStatus=RECONCILED"
+    }
+  }
+}

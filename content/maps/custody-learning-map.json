@@ -1,15 +1,129 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.10",
+  "version": "2026.08.11",
   "lines": [
     {
       "line": "CLEARING",
       "name": "清算学习世界",
       "description": "学习交收、资金与证券清算的核心流程。",
       "order": 1,
-      "availability": "BUILDING",
+      "availability": "OPEN",
       "sceneAssetId": "world-clearing-source-v1",
-      "regions": []
+      "regions": [
+        {
+          "regionId": "CLR-REGION-CORE",
+          "name": "清算基础与业务分支",
+          "description": "从共同清算基础进入资金结算、场内清算和银行间清算。",
+          "order": 1,
+          "modules": [
+            {
+              "moduleId": "CLR-MODULE-FOUNDATION",
+              "name": "共同清算基础",
+              "order": 1,
+              "nodes": [
+                {
+                  "nodeId": "CLR-NODE-BASE-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "CLR-BASE-001",
+                  "title": "清算对象、资料来源与结果勾稽",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": [],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "CLR-MODULE-FUND",
+              "name": "资金结算",
+              "order": 2,
+              "nodes": [
+                {
+                  "nodeId": "CLR-NODE-FUND-PAYMENT-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "CLR-FUND-PAYMENT-001",
+                  "title": "资金结算指令与付款/收款结果",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "LEFT",
+                  "prerequisiteNodeIds": ["CLR-NODE-BASE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "CLR-NODE-FUND-CLOSE-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "CLR-FUND-CLOSE-002",
+                  "title": "资金结算结果与日终关闭",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "LEFT",
+                  "prerequisiteNodeIds": ["CLR-NODE-FUND-PAYMENT-001"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "CLR-MODULE-EXCHANGE",
+              "name": "场内清算",
+              "order": 3,
+              "nodes": [
+                {
+                  "nodeId": "CLR-NODE-EX-CORE-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "CLR-EX-CORE-001",
+                  "title": "场内交易确认与证券/资金交收准备",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["CLR-NODE-BASE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "CLR-NODE-EX-FUNDS-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "CLR-EX-FUNDS-002",
+                  "title": "场内证券/资金结果与正常封账",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["CLR-NODE-EX-CORE-001"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            },
+            {
+              "moduleId": "CLR-MODULE-INTERBANK",
+              "name": "银行间清算",
+              "order": 4,
+              "nodes": [
+                {
+                  "nodeId": "CLR-NODE-IB-INSTRUCTION-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "CLR-IB-INSTRUCTION-001",
+                  "title": "银行间债券结算指令与结果确认",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "RIGHT",
+                  "prerequisiteNodeIds": ["CLR-NODE-BASE-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "CLR-NODE-IB-DVP-CLOSE-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "CLR-IB-DVP-CLOSE-002",
+                  "title": "银行间 DVP 交收、对账与日终关闭",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "RIGHT",
+                  "prerequisiteNodeIds": ["CLR-NODE-IB-INSTRUCTION-001"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "line": "ACCOUNTING",

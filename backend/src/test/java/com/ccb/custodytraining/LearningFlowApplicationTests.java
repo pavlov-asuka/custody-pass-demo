@@ -89,19 +89,87 @@ class LearningFlowApplicationTests {
     }
 
     @Test
-    void worldsExposeOnlyAccountingAndNoFakeProgress() throws Exception {
+    void worldsExposeLineScopedProgressAndProtectBuildingWorld() throws Exception {
         Session learner = login("10000001");
         mockMvc.perform(get("/api/worlds").session(learner.session()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.worlds[0].line").value("CLEARING"))
-                .andExpect(jsonPath("$.worlds[0].availability").value("BUILDING"))
-                .andExpect(jsonPath("$.worlds[0].publishedRequiredRoutes").value(0))
+                .andExpect(jsonPath("$.worlds[0].availability").value("OPEN"))
+                .andExpect(jsonPath("$.worlds[0].publishedRequiredRoutes").value(7))
+                .andExpect(jsonPath("$.worlds[0].passedRequiredRoutes").value(0))
+                .andExpect(jsonPath("$.worlds[0].progressPercent").value(0))
+                .andExpect(jsonPath("$.worlds[0].status").value("NOT_STARTED"))
                 .andExpect(jsonPath("$.worlds[1].line").value("ACCOUNTING"))
                 .andExpect(jsonPath("$.worlds[1].availability").value("OPEN"))
-                .andExpect(jsonPath("$.worlds[2].availability").value("BUILDING"));
+                .andExpect(jsonPath("$.worlds[1].publishedRequiredRoutes").value(39))
+                .andExpect(jsonPath("$.worlds[1].passedRequiredRoutes").value(0))
+                .andExpect(jsonPath("$.worlds[1].progressPercent").value(0))
+                .andExpect(jsonPath("$.worlds[2].line").value("SUPERVISION"))
+                .andExpect(jsonPath("$.worlds[2].availability").value("BUILDING"))
+                .andExpect(jsonPath("$.worlds[2].publishedRequiredRoutes").value(0))
+                .andExpect(jsonPath("$.worlds[2].passedRequiredRoutes").value(0))
+                .andExpect(jsonPath("$.worlds[2].progressPercent").value(0))
+                .andExpect(jsonPath("$.worlds[2].status").value("BUILDING"));
+
         mockMvc.perform(get("/api/lines/CLEARING/map").session(learner.session()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes.length()").value(1))
+                .andExpect(jsonPath("$.regions[0].modules[1].nodes.length()").value(2))
+                .andExpect(jsonPath("$.regions[0].modules[2].nodes.length()").value(2))
+                .andExpect(jsonPath("$.regions[0].modules[3].nodes.length()").value(2))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].routeId")
+                        .value("CLR-BASE-001"))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].locked").value(false))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].enterable").value(true))
+                .andExpect(jsonPath("$.regions[0].modules[1].nodes[0].locked").value(true))
+                .andExpect(jsonPath("$.regions[0].modules[1].nodes[0].enterable").value(false))
+                .andExpect(jsonPath("$.regions[0].modules[2].nodes[0].locked").value(true))
+                .andExpect(jsonPath("$.regions[0].modules[3].nodes[0].locked").value(true))
+                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(7));
+        mockMvc.perform(get("/api/lines/SUPERVISION/map").session(learner.session()))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code").value("CONTENT_BUILDING"));
+    }
+
+    @Test
+    void clearingBaseRouteIsReadableWithoutPrivateAssetsAndUnlocksThreeBranches() throws Exception {
+        Session learner = login("10000001");
+        mockMvc.perform(get("/api/routes/CLR-BASE-001").session(learner.session()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.routeId").value("CLR-BASE-001"))
+                .andExpect(jsonPath("$.enterable").value(true))
+                .andExpect(jsonPath("$.contentVersion").value("1.0.0"))
+                .andExpect(jsonPath("$.rubricVersion").value("1.0.0"));
+
+        String publicRoute = mockMvc.perform(get("/api/routes/CLR-BASE-001")
+                        .session(learner.session()))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        assertTrue(!publicRoute.contains("referenceAnswer"));
+        assertTrue(!publicRoute.contains("mandatoryRequirements"));
+        assertTrue(!publicRoute.contains("evidenceRules"));
+        assertTrue(!publicRoute.contains("\"references\""));
+
+        passRoute(learner, "CLR-BASE-001");
+        JsonNode records = getJson(learner,
+                "/api/training-records?line=CLEARING&conclusion=PASSED");
+        assertEquals(1, records.path("totalElements").asInt());
+        assertEquals("CLR-BASE-001", records.path("items").path(0).path("routeId").asText());
+        assertTrue(records.path("items").path(0).path("path").asText().contains("清算"));
+        JsonNode map = getJson(learner, "/api/lines/CLEARING/map");
+        assertEquals("PASSED", findNode(map, "CLR-BASE-001").path("state").asText());
+        for (String routeId : List.of("CLR-FUND-PAYMENT-001", "CLR-EX-CORE-001",
+                "CLR-IB-INSTRUCTION-001")) {
+            JsonNode node = findNode(map, routeId);
+            assertTrue(!node.path("locked").asBoolean(), routeId + " should be unlocked");
+            assertTrue(node.path("enterable").asBoolean(), routeId + " should be enterable");
+        }
+        for (String routeId : List.of("CLR-FUND-CLOSE-002", "CLR-EX-FUNDS-002",
+                "CLR-IB-DVP-CLOSE-002")) {
+            JsonNode node = findNode(map, routeId);
+            assertTrue(node.path("locked").asBoolean(), routeId + " should remain locked");
+        }
+        assertEquals(1, map.path("progress").path("passedRequiredRoutes").asInt());
+        assertEquals(7, map.path("progress").path("publishedRequiredRoutes").asInt());
     }
 
     @Test
@@ -549,7 +617,10 @@ class LearningFlowApplicationTests {
         body.put("clientRequestId", requestId());
         body.put("contentVersion", contentVersion);
         body.put("rubricVersion", rubricVersion);
-        body.set("answer", bundle.rubric().path("referenceAnswer").deepCopy());
+        ObjectNode answer = objectMapper.createObjectNode();
+        answer.set("responses", bundle.rubric().path("referenceAnswer")
+                .path("responses").deepCopy());
+        body.set("answer", answer);
         MvcResult result = mockMvc.perform(post("/api/routes/" + routeId + "/attempts")
                         .session(session.session()).with(session.csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(body.toString()))
