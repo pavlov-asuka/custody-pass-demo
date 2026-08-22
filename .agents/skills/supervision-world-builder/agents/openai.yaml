@@ -1,0 +1,7 @@
+interface:
+  display_name: "监督世界施工"
+  short_description: "统筹材料审计、分阶段施工、去 AI 味与完整系统验收"
+  default_prompt: "使用 $supervision-world-builder 开始制作监督世界，持续施工到完成。"
+
+policy:
+  allow_implicit_invocation: true
