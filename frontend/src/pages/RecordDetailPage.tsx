@@ -6,7 +6,7 @@ import { AppShell } from '../components/AppShell';
 import { ResultView } from '../components/ResultView';
 import { ErrorState, LoadingState } from '../components/States';
 import { useAsync } from '../hooks/useAsync';
-import { formatDate, routeStateLabels } from '../utils/format';
+import { formatDate, lineLabels, routeStateLabels } from '../utils/format';
 
 export function RecordDetailPage() {
   const { attemptId = '' } = useParams();
@@ -45,7 +45,7 @@ export function RecordDetailPage() {
                 )}
               </div>
               <h1>{route?.title ?? '路线训练记录'}</h1>
-              <p>核算条线 / {route?.title ?? '历史路线'}</p>
+              <p>{route ? `${lineLabels[route.line]}条线` : '业务条线'} / {route?.title ?? '历史路线'}</p>
               <span>提交时间：{formatDate(data.submittedAt)}</span>
             </header>
             <ResultView

@@ -19,6 +19,7 @@ const viteBin = path.join(root, 'node_modules', 'vite', 'bin', 'vite.js');
 const previewPort = 43173;
 const baseUrl = `http://127.0.0.1:${previewPort}`;
 const formalRoute = JSON.parse(await readFile(path.resolve(root, '..', 'content', 'routes', 'accounting', 'ACC-LIFE-ROLE-001.json'), 'utf8'));
+const clearingFormalRoute = JSON.parse(await readFile(path.resolve(root, '..', 'content', 'routes', 'clearing', 'CLR-BASE-001.json'), 'utf8'));
 
 const server = spawn(process.execPath, [viteBin, 'preview', '--host', '127.0.0.1', '--port', String(previewPort), '--strictPort'], {
   cwd: root,
@@ -87,6 +88,27 @@ const routeOverview = {
   totalSteps: 4,
 };
 
+const clearingRouteOverview = {
+  routeId: clearingFormalRoute.routeId,
+  contentVersion: clearingFormalRoute.contentVersion,
+  rubricVersion: '1.0.0',
+  line: 'CLEARING',
+  title: clearingFormalRoute.title,
+  summary: clearingFormalRoute.summary,
+  estimatedMinutes: clearingFormalRoute.estimatedMinutes,
+  state: 'IN_PROGRESS',
+  enterable: true,
+  steps: [
+    { stepType: 'KNOWLEDGE_CARD', completed: false, accessible: true },
+    { stepType: 'DEMONSTRATION', completed: true, accessible: true },
+    { stepType: 'BASIC_PRACTICE', completed: true, accessible: true },
+    { stepType: 'COMPREHENSIVE_PRACTICE', completed: false, accessible: true },
+  ],
+  nextStep: 'KNOWLEDGE_CARD',
+  completedSteps: 2,
+  totalSteps: 4,
+};
+
 const dimensions = [
   { dimension: 'CONCEPT', score: 22, maxScore: 25, items: [{ matched: true, evidence: '能够区分系统状态与业务结果。' }] },
   { dimension: 'PROCESS', score: 27, maxScore: 30, items: [{ matched: true, evidence: '处理步骤具有清晰先后顺序。' }] },
@@ -133,7 +155,27 @@ function attempt(id, conclusion = 'PASSED') {
   };
 }
 
+function clearingAttempt(id, conclusion = 'PASSED') {
+  return {
+    ...attempt(id, conclusion),
+    routeId: clearingRouteOverview.routeId,
+    contentVersion: clearingRouteOverview.contentVersion,
+    rubricVersion: clearingRouteOverview.rubricVersion,
+    answerSnapshot: {
+      responses: {
+        'settlement-result': 'SETTLED',
+        'clr-base-b-instruction-source': 'INSTRUCTION_SOURCE',
+        'clr-base-b-confirmation-source': 'CONFIRMATION_SOURCE',
+        'clr-base-b-result-ledger': 'RESULT_LEDGER',
+      },
+    },
+  };
+}
+
 const stepContent = formalRoute.steps;
+const clearingStepContent = clearingFormalRoute.steps;
+const clearingLedgerQuestion = clearingStepContent.BASIC_PRACTICE.questions.find((question) => question.type === 'LEDGER_ENTRY');
+assert.ok(clearingLedgerQuestion, 'Clearing fixture must include a LEDGER_ENTRY practice question.');
 const workItemTitles = Object.fromEntries(
   formalRoute.steps.COMPREHENSIVE_PRACTICE.workItems.map((item) => [item.workItemId, item.title]),
 );
@@ -234,6 +276,13 @@ async function run() {
     revision: 0,
     updatedAt: null,
   };
+  const clearingDraft = {
+    routeId: clearingRouteOverview.routeId,
+    contentVersion: clearingRouteOverview.contentVersion,
+    answer: { responses: {} },
+    revision: 0,
+    updatedAt: null,
+  };
   let mapPassed = false;
   const mapRequests = [];
   const settle = () => page.waitForTimeout(450);
@@ -280,6 +329,17 @@ async function run() {
         enterable: false,
       };
       return json(passedMap);
+    }
+    if (pathname === '/api/routes/CLR-BASE-001') return json(clearingRouteOverview);
+    if (pathname.startsWith('/api/routes/CLR-BASE-001/steps/')) {
+      const stepType = pathname.split('/').at(-1);
+      if (stepType === 'complete') {
+        return json({ routeId: clearingRouteOverview.routeId, state: 'IN_PROGRESS', completedSteps: 3, totalSteps: 4, nextStep: 'COMPREHENSIVE_PRACTICE' });
+      }
+      return json({ routeId: clearingRouteOverview.routeId, contentVersion: clearingRouteOverview.contentVersion, stepType, content: clearingStepContent[stepType], completed: false });
+    }
+    if (pathname === '/api/routes/CLR-BASE-001/draft' && request.method() === 'GET') {
+      return json(clearingDraft);
     }
     if (pathname === '/api/routes/ACC-LIFE-ROLE-001') return json(routeOverview);
     if (pathname.startsWith('/api/routes/ACC-LIFE-ROLE-001/steps/')) {
@@ -334,6 +394,29 @@ async function run() {
     if (pathname === '/api/attempts/44/retry-scoring' && request.method() === 'POST') {
       assert.equal(request.headers()['x-test-csrf'], 'test-token');
       return json({ attemptId: 44, routeId: routeOverview.routeId, processingStatus: 'SCORING', submittedAt: '2026-07-29T07:00:00Z', contentVersion: '2.0.0', rubricVersion: '2.0.0', allowedActions: ['POLL'] });
+    }
+    if (pathname === '/api/attempts/52' || pathname === '/api/training-records/52') return json(clearingAttempt(52, 'PASSED'));
+    if (pathname === '/api/attempts/53') return json(clearingAttempt(53, 'LEARNED_NOT_MASTERED'));
+    if (pathname === '/api/attempts/53/remediation') {
+      return json({
+        planId: 53,
+        attemptId: 53,
+        active: true,
+        completedTargets: 0,
+        totalTargets: 1,
+        completed: false,
+        practiceRetryUnlocked: false,
+        targets: [{
+          targetId: 'CLR-T1',
+          title: '补全交收结果登记',
+          reason: '交收结果工作纸还缺少业务键、数量、金额或状态。',
+          materialStep: 'BASIC_PRACTICE',
+          materialItemId: clearingLedgerQuestion.questionId,
+          questionId: clearingLedgerQuestion.questionId,
+          completed: false,
+          practice: clearingLedgerQuestion,
+        }],
+      });
     }
     if (pathname === '/api/attempts/43/remediation' || pathname === '/api/attempts/45/remediation') {
       const completed = pathname.includes('/45/');
@@ -392,6 +475,20 @@ async function run() {
   assert.equal(await page.locator('button.map-node[aria-label*="资金结算指令与付款/收款结果"]:disabled').count(), 1);
   assert.ok(mapRequests.includes('/api/lines/CLEARING/map'), '清算地图必须请求 CLEARING 条线。');
 
+  await page.getByRole('button', { name: /清算对象、资料来源与结果勾稽/ }).click();
+  await page.getByRole('heading', { name: clearingStepContent.KNOWLEDGE_CARD.cards[0].title }).waitFor();
+  assert.equal(await page.getByText(`清算路线 · 预计 ${clearingRouteOverview.estimatedMinutes} 分钟`, { exact: true }).count(), 1);
+  await page.getByRole('button', { name: /综合实务/ }).click();
+  await page.getByRole('heading', { name: '完成清算结果工作纸' }).waitFor();
+  assert.ok(await page.getByText('结果登记', { exact: true }).count() >= 1, '清算综合实务应使用“结果登记”。');
+  const clearingPracticeText = await page.locator('body').innerText();
+  assert.match(clearingPracticeText, /单位/);
+  assert.match(clearingPracticeText, /批/);
+  assert.doesNotMatch(clearingPracticeText, /\b(?:share|shares|unit|units|batch|batches)\b/i, '清算综合实务不得显示英文单位。');
+  await page.getByRole('button', { name: '返回地图' }).click();
+  await page.getByTestId('learning-map').first().waitFor();
+  assert.ok(page.url().endsWith('/map/clearing'), '清算学习页应返回清算地图。');
+
   await navigateTo('/map/supervision');
   await page.getByText('监督内容建设中', { exact: true }).waitFor();
   assert.ok(!mapRequests.includes('/api/lines/SUPERVISION/map'), '监督建设中不得请求地图。');
@@ -401,7 +498,7 @@ async function run() {
   await navigateTo('/worlds');
   await page.getByTestId('world-grid').waitFor();
   await page.locator('.world-card', { hasText: '核算学习世界' }).getByRole('button', { name: /进入学习地图/ }).click();
-  await page.getByTestId('learning-map').waitFor();
+  await page.getByTestId('learning-map').first().waitFor();
   assert.equal(await page.locator('.map-node').count(), 2);
   assert.equal(await page.locator('.map-node:enabled').count(), 1);
   await settle();
@@ -409,6 +506,7 @@ async function run() {
 
   await page.getByRole('button', { name: /站上核算岗/ }).click();
   await page.getByRole('heading', { name: formalRoute.steps.KNOWLEDGE_CARD.cards[0].title }).waitFor();
+  assert.equal(await page.getByText(`核算路线 · 预计 ${routeOverview.estimatedMinutes} 分钟`, { exact: true }).count(), 1);
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('04-knowledge-card.png')) });
 
@@ -424,6 +522,7 @@ async function run() {
 
   await page.getByRole('button', { name: /综合实务/ }).click();
   await page.getByRole('heading', { name: '完成核算工作底稿' }).waitFor();
+  assert.ok(await page.getByText('账务填写', { exact: true }).count() >= 1, '核算综合实务应保留“账务填写”。');
   await page.getByLabel(workItemTitles['payment-source']).selectOption('BANK-STATEMENT');
   await page.getByRole('button', { name: /正常示范/ }).click();
   await page.getByRole('heading', { name: '当前草稿尚未保存' }).waitFor();
@@ -464,8 +563,43 @@ async function run() {
   await navigateTo('/attempts/42');
   await page.getByTestId('result-view').waitFor();
   assert.equal(await page.getByText('路线已通过', { exact: true }).count(), 1);
+  assert.equal(await page.getByRole('button', { name: '返回核算地图' }).count(), 1);
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('10-result-passed.png')) });
+
+  await navigateTo('/attempts/52');
+  await page.getByTestId('result-view').waitFor();
+  assert.equal(await page.getByText('指令资料来源', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('确认资料来源', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('结果台账来源', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('基数指令来源', { exact: true }).count(), 0);
+  assert.equal(await page.getByText('基数确认来源', { exact: true }).count(), 0);
+  assert.equal(await page.getByText('基数结果台账', { exact: true }).count(), 0);
+  assert.equal(await page.getByRole('button', { name: '返回清算地图' }).count(), 1);
+  await page.getByRole('button', { name: '返回清算地图' }).click();
+  await page.getByTestId('learning-map').first().waitFor();
+  assert.ok(page.url().endsWith('/map/clearing'), '清算评分页应返回清算地图。');
+
+  await navigateTo('/attempts/53/remediation');
+  await page.getByRole('heading', { name: '补全交收结果登记' }).waitFor();
+  assert.equal(await page.getByText('处理方向', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('结果字段', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('登记结果', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('补全科目', { exact: true }).count(), 0);
+  await page.getByRole('button', { name: '返回评分结果', exact: true }).click();
+  await page.getByTestId('result-view').waitFor();
+  await page.getByRole('button', { name: '返回清算地图' }).click();
+  await page.getByTestId('learning-map').first().waitFor();
+  assert.ok(page.url().endsWith('/map/clearing'), '清算补学页返回评分结果后应回到清算地图。');
+
+  await navigateTo('/records/52');
+  await page.getByTestId('result-view').waitFor();
+  await page.getByText(`清算条线 / ${clearingRouteOverview.title}`, { exact: true }).waitFor();
+  await page.getByRole('button', { name: '返回路线' }).click();
+  await page.getByRole('heading', { name: clearingStepContent.KNOWLEDGE_CARD.cards[0].title }).waitFor();
+  await page.getByRole('button', { name: '返回地图' }).click();
+  await page.getByTestId('learning-map').first().waitFor();
+  assert.ok(page.url().endsWith('/map/clearing'), '清算训练记录返回路线后应回到清算地图。');
 
   mapPassed = true;
   await navigateTo('/map/accounting');
@@ -514,6 +648,7 @@ async function run() {
   assert.equal(await page.getByText('历史记录（不可修改）', { exact: true }).count(), 1);
   assert.equal(await page.getByText('历史结论：需补学', { exact: true }).count(), 1);
   assert.equal(await page.getByText('路线当前：已通过', { exact: true }).count(), 1);
+  await page.getByText(`核算条线 / ${routeOverview.title}`, { exact: true }).waitFor();
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('17-record-detail-history-not-mastered-current-passed.png')) });
 

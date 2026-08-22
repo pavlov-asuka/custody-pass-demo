@@ -7,9 +7,9 @@
   "estimatedMinutes": 65,
   "objectives": [
     "从已执行结果、资金账户、内部资金账和外部对账资料中读取同一账户的业务键、日期、收支和余额字段",
-    "按本案例资料用 openingBalance + inflow - outflow = closingBalance 的 Decimal 关系复算账户余额",
+    "按这笔业务资料用期初余额 + 流入 - 流出 = 期末余额的 Decimal 关系复算账户余额",
     "分别核对资金账户、内部资金账、CCBS、CCDC DVP 和上海清算 DVP 的余额与状态，登记必要的正常业务关闭结果",
-    "在三类外部来源全部为 RECONCILED、各账户差额及总差额为零时记录 NORMAL_CLOSED，并将报表状态登记为 SENT"
+    "在三类外部来源全部为已勾稽、各账户差额及总差额为零时记录正常关闭，并将报表状态登记为已发送"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -18,22 +18,22 @@
           "cardId": "CLR-FUND-CLOSE-KC-01",
           "type": "CATEGORIES",
           "title": "已执行结果、余额来源和关闭结果各有自己的位置",
-          "conclusion": "前置路线提供已执行并已入账的资金结果；本路线把它与资金账户、内部资金账和外部对账资料对应起来，不重新审核付款渠道或执行条件。",
+          "conclusion": "前置支付处理提供已执行并已入账的资金结果；日终关闭把它与资金账户、内部资金账和外部对账资料对应起来，不重新审核付款渠道或执行条件。",
           "items": [
             "从已执行结果读取业务键、账户、业务日期、收支金额和执行/入账状态",
-            "从资金账户读取 openingBalance、inflow、outflow 和 closingBalance",
+            "从资金账户读取期初余额、流入、流出和期末余额",
             "从内部资金账读取同一账户的余额链和账务结果，从外部资料读取来源类型、余额和对账状态",
-            "关闭结果单独登记 closeStatus 和 reportStatus，不能用某一份余额单独代替关闭结论"
+            "关闭结果单独登记关闭状态和报表状态，不能用某一份余额单独代替关闭结论"
           ]
         },
         {
           "cardId": "CLR-FUND-CLOSE-KC-02",
           "type": "FLOW",
           "title": "先复算余额，再逐来源比较",
-          "conclusion": "同一账户的理论余额由 openingBalance 加 inflow 减 outflow 得出；资金账户、内部资金账和各外部来源分别给出 closingBalance，逐项比较后才能记录差额。",
+          "conclusion": "同一账户的理论余额由期初余额加流入减流出得出；资金账户、内部资金账和各外部来源分别给出期末余额，逐项比较后才能记录差额。",
           "items": [
             "把前置已执行结果的收支汇总与资金账户、内部资金账使用同一业务日期和账户标识",
-            "用 openingBalance + inflow - outflow 复算 closingBalance，金额保留两位小数",
+            "用期初余额 + 流入 - 流出复算期末余额，金额保留两位小数",
             "分别计算资金账户差额、内部资金账差额和每一类外部来源差额",
             "总差额为零不替代逐来源核对；每个来源的余额和状态都要单独记录"
           ]
@@ -42,12 +42,12 @@
           "cardId": "CLR-FUND-CLOSE-KC-03",
           "type": "KEY_POINT",
           "title": "三类外部来源都对上，才具备正常关闭条件",
-          "conclusion": "资金账户、内部资金账、CCBS、CCDC DVP 和上海清算 DVP 的账户及日期一致，各项差额为零，三类外部来源均为 RECONCILED，才可登记 NORMAL_CLOSED 并发送 SENT 报表。",
+          "conclusion": "资金账户、内部资金账、CCBS、CCDC DVP和上海清算DVP的账户及日期一致，各项差额为零，三类外部来源均为已勾稽，才可登记正常关闭并发送已发送报表。",
           "items": [
-            "确认资金账户与内部资金账 closingBalance 一致",
-            "确认 CCBS、CCDC DVP、上海清算 DVP 各自的外部余额与内部 closingBalance 一致",
-            "把每个来源的 reconciliationStatus、总差额和关闭前置条件写入结构化结果",
-            "关闭结果为 NORMAL_CLOSED 后，报告状态登记为 SENT，二者不是同一个字段"
+            "确认资金账户与内部资金账期末余额一致",
+            "确认CCBS、CCDC DVP、上海清算DVP各自的外部余额与内部期末余额一致",
+            "把每个来源的对账状态、总差额和关闭前置条件写入结果登记",
+            "关闭结果为正常关闭后，报告状态登记为已发送，二者不是同一个字段"
           ]
         }
       ]
@@ -55,56 +55,56 @@
     "DEMONSTRATION": {
       "scenario": {
         "role": "资金结算处理岗",
-        "product": "资金正常日终关闭教学案例",
+        "product": "资金正常日终关闭资料",
         "date": "2026-08-23",
         "fixture": "CLR-FUND-CLOSE-DEMO-A",
         "facts": [
-          "前置已执行结果的业务键为FUND-CLOSE-A-20260823-052，已执行收支汇总为流入54000.00 CNY、流出78500.00 CNY，执行状态EXECUTED、入账状态POSTED。",
-          "资金账户标识为FUND-ACCT-A-101，openingBalance为300000.00 CNY，inflow为54000.00 CNY，outflow为78500.00 CNY，closingBalance为275500.00 CNY。",
-          "内部资金账的closingBalance为275500.00 CNY；CCBS、CCDC DVP和上海清算DVP三类外部来源的closingBalance均为275500.00 CNY，四类对账状态均为RECONCILED。",
-          "资金账户差额、内部资金账差额、三类外部来源差额和总差额均为0.00 CNY；登记结果closeStatus为NORMAL_CLOSED，reportStatus为SENT。"
+          "前置已执行结果的业务键为FUND-CLOSE-A-20260823-052，已执行收支汇总为流入54000.00 CNY、流出78500.00 CNY，执行状态已执行、入账状态已入账。",
+          "资金账户标识为FUND-ACCT-A-101，期初余额为300000.00 CNY，流入为54000.00 CNY，流出为78500.00 CNY，期末余额为275500.00 CNY。",
+          "内部资金账的期末余额为275500.00 CNY；CCBS、CCDC DVP和上海清算DVP三类外部来源的期末余额均为275500.00 CNY，四类对账状态均为已勾稽。",
+          "资金账户差额、内部资金账差额、三类外部来源差额和总差额均为0.00 CNY；登记结果关闭状态为正常关闭，报表状态为已发送。"
         ]
       },
       "steps": [
         {
           "order": 1,
-          "action": "承接FUND-CLOSE-A-20260823-052的正常已执行结果，读取账户FUND-ACCT-A-101、业务日期2026-08-23、流入54000.00、流出78500.00以及EXECUTED/POSTED状态",
+          "action": "承接FUND-CLOSE-A-20260823-052的正常已执行结果，读取账户FUND-ACCT-A-101、业务日期2026-08-23、流入54000.00、流出78500.00以及已执行/已入账状态",
           "reason": "关闭路线使用前置已执行结果作为余额链输入，避免重复执行或重新审核上一条路线。"
         },
         {
           "order": 2,
-          "action": "分别读取资金账户和内部资金账的openingBalance、inflow、outflow、closingBalance，再读取CCBS、CCDC DVP、上海清算DVP的账户、日期、closingBalance和reconciliationStatus",
+          "action": "分别读取资金账户和内部资金账的期初余额、流入、流出、期末余额，再读取CCBS、CCDC DVP、上海清算DVP的账户、日期、期末余额和对账状态",
           "reason": "每个来源都要独立提供账户和余额关系，不能用总余额或单一来源代替多来源核对。"
         },
         {
           "order": 3,
-          "action": "按300000.00 + 54000.00 - 78500.00复算closingBalance为275500.00，并逐项计算资金账户、内部资金账、三类外部来源及总差额均为0.00",
+          "action": "按300000.00 + 54000.00 - 78500.00复算期末余额为275500.00，并逐项计算资金账户、内部资金账、三类外部来源及总差额均为0.00",
           "reason": "先独立复算理论余额，再比较各来源的实际余额，才能证明余额链闭合。"
         },
         {
           "order": 4,
-          "action": "在正常业务结果工作纸登记业务键、账户、closingBalance、五类来源的核对结果、三类外部来源均RECONCILED和总差额0.00",
+          "action": "在正常业务结果工作纸登记业务键、账户、期末余额、五类来源的核对结果、三类外部来源均已勾稽和总差额0.00",
           "reason": "结果登记要保留来源和数值证据，便于回到具体账户及外部来源复核。"
         },
         {
           "order": 5,
-          "action": "确认资金账户、内部资金账、CCBS、CCDC DVP和上海清算DVP全部一致后，将closeStatus登记为NORMAL_CLOSED并将reportStatus登记为SENT",
+          "action": "确认资金账户、内部资金账、CCBS、CCDC DVP和上海清算DVP全部一致后，将关闭状态登记为正常关闭并将报表状态登记为已发送",
           "reason": "正常关闭依赖全部来源和零差条件；关闭状态与报告发送状态需要分别记录。"
         }
       ],
-      "summary": "承接已执行结果 → 读取五类余额来源 → Decimal复算与逐项差额 → 登记正常结果 → NORMAL_CLOSED并发送SENT报表"
+      "summary": "承接已执行结果 → 读取五类余额来源 → Decimal复算与逐项差额 → 登记正常结果 → 正常关闭并发送已发送报表"
     },
     "BASIC_PRACTICE": {
       "questions": [
         {
           "questionId": "CLR-FUND-CLOSE-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "为 Demo A 的日终关闭工作纸选择各组字段的主来源。",
+          "prompt": "为前置执行结果、资金账户、内部资金账、外部对账资料和关闭结果选择各组字段的主来源。",
           "fieldMappings": [
             {
               "fieldId": "close-upstream-result-source",
               "label": "已执行收支汇总、执行状态和入账状态",
-              "source": "Demo A 已执行结果",
+              "source": "前置已执行结果",
               "options": [
                 {"optionId": "A_EXECUTION_RESULT", "text": "前置已执行结果"},
                 {"optionId": "A_EXTERNAL_RECON", "text": "外部对账资料"}
@@ -112,8 +112,8 @@
             },
             {
               "fieldId": "close-account-balance-source",
-              "label": "账户标识、openingBalance、inflow、outflow和closingBalance",
-              "source": "Demo A 资金账户",
+              "label": "账户标识、期初余额、流入、流出和期末余额",
+              "source": "资金账户资料",
               "options": [
                 {"optionId": "A_FUND_ACCOUNT", "text": "资金账户资料"},
                 {"optionId": "A_CLOSE_RESULT", "text": "正常关闭结果"}
@@ -122,7 +122,7 @@
             {
               "fieldId": "close-ledger-balance-source",
               "label": "内部资金账余额链、账状态和关闭候选状态",
-              "source": "Demo A 内部资金账",
+              "source": "内部资金账",
               "options": [
                 {"optionId": "A_INTERNAL_LEDGER", "text": "内部资金账"},
                 {"optionId": "A_EXECUTION_RESULT", "text": "前置已执行结果"}
@@ -130,8 +130,8 @@
             },
             {
               "fieldId": "close-external-source-source",
-              "label": "CCBS、CCDC DVP和上海清算DVP的来源类型、closingBalance和对账状态",
-              "source": "Demo A 外部对账资料",
+              "label": "CCBS、CCDC DVP和上海清算DVP的来源类型、期末余额和对账状态",
+              "source": "三类外部对账资料",
               "options": [
                 {"optionId": "A_EXTERNAL_RECON", "text": "外部对账资料"},
                 {"optionId": "A_INTERNAL_LEDGER", "text": "内部资金账"}
@@ -139,8 +139,8 @@
             },
             {
               "fieldId": "close-result-status-source",
-              "label": "closeStatus、reportStatus和总差额",
-              "source": "Demo A 正常业务结果工作纸",
+              "label": "关闭状态、报表状态和总差额",
+              "source": "正常关闭结果工作纸",
               "options": [
                 {"optionId": "A_CLOSE_RESULT", "text": "正常关闭结果工作纸"},
                 {"optionId": "A_FUND_ACCOUNT", "text": "资金账户资料"}
@@ -162,12 +162,12 @@
         {
           "questionId": "CLR-FUND-CLOSE-Q-02",
           "type": "CALCULATION",
-          "prompt": "按 Demo A 资料计算 closingBalance，并计算资金账户与三类外部来源的总差额。金额保留两位小数。",
+          "prompt": "按资金账户和内部资金账计算期末余额，并计算资金账户与三类外部来源的总差额。金额保留两位小数。",
           "calculation": {
             "fields": [
               {
                 "fieldId": "demo-a-calculated-closing",
-                "label": "理论closingBalance",
+                "label": "理论期末余额",
                 "formula": "300000.00 + 54000.00 - 78500.00",
                 "placeholder": "输入理论余额",
                 "unit": "CNY",
@@ -201,13 +201,13 @@
           ],
           "explanation": "300000.00 + 54000.00 - 78500.00 = 275500.00；资金账户、内部资金账和三类外部来源逐项对上，合计差额为0.00。",
           "hints": [
-            "先计算openingBalance加流入减流出，再把各来源的closingBalance分别与理论余额比较。"
+            "先计算期初余额加流入减流出，再把各来源的期末余额分别与理论余额比较。"
           ]
         },
         {
           "questionId": "CLR-FUND-CLOSE-Q-03",
           "type": "LEDGER_ENTRY",
-          "prompt": "把 Demo A 的正常日终关闭结果登记到结构化余额工作纸，保留账户、余额、来源状态和报告状态。",
+          "prompt": "把正常日终关闭结果登记到余额工作纸，保留账户、余额、来源状态和报告状态。",
           "ledgerEntries": [
             {
               "entryId": "close-key",
@@ -226,7 +226,7 @@
             {
               "entryId": "close-balance",
               "direction": "余额",
-              "label": "closingBalance",
+              "label": "期末余额",
               "amount": "275500.00",
               "placeholder": "输入期末余额"
             },
@@ -234,14 +234,14 @@
               "entryId": "close-source-status",
               "direction": "来源状态",
               "label": "三类外部来源对账状态",
-              "amount": "CCBS / CCDC DVP / 上海清算DVP = RECONCILED",
+              "amount": "CCBS / CCDC DVP / 上海清算DVP = 已勾稽",
               "placeholder": "输入来源状态"
             },
             {
               "entryId": "close-result-status",
               "direction": "关闭结果",
               "label": "关闭/报表状态",
-              "amount": "NORMAL_CLOSED / SENT",
+              "amount": "正常关闭 / 已发送",
               "placeholder": "输入结果状态"
             }
           ],
@@ -260,7 +260,7 @@
         {
           "questionId": "CLR-FUND-CLOSE-Q-04",
           "type": "RECONCILIATION",
-          "prompt": "完成 Demo A 的多来源余额勾稽，并判断是否满足正常关闭条件。",
+          "prompt": "完成资金账户、内部资金账和三类外部来源的余额勾稽，并判断是否满足正常关闭条件。",
           "reconciliation": {
             "fields": [
               {
@@ -310,7 +310,7 @@
                 "formula": "身份一致、各项差额为0.00且三类外部来源均RECONCILED",
                 "placeholder": "选择关闭结果",
                 "options": [
-                  {"optionId": "A_NORMAL_CLOSED_SENT", "text": "NORMAL_CLOSED，报表SENT"},
+                  {"optionId": "A_NORMAL_CLOSED_SENT", "text": "正常关闭，报表已发送"},
                   {"optionId": "A_CLOSE_PENDING", "text": "尚未满足正常关闭条件"}
                 ]
               }
@@ -323,7 +323,7 @@
             "A_ALL_EXTERNAL_RECONCILED",
             "A_NORMAL_CLOSED_SENT"
           ],
-          "explanation": "同一业务键、账户和日期在各来源一致；内部及三类外部余额差均为0.00，三类外部来源均为RECONCILED，因此登记NORMAL_CLOSED并发送SENT报表。",
+          "explanation": "同一业务键、账户和日期在各来源一致；内部及三类外部余额差均为0.00，三类外部来源均为已勾稽，因此登记正常关闭并发送已发送报表。",
           "hints": [
             "先看身份，再看内部和外部余额差，最后确认三类来源状态与关闭输出。"
           ]
@@ -334,7 +334,7 @@
           "prompt": "用一句话说明正常日终关闭前必须满足的资料和结果条件。",
           "textInput": {"label": "正常关闭条件", "placeholder": "写一句资料可回查的关闭条件"},
           "answer": ["前置结果已执行并入账，六项余额差额均为零且三类外部来源均已RECONCILED，才能登记正常关闭。"],
-          "explanation": "正常关闭需要前置状态、逐项余额差额和外部来源状态同时闭合；这道基础题只练习条件的简短表达。",
+          "explanation": "前置结果已执行并入账、各项余额差为零且三类外部来源均已对账，才满足正常关闭条件。",
           "hints": ["写出前置状态、六项差额和三类外部来源状态，再说明满足后才能关闭。"]
         }
       ]
@@ -342,16 +342,16 @@
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
         "role": "资金结算处理岗",
-        "product": "资金正常日终关闭迁移案例",
+        "product": "资金正常日终关闭",
         "date": "2026-08-26",
         "purpose": "承接一组正常已执行资金结果，完成资金账户、内部资金账和CCBS/CCDC DVP/上海清算DVP外部资料的余额复算、逐项勾稽、结果登记和报表发送。"
       },
       "sourceMaterials": [
         {
           "materialId": "CLR-FUND-CLOSE-B-PAYMENT-RESULT",
-          "title": "已执行资金结果（综合B）",
+          "title": "已执行资金结果",
           "kind": "CONFIRMATION",
-          "description": "承接前置路线已完成的正常资金结果，只提供关闭所需的业务键、账户、日期、收支和状态。",
+          "description": "承接前置支付处理已经完成的资金结果，只提供关闭所需的业务键、账户、日期、收支和状态。",
           "fields": [
             {"fieldId": "close_key", "label": "关闭业务键", "value": "FUND-CLOSE-B-20260826-089"},
             {"fieldId": "payment_result_key", "label": "已执行结果键", "value": "FUND-PAY-B-20260826-089-01"},
@@ -366,73 +366,73 @@
         },
         {
           "materialId": "CLR-FUND-CLOSE-B-FUND-ACCOUNT",
-          "title": "资金账户余额资料（综合B）",
+          "title": "资金账户余额资料",
           "kind": "STATEMENT",
-          "description": "提供本案例资金账户的期初、收支和期末余额；字段值只用于本案例工作纸。",
+          "description": "提供这笔业务资金账户的期初、收支和期末余额；字段值只用于这笔业务工作纸。",
           "fields": [
             {"fieldId": "account_id", "label": "资金账户标识", "value": "FUND-ACCT-B-204"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-26"},
-            {"fieldId": "opening_balance", "label": "openingBalance", "value": "480000.00", "unit": "CNY"},
-            {"fieldId": "inflow", "label": "inflow", "value": "92500.00", "unit": "CNY"},
-            {"fieldId": "outflow", "label": "outflow", "value": "136750.00", "unit": "CNY"},
-            {"fieldId": "closing_balance", "label": "closingBalance", "value": "435750.00", "unit": "CNY"},
+            {"fieldId": "opening_balance", "label": "期初余额", "value": "480000.00", "unit": "CNY"},
+            {"fieldId": "inflow", "label": "流入", "value": "92500.00", "unit": "CNY"},
+            {"fieldId": "outflow", "label": "流出", "value": "136750.00", "unit": "CNY"},
+            {"fieldId": "closing_balance", "label": "期末余额", "value": "435750.00", "unit": "CNY"},
             {"fieldId": "account_status", "label": "账户结果状态", "value": "BALANCE_READY"}
           ]
         },
         {
           "materialId": "CLR-FUND-CLOSE-B-INTERNAL-LEDGER",
-          "title": "内部资金账余额资料（综合B）",
+          "title": "内部资金账余额资料",
           "kind": "LEDGER",
           "description": "提供同一账户的内部余额链、账状态及可进入关闭结果登记的状态。",
           "fields": [
             {"fieldId": "account_id", "label": "资金账户标识", "value": "FUND-ACCT-B-204"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-26"},
-            {"fieldId": "opening_balance", "label": "openingBalance", "value": "480000.00", "unit": "CNY"},
+            {"fieldId": "opening_balance", "label": "期初余额", "value": "480000.00", "unit": "CNY"},
             {"fieldId": "ledger_inflow", "label": "资金账流入", "value": "92500.00", "unit": "CNY"},
             {"fieldId": "ledger_outflow", "label": "资金账流出", "value": "136750.00", "unit": "CNY"},
-            {"fieldId": "ledger_closing_balance", "label": "内部资金账closingBalance", "value": "435750.00", "unit": "CNY"},
+            {"fieldId": "ledger_closing_balance", "label": "内部资金账期末余额", "value": "435750.00", "unit": "CNY"},
             {"fieldId": "ledger_status", "label": "资金账状态", "value": "POSTED"},
             {"fieldId": "close_candidate_status", "label": "关闭候选状态", "value": "READY"}
           ]
         },
         {
           "materialId": "CLR-FUND-CLOSE-B-CCBS",
-          "title": "CCBS外部对账资料（综合B）",
+          "title": "CCBS外部对账资料",
           "kind": "RECONCILIATION",
           "description": "以CCBS为外部来源类型，提供本账户、本业务日期的外部期末余额和对账状态。",
           "fields": [
             {"fieldId": "source_type", "label": "外部来源类型", "value": "CCBS"},
             {"fieldId": "account_id", "label": "外部资料账户标识", "value": "FUND-ACCT-B-204"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-26"},
-            {"fieldId": "external_closing_balance", "label": "CCBS closingBalance", "value": "435750.00", "unit": "CNY"},
+            {"fieldId": "external_closing_balance", "label": "CCBS 期末余额", "value": "435750.00", "unit": "CNY"},
             {"fieldId": "external_balance_difference", "label": "CCBS与内部余额差", "value": "0.00", "unit": "CNY"},
             {"fieldId": "reconciliation_status", "label": "CCBS对账状态", "value": "RECONCILED"}
           ]
         },
         {
           "materialId": "CLR-FUND-CLOSE-B-CCDC-DVP",
-          "title": "CCDC DVP外部对账资料（综合B）",
+          "title": "CCDC DVP外部对账资料",
           "kind": "RECONCILIATION",
           "description": "以CCDC DVP为外部来源类型，提供本账户、本业务日期的外部期末余额和对账状态。",
           "fields": [
             {"fieldId": "source_type", "label": "外部来源类型", "value": "CCDC DVP"},
             {"fieldId": "account_id", "label": "外部资料账户标识", "value": "FUND-ACCT-B-204"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-26"},
-            {"fieldId": "external_closing_balance", "label": "CCDC DVP closingBalance", "value": "435750.00", "unit": "CNY"},
+            {"fieldId": "external_closing_balance", "label": "CCDC DVP 期末余额", "value": "435750.00", "unit": "CNY"},
             {"fieldId": "external_balance_difference", "label": "CCDC DVP与内部余额差", "value": "0.00", "unit": "CNY"},
             {"fieldId": "reconciliation_status", "label": "CCDC DVP对账状态", "value": "RECONCILED"}
           ]
         },
         {
           "materialId": "CLR-FUND-CLOSE-B-SHANGHAI-DVP",
-          "title": "上海清算DVP外部对账资料（综合B）",
+          "title": "上海清算DVP外部对账资料",
           "kind": "RECONCILIATION",
           "description": "以上海清算DVP为外部来源类型，提供本账户、本业务日期的外部期末余额和对账状态。",
           "fields": [
             {"fieldId": "source_type", "label": "外部来源类型", "value": "上海清算DVP"},
             {"fieldId": "account_id", "label": "外部资料账户标识", "value": "FUND-ACCT-B-204"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-26"},
-            {"fieldId": "external_closing_balance", "label": "上海清算DVP closingBalance", "value": "435750.00", "unit": "CNY"},
+            {"fieldId": "external_closing_balance", "label": "上海清算DVP 期末余额", "value": "435750.00", "unit": "CNY"},
             {"fieldId": "external_balance_difference", "label": "上海清算DVP与内部余额差", "value": "0.00", "unit": "CNY"},
             {"fieldId": "reconciliation_status", "label": "上海清算DVP对账状态", "value": "RECONCILED"}
           ]
@@ -448,7 +448,7 @@
             "kind": "SELECT",
             "placeholder": "选择字段来源组合",
             "options": [
-              {"optionId": "B_CLOSE_SOURCE_MAP", "text": "已执行结果承接收支；资金账户/内部资金账承接余额链；三类外部资料承接外部余额与RECONCILED状态"},
+              {"optionId": "B_CLOSE_SOURCE_MAP", "text": "已执行结果承接收支；资金账户/内部资金账承接余额链；三类外部资料承接外部余额与已勾稽状态"},
               {"optionId": "B_CLOSE_SOURCE_MAP_PENDING", "text": "只读取一份余额资料即可关闭"}
             ]
           }
@@ -456,11 +456,11 @@
         {
           "workItemId": "clr-fund-close-b-balance-calculation",
           "type": "CALCULATION",
-          "title": "复算综合B的账户余额",
-          "instruction": "按openingBalance + inflow - outflow计算理论closingBalance；各项差额和总差额在后续勾稽项填写。金额保留两位小数。",
+          "title": "复算资金账户期末余额",
+          "instruction": "按期初余额 + 流入 - 流出计算理论期末余额；各项差额和总差额在后续勾稽项填写。金额保留两位小数。",
           "response": {
             "kind": "NUMBER",
-            "placeholder": "输入理论closingBalance",
+            "placeholder": "输入理论期末余额",
             "unit": "CNY",
             "precision": 2
           }
@@ -469,7 +469,7 @@
           "workItemId": "clr-fund-close-b-result-ledger",
           "type": "LEDGER_ENTRY",
           "title": "登记正常日终关闭结果",
-          "instruction": "在结构化余额工作纸登记关闭业务键、账户、closingBalance、资金账户/内部资金账/三类外部来源状态、closeStatus和reportStatus。",
+          "instruction": "在余额工作纸登记关闭业务键、账户、期末余额、资金账户/内部资金账/三类外部来源状态、关闭状态和报表状态。",
           "response": {
             "kind": "TEXT",
             "placeholder": "按字段填写业务键、账户、余额、来源状态、关闭状态和报表状态"
@@ -493,7 +493,7 @@
           "workItemId": "clr-fund-close-b-fund-account-difference",
           "type": "RECONCILIATION",
           "title": "核对资金账户差额",
-          "instruction": "用资金账户closingBalance减理论closingBalance，填写资金账户差额。金额保留两位小数。",
+          "instruction": "用资金账户期末余额减理论期末余额，填写资金账户差额。金额保留两位小数。",
           "response": {
             "kind": "NUMBER",
             "placeholder": "输入资金账户差额",
@@ -505,7 +505,7 @@
           "workItemId": "clr-fund-close-b-internal-ledger-difference",
           "type": "RECONCILIATION",
           "title": "核对内部资金账差额",
-          "instruction": "用内部资金账closingBalance减理论closingBalance，填写内部资金账差额。金额保留两位小数。",
+          "instruction": "用内部资金账期末余额减理论期末余额，填写内部资金账差额。金额保留两位小数。",
           "response": {
             "kind": "NUMBER",
             "placeholder": "输入内部资金账差额",
@@ -517,7 +517,7 @@
           "workItemId": "clr-fund-close-b-ccbs-difference",
           "type": "RECONCILIATION",
           "title": "核对CCBS余额差额",
-          "instruction": "用CCBS external_closing_balance减理论closingBalance，填写CCBS余额差额。金额保留两位小数。",
+          "instruction": "用CCBS外部期末余额减理论期末余额，填写CCBS余额差额。金额保留两位小数。",
           "response": {
             "kind": "NUMBER",
             "placeholder": "输入CCBS余额差额",
@@ -529,7 +529,7 @@
           "workItemId": "clr-fund-close-b-ccdc-dvp-difference",
           "type": "RECONCILIATION",
           "title": "核对CCDC DVP余额差额",
-          "instruction": "用CCDC DVP external_closing_balance减理论closingBalance，填写CCDC DVP余额差额。金额保留两位小数。",
+          "instruction": "用CCDC DVP外部期末余额减理论期末余额，填写CCDC DVP余额差额。金额保留两位小数。",
           "response": {
             "kind": "NUMBER",
             "placeholder": "输入CCDC DVP余额差额",
@@ -541,7 +541,7 @@
           "workItemId": "clr-fund-close-b-shanghai-dvp-difference",
           "type": "RECONCILIATION",
           "title": "核对上海清算DVP余额差额",
-          "instruction": "用上海清算DVP external_closing_balance减理论closingBalance，填写上海清算DVP余额差额。金额保留两位小数。",
+          "instruction": "用上海清算DVP外部期末余额减理论期末余额，填写上海清算DVP余额差额。金额保留两位小数。",
           "response": {
             "kind": "NUMBER",
             "placeholder": "输入上海清算DVP余额差额",
@@ -565,12 +565,12 @@
           "workItemId": "clr-fund-close-b-close-gate",
           "type": "RECONCILIATION",
           "title": "确认来源状态和关闭前置",
-          "instruction": "确认三类外部来源全部为RECONCILED、余额差额均为零、关闭候选条件成立，再选择正常关闭与报表发送结论。",
+          "instruction": "确认三类外部来源全部为已勾稽、余额差额均为零、关闭候选条件成立，再选择正常关闭与报表发送结论。",
           "response": {
             "kind": "SELECT",
             "placeholder": "选择关闭前置结论",
             "options": [
-              {"optionId": "B_NORMAL_CLOSE_READY", "text": "三类来源RECONCILED、差额为零，可登记NORMAL_CLOSED并发送SENT"},
+              {"optionId": "B_NORMAL_CLOSE_READY", "text": "三类来源已勾稽、差额为零，可登记正常关闭并发送已发送"},
               {"optionId": "B_NORMAL_CLOSE_PENDING", "text": "关闭前置尚未全部闭合"}
             ]
           }
@@ -578,15 +578,15 @@
         {
           "workItemId": "clr-fund-close-b-conclusion",
           "type": "SHORT_TEXT",
-          "title": "写出可追溯的正常关闭结论",
-          "instruction": "用一句话回指关闭业务键、账户、closingBalance、三类外部来源状态、总差额、closeStatus和reportStatus。",
+          "title": "写出有依据的正常关闭结论",
+          "instruction": "用一句话回指关闭业务键、账户、期末余额、三类外部来源状态、总差额、关闭状态和报表状态。",
           "response": {
             "kind": "TEXT",
             "placeholder": "输入简短业务结论"
           }
         }
       ],
-      "submissionNote": "请按资料来源、余额计算、结构化结果、逐来源勾稽和关闭结论的顺序提交；金额填写两位小数，简短结论只回指本案例字段。"
+      "submissionNote": "请按资料来源、余额计算、结果登记、逐来源勾稽和关闭结论的顺序提交；金额填写两位小数，简短结论只回指这笔业务字段。"
     }
   },
   "references": [
@@ -605,14 +605,14 @@
     {
       "referenceId": "CLR-FUND-CLOSE-REF-SOURCES",
       "title": "外部来源类型与余额核对案例参数",
-      "source": "本路线私有 evidence 的 Demo A 与 Comprehensive B",
-      "usage": "SYNTHETIC_EDUCATIONAL + ONLY_THIS_CASE：CCBS、CCDC DVP和上海清算DVP仅作为本案例外部来源类型；账户标识、日期、余额、差额和状态均为教学参数，不构成永久制度枚举。"
+      "source": "私有证据资产中的示范参数组与综合参数组",
+      "usage": "SYNTHETIC_EDUCATIONAL + ONLY_THIS_CASE：CCBS、CCDC DVP和上海清算DVP仅作为这笔业务外部来源类型；账户标识、日期、余额、差额和状态均为教学参数，不构成永久制度枚举。"
     },
     {
       "referenceId": "CLR-FUND-CLOSE-REF-BOUNDARY",
       "title": "资金应急材料的范围边界",
       "source": "project_materials/新人陪练案例库/清算/资金/托管业务应急预案介绍202608.pptx S3-S8、S9-S13",
-      "usage": "MATERIAL_ABSTRACTION：仅用于确认本路线采用资料齐全、余额一致的正常日终，不把应急运行、系统中断或替代处理写入正常题面。"
+      "usage": "MATERIAL_ABSTRACTION：仅用于确认正常日终需要资料齐全、余额一致；这组资料不包含应急运行、系统中断或替代处理。"
     }
   ]
 }

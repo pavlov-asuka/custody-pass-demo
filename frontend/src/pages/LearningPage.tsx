@@ -48,10 +48,13 @@ import { RouteStepper } from '../components/RouteStepper';
 import { ErrorState, LoadingState } from '../components/States';
 import {
   materialKindLabel,
+  comprehensivePracticeCopy,
+  lineLabels,
+  lineMapPath,
   optionValueLabel,
   publicBusinessText,
   publicUnitLabel,
-  workItemTypeLabel,
+  workItemTypeLabelForLine,
 } from '../utils/format';
 import { pendingAttemptKey, requestId } from '../utils/ids';
 
@@ -70,12 +73,13 @@ interface DraftConflict {
 function answerPreview(
   content: ComprehensivePracticeContent,
   answer: ComprehensivePracticeAnswer,
+  line: RouteOverview['line'],
 ): string {
   const filled = content.workItems.flatMap((item, index) => {
     const value = answer.responses[item.workItemId];
     if (value === undefined || value === null || value === '') return [];
     const displayValue = typeof value === 'number'
-      ? `${value}${item.response.unit ? ` ${publicUnitLabel(item.response.unit)}` : ''}`
+      ? `${value}${item.response.unit ? ` ${publicUnitLabel(item.response.unit, { line, fieldId: item.workItemId, label: item.title })}` : ''}`
       : optionValueLabel(String(value), item.workItemId, index);
     return [`${publicBusinessText(item.title)}：${publicBusinessText(displayValue)}`];
   });
@@ -84,14 +88,17 @@ function answerPreview(
 
 function KnowledgeCardStep({
   data,
+  line,
   busy,
   onComplete,
 }: {
   data: StepResponse<'KNOWLEDGE_CARD'>;
+  line: RouteOverview['line'];
   busy: boolean;
   onComplete: () => Promise<void>;
 }) {
   const content = data.content as KnowledgeContent;
+  const displayText = (value: string | number) => publicBusinessText(value, { line });
   const [index, setIndex] = useState(0);
   const card = content.cards[index];
   const last = index === content.cards.length - 1;
@@ -105,20 +112,20 @@ function KnowledgeCardStep({
         <span className="lesson-type"><BookOpen size={18} /> 关键判断</span>
       </div>
       <Mascot pose="READ_WITH_BOOK" size="small" />
-      <h2>{publicBusinessText(card.title)}</h2>
-      <div className="knowledge-card__conclusion">{publicBusinessText(card.conclusion)}</div>
+      <h2>{displayText(card.title)}</h2>
+      <div className="knowledge-card__conclusion">{displayText(card.conclusion)}</div>
       <div className={`knowledge-visual knowledge-visual--${card.type.toLowerCase()}`}>
         {card.items.map((item, itemIndex) => (
           <div key={item} className="knowledge-visual__item">
             <span>{itemIndex + 1}</span>
-            <strong>{publicBusinessText(item)}</strong>
+            <strong>{displayText(item)}</strong>
             {itemIndex < card.items.length - 1 && <ArrowRight size={19} />}
           </div>
         ))}
       </div>
       <div className="lesson-insight">
         <Lightbulb size={24} />
-        <div><strong>本卡结论</strong><span>{publicBusinessText(card.conclusion)}</span></div>
+        <div><strong>本卡结论</strong><span>{displayText(card.conclusion)}</span></div>
       </div>
       <div className="lesson-inline-actions">
         <button
@@ -145,14 +152,17 @@ function KnowledgeCardStep({
 
 function DemonstrationStep({
   data,
+  line,
   busy,
   onComplete,
 }: {
   data: StepResponse<'DEMONSTRATION'>;
+  line: RouteOverview['line'];
   busy: boolean;
   onComplete: () => Promise<void>;
 }) {
   const content = data.content as DemonstrationContent;
+  const displayText = (value: string | number) => publicBusinessText(value, { line });
   const [visible, setVisible] = useState(1);
   const complete = visible >= content.steps.length;
 
@@ -164,10 +174,10 @@ function DemonstrationStep({
         <span className="eyebrow">正常示范</span>
         <span className="lesson-type"><FileCheck2 size={18} /> 按步骤核对</span>
       </div>
-      <h2>{publicBusinessText(content.scenario.date)} · {publicBusinessText(content.scenario.product)}</h2>
-      <p className="lesson-lead">你的岗位是{publicBusinessText(content.scenario.role)}。当前资料已确认：</p>
+      <h2>{displayText(content.scenario.date)} · {displayText(content.scenario.product)}</h2>
+      <p className="lesson-lead">你的岗位是{displayText(content.scenario.role)}。当前资料已确认：</p>
       <div className="fact-strip">
-        {content.scenario.facts.map((fact) => <span key={fact}><Check size={16} />{publicBusinessText(fact)}</span>)}
+        {content.scenario.facts.map((fact) => <span key={fact}><Check size={16} />{displayText(fact)}</span>)}
       </div>
       <ol className="demo-timeline">
         {content.steps.map((step, stepIndex) => {
@@ -180,8 +190,8 @@ function DemonstrationStep({
           <li key={step.order} className={state}>
             <span className="demo-timeline__number">{step.order}</span>
             <div>
-              <strong>{publicBusinessText(step.action)}</strong>
-              <p><span>为什么：</span>{publicBusinessText(step.reason)}</p>
+              <strong>{displayText(step.action)}</strong>
+              <p><span>为什么：</span>{displayText(step.reason)}</p>
             </div>
           </li>
           );
@@ -190,7 +200,7 @@ function DemonstrationStep({
       {complete && (
         <div className="lesson-insight">
           <ArrowRight size={24} />
-          <div><strong>处理结果</strong><span>{publicBusinessText(content.summary)}</span></div>
+          <div><strong>处理结果</strong><span>{displayText(content.summary)}</span></div>
         </div>
       )}
       <div className="lesson-inline-actions">
@@ -210,14 +220,16 @@ function DemonstrationStep({
 
 function BasicPracticeStep({
   routeId,
+  line,
   data,
   onCompleted,
 }: {
   routeId: string;
+  line: RouteOverview['line'];
   data: StepResponse<'BASIC_PRACTICE'>;
   onCompleted: () => Promise<void>;
 }) {
-  return <PracticeSession routeId={routeId} data={data} onCompleted={onCompleted} />;
+  return <PracticeSession routeId={routeId} line={line} data={data} onCompleted={onCompleted} />;
 }
 
 function ComprehensivePracticeStep({
@@ -229,6 +241,8 @@ function ComprehensivePracticeStep({
 }) {
   const navigate = useNavigate();
   const content = data.content as ComprehensivePracticeContent;
+  const practiceCopy = comprehensivePracticeCopy(route.line);
+  const displayText = (value: string | number) => publicBusinessText(value, { line: route.line });
   const emptyAnswer: ComprehensivePracticeAnswer = { responses: {} };
   const [answer, setAnswer] = useState<ComprehensivePracticeAnswer>(emptyAnswer);
   const [revision, setRevision] = useState(0);
@@ -382,8 +396,8 @@ function ComprehensivePracticeStep({
       <div className="comprehensive-practice__heading">
         <div>
           <span className="eyebrow">综合实务</span>
-          <h2>完成核算工作底稿</h2>
-          <p>读取资料、完成计算与账务处理，再用第二来源核对结果。</p>
+          <h2>{practiceCopy.title}</h2>
+          <p>{practiceCopy.description}</p>
         </div>
         <Mascot pose="THINKING" size="small" message="先读资料，再落笔计算。" />
       </div>
@@ -403,25 +417,25 @@ function ComprehensivePracticeStep({
       <div className="practice-workspace">
         <aside className="practice-brief">
           <div className="practice-brief__meta">
-            <span><strong>你的角色</strong>{publicBusinessText(content.scenario.role)}</span>
-            <span><strong>业务时点</strong>{publicBusinessText(content.scenario.date)}</span>
+            <span><strong>你的角色</strong>{displayText(content.scenario.role)}</span>
+            <span><strong>业务时点</strong>{displayText(content.scenario.date)}</span>
           </div>
           <div>
             <span className="eyebrow">当前业务</span>
-            <h3>{publicBusinessText(content.scenario.product)}</h3>
-            <p>{publicBusinessText(content.scenario.purpose)}</p>
+            <h3>{displayText(content.scenario.product)}</h3>
+            <p>{displayText(content.scenario.purpose)}</p>
           </div>
           <div className="source-materials">
             <span className="eyebrow">业务资料包</span>
             {content.sourceMaterials.map((material) => (
               <article className="source-material" key={material.materialId}>
-                <header><strong>{publicBusinessText(material.title)}</strong><em>{materialKindLabel(material.kind)}</em></header>
-                <p>{publicBusinessText(material.description)}</p>
+                <header><strong>{displayText(material.title)}</strong><em>{materialKindLabel(material.kind)}</em></header>
+                <p>{displayText(material.description)}</p>
                 <dl>
                   {material.fields.map((field) => (
                     <div key={field.fieldId}>
-                      <dt>{publicBusinessText(field.label)}</dt>
-                      <dd>{publicBusinessText(field.value)}{field.unit ? ` ${publicUnitLabel(field.unit)}` : ''}</dd>
+                      <dt>{displayText(field.label)}</dt>
+                    <dd>{publicBusinessText(field.value, { line: route.line, fieldId: field.fieldId, label: field.label })}{field.unit ? ` ${publicUnitLabel(field.unit, { line: route.line, fieldId: field.fieldId, label: field.label })}` : ''}</dd>
                     </div>
                   ))}
                 </dl>
@@ -447,22 +461,22 @@ function ComprehensivePracticeStep({
                 <section className="work-item" key={item.workItemId}>
                   <span className="work-item__index">{String(index + 1).padStart(2, '0')}</span>
                   <div className="work-item__body">
-                    <div className="work-item__title"><strong>{publicBusinessText(item.title)}</strong><em>{workItemTypeLabel(item.type)}</em></div>
-                    <p>{publicBusinessText(item.instruction)}</p>
+                    <div className="work-item__title"><strong>{displayText(item.title)}</strong><em>{workItemTypeLabelForLine(item.type, route.line)}</em></div>
+                    <p>{displayText(item.instruction)}</p>
                     {item.response.kind === 'SELECT' ? (
-                      <select id={`work-${item.workItemId}`} aria-label={publicBusinessText(item.title)} value={String(value)} onChange={(event) => update(event.target.value)} disabled={submitting}>
-                        <option value="">{publicBusinessText(item.response.placeholder)}</option>
-                        {item.response.options?.map((option) => <option value={option.optionId} key={option.optionId}>{publicBusinessText(option.text)}</option>)}
+                      <select id={`work-${item.workItemId}`} aria-label={displayText(item.title)} value={String(value)} onChange={(event) => update(event.target.value)} disabled={submitting}>
+                        <option value="">{displayText(item.response.placeholder)}</option>
+                        {item.response.options?.map((option) => <option value={option.optionId} key={option.optionId}>{displayText(option.text)}</option>)}
                       </select>
                     ) : item.response.kind === 'NUMBER' ? (
                       <label className="work-input work-input--number">
-                        <input id={`work-${item.workItemId}`} aria-label={publicBusinessText(item.title)} type="number" step={item.response.precision ? 1 / (10 ** item.response.precision) : 1} value={value} placeholder={publicBusinessText(item.response.placeholder)} onChange={(event) => update(event.target.value === '' ? '' : Number(event.target.value))} disabled={submitting} />
-                        {item.response.unit && <span>{publicUnitLabel(item.response.unit)}</span>}
+                        <input id={`work-${item.workItemId}`} aria-label={displayText(item.title)} type="number" step={item.response.precision ? 1 / (10 ** item.response.precision) : 1} value={value} placeholder={displayText(item.response.placeholder)} onChange={(event) => update(event.target.value === '' ? '' : Number(event.target.value))} disabled={submitting} />
+                        {item.response.unit && <span>{publicUnitLabel(item.response.unit, { line: route.line, fieldId: item.workItemId, label: item.title })}</span>}
                       </label>
                     ) : item.type === 'SHORT_TEXT' ? (
-                      <textarea id={`work-${item.workItemId}`} aria-label={publicBusinessText(item.title)} value={String(value)} maxLength={500} placeholder={publicBusinessText(item.response.placeholder)} onChange={(event) => update(event.target.value)} disabled={submitting} />
+                      <textarea id={`work-${item.workItemId}`} aria-label={displayText(item.title)} value={String(value)} maxLength={500} placeholder={displayText(item.response.placeholder)} onChange={(event) => update(event.target.value)} disabled={submitting} />
                     ) : (
-                      <input id={`work-${item.workItemId}`} aria-label={publicBusinessText(item.title)} type="text" value={String(value)} maxLength={100} placeholder={publicBusinessText(item.response.placeholder)} onChange={(event) => update(event.target.value)} disabled={submitting} />
+                      <input id={`work-${item.workItemId}`} aria-label={displayText(item.title)} type="text" value={String(value)} maxLength={100} placeholder={displayText(item.response.placeholder)} onChange={(event) => update(event.target.value)} disabled={submitting} />
                     )}
                   </div>
                 </section>
@@ -470,7 +484,7 @@ function ComprehensivePracticeStep({
             })}
           </div>
           <div className="practice-sheet__footer">
-            <p>{publicBusinessText(content.submissionNote)}</p>
+            <p>{displayText(content.submissionNote)}</p>
             <div>
               <button
                 className="button button--secondary"
@@ -518,8 +532,8 @@ function ComprehensivePracticeStep({
             <h2 id="conflict-title">发现另一份更新过的草稿</h2>
             <p>当前编辑内容仍保留在本地。请选择云端草稿，或保留当前编辑并保存。</p>
             <div className="conflict-preview">
-              <div><strong>云端草稿</strong><pre>{answerPreview(content, conflict.server.answer ?? emptyAnswer)}</pre></div>
-              <div><strong>当前编辑</strong><pre>{answerPreview(content, conflict.localAnswer)}</pre></div>
+              <div><strong>云端草稿</strong><pre>{answerPreview(content, conflict.server.answer ?? emptyAnswer, route.line)}</pre></div>
+              <div><strong>当前编辑</strong><pre>{answerPreview(content, conflict.localAnswer, route.line)}</pre></div>
             </div>
             <div className="modal__actions">
               <button className="button button--secondary" type="button" onClick={() => void resolveConflict('server')}>
@@ -660,7 +674,7 @@ export function LearningPage() {
   return (
     <AppShell
       backLabel="返回地图"
-      onBack={() => navigate('/map/accounting')}
+      onBack={() => navigate(lineMapPath(route?.line))}
       context={route?.title || '路线学习'}
     >
       {practiceMode && route ? (
@@ -677,6 +691,7 @@ export function LearningPage() {
           {!loadingStep && validStep?.stepType === 'BASIC_PRACTICE' && (
             <BasicPracticeStep
               routeId={route.routeId}
+              line={route.line}
               data={validStep as StepResponse<'BASIC_PRACTICE'>}
               onCompleted={practiceCompleted}
             />
@@ -690,9 +705,9 @@ export function LearningPage() {
             <>
               <header className="learning-header">
                 <div>
-                  <span className="eyebrow">核算路线 · 预计 {route.estimatedMinutes ?? 20} 分钟</span>
-                  <h1>{publicBusinessText(route.title)}</h1>
-                  <p>{publicBusinessText(route.summary ?? '')}</p>
+                  <span className="eyebrow">{lineLabels[route.line]}路线 · 预计 {route.estimatedMinutes ?? 20} 分钟</span>
+                  <h1>{publicBusinessText(route.title, { line: route.line })}</h1>
+                  <p>{publicBusinessText(route.summary ?? '', { line: route.line })}</p>
                 </div>
                 <RouteStepper route={route} active={active} onSelect={selectStep} />
               </header>
@@ -702,6 +717,7 @@ export function LearningPage() {
               {!loadingStep && validStep?.stepType === 'KNOWLEDGE_CARD' && (
                 <KnowledgeCardStep
                   data={validStep as StepResponse<'KNOWLEDGE_CARD'>}
+                  line={route.line}
                   busy={busy}
                   onComplete={() => markComplete('KNOWLEDGE_CARD')}
                 />
@@ -709,6 +725,7 @@ export function LearningPage() {
               {!loadingStep && validStep?.stepType === 'DEMONSTRATION' && (
                 <DemonstrationStep
                   data={validStep as StepResponse<'DEMONSTRATION'>}
+                  line={route.line}
                   busy={busy}
                   onComplete={() => markComplete('DEMONSTRATION')}
                 />

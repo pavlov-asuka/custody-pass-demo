@@ -14,7 +14,7 @@ import { AppShell } from '../components/AppShell';
 import { Mascot } from '../components/Mascot';
 import { PracticeQuestion } from '../components/PracticeQuestion';
 import { ErrorState, LoadingState } from '../components/States';
-import { stepLabels } from '../utils/format';
+import { lineFromRouteId, stepLabels } from '../utils/format';
 import { requestId } from '../utils/ids';
 
 export function RemediationPage() {
@@ -48,6 +48,7 @@ export function RemediationPage() {
   }, [load]);
 
   const target = useMemo(() => plan?.targets[activeIndex] ?? null, [activeIndex, plan]);
+  const remediationLine = lineFromRouteId(target?.practice.questionId);
 
   async function submit(answer: string[]) {
     if (!target) return;
@@ -162,6 +163,7 @@ export function RemediationPage() {
                     ) : (
                       <PracticeQuestion
                         question={target.practice}
+                        line={remediationLine ?? undefined}
                         feedback={feedback}
                         onSubmit={submit}
                       />

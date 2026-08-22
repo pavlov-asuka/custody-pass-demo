@@ -35,19 +35,19 @@
             "先按买卖方向读取已确认成交数量和金额，数量用证券单位，金额用结算货币",
             "买入证券数量汇总为待收证券，买入成交金额汇总为待付资金",
             "卖出证券数量汇总为待付证券，卖出成交金额汇总为待收资金",
-            "案例只做买入/卖出总额链的逐项勾稽，不把未给出的净额算法当作通用规则"
+            "这组资料只做买入/卖出总额链的逐项勾稽，不把未给出的净额算法当作通用规则"
           ]
         },
         {
           "cardId": "CLR-EX-KC-03",
           "type": "KEY_POINT",
           "title": "零差额才可以结束交收准备",
-          "conclusion": "同一业务键和业务日期下，清算结果与交收指令的四项证券/资金对象逐项相等，四项差额均为零，才记录本案例的正常准备状态。",
+          "conclusion": "同一业务键和业务日期下，清算结果与交收指令的四项证券/资金对象逐项相等，四项差额均为零，才记录这笔业务的正常准备状态。",
           "items": [
             "核对时同时保留业务键、业务日期、证券代码和买卖方向，避免把不同交易混在一起",
             "证券数量按整数核对，资金金额按两位小数核对",
             "交收指令只是交收准备对象，不等于已经完成证券或资金交收",
-            "本案例只核对普通场内交易的交收准备资料"
+            "这笔业务只核对普通场内交易的交收准备资料"
           ]
         }
       ]
@@ -60,9 +60,9 @@
         "fixture": "CLR-EX-DEMO-A",
         "facts": [
           "成交数据（交易批次EX-A-20260818-017）包含同一证券EXA-SEC-01的三笔已确认成交：买入1200 share、成交金额37440.00 CNY；买入800 share、成交金额9680.00 CNY；卖出500 share、成交金额23500.00 CNY。金额直接采用已确认成交金额。",
-          "清算结果承接同一业务键、业务日期和证券代码EXA-SEC-01，汇总为买入证券应收数量2000 share、买入资金应付金额47120.00 CNY、卖出证券应付数量500 share、卖出资金应收金额23500.00 CNY，结果状态为CALCULATED。",
-          "交收指令承接同一业务键、业务日期和证券代码EXA-SEC-01的清算结果，登记买入证券应收2000 share、买入资金应付47120.00 CNY、卖出证券应付500 share、卖出资金应收23500.00 CNY，状态为READY_FOR_SETTLEMENT。",
-          "交收准备对账资料在同一业务键、业务日期和证券代码EXA-SEC-01下，将四项清算对象与交收指令逐项比较，四项差额均为0或0.00，对账状态为RECONCILED。"
+          "清算结果承接同一业务键、业务日期和证券代码EXA-SEC-01，汇总为买入证券应收数量2000 share、买入资金应付金额47120.00 CNY、卖出证券应付数量500 share、卖出资金应收金额23500.00 CNY，结果状态为已计算。",
+          "交收指令承接同一业务键、业务日期和证券代码EXA-SEC-01的清算结果，登记买入证券应收2000 share、买入资金应付47120.00 CNY、卖出证券应付500 share、卖出资金应收23500.00 CNY，状态为已具备交收条件。",
+          "交收准备对账资料在同一业务键、业务日期和证券代码EXA-SEC-01下，将四项清算对象与交收指令逐项比较，四项差额均为0或0.00，对账状态为已勾稽。"
         ]
       },
       "steps": [
@@ -83,13 +83,13 @@
         },
         {
           "order": 4,
-          "action": "把清算结果的四项对象与交收指令逐项对应，登记交收准备状态READY_FOR_SETTLEMENT",
+          "action": "把清算结果的四项对象与交收指令逐项对应，登记交收准备状态已具备交收条件",
           "reason": "交收准备只能承接清算结果中的对象，不能用成交金额或成交状态直接替代交收指令。"
         },
         {
           "order": 5,
-          "action": "核对四项差额：买入证券0 share、买入资金0.00 CNY、卖出证券0 share、卖出资金0.00 CNY，并记录RECONCILED",
-          "reason": "同一业务键和日期下四项对象均无差额，才有本案例正常交收准备的闭合证据。"
+          "action": "核对四项差额：买入证券0 share、买入资金0.00 CNY、卖出证券0 share、卖出资金0.00 CNY，并记录已勾稽",
+          "reason": "同一业务键和日期下四项对象均无差额，才有这笔业务正常交收准备的闭合证据。"
         }
       ],
       "summary": "成交确认 → 资料分层 → 四项义务汇总 → 交收准备 → 四项零差勾稽"
@@ -99,12 +99,12 @@
         {
           "questionId": "CLR-EX-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "把 Demo A 的成交、清算结果、交收指令和准备对账字段分别映射到主资料层。",
+          "prompt": "把成交数据、清算结果、交收指令和准备对账资料分别映射到对应业务层。",
           "fieldMappings": [
             {
               "fieldId": "trade-layer",
               "label": "已确认成交数量和已确认成交金额主来源",
-              "source": "Demo A 三层资料",
+              "source": "成交数据与清算结果",
               "options": [
                 {"optionId": "TRADE_CONFIRMATION_SOURCE", "text": "成交数据"},
                 {"optionId": "CLEARING_RESULT_SOURCE", "text": "清算结果"}
@@ -113,7 +113,7 @@
             {
               "fieldId": "clearing-layer",
               "label": "证券应收/应付和资金应收/应付主来源",
-              "source": "Demo A 三层资料",
+              "source": "清算结果与交收指令",
               "options": [
                 {"optionId": "CLEARING_RESULT_SOURCE", "text": "清算结果"},
                 {"optionId": "SETTLEMENT_INSTRUCTION_SOURCE", "text": "交收指令"}
@@ -122,7 +122,7 @@
             {
               "fieldId": "instruction-layer",
               "label": "待交收对象和交收准备状态主来源",
-              "source": "Demo A 三层资料",
+              "source": "交收指令与成交数据",
               "options": [
                 {"optionId": "SETTLEMENT_INSTRUCTION_SOURCE", "text": "交收指令"},
                 {"optionId": "TRADE_CONFIRMATION_SOURCE", "text": "成交数据"}
@@ -131,7 +131,7 @@
             {
               "fieldId": "reconciliation-layer",
               "label": "四项差额和对账状态主来源",
-              "source": "Demo A 三层资料",
+              "source": "准备对账资料与交收指令",
               "options": [
                 {"optionId": "PREP_RECONCILIATION_SOURCE", "text": "交收准备对账资料"},
                 {"optionId": "SETTLEMENT_INSTRUCTION_SOURCE", "text": "交收指令"}
@@ -145,7 +145,7 @@
         {
           "questionId": "CLR-EX-Q-02",
           "type": "CALCULATION",
-          "prompt": "按 Demo A 的已确认成交数量和金额，分别汇总买入证券、买入资金、卖出证券和卖出资金；数量保留整数，金额保留两位小数。",
+          "prompt": "按成交数据中的已确认数量和金额，分别汇总买入证券、买入资金、卖出证券和卖出资金；数量保留整数，金额保留两位小数。",
           "calculation": {
             "fields": [
               {"fieldId": "buy-security-total", "label": "买入证券汇总数量", "formula": "1200 + 800", "placeholder": "输入数量", "unit": "share", "precision": 0, "tolerance": 0},
@@ -161,7 +161,7 @@
         {
           "questionId": "CLR-EX-Q-03",
           "type": "LEDGER_ENTRY",
-          "prompt": "把 Demo A 的四项清算对象登记到交收准备工作纸；这是对象登记，不是会计凭证。",
+          "prompt": "把清算结果中的四项证券/资金义务登记到交收准备工作纸；这是对象登记，不是会计凭证。",
           "ledgerEntries": [
             {"entryId": "buy-security-obligation", "direction": "买入证券", "label": "证券应收数量", "amount": "2000", "placeholder": "输入数量"},
             {"entryId": "buy-cash-obligation", "direction": "买入资金", "label": "资金应付金额", "amount": "47120.00", "placeholder": "输入金额"},
@@ -169,13 +169,13 @@
             {"entryId": "sell-cash-obligation", "direction": "卖出资金", "label": "资金应收金额", "amount": "23500.00", "placeholder": "输入金额"}
           ],
           "answer": ["2000", "47120.00", "500", "23500.00"],
-          "explanation": "工作纸分别保留买入证券应收、买入资金应付、卖出证券应付和卖出资金应收；本题不要求填写会计科目。",
+          "explanation": "工作纸分别保留买入证券应收、买入资金应付、卖出证券应付和卖出资金应收；这里不填写会计科目。",
           "hints": ["先看方向，再放入证券数量或资金金额；证券和资金不能互换。"]
         },
         {
           "questionId": "CLR-EX-Q-04",
           "type": "RECONCILIATION",
-          "prompt": "用 Demo A 的清算结果和交收指令完成四项交收准备差额核对。",
+          "prompt": "用清算结果和交收指令完成四项交收准备差额核对。",
           "reconciliation": {
             "fields": [
               {"fieldId": "buy-security-diff", "label": "买入证券差额", "kind": "NUMBER", "formula": "2000 − 2000", "placeholder": "输入数量差", "precision": 0, "tolerance": 0},
@@ -191,10 +191,10 @@
         {
           "questionId": "CLR-EX-Q-05",
           "type": "SHORT_TEXT",
-          "prompt": "为 Demo A 写一句正常交收准备微结论，带上证券代码、四项对象、四项差额和 READY_FOR_SETTLEMENT。",
-          "textInput": {"label": "交收准备微结论", "placeholder": "写明证券代码、四项对象、四项差额和准备状态"},
+          "prompt": "写一句正常交收准备结论，带上证券代码、四项对象、四项差额和已具备交收条件。",
+          "textInput": {"label": "交收准备短结论", "placeholder": "写明证券代码、四项对象、四项差额和准备状态"},
           "answer": ["证券代码EXA-SEC-01；买入证券应收2000 share、买入资金应付47120.00 CNY、卖出证券应付500 share、卖出资金应收23500.00 CNY；四项差额0，状态READY_FOR_SETTLEMENT。"],
-          "explanation": "微结论必须回指本案例的证券身份、四项对象、零差结果和交收准备状态。",
+          "explanation": "短结论必须回指这笔业务的证券身份、四项对象、零差结果和交收准备状态。",
           "hints": ["不要只写“已完成”，至少保留证券代码和准备状态。"]
         }
       ]
@@ -204,14 +204,14 @@
         "role": "场内清算资料处理岗",
         "product": "单一正常场内证券交易批次",
         "date": "2026-08-21",
-        "purpose": "从综合B的成交数据、清算结果、交收指令和准备对账资料中完成四项证券/资金义务的汇总、登记与勾稽，写出可追溯的交收准备结论。"
+        "purpose": "从成交数据、清算结果、交收指令和准备对账资料中完成四项证券/资金义务的汇总、登记与勾稽，写出有依据的交收准备结论。"
       },
       "sourceMaterials": [
         {
           "materialId": "CLR-EX-B-TRADE",
-          "title": "已确认成交数据（综合B）",
+          "title": "已确认成交数据",
           "kind": "CONFIRMATION",
-          "description": "本案例的交易确认层，给出三笔已确认成交的身份、方向、证券数量和成交金额。",
+          "description": "这笔业务的交易确认层，给出三笔已确认成交的身份、方向、证券数量和成交金额。",
           "fields": [
             {"fieldId": "business_key", "label": "交易批次业务键", "value": "EX-B-20260821-284"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
@@ -236,9 +236,9 @@
         },
         {
           "materialId": "CLR-EX-B-CLEARING",
-          "title": "清算结果（综合B）",
+          "title": "清算结果",
           "kind": "STATEMENT",
-          "description": "本案例的清算层，按买入和卖出分别给出证券与资金应收应付对象。",
+          "description": "这笔业务的清算层，按买入和卖出分别给出证券与资金应收应付对象。",
           "fields": [
             {"fieldId": "business_key", "label": "业务键", "value": "EX-B-20260821-284"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
@@ -252,9 +252,9 @@
         },
         {
           "materialId": "CLR-EX-B-INSTRUCTION",
-          "title": "交收指令（综合B）",
+          "title": "交收指令",
           "kind": "INSTRUCTION",
-          "description": "本案例的交收准备层，承接清算结果中的四项证券和资金对象。",
+          "description": "这笔业务的交收准备层，承接清算结果中的四项证券和资金对象。",
           "fields": [
             {"fieldId": "business_key", "label": "业务键", "value": "EX-B-20260821-284"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
@@ -268,9 +268,9 @@
         },
         {
           "materialId": "CLR-EX-B-RECONCILIATION",
-          "title": "交收准备对账资料（综合B）",
+          "title": "交收准备对账资料",
           "kind": "RECONCILIATION",
-          "description": "本案例的对账层，按同一业务键和日期给出清算结果与交收指令的四项差额。",
+          "description": "这笔业务的对账层，按同一业务键和日期给出清算结果与交收指令的四项差额。",
           "fields": [
             {"fieldId": "business_key", "label": "业务键", "value": "EX-B-20260821-284"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
@@ -302,8 +302,8 @@
           "workItemId": "clr-ex-b-security-code-match",
           "type": "RECONCILIATION",
           "title": "核对四层证券代码",
-          "instruction": "按业务键和业务日期比较成交数据、清算结果、交收指令和准备对账资料的 security_code；只有四层均为 EXB-SEC-01 才选择一致。不同证券即使数量和金额相同也不能通过。",
-          "response": {"kind": "SELECT", "placeholder": "选择证券代码一致性结论", "options": [{"optionId": "B_SECURITY_CODE_MATCH", "text": "四层 security_code 均为 EXB-SEC-01"}, {"optionId": "B_SECURITY_CODE_RECHECK", "text": "security_code 不一致，需回查"}]}
+          "instruction": "按业务键和业务日期比较成交数据、清算结果、交收指令和准备对账资料的证券代码；只有四层均为 EXB-SEC-01 才选择一致。不同证券即使数量和金额相同也不能通过。",
+          "response": {"kind": "SELECT", "placeholder": "选择证券代码一致性结论", "options": [{"optionId": "B_SECURITY_CODE_MATCH", "text": "四层证券代码均为 EXB-SEC-01"}, {"optionId": "B_SECURITY_CODE_RECHECK", "text": "证券代码不一致，需回查"}]}
         },
         {
           "workItemId": "clr-ex-b-buy-security-quantity",
@@ -337,7 +337,7 @@
           "workItemId": "clr-ex-b-obligation-ledger",
           "type": "LEDGER_ENTRY",
           "title": "登记四项清算对象",
-          "instruction": "按同一 security_code 选择完整的四项交收准备对象；这里填写业务对象工作纸，不填写会计科目。",
+          "instruction": "按同一证券代码选择完整的四项交收准备对象；这里填写业务对象工作纸，不填写会计科目。",
           "response": {"kind": "SELECT", "placeholder": "选择四项对象登记结果", "options": [{"optionId": "B_OBLIGATIONS_COMPLETE", "text": "买入证券应收2000 share；买入资金应付54100.00 CNY；卖出证券应付700 share；卖出资金应收18900.00 CNY"}, {"optionId": "B_OBLIGATIONS_NETTED", "text": "只登记买卖相抵后的一个证券数量和一个资金金额"}, {"optionId": "B_OBLIGATIONS_TRADE_ONLY", "text": "只登记三笔成交，不区分证券义务和资金义务"}]}
         },
         {
@@ -372,18 +372,18 @@
           "workItemId": "clr-ex-b-prep-status",
           "type": "RECONCILIATION",
           "title": "记录交收准备状态",
-          "instruction": "四项差额均为零且业务键、业务日期、security_code 一致时，选择本案例的交收准备状态。",
-          "response": {"kind": "SELECT", "placeholder": "选择准备状态", "options": [{"optionId": "B_PREP_READY", "text": "READY_FOR_SETTLEMENT"}, {"optionId": "B_PREP_PENDING", "text": "PENDING_REVIEW"}]}
+          "instruction": "四项差额均为零且业务键、业务日期、证券代码一致时，选择这笔业务的交收准备状态。",
+          "response": {"kind": "SELECT", "placeholder": "选择准备状态", "options": [{"optionId": "B_PREP_READY", "text": "已具备交收条件"}, {"optionId": "B_PREP_PENDING", "text": "待复核"}]}
         },
         {
           "workItemId": "clr-ex-core-b-conclusion",
           "type": "SHORT_TEXT",
-          "title": "写出可追溯结论",
-          "instruction": "用一句话写明业务键、业务日期、security_code、买入证券/资金对象、卖出证券/资金对象、四项差额和交收准备状态。",
-          "response": {"kind": "TEXT", "placeholder": "写出一条可追溯的交收准备结论"}
+          "title": "写出有依据结论",
+          "instruction": "用一句话写明业务键、业务日期、证券代码、买入证券/资金对象、卖出证券/资金对象、四项差额和交收准备状态。",
+          "response": {"kind": "TEXT", "placeholder": "写出一条有依据的交收准备结论"}
         }
       ],
-      "submissionNote": "请按四份资料的字段和单位填写，完成本案例正常交收准备结论。"
+      "submissionNote": "请按四份资料的字段和单位填写，完成这笔业务正常交收准备结论。"
     }
   },
   "references": [
@@ -397,7 +397,7 @@
       "referenceId": "CLR-EX-REF-CASE",
       "title": "《场内例题》",
       "source": "project_materials/新人陪练案例库/清算/场内/场内例题.docx",
-      "usage": "用于核对场内岗位关注的成交、结算对象和业务边界；题面不采用其中的历史时点、比例、账户号码或费率。"
+      "usage": "用于核对场内岗位关注的成交、结算对象和业务边界；给定资料不采用其中的历史时点、比例、账户号码或费率。"
     },
     {
       "referenceId": "CLR-EX-REF-SZ-GUIDE",
@@ -409,13 +409,13 @@
       "referenceId": "CLR-EX-REF-DVP-BOUNDARY",
       "title": "货银对付改革参考版指南（边界材料）",
       "source": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/关于修订并发布《中国证券登记结算有限责任公司上海分公司结算账户管理及资金结算业务指南（货银对付改革参考版）》的通知.pdf；关于发布《中国证券登记结算有限责任公司北京分公司证券资金结算业务指南（货银对付改革参考版）》的通知.pdf",
-      "usage": "仅用于确认改革参考版属于测试参考和本路线排除边界，不进入正常案例、答案或评分规则。"
+      "usage": "仅用于确认改革参考版属于测试参考和当前流程排除边界，不进入正常案例、答案或评分规则。"
     },
     {
       "referenceId": "CLR-EX-REF-SPECIAL-BOUNDARY",
       "title": "港股通及合格境外投资者指南（边界材料）",
       "source": "project_materials/新人陪练案例库/清算/场内/场内结算规则--开展日常业务需掌握/202506中国证券登记结算有限责任公司上海分公司港股通存管结算业务指南.pdf；202506中国证券登记结算有限责任公司深圳分公司港股通存管结算业务指南.pdf；中国证券登记结算有限责任公司上海分公司合格境外机构投资者和人民币合格境外机构投资者境内证券投资登记结算业务指南.pdf；中国证券登记结算有限责任公司北京分公司合格境外机构投资者和人民币合格境外构投资者境内证券投资登记结算业务指南.pdf；中国证券登记结算有限责任公司深圳分公司合格境外机构投资者和人民币合格境外机构投资者境内证券投资登记结算业务指南.pdf",
-      "usage": "仅用于确认港股通和QFII/RQFII具有专门资格、跨境或账户安排，本路线保持BUILDING或DEFER，不进入正常场内题面。"
+      "usage": "仅用于确认港股通和QFII/RQFII具有专门资格、跨境或账户安排，当前流程保持BUILDING或DEFER，不进入正常场内给定资料。"
     }
   ]
 }

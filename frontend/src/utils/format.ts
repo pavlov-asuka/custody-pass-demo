@@ -38,9 +38,14 @@ export const workItemTypeLabels: Record<string, string> = {
   LEDGER_ENTRY: '账务填写',
   RECONCILIATION: '勾稽核对',
   SHORT_TEXT: '业务结论',
-  SINGLE_CHOICE: '单项判断',
-  MULTIPLE_CHOICE: '多项判断',
+  SINGLE_CHOICE: '单项选择',
+  MULTIPLE_CHOICE: '多项选择',
   ORDERING: '处理顺序',
+};
+
+const clearingWorkItemTypeLabels: Record<string, string> = {
+  ...workItemTypeLabels,
+  LEDGER_ENTRY: '结果登记',
 };
 
 export const materialKindLabels: Record<string, string> = {
@@ -56,6 +61,99 @@ export const materialKindLabels: Record<string, string> = {
 };
 
 const fieldIdLabels: Record<string, string> = {
+  // 清算共同基础的 workItemId 中，base 是路线名，不是业务字段“基数”。
+  // 同时保留无 clr 前缀别名，兼容历史快照中的旧键。
+  'clr-base-b-instruction-source': '指令资料来源',
+  'base-instruction-source': '指令资料来源',
+  'clr-base-b-confirmation-source': '确认资料来源',
+  'base-confirmation-source': '确认资料来源',
+  'clr-base-b-settlement-source': '交收结果资料来源',
+  'base-settlement-source': '交收结果资料来源',
+  'clr-base-b-quantity': '义务数量',
+  'base-quantity': '义务数量',
+  'clr-base-b-amount': '义务金额',
+  'base-amount': '义务金额',
+  'clr-base-b-result-ledger': '结果台账来源',
+  'base-result-ledger': '结果台账来源',
+  'clr-base-b-identity-check': '结果身份核对',
+  'base-identity-check': '结果身份核对',
+  'clr-base-b-quantity-diff': '数量差额',
+  'base-quantity-diff': '数量差额',
+  'clr-base-b-amount-diff': '金额差额',
+  'base-amount-diff': '金额差额',
+  'clr-base-b-reconciliation': '结果对账',
+  'base-reconciliation': '结果对账',
+  'clr-base-b-conclusion': '正常结果结论',
+  'base-conclusion': '正常结果结论',
+  'clr-ex-b-trade-source': '定位成交确认层',
+  'clr-ex-b-clearing-layer': '定位清算结果层',
+  'clr-ex-b-security-code-match': '核对四层证券代码',
+  'clr-ex-b-buy-security-quantity': '汇总买入证券应收数量',
+  'clr-ex-b-buy-cash-amount': '汇总买入资金应付金额',
+  'clr-ex-b-sell-security-quantity': '汇总卖出证券应付数量',
+  'clr-ex-b-sell-cash-amount': '汇总卖出资金应收金额',
+  'clr-ex-b-obligation-ledger': '登记四项清算对象',
+  'clr-ex-b-buy-security-diff': '核对买入证券差额',
+  'clr-ex-b-buy-cash-diff': '核对买入资金差额',
+  'clr-ex-b-sell-security-diff': '核对卖出证券差额',
+  'clr-ex-b-sell-cash-diff': '核对卖出资金差额',
+  'clr-ex-b-prep-status': '记录交收准备状态',
+  'clr-ex-core-b-conclusion': '写出有依据结论',
+  'clr-ex-b-core-source': '定位前置四项义务来源',
+  'clr-ex-b-external-source': '定位外部交收结果来源',
+  'clr-ex-b-security-closing': '复算交收后证券数量',
+  'clr-ex-b-cash-closing': '复算交收后资金余额',
+  'clr-ex-b-security-receive-diff': '复算收到证券差额',
+  'clr-ex-b-security-deliver-diff': '复算交付证券差额',
+  'clr-ex-b-cash-in-diff': '复算收到资金差额',
+  'clr-ex-b-cash-out-diff': '复算支付资金差额',
+  'clr-ex-b-securities-ledger': '登记内部证券双向结果',
+  'clr-ex-b-cash-ledger': '登记内部资金双向结果',
+  'clr-ex-b-obligation-result-match': '核对义务与外部结果',
+  'clr-ex-b-securities-recon': '完成证券双向零差勾稽',
+  'clr-ex-b-cash-recon': '完成资金双向零差勾稽',
+  'clr-ex-b-close-status': '记录这笔业务正常封账',
+  'clr-ex-funds-b-conclusion': '写出有依据封账结论',
+  'clr-fund-close-b-source-map': '把关闭所需字段放回正确来源',
+  'clr-fund-close-b-balance-calculation': '复算资金账户期末余额',
+  'clr-fund-close-b-result-ledger': '登记正常日终关闭结果',
+  'clr-fund-close-b-identity-reconciliation': '核对账户、日期和来源身份',
+  'clr-fund-close-b-fund-account-difference': '核对资金账户差额',
+  'clr-fund-close-b-internal-ledger-difference': '核对内部资金账差额',
+  'clr-fund-close-b-ccbs-difference': '核对CCBS余额差额',
+  'clr-fund-close-b-ccdc-dvp-difference': '核对CCDC DVP余额差额',
+  'clr-fund-close-b-shanghai-dvp-difference': '核对上海清算DVP余额差额',
+  'clr-fund-close-b-total-difference': '汇总全部余额差额',
+  'clr-fund-close-b-close-gate': '确认来源状态和关闭前置',
+  'clr-fund-close-b-conclusion': '写出有依据的正常关闭结论',
+  'clr-fund-b-source-fields': '定位审核与结果来源',
+  'clr-fund-b-approval-controls': '定位批准控制字段',
+  'clr-fund-b-closing-cash': '复算期末现金',
+  'clr-fund-b-amount-chain': '核对批准金额与执行金额差',
+  'clr-fund-b-execution-ledger': '登记执行与资金账结果',
+  'clr-fund-b-identity-recon': '勾稽审核身份与正常控制',
+  'clr-fund-b-cash-recon': '核对现金余额差',
+  'clr-fund-b-amount-recon': '核对执行金额与资金账金额差',
+  'clr-fund-b-conclusion': '写出正常支付结论',
+  'clr-ib-dvp-b-field-contract': '定位结算合同与承接金额',
+  'clr-ib-dvp-b-field-accounts-method': '区分两类账户、结算方式与通道',
+  'clr-ib-dvp-b-bond-balance': '复算债券账户期末面额',
+  'clr-ib-dvp-b-cash-balance': '复算DVP资金账户期末余额',
+  'clr-ib-dvp-b-delivery-workpaper': '完成DVP交割工作纸',
+  'clr-ib-dvp-b-contract-result-match': '勾稽合同与外部DVP结果',
+  'clr-ib-dvp-b-ledger-match': '勾稽账户变动与内部台账',
+  'clr-ib-dvp-b-zero-difference': '确认合同、账户和台账零差',
+  'clr-ib-dvp-b-close-result': '记录正常DVP与日终关闭结果',
+  'clr-ib-dvp-b-conclusion': '写出有依据的交收关闭结论',
+  'clr-ib-b-field-institution-system-account': '定位机构、系统和账户角色',
+  'clr-ib-b-field-method-channel': '区分结算方式与通道',
+  'clr-ib-b-face-value-check': '复算债券面额一致性',
+  'clr-ib-b-settlement-amount-check': '复算结算金额一致性',
+  'clr-ib-b-confirmation-workpaper': '完成结算确认工作纸',
+  'clr-ib-b-identity-match': '勾稽业务身份与核心字段',
+  'clr-ib-b-zero-difference': '确认两类输入差额为零',
+  'clr-ib-b-approval-confirmation': '记录批准与结算确认',
+  'clr-ib-b-conclusion': '写出有依据的结算确认结论',
   'payment-source': '支付凭证来源',
   'ending-payable': '期末应付余额',
   'debit-account': '借方科目',
@@ -130,6 +228,12 @@ const fieldTokenLabels: Record<string, string> = {
   face: '面值',
   fee: '费用',
   field: '字段',
+  type: '类型',
+  system: '系统',
+  register: '登记',
+  registered: '已登记',
+  candidate: '候选',
+  obligation: '义务',
   final: '最终',
   fixed: '固定',
   flow: '流量',
@@ -305,6 +409,7 @@ const optionValueLabels: Record<string, string> = {
   AFTER_DISCLOSURE_DATE: '披露日期之后',
   ALL_ZERO_AND_REVIEW_CONFIRMED: '差额均为零且复核已确认',
   APPROVED_SNAPSHOT: '批准的来源快照',
+  APPROVED: '已批准',
   APPROVED_FOR_CONFIRMATION: '已批准进入确认',
   BALANCED: '已平衡',
   BALANCE_SHEET: '资产负债表',
@@ -313,20 +418,34 @@ const optionValueLabels: Record<string, string> = {
   BROKEN: '顺序已打乱',
   BROKER_CASH_STATEMENT: '券商资金对账单',
   BROKER_SECURITIES_STATEMENT: '券商证券对账单',
+  BUILDING: '建设中',
   BUY: '买入',
+  CALCULATED: '已计算',
+  CALCULATION: '数值计算',
   CANCELLED: '已撤销',
+  CATEGORIES: '资料分类',
+  CASE_APPROVED_CHANNEL_A: '批准渠道 A',
+  CASE_APPROVED_CHANNEL_B: '批准渠道 B',
+  CLEARING: '清算',
   CONFIRMED: '已确认',
   CUSTODIAN_INFO_MATCHED: '托管人信息一致',
   CCDC: '中央国债登记结算有限责任公司',
   DATA_READY: '资料已就绪',
   DATA_RECEIVED: '资料已接收',
+  DEFER: '暂缓',
+  DELIVER: '交付',
+  FIELD_MAP: '资料对应',
   HISTORICAL_DEFAULT: '历史默认值',
   INCOME_STATEMENT: '利润表',
+  KEY_POINT: '关键要点',
+  MATERIAL_ABSTRACTION: '材料抽象',
   MATCHED: '已勾稽一致',
   NAV_RESULT: '净值结果',
   NO: '否',
   NORMAL_ARCHIVED: '正常归档',
   NORMAL: '正常',
+  NOT_LOCKED: '未锁定',
+  NUMBER: '数值',
   NO_REGULATORY_EVENT: '无监管事项',
   NO_SPECIAL_STATEMENT: '无特别说明',
   NO_WARNING: '无风险提示',
@@ -340,12 +459,17 @@ const optionValueLabels: Record<string, string> = {
   REVIEWED: '已复核',
   SELL: '卖出',
   SEMI_ANNUAL: '半年度',
+  SELECT: '选择',
+  SENT: '已发送',
+  TEXT: '文字',
   SPECIAL_STATEMENT: '有特别说明',
   UNMATCHED: '未勾稽一致',
+  VALID: '有效',
   WARNING_PRESENT: '存在风险提示',
   YES: '是',
   ZERO_ALL: '全部为零',
   BROKER_DATA_PROVIDER: '券商数据提供方',
+  CCBS: 'CCBS',
   ACCOUNTING_WORKER: '核算经办',
   VALUATION_REVIEWER: '估值复核',
   CUSTODY_REVIEWER: '托管复核',
@@ -353,13 +477,18 @@ const optionValueLabels: Record<string, string> = {
   ACTUAL_COST: '实际成本',
   ADDITIONAL_PAYMENT_FROM_AP: '申赎参与人补款',
   BALANCE: '余额',
+  SETTLEMENT_OBLIGATION: '清算义务对象',
+  SECURITY: '证券',
+  RECEIVE: '接收',
+  DELIVERING_SECURITIES_ACCOUNT: '交付方证券账户',
+  PAYER_FUNDS_ACCOUNT: '付款方资金账户',
+  RECEIVER_FUNDS_ACCOUNT: '收款方资金账户',
   CARRY_FORWARD: '结转',
   CASH_IN: '资金流入',
   CONSIDERATION: '申赎对价',
   DEDUCT: '扣减',
   DELIVER_SECURITIES: '交付证券',
   DELIVERING_PARTICIPANT: '交付方参与人',
-  DELIVERING_SECURITIES_ACCOUNT: '交付方证券账户',
   ESTIMATE_ADJUSTMENT: '估计金额调整',
   INCREASE: '增加',
   IN_KIND: '实物交付',
@@ -378,6 +507,23 @@ const optionValueLabels: Record<string, string> = {
   PARSED: '资料已读入',
   MAPPED: '来源已对应',
   COMPLETE: '资料已齐全',
+  INSTRUCTION_ACCEPTED: '指令已受理',
+  INSTRUCTION_MATCHED: '指令已匹配',
+  TASK_ACCEPTED: '任务已受理',
+  CONFIRMED_FOR_SETTLEMENT: '已确认待结算',
+  READY_FOR_SETTLEMENT: '已具备结算条件',
+  SETTLED: '已完成交收',
+  EXECUTED: '已执行',
+  POSTED: '已登记',
+  REGISTERED: '已登记',
+  RECONCILED: '已对账',
+  NORMAL_CLOSED: '已正常关闭',
+  PENDING_RECONCILIATION: '待完成对账',
+  BALANCE_READY: '余额已核对',
+  UNIQUE_EXECUTION: '唯一执行记录',
+  NOT_PREVIOUSLY_EXECUTED: '此前未执行',
+  DEFERRED_TO_NEXT_ROUTE: '转入后续路线',
+  COUNTERPARTY_MATCHED: '对手方已匹配',
   SHARES_POSTED: '份额已登记',
   NAV_CONFIRMED: '净值已确认',
   HOLDING_RECONCILED: '持仓已对账',
@@ -386,10 +532,11 @@ const optionValueLabels: Record<string, string> = {
   CLOSE_NORMAL: '可正常封账',
   RECONCILED_NORMAL_CLOSE: '已对账并正常封账',
   RECONCILED_FOR_CONFIRMATION: '已勾稽，可进入确认',
-  RECEIVER_FUNDS_ACCOUNT: '收款方资金账户',
   RECEIVING_PARTICIPANT: '接收方参与人',
   RECEIVING_SECURITIES_ACCOUNT: '接收方证券账户',
+  RECONCILIATION_REVIEWER: '对账复核方',
   SETTLEMENT_PROCESSING_SYSTEM: '结算处理系统',
+  TRADE_SYSTEM: '交易系统',
   SHCH: '银行间市场清算所股份有限公司',
   SSE: '上海证券交易所',
   SZSE: '深圳证券交易所',
@@ -406,17 +553,23 @@ const optionValueLabels: Record<string, string> = {
   SZHK_TZXX: '深港通权益通知数据',
   SYNTHETIC_EDUCATIONAL: '合成教学资料',
   YIELD: '收益指标',
+  QFII: 'QFII',
+  RQFII: 'RQFII',
   CNY: '元',
   CNY_10K: '万元',
-  CONFIRMED_FOR_SETTLEMENT: '已确认待结算',
   NON_DIRECT: '非直联',
-  PAYER_FUNDS_ACCOUNT: '付款方资金账户',
   SECURITIES_AND_FUNDS_ACCOUNTS: '证券与资金账户',
+  BUYER_BOND_ACCOUNT_B: '买方债券账户 B',
+  BUYER_DVP_FUNDS_ACCOUNT_B: '买方 DVP 资金账户 B',
 };
 
 const optionTokenLabels: Record<string, string> = {
   ap: '申赎参与人',
   accounting: '核算',
+  accepted: '已受理',
+  account: '账户',
+  approval: '审批',
+  approved: '已批准',
   actual: '实际',
   add: '增加',
   adjustment: '调整',
@@ -432,6 +585,7 @@ const optionTokenLabels: Record<string, string> = {
   balanced: '已平衡',
   bank: '银行',
   base: '基准',
+  basis: '依据',
   basket: '篮子',
   before: '之前',
   beginning: '期初',
@@ -465,7 +619,9 @@ const optionTokenLabels: Record<string, string> = {
   debit: '借方',
   deduct: '扣减',
   deduction: '扣减',
+  difference: '差额',
   delivery: '交付',
+  delivering: '交付方',
   direct: '直接',
   disclosure: '披露',
   dividend: '分红',
@@ -474,6 +630,7 @@ const optionTokenLabels: Record<string, string> = {
   ending: '期末',
   event: '事件',
   excluded: '已排除',
+  execution: '执行',
   exercise: '行权',
   expense: '费用',
   external: '外部',
@@ -486,6 +643,7 @@ const optionTokenLabels: Record<string, string> = {
   generate: '生成',
   gross: '毛额',
   holding: '持仓',
+  identity: '身份',
   income: '收入',
   in: '转入',
   increase: '增加',
@@ -495,6 +653,9 @@ const optionTokenLabels: Record<string, string> = {
   internal: '内部',
   invalid: '无效',
   issue: '发行',
+  key: '标识',
+  core: '核心',
+  obligation: '义务',
   kind: '实物',
   latest: '最新',
   ledger: '台账',
@@ -512,9 +673,11 @@ const optionTokenLabels: Record<string, string> = {
   monthly: '月度',
   nav: '净值',
   net: '净额',
+  netted: '已相抵',
   next: '下一',
   no: '无',
   normal: '正常',
+  nonzero: '非零',
   not: '未',
   old: '旧版',
   one: '单一',
@@ -541,10 +704,13 @@ const optionTokenLabels: Record<string, string> = {
   rate: '利率',
   ready: '就绪',
   receive: '接收',
+  receiver: '收款方',
+  receiving: '接收方',
   received: '已接收',
   receipt: '到账',
   record: '记录',
   reconcile: '勾稽',
+  reconciliation: '对账',
   reconciled: '已勾稽',
   redemption: '赎回',
   reduce: '减少',
@@ -568,11 +734,14 @@ const optionTokenLabels: Record<string, string> = {
   source: '来源',
   special: '特殊',
   statement: '对账单',
+  system: '系统',
+  task: '任务',
+  participant: '参与人',
+  payer: '付款方',
   status: '状态',
   stock: '股票',
   stop: '停止',
   subscription: '申购',
-  system: '系统',
   target: '目标',
   tax: '税',
   terminal: '终止',
@@ -636,10 +805,17 @@ function optionTokenLabel(token: string): string | null {
   if (lower === 'hkd') return '港币';
   if (lower === 'usd') return '美元';
   if (lower === 'pboc') return '人民银行';
-  return optionTokenLabels[lower] ?? null;
+  const singular = lower.endsWith('ies')
+    ? `${lower.slice(0, -3)}y`
+    : lower.endsWith('s')
+      ? lower.slice(0, -1)
+      : lower;
+  return optionTokenLabels[lower] ?? optionTokenLabels[singular] ?? null;
 }
 
 const inlineTechnicalLabels: Record<string, string> = {
+  identity_match: '身份一致',
+  hk_tzxx: '港股权益通知数据',
   actualCash: '实际到账资金',
   accountRole: '账户角色',
   approvedRate: '批准费率',
@@ -705,9 +881,29 @@ function camelTechnicalLabel(token: string): string | null {
   return labels.every((label) => Boolean(label)) ? labels.join('') : null;
 }
 
+function snakeTechnicalLabel(token: string): string | null {
+  const labels = token.toLowerCase().split('_').map((part) => {
+    const singular = part.endsWith('s') ? part.slice(0, -1) : part;
+    return fieldTokenLabels[part] ?? fieldTokenLabels[singular] ?? null;
+  });
+  return labels.every((label) => Boolean(label)) ? labels.join('') : null;
+}
+
 function codedIdentifierLabel(code: string): string {
   if (code === 'T-1') return 'T-1';
   if (code === 'FOF-02') return 'FOF 申购路线';
+  if (/^CLR-/i.test(code)) return `清算业务编号 ${code}`;
+  if (/^TASK-/i.test(code)) return `清算任务号 ${code}`;
+  if (/^(?:FUND|PAY|REC)-ACCT-/i.test(code)) return `资金账户编号 ${code}`;
+  if (/^BASIS-/i.test(code)) return `业务依据编号 ${code}`;
+  if (/^(?:BASE|FUND|IB)-/i.test(code)) return `清算业务键 ${code}`;
+  if (/^(?:CP|OUR)-INST-/i.test(code)) return `结算指令编号 ${code}`;
+  if (/^(?:EXA|EXB)-SEC-/i.test(code)) return `证券对象编号 ${code}`;
+  if (/^(?:EXA|EXB)-TRD-/i.test(code)) return `交易记录编号 ${code}`;
+  if (/^(?:EX|EXA|EXB)-/i.test(code)) return `清算业务键 ${code}`;
+  if (/^SETTLE-CONTRACT-/i.test(code)) return `结算合同号 ${code}`;
+  if (/^CGB-/i.test(code)) return `债券代码 ${code}`;
+  if (/^[PSIT]\d+(?:-[PSIT]\d+)?$/i.test(code)) return `资料位置 ${code}`;
   const materialLocators = code.match(/[AB]-[PIT]\d+/g);
   if (materialLocators?.length) return `材料位置 ${materialLocators.join(' 至 ')}`;
   const tokens = code.split('-').filter(Boolean);
@@ -716,7 +912,8 @@ function codedIdentifierLabel(code: string): string {
   const suffix = [...tokens].reverse().find((token) => /^\d+$/.test(token))
     ?? tokens[0]?.match(/\d+$/)?.[0];
   const variant = tokens.find((token) => /^[A-D]$/.test(token));
-  const base = unique.length ? `${unique.join(' · ')}资料标识` : '业务资料标识';
+  if (!unique.length) return `资料编号 ${code}`;
+  const base = `${unique.join(' · ')}资料标识`;
   return suffix ? `${base} ${variant ? `${variant}-` : ''}${suffix}` : base;
 }
 
@@ -730,17 +927,42 @@ function upperTechnicalLabel(token: string): string {
   const labels = parts.map(optionTokenLabel).filter((label): label is string => Boolean(label));
   const unique = labels.filter((label, index) => labels.indexOf(label) === index);
   if (unique.length) return unique.join(' · ');
-  return '业务资料标识';
+  return '资料编号';
+}
+
+export interface PublicTextContext {
+  line?: Line | null;
+  fieldId?: string;
+  label?: string;
+}
+
+function hasExistingIdentifierContext(prefix: string): boolean {
+  const recent = prefix.slice(-80).replace(/\s+/g, '');
+  return /(?:清算业务(?:键|编号)?|业务(?:键|编号|依据(?:编号)?)|(?:资金)?账户(?:标识|编号)?|证券(?:代码|对象编号|编号)?|债券(?:代码|编号)?|结算合同(?:键|号)?)[：:为是、，,；;（）()【】\[\]\/]*$/u.test(recent);
 }
 
 /** Translate embedded implementation labels without changing submitted values. */
-export function publicBusinessText(input: string | number): string {
+export function publicBusinessText(input: string | number, context?: PublicTextContext | null): string {
   if (typeof input === 'number') return String(input);
-  let value = input.replace(/\b(?:[A-Z][A-Z0-9]*-){1,}[A-Z0-9-]+\b/g, codedIdentifierLabel);
+  const securityQuantityLabel = context?.line === 'CLEARING'
+    || /证券|股票|债券/u.test(context?.label ?? '')
+    ? '股'
+    : '份';
+  let value = input.replace(
+    /\b(?:[A-Z][A-Z0-9]*-){1,}[A-Z0-9-]+\b/g,
+    (code, offset: number, source: string) => {
+      const prefix = source.slice(0, offset);
+      if (hasExistingIdentifierContext(prefix)) return code;
+      if (/证券代码\s*$/u.test(prefix) && /^(?:EXA|EXB)-SEC-/i.test(code)) return code;
+      if (/债券代码\s*$/u.test(prefix) && /^CGB-/i.test(code)) return code;
+      return codedIdentifierLabel(code);
+    },
+  );
   for (const [token, label] of Object.entries(inlineTechnicalLabels)) {
     value = value.replace(new RegExp(`\\b${token}(?=\\d|\\b)`, 'g'), label);
   }
-  value = value.replace(/\b[a-z]+(?:[A-Z][A-Za-z0-9]*)+\b/g, (token) => camelTechnicalLabel(token) ?? '业务字段');
+  value = value.replace(/\b[a-z]+(?:[A-Z][A-Za-z0-9]*)+\b/g, (token) => camelTechnicalLabel(token) ?? '字段');
+  value = value.replace(/\b[a-z]+(?:_[a-z0-9]+)+\b/g, (token) => snakeTechnicalLabel(token) ?? token);
   value = value
     .replace(/hk_jsmx/gi, '港股通结算明细数据')
     .replace(/approved valuation/gi, '批准估值')
@@ -759,10 +981,16 @@ export function publicBusinessText(input: string | number): string {
     .replace(/valuation diff/gi, '估值差额')
     .replace(/shares diff/gi, '份额差额')
     .replace(/return diff/gi, '返还差额')
+    .replace(/\bunit\s*\/\s*batch\b/gi, '单位/批')
+    .replace(/\bshares?\b/gi, securityQuantityLabel)
+    .replace(/\bbatch(?:es)?\b/gi, '批')
+    .replace(/\bunit\b/gi, '单位')
     .replace(/\bstatus\b/gi, '状态')
     .replace(/\bstate\b/gi, '状态')
-    .replace(/\bR\d+\b/g, '当前处理步骤');
-  return value.replace(/[A-Z][A-Z0-9_]{2,}/g, upperTechnicalLabel);
+    .replace(/业务字段/g, '资料字段')
+    .replace(/\bR\d+\b(?!-)/g, '当前处理步骤');
+  // 保留已转成自然说明的清算业务键内部连字符，不把键的片段再次拆成“资料编号”。
+  return value.replace(/(?<![A-Z0-9-])[A-Z][A-Z0-9_]{2,}(?![A-Z0-9-])/g, upperTechnicalLabel);
 }
 
 const unitLabels: Record<string, string> = {
@@ -771,10 +999,29 @@ const unitLabels: Record<string, string> = {
   key: '业务键',
   rate: '费率',
   date: '日期',
+  share: '份',
+  unit: '单位',
+  batch: '批',
+  'unit/batch': '单位/批',
 };
 
-export function publicUnitLabel(unit: string): string {
-  return unitLabels[unit] ?? publicBusinessText(unit);
+export function publicUnitLabel(
+  unit: string,
+  context?: Line | PublicTextContext | null,
+): string {
+  const contextValue = typeof context === 'string' ? { line: context } : context;
+  const normalized = unit.trim().toLowerCase();
+  if (normalized === 'share') {
+    return contextValue?.line === 'CLEARING'
+      || /证券|股票|债券/u.test(contextValue?.label ?? '')
+      ? '股'
+      : '份';
+  }
+  if (normalized === 'unit' && contextValue?.line === 'CLEARING'
+    && /业务|交易|批次|记录|凭证/u.test(contextValue.label ?? '')) {
+    return '笔';
+  }
+  return unitLabels[unit] ?? unitLabels[normalized] ?? publicBusinessText(unit, contextValue);
 }
 
 export function businessActionLabel(direction: string): string {
@@ -782,7 +1029,53 @@ export function businessActionLabel(direction: string): string {
 }
 
 export function workItemTypeLabel(type: string): string {
-  return workItemTypeLabels[type] ?? '业务填写';
+  return workItemTypeLabels[type] ?? '结果填写';
+}
+
+export function lineMapPath(line?: Line | null): string {
+  return line ? `/map/${line.toLowerCase()}` : '/worlds';
+}
+
+export function lineFromRouteId(routeId?: string | null): Line | null {
+  if (routeId?.startsWith('CLR-')) return 'CLEARING';
+  if (routeId?.startsWith('ACC-')) return 'ACCOUNTING';
+  return null;
+}
+
+export function workItemTypeLabelForLine(type: string, line?: Line | null): string {
+  return line === 'CLEARING'
+    ? (clearingWorkItemTypeLabels[type] ?? '结果填写')
+    : workItemTypeLabel(type);
+}
+
+export function practiceLedgerLabels(line?: Line | null): {
+  direction: string;
+  source: string;
+  input: string;
+} {
+  return line === 'CLEARING'
+    ? { direction: '处理方向', source: '结果字段', input: '登记结果' }
+    : { direction: '方向', source: '资料行', input: '补全科目' };
+}
+
+export function practiceFeedbackLabel(type: string, line?: Line | null, correct = false): string {
+  const label = workItemTypeLabelForLine(type, line);
+  return correct ? `${label}完成` : `请核对${label}`;
+}
+
+export function comprehensivePracticeCopy(line?: Line | null): {
+  title: string;
+  description: string;
+} {
+  return line === 'CLEARING'
+    ? {
+      title: '完成清算结果工作纸',
+      description: '读取指令、确认和交收资料，登记结果，再用对账来源核对数量、金额与状态。',
+    }
+    : {
+      title: '完成核算工作底稿',
+      description: '读取资料、完成计算与账务处理，再用第二来源核对结果。',
+    };
 }
 
 export function materialKindLabel(kind: string): string {

@@ -7,6 +7,7 @@ import { AppShell } from '../components/AppShell';
 import { Mascot } from '../components/Mascot';
 import { ResultView } from '../components/ResultView';
 import { ErrorState, LoadingState } from '../components/States';
+import { lineFromRouteId, lineLabels, lineMapPath } from '../utils/format';
 
 export function AttemptPage() {
   const { attemptId = '' } = useParams();
@@ -16,6 +17,9 @@ export function AttemptPage() {
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
+  const attemptLine = lineFromRouteId(attempt?.routeId);
+  const mapPath = lineMapPath(attemptLine);
+  const mapLabel = attemptLine ? `返回${lineLabels[attemptLine]}地图` : '返回学习世界';
 
   const load = useCallback(async () => {
     setError(null);
@@ -61,8 +65,8 @@ export function AttemptPage() {
 
   return (
     <AppShell
-      backLabel="返回核算地图"
-      onBack={() => navigate('/map/accounting')}
+      backLabel={mapLabel}
+      onBack={() => navigate(mapPath)}
       context="综合实务评分"
     >
       <div className="attempt-page page-enter">
@@ -82,7 +86,7 @@ export function AttemptPage() {
               <span />
               <strong>正在处理评分</strong>
             </div>
-            <button className="button button--ghost" type="button" onClick={() => navigate('/map/accounting')}>
+            <button className="button button--ghost" type="button" onClick={() => navigate(mapPath)}>
               <ArrowLeft size={18} /> 返回地图
             </button>
           </section>
@@ -111,7 +115,7 @@ export function AttemptPage() {
             actions={
               attempt.result?.conclusion === 'PASSED' ? (
                 <>
-                  <button className="button button--primary" type="button" onClick={() => navigate('/map/accounting')}>
+                  <button className="button button--primary" type="button" onClick={() => navigate(mapPath)}>
                     返回地图继续学习 <ArrowRight size={19} />
                   </button>
                   <button className="button button--secondary" type="button" onClick={() => navigate(`/learn/${attempt.routeId}`)}>

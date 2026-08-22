@@ -3,12 +3,12 @@
   "contentVersion": "1.0.0",
   "line": "CLEARING",
   "title": "银行间债券结算指令与结算确认",
-  "summary": "从交易数据和成交单建立业务身份，承接结算任务与双边指令，核对机构、系统、账户、结算方式及案例批准条件，完成结算确认；DVP实际交割和日终处理留到后续路线。",
+  "summary": "从交易数据和成交单建立业务身份，承接结算任务与双边指令，核对机构、系统、账户、结算方式及批准条件，完成结算确认；DVP实际交割和日终处理在后续DVP交割环节完成。",
   "estimatedMinutes": 60,
   "objectives": [
     "区分交易数据来源、结算机构、结算处理系统、证券账户、资金账户、结算方式和直联/非直联通道，不把机构、系统、账户或通道混为一项",
     "从交易数据、结算任务、本方指令和对手方指令中读取业务键、业务日期、债券代码、债券面额、结算金额、交割日、角色和状态",
-    "用本案例给定的面额和结算金额做Decimal一致性复算；结算金额作为输入，不计算固收净价、全价或应计利息",
+    "用这笔业务给定的面额和结算金额做Decimal一致性复算；结算金额作为输入，不计算固收净价、全价或应计利息",
     "完成字段匹配、批准检查、确认工作纸和结算确认，确保业务身份、核心输入、机构/系统/账户、方式/通道及阶段状态完整一致"
   ],
   "steps": {
@@ -30,24 +30,24 @@
           "cardId": "CLR-IB-KC-02",
           "type": "FLOW",
           "title": "从成交单到可确认指令",
-          "conclusion": "先建立同一笔银行间债券业务的身份，再把任务转成指令并与对手方字段对应，最后完成本案例批准检查和结算确认；确认不等于已经完成DVP交割。",
+          "conclusion": "先建立同一笔银行间债券业务的身份，再把任务转成指令并与对手方字段对应，最后完成这笔业务批准检查和结算确认；确认不等于已经完成DVP交割。",
           "items": [
             "从交易数据读取业务键、业务日期、债券代码、交易方向、债券面额、结算金额和交割日，建立待处理业务",
             "结算任务承接业务键和处理对象，明确本方结算机构、结算处理系统以及证券/资金账户角色",
             "本方与对手方指令逐项核对托管账号、业务类别、方向、结算方式、债券代码、面额、金额和交割日",
-            "匹配通过后按本案例字段清单检查机构、系统、账户、方式、通道和状态，批准后发送结算确认；DVP实际交割与日终判断另行处理"
+            "匹配通过后按这笔业务字段清单检查机构、系统、账户、方式、通道和状态，批准后发送结算确认；DVP实际交割与日终判断另行处理"
           ]
         },
         {
           "cardId": "CLR-IB-KC-03",
           "type": "KEY_POINT",
           "title": "金额是输入，状态要留在正确阶段",
-          "conclusion": "本路线只证明指令字段一致、案例批准条件满足并形成结算确认，不用价格或利息公式倒推出结算金额，也不把确认状态写成券款已经交割。",
+          "conclusion": "这里先证明指令字段一致、批准条件满足并形成结算确认，不用价格或利息公式倒推出结算金额，也不把确认状态写成券款已经交割。",
           "items": [
-            "债券面额按本案例给定单位和精度读取，结算金额直接从交易数据和指令字段读取并做一致性比较",
-            "数量/面额差和金额差必须分别复算为零；不在本路线重算净价、全价、应计利息、费用或交割后余额",
-            "本案例按题面字段清单完成匹配、批准和确认：业务身份、机构/系统/账户角色、方式/通道及两类差额均需闭合，才能记录本案例确认状态",
-            "本案例分别填写结算确认状态与交割结果字段，确保确认工作纸中的阶段状态与业务结果准确对应"
+            "债券面额按这笔业务给定单位和精度读取，结算金额直接从交易数据和指令字段读取并做一致性比较",
+            "数量/面额差和金额差必须分别复算为零；这一步不重算净价、全价、应计利息、费用或交割后余额",
+            "这笔业务按给定资料字段清单完成匹配、批准和确认：业务身份、机构/系统/账户角色、方式/通道及两类差额均需闭合，才能记录这笔业务确认状态",
+            "这笔业务分别填写结算确认状态与交割结果字段，确保确认工作纸中的阶段状态与业务结果准确对应"
           ]
         }
       ]
@@ -55,41 +55,41 @@
     "DEMONSTRATION": {
       "scenario": {
         "role": "银行间结算资料处理岗",
-        "product": "单笔正常银行间债券结算指令确认教育案例",
+        "product": "单笔正常银行间债券结算指令确认资料",
         "date": "2026-08-18",
         "fixture": "CLR-IB-DEMO-A",
         "facts": [
-          "交易数据给出业务键IB-A-20260818-731、业务日期2026-08-18、交割日2026-08-19、债券代码CGB-EDU-2026-A、交易方向DELIVER_SECURITIES、债券面额120.0000 CNY_10K和结算金额1024560.00 CNY。",
-          "本案例结算机构为CCDC，交易数据来源标记为TRADE_SYSTEM，结算处理系统标记为SETTLEMENT_PROCESSING_SYSTEM；结算任务、本方指令和对手方指令均承接业务日期与交割日，证券账户分别由DELIVERING_PARTICIPANT和RECEIVING_PARTICIPANT持有，资金账户分别标记为PAYER_FUNDS_ACCOUNT和RECEIVER_FUNDS_ACCOUNT。",
-          "本案例结算方式为DVP，通道为NON_DIRECT；该通道值不改变结算方式。本案例不使用实际账户号码，账户标签只用于本案例。",
-          "本方和对手方指令的业务键、日期、债券代码、方向、面额、结算金额、交割日、角色和账户字段一致；本案例批准检查结果为APPROVED_FOR_CONFIRMATION，结算确认状态为CONFIRMED_FOR_SETTLEMENT。"
+          "交易数据给出业务键IB-A-20260818-731、业务日期2026-08-18、交割日2026-08-19、债券代码CGB-EDU-2026-A、交易方向为交付证券、债券面额120.0000万元和结算金额1024560.00 CNY。",
+          "这笔业务结算机构为CCDC，交易数据来源标记为交易系统，结算处理系统标记为结算处理系统；结算任务、本方指令和对手方指令均承接业务日期与交割日，证券账户分别由交付方和接收方持有，资金账户分别标记为付款方资金账户和收款方资金账户。",
+          "这笔业务结算方式为DVP，通道为非直联；该通道值不改变结算方式。这笔业务不使用实际账户号码，账户标签只用于这笔业务。",
+          "本方和对手方指令的业务键、日期、债券代码、方向、面额、结算金额、交割日、角色和账户字段一致；这笔业务批准检查结果为已具备确认条件，结算确认状态为已确认待交收。"
         ]
       },
       "steps": [
         {
           "order": 1,
-          "action": "从交易数据建立IB-A-20260818-731的业务身份，并分别标出交易数据来源、结算机构CCDC、交易系统TRADE_SYSTEM和结算处理系统SETTLEMENT_PROCESSING_SYSTEM",
+          "action": "从交易数据建立IB-A-20260818-731的业务身份，并分别标出交易数据来源、结算机构CCDC、交易系统和结算处理系统",
           "reason": "先区分机构和系统，才能把后续任务、指令和状态归到同一笔业务。"
         },
         {
           "order": 2,
-          "action": "从结算任务、本方指令和对手方指令读取证券账户、资金账户、DVP、NON_DIRECT、债券代码、面额、结算金额和交割日，并逐项比对",
+          "action": "从结算任务、本方指令和对手方指令读取证券账户、资金账户、DVP、非直联、债券代码、面额、结算金额和交割日，并逐项比对",
           "reason": "账户角色、结算方式、通道和核心业务字段共同决定指令是否属于同一笔待确认义务；通道不能替代结算方式。"
         },
         {
           "order": 3,
-          "action": "按120.0000−120.0000复算债券面额差0.0000 CNY_10K，按1024560.00−1024560.00复算结算金额差0.00 CNY；不由价格或利息反推金额",
-          "reason": "本路线只验证交易数据与指令输入的一致性，保持面额和金额的单位、精度及输入边界。"
+          "action": "按120.0000−120.0000复算债券面额差0.0000万元，按1024560.00−1024560.00复算结算金额差0.00 CNY；不由价格或利息反推金额",
+          "reason": "这一步只验证交易数据与指令输入的一致性，保持面额和金额的单位、精度及输入边界。"
         },
         {
           "order": 4,
-          "action": "在确认工作纸中登记业务键、结算机构、结算处理系统、付券/收券证券账户、付款/收款资金账户、DVP、NON_DIRECT和匹配后的状态，记录APPROVED_FOR_CONFIRMATION",
+          "action": "在确认工作纸中登记业务键、结算机构、结算处理系统、付券/收券证券账户、付款/收款资金账户、DVP、非直联和匹配后的状态，记录已具备确认条件",
           "reason": "工作纸要同时留下对象、角色、账户、方式、通道和批准结果，不能用一个状态代替字段检查。"
         },
         {
           "order": 5,
-          "action": "根据匹配报告确认身份字段、面额差和金额差均为零，记录CONFIRMED_FOR_SETTLEMENT，并注明DVP实际交割和交割日日终不在本路线",
-          "reason": "结算确认证明指令已具备本案例的确认条件，不证明证券和资金已经完成实际交割。"
+          "action": "根据匹配报告确认身份字段、面额差和金额差均为零，记录已确认待交收，并注明DVP实际交割和交割日日终不在本次确认步骤",
+          "reason": "结算确认证明指令已具备这笔业务的确认条件，不证明证券和资金已经完成实际交割。"
         }
       ],
       "summary": "交易数据 → 结算任务 → 双边指令匹配 → 一致性复算与批准检查 → 结算确认"
@@ -99,12 +99,12 @@
         {
           "questionId": "CLR-IB-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "按Demo A资料，把机构、系统、账户、结算方式和通道分别映射到正确字段来源。",
+          "prompt": "把交易数据、结算任务和双边指令中的机构、系统、账户、结算方式与通道分别映射到正确字段来源。",
           "fieldMappings": [
             {
               "fieldId": "institution-source",
               "label": "结算机构字段主来源",
-              "source": "Demo A交易数据、结算任务与本方指令",
+              "source": "交易数据、结算任务与本方指令",
               "options": [
                 {"optionId": "SETTLEMENT_INSTITUTION", "text": "结算机构字段（CCDC）"},
                 {"optionId": "TRADE_SYSTEM", "text": "交易系统名称"}
@@ -113,7 +113,7 @@
             {
               "fieldId": "system-source",
               "label": "结算处理系统字段主来源",
-              "source": "Demo A结算任务与本方指令",
+              "source": "结算任务与本方指令",
               "options": [
                 {"optionId": "SETTLEMENT_PROCESSING_SYSTEM", "text": "结算处理系统"},
                 {"optionId": "SETTLEMENT_INSTITUTION", "text": "结算机构名称"}
@@ -122,7 +122,7 @@
             {
               "fieldId": "account-source",
               "label": "债券与款项承载对象",
-              "source": "Demo A本方/对手方指令",
+              "source": "本方/对手方指令",
               "options": [
                 {"optionId": "SECURITIES_AND_FUNDS_ACCOUNTS", "text": "证券账户与资金账户"},
                 {"optionId": "SYSTEM_NAME_ONLY", "text": "只记录系统名称"}
@@ -131,7 +131,7 @@
             {
               "fieldId": "method-source",
               "label": "结算方式字段",
-              "source": "Demo A本方/对手方指令",
+              "source": "本方/对手方指令",
               "options": [
                 {"optionId": "DVP", "text": "DVP/券款对付"},
                 {"optionId": "NON_DIRECT", "text": "非直联通道"}
@@ -140,21 +140,21 @@
             {
               "fieldId": "channel-source",
               "label": "通道字段",
-              "source": "Demo A任务与指令",
+              "source": "结算任务与双边指令",
               "options": [
-                {"optionId": "NON_DIRECT", "text": "NON_DIRECT/非直联"},
+                {"optionId": "NON_DIRECT", "text": "非直联通道"},
                 {"optionId": "DVP", "text": "DVP结算方式"}
               ]
             }
           ],
           "answer": ["SETTLEMENT_INSTITUTION", "SETTLEMENT_PROCESSING_SYSTEM", "SECURITIES_AND_FUNDS_ACCOUNTS", "DVP", "NON_DIRECT"],
-          "explanation": "CCDC是本案例结算机构，结算处理系统是处理任务和指令的系统；证券/资金账户承载不同对象，DVP是结算方式，NON_DIRECT是通道。",
-          "hints": ["先问字段回答的是谁、在哪里处理、记载什么，还是怎样结算。", "DVP和NON_DIRECT分别属于方式与通道。"]
+          "explanation": "CCDC是这笔业务结算机构，结算处理系统是处理任务和指令的系统；证券/资金账户承载不同对象，DVP是结算方式，非直联是通道。",
+          "hints": ["先问字段回答的是谁、在哪里处理、记载什么，还是怎样结算。", "DVP和非直联分别属于方式与通道。"]
         },
         {
           "questionId": "CLR-IB-Q-02",
           "type": "CALCULATION",
-          "prompt": "按Demo A交易数据与本方指令的输入做一致性复算，债券面额保留4位小数，结算金额保留2位小数。",
+          "prompt": "按交易数据与本方指令的输入做一致性复算，债券面额保留4位小数，结算金额保留2位小数。",
           "calculation": {
             "fields": [
               {"fieldId": "face-value-difference", "label": "债券面额差", "formula": "120.0000 − 120.0000", "placeholder": "输入面额差", "unit": "CNY_10K", "precision": 4, "tolerance": 0.0001},
@@ -162,7 +162,7 @@
             ]
           },
           "answer": ["0.0000", "0.00"],
-          "explanation": "本案例面额和结算金额均为资料输入的一致性比较；面额差为0.0000 CNY_10K，金额差为0.00 CNY，不计算价格、利息或费用。",
+          "explanation": "这笔业务面额和结算金额均为资料输入的一致性比较；面额差为0.0000万元，金额差为0.00 CNY，不计算价格、利息或费用。",
           "hints": ["先确认两份来源的债券代码、日期和方向相同，再分别相减。", "金额字段直接读取，不要从净价、全价或应计利息重算。"]
         },
         {
@@ -174,28 +174,28 @@
             "placeholder": "写出交易数据、任务、双边指令、批准检查和确认的顺序"
           },
           "answer": ["交易数据建立业务身份，结算任务承接，本方与对手方指令匹配，完成批准检查后记录结算确认。"],
-          "explanation": "这道基础短文本只练习正常业务顺序：先建立身份，再承接任务和双边指令，随后完成批准检查，最后形成结算确认。",
+          "explanation": "正常结算确认先由交易数据建立身份，再承接结算任务和双边指令，随后完成批准检查并形成确认。",
           "hints": ["按交易数据→结算任务→双边指令匹配→批准检查→结算确认写成一句话。"]
         },
         {
           "questionId": "CLR-IB-Q-04",
           "type": "LEDGER_ENTRY",
-          "prompt": "把Demo A已通过匹配的字段登记到结算确认工作纸，不填写DVP实际交割结果。",
+          "prompt": "把匹配报告中已通过核对的字段登记到结算确认工作纸，不填写DVP实际交割结果。",
           "ledgerEntries": [
             {"entryId": "business-key", "direction": "业务身份", "label": "业务键", "amount": "IB-A-20260818-731", "placeholder": "输入业务键"},
-            {"entryId": "institution-system", "direction": "处理边界", "label": "结算机构/结算处理系统", "amount": "CCDC / SETTLEMENT_PROCESSING_SYSTEM", "placeholder": "输入机构和系统"},
-            {"entryId": "account-roles", "direction": "角色对象", "label": "证券账户/资金账户角色", "amount": "DELIVERING_PARTICIPANT; RECEIVING_PARTICIPANT; PAYER_FUNDS_ACCOUNT; RECEIVER_FUNDS_ACCOUNT", "placeholder": "输入账户角色"},
-            {"entryId": "method-channel", "direction": "结算属性", "label": "结算方式/通道", "amount": "DVP / NON_DIRECT", "placeholder": "输入方式和通道"},
-            {"entryId": "confirmation-status", "direction": "确认结果", "label": "批准/确认状态", "amount": "APPROVED_FOR_CONFIRMATION; CONFIRMED_FOR_SETTLEMENT", "placeholder": "输入阶段状态"}
+            {"entryId": "institution-system", "direction": "处理边界", "label": "结算机构/结算处理系统", "amount": "CCDC / 结算处理系统", "placeholder": "输入机构和系统"},
+            {"entryId": "account-roles", "direction": "角色对象", "label": "证券账户/资金账户角色", "amount": "交付方；接收方；付款方资金账户；收款方资金账户", "placeholder": "输入账户角色"},
+            {"entryId": "method-channel", "direction": "结算属性", "label": "结算方式/通道", "amount": "DVP / 非直联", "placeholder": "输入方式和通道"},
+            {"entryId": "confirmation-status", "direction": "确认结果", "label": "批准/确认状态", "amount": "已具备确认条件；已确认待交收", "placeholder": "输入阶段状态"}
           ],
           "answer": ["IB-A-20260818-731", "CCDC / SETTLEMENT_PROCESSING_SYSTEM", "DELIVERING_PARTICIPANT; RECEIVING_PARTICIPANT; PAYER_FUNDS_ACCOUNT; RECEIVER_FUNDS_ACCOUNT", "DVP / NON_DIRECT", "APPROVED_FOR_CONFIRMATION; CONFIRMED_FOR_SETTLEMENT"],
-          "explanation": "工作纸记录本案例的身份、机构/系统、角色/账户、方式/通道和阶段状态；不把确认填成已完成的证券与资金交割。",
+          "explanation": "工作纸记录这笔业务的身份、机构/系统、角色/账户、方式/通道和阶段状态；不把确认填成已完成的证券与资金交割。",
           "hints": ["从匹配后的指令和批准资料登记，不把系统名当机构、把通道当方式或把确认当交割结果。"]
         },
         {
           "questionId": "CLR-IB-Q-05",
           "type": "RECONCILIATION",
-          "prompt": "用Demo A的匹配报告完成身份、数值、方式/通道边界和批准状态核对。",
+          "prompt": "用匹配报告完成身份、数值、方式/通道边界和批准状态核对。",
           "reconciliation": {
             "fields": [
               {"fieldId": "identity-match", "label": "业务键、日期、债券代码和方向", "kind": "SELECT", "formula": "IB-A-20260818-731 / 2026-08-18 / CGB-EDU-2026-A / DELIVER_SECURITIES一致", "placeholder": "选择身份结论", "options": [{"optionId": "A_IDENTITY_MATCH", "text": "身份字段一致"}, {"optionId": "A_IDENTITY_PENDING", "text": "身份字段未完成核对"}]},
@@ -206,7 +206,7 @@
             ]
           },
           "answer": ["A_IDENTITY_MATCH", "0.0000", "0.00", "A_DVP_NON_DIRECT", "A_APPROVED_CONFIRMED"],
-          "explanation": "身份字段一致，面额差和金额差为零；DVP与NON_DIRECT各自保留，批准检查通过后记录结算确认。",
+          "explanation": "身份字段一致，面额差和金额差为零；DVP与非直联各自保留，批准检查通过后记录结算确认。",
           "hints": ["先核身份，再核两类差额，最后确认方式/通道和阶段状态。", "实际DVP交割结果不在这张确认工作纸中。"]
         }
       ]
@@ -214,16 +214,16 @@
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
         "role": "银行间结算资料处理岗",
-        "product": "单笔正常银行间债券结算指令确认教育案例",
+        "product": "单笔正常银行间债券结算指令确认资料",
         "date": "2026-08-21",
-        "purpose": "从交易数据、结算任务、本方与对手方指令、匹配报告和确认资料完成字段来源判断、输入一致性复算、批准工作纸、跨来源勾稽和可追溯的结算确认结论。"
+        "purpose": "从交易数据、结算任务、本方与对手方指令、匹配报告和确认资料完成字段来源判断、输入一致性复算、批准工作纸、跨来源勾稽和有依据的结算确认结论。"
       },
       "sourceMaterials": [
         {
           "materialId": "CLR-IB-B-TRADE-DATA",
-          "title": "交易数据/成交单（综合B）",
+          "title": "交易数据/成交单",
           "kind": "CONFIRMATION",
-          "description": "交易链路提供的本案例业务身份和结算输入；不由价格或利息公式推导结算金额。",
+          "description": "交易链路提供的这笔业务身份和结算输入；不由价格或利息公式推导结算金额。",
           "fields": [
             {"fieldId": "business_key", "label": "业务键", "value": "IB-B-20260821-428"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
@@ -239,7 +239,7 @@
         },
         {
           "materialId": "CLR-IB-B-TASK",
-          "title": "结算任务（综合B）",
+          "title": "结算任务",
           "kind": "INSTRUCTION",
           "description": "结算处理系统承接交易数据，建立待处理任务并保留处理对象。",
           "fields": [
@@ -248,13 +248,13 @@
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
             {"fieldId": "settlement_institution", "label": "结算机构", "value": "CCDC"},
             {"fieldId": "settlement_processing_system", "label": "结算处理系统", "value": "SETTLEMENT_PROCESSING_SYSTEM"},
-            {"fieldId": "task_status", "label": "任务状态（本案例）", "value": "TASK_ACCEPTED"},
-            {"fieldId": "channel", "label": "通道（本案例）", "value": "NON_DIRECT"}
+            {"fieldId": "task_status", "label": "任务状态", "value": "TASK_ACCEPTED"},
+            {"fieldId": "channel", "label": "通道", "value": "NON_DIRECT"}
           ]
         },
         {
           "materialId": "CLR-IB-B-OUR-INSTRUCTION",
-          "title": "本方结算指令（综合B）",
+          "title": "本方结算指令",
           "kind": "INSTRUCTION",
           "description": "本方提交的指令，承载结算机构、系统、角色账户、方式和业务输入。",
           "fields": [
@@ -274,14 +274,14 @@
             {"fieldId": "receiver_funds_account", "label": "收款方资金账户角色", "value": "RECEIVER_FUNDS_ACCOUNT"},
             {"fieldId": "settlement_method", "label": "结算方式", "value": "DVP"},
             {"fieldId": "channel", "label": "通道", "value": "NON_DIRECT"},
-            {"fieldId": "instruction_status", "label": "指令状态（本案例）", "value": "INSTRUCTION_MATCHED"}
+            {"fieldId": "instruction_status", "label": "指令状态", "value": "INSTRUCTION_MATCHED"}
           ]
         },
         {
           "materialId": "CLR-IB-B-COUNTERPARTY-INSTRUCTION",
-          "title": "对手方结算指令（综合B）",
+          "title": "对手方结算指令",
           "kind": "INSTRUCTION",
-          "description": "对手方指令，用于与本方指令逐项匹配；账户角色以本案例角色标签呈现，不使用真实账号。",
+          "description": "对手方指令，用于与本方指令逐项匹配；账户角色以这笔业务角色标签呈现，不使用真实账号。",
           "fields": [
             {"fieldId": "instruction_id", "label": "对手方指令号", "value": "CP-INST-IB-B-428"},
             {"fieldId": "business_key", "label": "业务键", "value": "IB-B-20260821-428"},
@@ -294,36 +294,36 @@
             {"fieldId": "settlement_amount", "label": "结算金额（输入）", "value": "2487650.00", "unit": "CNY"},
             {"fieldId": "settlement_method", "label": "结算方式", "value": "DVP"},
             {"fieldId": "channel", "label": "通道", "value": "NON_DIRECT"},
-            {"fieldId": "counterparty_match_status", "label": "对手方匹配状态（本案例）", "value": "COUNTERPARTY_MATCHED"}
+            {"fieldId": "counterparty_match_status", "label": "对手方匹配状态", "value": "COUNTERPARTY_MATCHED"}
           ]
         },
         {
           "materialId": "CLR-IB-B-MATCH-REPORT",
-          "title": "字段匹配与批准检查报告（综合B）",
+          "title": "字段匹配与批准检查报告",
           "kind": "RECONCILIATION",
-          "description": "按本案例清单汇总本方与对手方指令的身份、核心输入、账户/方式/通道和阶段检查结果。",
+          "description": "按这笔业务清单汇总本方与对手方指令的身份、核心输入、账户/方式/通道和阶段检查结果。",
           "fields": [
-            {"fieldId": "identity_match_status", "label": "身份匹配状态（本案例）", "value": "IDENTITY_MATCHED"},
+            {"fieldId": "identity_match_status", "label": "身份匹配状态", "value": "IDENTITY_MATCHED"},
             {"fieldId": "face_value_difference", "label": "面额差", "value": "0.0000", "unit": "CNY_10K"},
             {"fieldId": "settlement_amount_difference", "label": "结算金额差", "value": "0.00", "unit": "CNY"},
-            {"fieldId": "account_role_check", "label": "账户角色检查（本案例）", "value": "ACCOUNT_ROLES_COMPLETE"},
-            {"fieldId": "method_channel_check", "label": "方式/通道检查（本案例）", "value": "DVP_AND_NON_DIRECT_SEPARATE"},
-            {"fieldId": "approval_check_status", "label": "批准检查状态（本案例）", "value": "APPROVED_FOR_CONFIRMATION"}
+            {"fieldId": "account_role_check", "label": "账户角色检查", "value": "ACCOUNT_ROLES_COMPLETE"},
+            {"fieldId": "method_channel_check", "label": "方式/通道检查", "value": "DVP_AND_NON_DIRECT_SEPARATE"},
+            {"fieldId": "approval_check_status", "label": "批准检查状态", "value": "APPROVED_FOR_CONFIRMATION"}
           ]
         },
         {
           "materialId": "CLR-IB-B-CONFIRMATION",
-          "title": "结算确认资料（综合B）",
+          "title": "结算确认资料",
           "kind": "CONFIRMATION",
-          "description": "确认资料记录本案例批准后的阶段结果；不表示DVP证券与资金已经完成交割。",
+          "description": "确认资料记录这笔业务批准后的阶段结果；不表示DVP证券与资金已经完成交割。",
           "fields": [
             {"fieldId": "business_key", "label": "业务键", "value": "IB-B-20260821-428"},
             {"fieldId": "instruction_id", "label": "本方指令号", "value": "OUR-INST-IB-B-428"},
             {"fieldId": "settlement_institution", "label": "结算机构", "value": "CCDC"},
             {"fieldId": "settlement_method", "label": "结算方式", "value": "DVP"},
             {"fieldId": "channel", "label": "通道", "value": "NON_DIRECT"},
-            {"fieldId": "approval_check_status", "label": "批准检查状态（本案例）", "value": "APPROVED_FOR_CONFIRMATION"},
-            {"fieldId": "confirmation_status", "label": "结算确认状态（本案例）", "value": "CONFIRMED_FOR_SETTLEMENT"},
+            {"fieldId": "approval_check_status", "label": "批准检查状态", "value": "APPROVED_FOR_CONFIRMATION"},
+            {"fieldId": "confirmation_status", "label": "结算确认状态", "value": "CONFIRMED_FOR_SETTLEMENT"},
             {"fieldId": "delivery_scope", "label": "实际交割范围", "value": "DEFERRED_TO_NEXT_ROUTE"}
           ]
         }
@@ -333,35 +333,35 @@
           "workItemId": "clr-ib-b-field-institution-system-account",
           "type": "FIELD_MAP",
           "title": "定位机构、系统和账户角色",
-          "instruction": "从综合B资料中选择承载结算机构CCDC、结算处理系统、付券/收券证券账户和付款/收款资金账户角色的本方指令来源。",
+          "instruction": "选择承载结算机构CCDC、结算处理系统、付券/收券证券账户和付款/收款资金账户角色的本方指令来源。",
           "response": {"kind": "SELECT", "placeholder": "选择机构/系统/账户来源", "options": [{"optionId": "B_OUR_INSTRUCTION_SOURCE", "text": "CLR-IB-B-OUR-INSTRUCTION"}, {"optionId": "B_TRADE_DATA_SOURCE", "text": "CLR-IB-B-TRADE-DATA"}, {"optionId": "B_CONFIRMATION_SOURCE", "text": "CLR-IB-B-CONFIRMATION"}]}
         },
         {
           "workItemId": "clr-ib-b-field-method-channel",
           "type": "FIELD_MAP",
           "title": "区分结算方式与通道",
-          "instruction": "从综合B本方/对手方指令选择同时承载settlement_method=DVP与channel=NON_DIRECT的来源，并保持两者为不同字段。",
+          "instruction": "从本方/对手方指令中选择同时承载结算方式为DVP、通道为非直联的来源，并保持两者为不同字段。",
           "response": {"kind": "SELECT", "placeholder": "选择方式/通道来源", "options": [{"optionId": "B_OUR_INSTRUCTION_SOURCE", "text": "CLR-IB-B-OUR-INSTRUCTION"}, {"optionId": "B_TASK_SOURCE", "text": "CLR-IB-B-TASK"}, {"optionId": "B_MATCH_REPORT_SOURCE", "text": "CLR-IB-B-MATCH-REPORT"}]}
         },
         {
           "workItemId": "clr-ib-b-face-value-check",
           "type": "CALCULATION",
           "title": "复算债券面额一致性",
-          "instruction": "用综合B交易数据与本方指令的185.7500 CNY_10K做差；精度4，容差0.0001 CNY_10K。",
+          "instruction": "用交易数据与本方指令中的185.7500万元做差；精度4，容差0.0001万元。",
           "response": {"kind": "NUMBER", "placeholder": "输入面额差", "unit": "CNY_10K", "precision": 4}
         },
         {
           "workItemId": "clr-ib-b-settlement-amount-check",
           "type": "CALCULATION",
           "title": "复算结算金额一致性",
-          "instruction": "用综合B交易数据与本方指令的2487650.00 CNY做差；精度2，容差0.01 CNY。结算金额是输入，不计算净价、全价或应计利息。",
+          "instruction": "用交易数据与本方指令中的2487650.00 CNY做差；精度2，容差0.01 CNY。结算金额是输入，不计算净价、全价或应计利息。",
           "response": {"kind": "NUMBER", "placeholder": "输入结算金额差", "unit": "CNY", "precision": 2}
         },
         {
           "workItemId": "clr-ib-b-confirmation-workpaper",
           "type": "LEDGER_ENTRY",
           "title": "完成结算确认工作纸",
-          "instruction": "根据本方指令、匹配报告和确认资料，登记业务键、日期、结算机构/系统、账户角色、DVP、NON_DIRECT、债券输入、结算金额输入及批准/确认状态；不要填写实际交割结果。",
+          "instruction": "根据本方指令、匹配报告和确认资料，登记业务键、日期、结算机构/系统、账户角色、DVP、非直联、债券输入、结算金额输入及批准/确认状态；不要填写实际交割结果。",
           "response": {"kind": "TEXT", "placeholder": "输入完整的结算确认工作纸"}
         },
         {
@@ -375,22 +375,22 @@
           "workItemId": "clr-ib-b-zero-difference",
           "type": "RECONCILIATION",
           "title": "确认两类输入差额为零",
-          "instruction": "结合面额和结算金额复算结果，选择综合B的数值勾稽结论。",
+          "instruction": "结合面额和结算金额复算结果，选择数值勾稽结论。",
           "response": {"kind": "SELECT", "placeholder": "选择数值勾稽结果", "options": [{"optionId": "B_ZERO_DIFFERENCE", "text": "面额差0.0000、金额差0.00"}, {"optionId": "B_NONZERO_DIFFERENCE", "text": "至少一类差额不为零"}]}
         },
         {
           "workItemId": "clr-ib-b-approval-confirmation",
           "type": "RECONCILIATION",
           "title": "记录批准与结算确认",
-          "instruction": "在身份和两类差额均闭合、账户角色完整且DVP与NON_DIRECT分开记录后，选择本案例的阶段结果。",
+          "instruction": "在身份和两类差额均闭合、账户角色完整且DVP与非直联分开记录后，选择这笔业务的阶段结果。",
           "response": {"kind": "SELECT", "placeholder": "选择批准/确认状态", "options": [{"optionId": "B_APPROVED_CONFIRMED", "text": "批准检查通过并完成结算确认"}, {"optionId": "B_PENDING", "text": "仍需补充检查"}]}
         },
         {
           "workItemId": "clr-ib-b-conclusion",
           "type": "SHORT_TEXT",
-          "title": "写出可追溯的结算确认结论",
-          "instruction": "用一句短结论写明业务键、日期/交割日、债券代码和方向、面额与结算金额输入、两类差额、结算机构、DVP与NON_DIRECT、批准/确认状态，并注明实际DVP交割不在本路线。",
-          "response": {"kind": "TEXT", "placeholder": "输入一句可追溯的结算确认结论"}
+          "title": "写出有依据的结算确认结论",
+          "instruction": "用一句短结论写明业务键、日期/交割日、债券代码和方向、面额与结算金额输入、两类差额、结算机构、DVP与非直联、批准/确认状态，并注明实际DVP交割不在本次确认步骤。",
+          "response": {"kind": "TEXT", "placeholder": "输入一句有依据的结算确认结论"}
         }
       ],
       "submissionNote": "提交机构/系统/账户与方式/通道来源、面额和结算金额一致性复算、结算确认工作纸、身份和零差勾稽、批准/确认状态以及一句边界清楚的结论。"
@@ -401,7 +401,7 @@
       "referenceId": "CLR-IB-REF-BASE",
       "title": "清算共同基础：同一义务的身份、结果与对账",
       "source": "Repository/content/routes/clearing/CLR-BASE-001.json；Repository/content/evidence/clearing/base/CLR-BASE-001-evidence.json",
-      "usage": "沿用业务键、业务日期、方向、来源承接、结果工作纸和零差勾稽的公共框架；本路线只依赖该共同基础，不把其他分支路线写入前置。"
+      "usage": "沿用业务键、业务日期、方向、来源承接、结果工作纸和零差勾稽的公共框架；当前流程只依赖该共同基础，不把其他分支路线写入前置。"
     },
     {
       "referenceId": "CLR-IB-REF-CCDC",
@@ -413,13 +413,13 @@
       "referenceId": "CLR-IB-REF-SHCH",
       "title": "上海清算所规则中的结算机构、账户与正常指令承接关系",
       "source": "project_materials/新人陪练案例库/清算/银行间/关于发布《银行间市场清算所股份有限公司债券登记托管、清算结算业务规则》的公告.docx，P106—P127、P147—P150",
-      "usage": "用于交叉确认交易数据进入结算、债券账户与资金结算账户分工、有效指令与正常处理顺序等材料关系；不把历史规则中的截止时点、失败条件、费用或回购流程带入本路线案例。"
+      "usage": "用于交叉确认交易数据进入结算、债券账户与资金结算账户分工、有效指令与正常处理顺序等材料关系；不把历史规则中的截止时点、失败条件、费用或回购流程带入当前流程案例。"
     },
     {
       "referenceId": "CLR-IB-REF-CASE",
-      "title": "银行间指令确认教育案例版本",
+      "title": "银行间指令确认资料版本",
       "source": "CLR-IB-INSTRUCTION-EDU-1.0，Repository/content/evidence/clearing/ib-instruction/CLR-IB-INSTRUCTION-001-evidence.json",
-      "usage": "Demo A与Comprehensive B的业务键、日期、债券代码、面额、金额、账户角色、状态和通道均为合成教育参数；仅用于本路线的字段匹配、输入一致性复算和结算确认。"
+      "usage": "两组参数中的业务键、日期、债券代码、面额、金额、账户角色、状态和通道均为合成数据，用于字段匹配、输入一致性复算和结算确认。"
     }
   ]
 }

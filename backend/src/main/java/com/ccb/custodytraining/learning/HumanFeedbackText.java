@@ -44,7 +44,12 @@ final class HumanFeedbackText {
             "证据一", "证据二", "未见对应说明", "评分技术", "评分器",
             "评测器", "referenceAnswer", "evidenceRules", "criterionId", "requirementId", "itemId",
             "fieldId", "optionId", "sourceId", "availableAt", "remediationTargetId", "MODEL_",
-            "JSON", "标准答案", "参考答案", "正确答案", "对应状态", "对应数值");
+            "JSON", "标准答案", "参考答案", "正确答案", "对应状态", "对应数值",
+            "本案例", "本路线", "题面", "可追溯");
+
+    private static final List<String> CLEARING_ACCOUNTING_TEMPLATE = List.of(
+            "借贷方向", "借方科目", "贷方科目", "会计科目", "会计凭证", "凭证科目",
+            "会计分录", "成本、费用、应付项和清算款", "科目；成本");
 
     private static final List<String> INTERNAL_LABELS = List.of(
             "fieldId", "optionId", "itemId",
@@ -223,6 +228,21 @@ final class HumanFeedbackText {
             Map.entry("READ", "读取"),
             Map.entry("SUBSTITUTION_SETTLED", "现金替代已结算"),
             Map.entry("SECURITIES_SETTLED", "证券已交收"),
+            Map.entry("SETTLEMENT_PROCESSING_SYSTEM", "结算处理系统"),
+            Map.entry("SETTLEMENT_OBLIGATION", "交收义务"),
+            Map.entry("APPROVED_FOR_CONFIRMATION", "已批准待确认"),
+            Map.entry("CONFIRMED_FOR_SETTLEMENT", "已确认待交收"),
+            Map.entry("DVP_SETTLED", "DVP已结算"),
+            Map.entry("EOD_CLOSED", "日终已关闭"),
+            Map.entry("TASK_ACCEPTED", "任务已接收"),
+            Map.entry("UNIQUE_EXECUTION", "唯一执行记录"),
+            Map.entry("EXECUTED", "已执行"),
+            Map.entry("POSTED", "已登记"),
+            Map.entry("SENT", "已发送"),
+            Map.entry("SETTLED", "已结算"),
+            Map.entry("RECONCILED", "已对账"),
+            Map.entry("CNY_10K", "万元"),
+            Map.entry("CNY", "元"),
             Map.entry("SYNTHETIC_EDUCATIONAL", "合成教学资料"),
             Map.entry("NO_CASH_SUBSTITUTION", "不使用现金替代"),
             Map.entry("MUST_CASH_SUBSTITUTION", "必须现金替代"),
@@ -264,16 +284,23 @@ final class HumanFeedbackText {
     }
 
     static String reviewerEvidence(JsonNode item, boolean matched) {
-        String focus = safeFeedbackFocus(item.path("description").asText(""),
-                item.path("evidenceRequirement").asText(""));
+        boolean clearing = isClearingContext(item);
+        String focus = clearing
+                ? clearingFeedbackFocus(item)
+                : safeFeedbackFocus(item.path("description").asText(""),
+                        item.path("evidenceRequirement").asText(""));
         if (focus.isBlank()) {
-            focus = "对应资料字段、金额或计算关系";
+            focus = clearing
+                    ? "业务对象、字段来源、数量/金额、方向、状态和结果登记"
+                    : "对应资料字段、金额或计算关系";
         }
         if (matched) {
-            return "已对照资料核对：" + focus + "。";
+            return (clearing ? "已按清算资料核对：" : "已对照资料核对：") + focus + "。";
         }
-        return "这次作答还对不上资料：" + focus
-                + "。请回到对应资料，检查字段、金额、状态、计算或勾稽关系。";
+        return (clearing ? "这次作答还没有和清算资料对上：" : "这次作答还对不上资料：") + focus
+                + (clearing
+                        ? "。请回到对应资料，检查业务对象、字段来源、数量/金额、方向、状态或结果登记。"
+                        : "。请回到对应资料，检查字段、金额、状态、计算或勾稽关系。");
     }
 
     static String unreadableSubmission() {
@@ -288,9 +315,10 @@ final class HumanFeedbackText {
     static String normalizeModelEvidence(String candidate, JsonNode item, boolean matched,
                                          JsonNode referenceAnswer, JsonNode learnerAnswer) {
         String rawValue = candidate == null ? "" : candidate.trim();
+        boolean clearing = isClearingContext(item);
         if (!containsReferenceOnlyAnswer(rawValue, referenceAnswer, learnerAnswer)) {
-            String publicValue = publicLabel(rawValue);
-            if (isHumanEvidence(publicValue)) {
+            String publicValue = publicLabel(rawValue, clearing);
+            if (isHumanEvidence(publicValue, clearing)) {
                 return publicValue;
             }
         }
@@ -299,21 +327,46 @@ final class HumanFeedbackText {
 
     /** Final guard for historical snapshots and any reviewer implementation. */
     static String publicEvidence(String description, String candidate, boolean matched) {
-        String value = publicLabel(candidate == null ? "" : candidate.trim());
-        if (isHumanEvidence(value)) {
+        return publicEvidence("", description, candidate, matched);
+    }
+
+    static String publicEvidence(String contextId, String description, String candidate, boolean matched) {
+        boolean clearing = isClearingId(contextId);
+        String value = publicLabel(candidate == null ? "" : candidate.trim(), clearing);
+        if (isHumanEvidence(value, clearing)) {
             return value;
         }
-        String focus = safeFeedbackFocus(description, "");
+        String focus = clearing
+                ? clearingPublicFallbacks(safeFeedbackFocus(description, ""))
+                : safeFeedbackFocus(description, "");
         if (focus.isBlank()) {
-            focus = "对应资料字段、金额或计算关系";
+            focus = clearing
+                    ? "业务对象、字段来源、数量/金额、方向、状态和结果登记"
+                    : "对应资料字段、金额或计算关系";
         }
         return matched
-                ? "已对照资料核对：" + focus + "。"
-                : "这次作答还对不上资料：" + focus
-                        + "。请回到对应资料，检查字段、金额、状态、计算或勾稽关系。";
+                ? (clearing ? "已按清算资料核对：" : "已对照资料核对：") + focus + "。"
+                : (clearing ? "这次作答还没有和清算资料对上：" : "这次作答还对不上资料：") + focus
+                        + (clearing
+                                ? "。请回到对应资料，检查业务对象、字段来源、数量/金额、方向、状态或结果登记。"
+                                : "。请回到对应资料，检查字段、金额、状态、计算或勾稽关系。");
     }
 
     static String incorrectPracticeExplanation(JsonNode question) {
+        if (isClearingContext(question)) {
+            String focus = sanitizeFeedbackText(clearingPublicFallbacks(questionFocus(question)));
+            if ("LEDGER_ENTRY".equals(question.path("type").asText())) {
+                return clearingPracticeHint(question);
+            }
+            if ("SHORT_TEXT".equals(question.path("type").asText())) {
+                return "这句结论还没有和清算资料对上。请回到“"
+                        + (focus.isBlank() ? "业务结论" : focus)
+                        + "”，补齐业务对象、数量/金额、状态和勾稽结果。";
+            }
+            return "这次填写还没有和清算资料对上。请回到“"
+                    + (focus.isBlank() ? "对应资料" : focus)
+                    + "”，检查业务对象、字段来源、数量/金额、方向和状态。";
+        }
         String focus = questionFocus(question);
         if ("SHORT_TEXT".equals(question.path("type").asText())) {
             if (focus.isBlank()) {
@@ -330,13 +383,20 @@ final class HumanFeedbackText {
     }
 
     static String correctPracticeExplanation(JsonNode question) {
-        String explanation = publicLabel(question.path("explanation").asText(""));
+        boolean clearing = isClearingContext(question);
+        String explanation = sanitizeFeedbackText(
+                publicLabel(question.path("explanation").asText(""), clearing));
         return explanation.isBlank()
-                ? "已按资料核对当前字段、计算或业务状态。"
+                ? (clearing
+                        ? "已按清算资料核对当前业务对象、字段、数量/金额和结果状态。"
+                        : "已按资料核对当前字段、计算或业务状态。")
                 : explanation;
     }
 
     static String practiceHint(JsonNode question) {
+        if (isClearingContext(question)) {
+            return clearingPracticeHint(question);
+        }
         return switch (question.path("type").asText()) {
             case "FIELD_MAP" -> "先按资料来源逐行核对字段，再判断方向、状态或确认时点。";
             case "CALCULATION" -> "先从资料字段取数，把直接取数项和需要复算的结果分开，再按给出的关系计算。";
@@ -352,13 +412,14 @@ final class HumanFeedbackText {
                 String hint = question.path("hints").path(0).asText("").trim();
                 yield hint.isBlank()
                         ? "先回到资料，核对业务对象、来源和处理顺序。"
-                        : redactNumberLiterals(publicLabel(hint));
+                        : sanitizeFeedbackText(redactNumberLiterals(publicLabel(hint)));
             }
         };
     }
 
     static String remediationTitle(JsonNode target) {
-        String title = publicLabel(target.path("title").asText(""));
+        String title = sanitizeFeedbackText(
+                publicLabel(target.path("title").asText(""), isClearingContext(target)));
         if (title.isBlank()) {
             return "核对本次作答的关键资料";
         }
@@ -368,10 +429,14 @@ final class HumanFeedbackText {
     }
 
     static String remediationReason(JsonNode target) {
-        String reason = publicLabel(target.path("reason").asText(""));
+        boolean clearing = isClearingContext(target);
+        String reason = sanitizeFeedbackText(publicLabel(target.path("reason").asText(""), clearing));
+        if (clearing && containsClearingAccountingTemplate(reason)) {
+            return "请回到清算资料，重新核对业务对象、字段来源、数量/金额、方向、状态和结果登记。";
+        }
         return reason.isBlank()
                 ? "本次评分在对应资料或计算关系处还没有核对上。"
-                : redactNumberLiterals(reason);
+                : sanitizeFeedbackText(redactNumberLiterals(reason));
     }
 
     private static boolean isHumanEvidence(String value) {
@@ -401,6 +466,58 @@ final class HumanFeedbackText {
             }
         }
         return BUSINESS_ANCHORS.stream().anyMatch(value::contains);
+    }
+
+    private static boolean isHumanEvidence(String value, boolean clearing) {
+        return isHumanEvidence(value) && (!clearing || !containsClearingAccountingTemplate(value));
+    }
+
+    private static boolean isClearingContext(JsonNode node) {
+        if (node == null || node.isMissingNode() || node.isNull()) {
+            return false;
+        }
+        for (String field : List.of("routeId", "questionId", "itemId", "criterionId",
+                "requirementId", "targetId")) {
+            String value = node.path(field).asText("");
+            if (isClearingId(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isClearingId(String value) {
+        return value != null && (value.startsWith("CLR-") || value.contains("-CLR-"));
+    }
+
+    private static boolean containsClearingAccountingTemplate(String value) {
+        if (value == null || value.isBlank()) {
+            return false;
+        }
+        return CLEARING_ACCOUNTING_TEMPLATE.stream().anyMatch(value::contains);
+    }
+
+    private static String clearingFeedbackFocus(JsonNode item) {
+        String focus = clearingPublicFallbacks(safeFeedbackFocus(item.path("description").asText(""),
+                item.path("evidenceRequirement").asText("")));
+        return containsClearingAccountingTemplate(focus)
+                ? "业务对象、字段来源、数量/金额、方向、状态和结果登记"
+                : focus;
+    }
+
+    private static String clearingPracticeHint(JsonNode question) {
+        String hint = question.path("hints").path(0).asText("").trim();
+        if (!hint.isBlank()) {
+            return sanitizeFeedbackText(redactNumberLiterals(publicLabel(hint, true)));
+        }
+        return switch (question.path("type").asText()) {
+            case "FIELD_MAP" -> "先按资料来源区分业务对象、字段作用和处理状态。";
+            case "CALCULATION" -> "先从资料读取数量和金额，再按资料中的计算关系复算并保留单位。";
+            case "LEDGER_ENTRY" -> "按业务对象和收付方向登记数量、金额、账户或状态。";
+            case "RECONCILIATION" -> "先分别核对证券、资金、余额和状态，再确认各项差额。";
+            case "SHORT_TEXT" -> "把业务键、数量/金额、状态和勾稽结论写成一句可回查的业务说明。";
+            default -> "先回到清算资料，核对业务对象、字段来源和处理结果。";
+        };
     }
 
     private static boolean containsReferenceOnlyAnswer(String candidate, JsonNode referenceAnswer,
@@ -457,7 +574,7 @@ final class HumanFeedbackText {
             for (JsonNode field : fields) {
                 String label = field.path("label").asText("").trim();
                 if (!label.isBlank()) {
-                    labels.add(redactNumberLiterals(publicLabel(label)));
+                    labels.add(sanitizeFeedbackText(redactNumberLiterals(publicLabel(label))));
                 }
                 if (labels.size() == 4) {
                     break;
@@ -466,14 +583,14 @@ final class HumanFeedbackText {
         } else if (fields.isObject()) {
             String label = fields.path("label").asText("").trim();
             if (!label.isBlank()) {
-                labels.add(redactNumberLiterals(publicLabel(label)));
+                labels.add(sanitizeFeedbackText(redactNumberLiterals(publicLabel(label))));
             }
         }
         if (!labels.isEmpty()) {
             String result = String.join("、", labels);
             return fields.isArray() && fields.size() > labels.size() ? result + "等字段" : result;
         }
-        return redactNumberLiterals(publicLabel(question.path("prompt").asText("")));
+        return sanitizeFeedbackText(redactNumberLiterals(publicLabel(question.path("prompt").asText(""))));
     }
 
     private static String publicFocus(String preferred, String fallback) {
@@ -481,7 +598,7 @@ final class HumanFeedbackText {
         if (value.isBlank()) {
             value = fallback == null ? "" : fallback.trim();
         }
-        return publicLabel(value);
+        return sanitizeFeedbackText(publicLabel(value));
     }
 
     private static String safeFeedbackFocus(String preferred, String fallback) {
@@ -567,12 +684,38 @@ final class HumanFeedbackText {
                 .replace("valuation diff", "估值差额")
                 .replace("shares diff", "份额差额")
                 .replace("return diff", "返还差额")
+                .replaceAll("(?<![A-Za-z])unit(?![A-Za-z])", "单位")
                 .replaceAll("(?<![A-Za-z0-9])status(?![A-Za-z0-9])", "状态")
                 .replaceAll("(?<![A-Za-z0-9])state(?![A-Za-z0-9])", "状态")
                 .replaceAll("(?<![A-Za-z])R\\d+(?![A-Za-z0-9])", "当前处理步骤");
         value = replaceUpperTokens(value);
         value = value.replaceAll("\\s+([，。、；：])", "$1").replaceAll("([，。、；：])\\s+", "$1");
         return value.trim();
+    }
+
+    private static String publicLabel(String text, boolean clearing) {
+        String value = publicLabel(text);
+        return clearing ? clearingPublicFallbacks(value) : value;
+    }
+
+    private static String clearingPublicFallbacks(String value) {
+        return value.replace("业务资料标识", "清算业务键")
+                .replace("业务字段", "清算资料字段");
+    }
+
+    private static String sanitizeFeedbackText(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+        return value.replace("本案例资料", "资料")
+                .replace("本案例的", "资料中的")
+                .replace("本案例", "资料")
+                .replace("本路线", "当前流程")
+                .replace("题面", "资料")
+                .replace("可追溯", "可核对")
+                .replace("结构化作答", "填写结果")
+                .replace("结构化工作纸", "工作纸")
+                .trim();
     }
 
     private static String replaceUpperTokens(String value) {

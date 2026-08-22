@@ -8,6 +8,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { answerPractice } from '../api/client';
 import type {
+  Line,
   PracticeFeedback,
   PracticeQuestion as Question,
   StepResponse,
@@ -17,6 +18,8 @@ import {
   optionDisplayLabel,
   publicBusinessText,
   publicUnitLabel,
+  practiceFeedbackLabel,
+  practiceLedgerLabels,
 } from '../utils/format';
 import { requestId } from '../utils/ids';
 import { Mascot } from './Mascot';
@@ -30,10 +33,12 @@ import { Mascot } from './Mascot';
  */
 export function PracticeSession({
   routeId,
+  line,
   data,
   onCompleted,
 }: {
   routeId: string;
+  line?: Line;
   data: StepResponse<'BASIC_PRACTICE'>;
   onCompleted: () => Promise<void>;
 }) {
@@ -101,6 +106,7 @@ export function PracticeSession({
         <PracticeBody
           key={question.questionId}
           question={question}
+          line={line}
           feedback={feedback}
           isLastQuestion={index === content.questions.length - 1}
           onSubmit={submit}
@@ -112,11 +118,13 @@ export function PracticeSession({
 
 function PracticeBody({
   question,
+  line,
   feedback,
   isLastQuestion,
   onSubmit,
 }: {
   question: Question;
+  line?: Line;
   feedback: PracticeFeedback | null;
   isLastQuestion: boolean;
   onSubmit: (answer: string[]) => Promise<void> | void;
@@ -239,7 +247,7 @@ function PracticeBody({
                   onChange={(event) => updateValue(fieldIndex, event.target.value)}
                   disabled={Boolean(feedback?.correct)}
                 />
-                <em>{publicUnitLabel(field.unit)}</em>
+                <em>{publicUnitLabel(field.unit, { line, fieldId: field.fieldId, label: field.label })}</em>
               </span>
             </label>
           ))}
@@ -248,9 +256,10 @@ function PracticeBody({
     }
 
     if (question.type === 'LEDGER_ENTRY') {
+      const labels = practiceLedgerLabels(line);
       return (
         <div className="practice-structured practice-structured--ledger">
-          <div className="practice-ledger__head"><span>方向</span><span>资料行</span><span>补全科目</span></div>
+          <div className="practice-ledger__head"><span>{labels.direction}</span><span>{labels.source}</span><span>{labels.input}</span></div>
           {question.ledgerEntries?.map((entry, entryIndex) => (
             <label className="practice-ledger__row" key={entry.entryId}>
               <b>{businessActionLabel(entry.direction)}</b>
@@ -402,8 +411,8 @@ function PracticeBody({
         <div className="practice-body__hint">
           <Mascot pose="THINKING" size="small" />
           <div className="practice-body__hint-bubble">
-            <strong>先核对资料中的状态。</strong>
-            <span>区分系统执行状态与业务结果，再判断下一步。</span>
+            <strong>{line === 'CLEARING' ? '先回到清算资料。' : '先回到资料。'}</strong>
+            <span>{line === 'CLEARING' ? '核对业务键、处理状态和交收结果。' : '对照来源和计算结果，再提交。'}</span>
           </div>
         </div>
       )}
@@ -420,7 +429,7 @@ function PracticeBody({
                 {feedback.correct ? <Check size={26} strokeWidth={3} /> : <CircleAlert size={26} />}
               </span>
               <div>
-                <strong>{feedback.correct ? '判断正确' : '请核对资料'}</strong>
+                <strong>{practiceFeedbackLabel(question.type, line, feedback.correct)}</strong>
                 <p>{feedback.explanation}</p>
                 {feedback.hint && (
                   <span className="practice-actionbar__hint">
@@ -432,12 +441,12 @@ function PracticeBody({
           ) : (
             <span className="practice-actionbar__meta">
               {selected.length > 0 && selected.every((value) => value.trim().length > 0)
-                ? '字段已填齐，可以提交检查'
+                ? '已填齐，可以核对'
                 : isStructured
-                  ? '先填写所有字段，再提交检查'
+                  ? '先填写所有字段，再核对'
                   : selected.length
-                    ? '选择已确定，可以提交检查'
-                    : '先选择一个选项，再提交检查'}
+                    ? '选择已确定，可以核对'
+                    : '先选择一个选项，再核对'}
             </span>
           )}
           {feedback?.correct ? (

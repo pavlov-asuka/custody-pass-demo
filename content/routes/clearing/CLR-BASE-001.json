@@ -3,12 +3,12 @@
   "contentVersion": "1.0.0",
   "line": "CLEARING",
   "title": "清算义务对象与结果核对",
-  "summary": "围绕同一 SETTLEMENT_OBLIGATION，读取指令、确认/成交、交收结果和对账资料，用业务键、业务日期、方向、数量或金额把结果核对到零差。",
+  "summary": "围绕同一交收义务，读取指令、确认/成交、交收结果和对账资料，用业务键、业务日期、方向、数量或金额把结果核对到零差。",
   "estimatedMinutes": 55,
   "objectives": [
-    "从指令、确认/成交、交收结果和对账资料中定位 SETTLEMENT_OBLIGATION 的业务键、业务日期、资产类型和方向",
+    "从指令、确认/成交、交收结果和对账资料中定位交收义务的业务键、业务日期、资产类型和方向",
     "读取数量、金额、单位和参与角色，把同一笔义务的来源字段放到对应工作纸",
-    "按本案例给定的批次数量与单位数量、金额分项独立复算数量和金额",
+    "按这笔业务给定的批次数量与单位数量、金额分项独立复算数量和金额",
     "按业务键、业务日期和方向对应结果，确认数量差与金额差均为零后记录正常结果状态"
   ],
   "steps": {
@@ -30,7 +30,7 @@
           "cardId": "CLR-BASE-KC-02",
           "type": "FLOW",
           "title": "把一笔义务串成可核对记录",
-          "conclusion": "SETTLEMENT_OBLIGATION 不是资料标题，而是由身份字段、处理字段、参与角色和结果字段共同组成的业务对象。",
+          "conclusion": "交收义务不是资料标题，而是由身份字段、处理字段、参与角色和结果字段共同组成的业务对象。",
           "items": [
             "用业务键、业务日期和方向把四份资料归到同一笔义务",
             "把资产类型、数量、金额和单位从对应来源读入工作纸",
@@ -42,9 +42,9 @@
           "cardId": "CLR-BASE-KC-03",
           "type": "KEY_POINT",
           "title": "结果要对得上，才算完成",
-          "conclusion": "同一业务键、日期和方向下，数量差与金额差都为零，且结果状态为本案例的正常完成状态，记录才可以结束。",
+          "conclusion": "同一业务键、日期和方向下，数量差与金额差都为零，且结果状态为这笔业务的正常完成状态，记录才可以结束。",
           "items": [
-            "数量按单位保留本案例要求的整数精度，金额按本案例要求保留两位小数",
+            "数量按单位保留这笔业务要求的整数精度，金额按这笔业务要求保留两位小数",
             "比较时同时保留业务键、业务日期和方向，不能只看金额或数量",
             "交收结果的参与角色与确认资料中的角色关系要能对应",
             "对账资料中的数量差和金额差分别为0和0.00"
@@ -55,20 +55,20 @@
     "DEMONSTRATION": {
       "scenario": {
         "role": "清算资料处理岗",
-        "product": "单一正常 SETTLEMENT_OBLIGATION 教学案例",
+        "product": "单笔正常交收义务处理",
         "date": "2026-08-18",
         "fixture": "CLR-BASE-DEMO-A",
         "facts": [
-          "指令资料的业务键为BASE-A-20260818-017，业务日期为2026-08-18，资产类型为SECURITY，方向为RECEIVE，数量为2400 unit，金额为18750.00 CNY。",
-          "指令资料给出12个批次、每批200 unit；交付方、接收方和复核方分别为DELIVERING_PARTICIPANT、RECEIVING_PARTICIPANT、RECONCILIATION_REVIEWER。",
-          "确认/成交资料承接同一业务键、日期、资产类型和方向，确认数量2400 unit、金额18750.00 CNY；交收结果记录同样数量和金额，结果状态为SETTLED。",
-          "对账资料将预期数量2400与结果数量2400、预期金额18750.00与结果金额18750.00放在同一业务键下，数量差为0、金额差为0.00，状态为RECONCILED。"
+          "指令资料的业务键为BASE-A-20260818-017，业务日期为2026-08-18，资产类型为证券，方向为收取，数量为2400 unit，金额为18750.00 CNY。",
+          "指令资料给出12个批次、每批200 unit；交付方、接收方和复核方分别为交付方、接收方、对账复核方。",
+          "确认/成交资料承接同一业务键、日期、资产类型和方向，确认数量2400 unit、金额18750.00 CNY；交收结果记录同样数量和金额，结果状态为已结算。",
+          "对账资料将预期数量2400与结果数量2400、预期金额18750.00与结果金额18750.00放在同一业务键下，数量差为0、金额差为0.00，状态为已勾稽。"
         ]
       },
       "steps": [
         {
           "order": 1,
-          "action": "从指令资料读取业务键BASE-A-20260818-017、业务日期2026-08-18、资产类型SECURITY和方向RECEIVE，并建立SETTLEMENT_OBLIGATION记录",
+          "action": "从指令资料读取业务键BASE-A-20260818-017、业务日期2026-08-18、资产类型证券和方向收取，并建立交收义务记录",
           "reason": "业务键、日期和方向是四份资料归并到同一笔义务的身份字段。"
         },
         {
@@ -78,18 +78,18 @@
         },
         {
           "order": 3,
-          "action": "按12×200计算数量2400，按7250.00+11500.00计算金额18750.00，并按本案例精度保存",
+          "action": "按12×200计算数量2400，按7250.00+11500.00计算金额18750.00，并按这笔业务精度保存",
           "reason": "独立复算把资料中的分项数字变成可以与确认和交收结果比较的工作纸值。"
         },
         {
           "order": 4,
-          "action": "把交收结果的SETTLED状态、数量2400 unit和金额18750.00 CNY登记到同一业务键的结果栏",
+          "action": "把交收结果的已结算状态、数量2400 unit和金额18750.00 CNY登记到同一业务键的结果栏",
           "reason": "结果栏只承接交收结果资料，不用指令或确认状态代替实际结果。"
         },
         {
           "order": 5,
-          "action": "按业务键、日期和RECEIVE方向比较预期与结果，确认数量差0、金额差0.00并记录RECONCILED",
-          "reason": "身份字段一致且两类数值差为零，才有足够证据记录本案例的正常结果。"
+          "action": "按业务键、日期和收取方向比较预期与结果，确认数量差0、金额差0.00并记录已勾稽",
+          "reason": "身份字段一致且两类数值差为零，才有足够证据记录这笔业务的正常结果。"
         }
       ],
       "summary": "业务身份 → 来源字段 → 数量/金额复算 → 交收结果 → 零差核对"
@@ -99,12 +99,12 @@
         {
           "questionId": "CLR-BASE-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "把 Demo A 的业务身份、确认、交收和对账字段分别映射到主来源。",
+          "prompt": "把指令、确认/成交资料、交收结果和对账资料中的字段分别映射到业务身份、确认、交收和对账。",
           "fieldMappings": [
             {
               "fieldId": "identity-source",
               "label": "业务键、业务日期、资产类型和方向主来源",
-              "source": "Demo A 四份资料",
+              "source": "指令资料与对账资料",
               "options": [
                 {"optionId": "INSTRUCTION_IDENTITY", "text": "指令资料"},
                 {"optionId": "RECONCILIATION_IDENTITY", "text": "对账资料"}
@@ -113,7 +113,7 @@
             {
               "fieldId": "confirmation-source",
               "label": "确认数量和确认金额主来源",
-              "source": "Demo A 确认/成交资料与交收结果资料",
+              "source": "确认/成交资料与交收结果资料",
               "options": [
                 {"optionId": "CONFIRMATION_RECORD", "text": "确认/成交资料"},
                 {"optionId": "SETTLEMENT_RESULT_RECORD", "text": "交收结果资料"}
@@ -122,7 +122,7 @@
             {
               "fieldId": "settlement-source",
               "label": "实际数量、实际金额和结果状态主来源",
-              "source": "Demo A 确认/成交资料与交收结果资料",
+              "source": "确认/成交资料与交收结果资料",
               "options": [
                 {"optionId": "SETTLEMENT_RESULT_RECORD", "text": "交收结果资料"},
                 {"optionId": "CONFIRMATION_RECORD", "text": "确认/成交资料"}
@@ -131,7 +131,7 @@
             {
               "fieldId": "reconciliation-source",
               "label": "数量差、金额差和对账状态主来源",
-              "source": "Demo A 对账资料与交收结果资料",
+              "source": "对账资料与交收结果资料",
               "options": [
                 {"optionId": "RECONCILIATION_RECORD", "text": "对账资料"},
                 {"optionId": "SETTLEMENT_RESULT_RECORD", "text": "交收结果资料"}
@@ -145,7 +145,7 @@
         {
           "questionId": "CLR-BASE-Q-02",
           "type": "CALCULATION",
-          "prompt": "按 Demo A 的指令分项复算数量和金额，数量保留整数，金额保留两位小数。",
+          "prompt": "按指令资料的分项复算数量和金额，数量保留整数，金额保留两位小数。",
           "calculation": {
             "fields": [
               {"fieldId": "quantity-total", "label": "复算数量", "formula": "12 × 200", "placeholder": "输入数量", "unit": "unit", "precision": 0, "tolerance": 0},
@@ -159,30 +159,30 @@
         {
           "questionId": "CLR-BASE-Q-03",
           "type": "SHORT_TEXT",
-          "prompt": "用一句短结论写出 Demo A 的正常结果。",
+          "prompt": "用一句短结论写出这笔交收义务的正常结果。",
           "textInput": {"label": "正常结果结论", "placeholder": "写明业务键、日期和方向、数量与金额、两类差额和结果状态"},
           "answer": ["BASE-A-20260818-017", "2026-08-18", "RECEIVE", "2400 unit", "18750.00 CNY", "数量差0", "金额差0.00", "RECONCILED"],
-          "explanation": "短结论要能回到 Demo A 的业务身份、数值结果、两类零差和对账状态。",
+          "explanation": "短结论要能回到业务身份、数值结果、两类零差和对账状态。",
           "hints": ["保留业务键和日期/方向，再写数量、金额、差额和状态。"]
         },
         {
           "questionId": "CLR-BASE-Q-04",
           "type": "LEDGER_ENTRY",
-          "prompt": "把 Demo A 的交收结果登记到业务对象工作纸，不填写分支专有科目。",
+          "prompt": "把交收结果资料中的实际数量、实际金额和结果状态登记到业务对象工作纸，不填写分支专有科目。",
           "ledgerEntries": [
-            {"entryId": "obligation-key", "direction": "业务键", "label": "SETTLEMENT_OBLIGATION业务键", "amount": "BASE-A-20260818-017", "placeholder": "输入业务键"},
-            {"entryId": "asset-result", "direction": "RECEIVE", "label": "交收结果数量", "amount": "2400", "placeholder": "输入数量"},
-            {"entryId": "amount-result", "direction": "RECEIVE", "label": "交收结果金额", "amount": "18750.00", "placeholder": "输入金额"},
-            {"entryId": "state-result", "direction": "结果", "label": "交收结果状态", "amount": "SETTLED", "placeholder": "输入结果状态"}
+            {"entryId": "obligation-key", "direction": "业务键", "label": "交收义务业务键", "amount": "BASE-A-20260818-017", "placeholder": "输入业务键"},
+            {"entryId": "asset-result", "direction": "收取", "label": "交收结果数量", "amount": "2400", "placeholder": "输入数量"},
+            {"entryId": "amount-result", "direction": "收取", "label": "交收结果金额", "amount": "18750.00", "placeholder": "输入金额"},
+            {"entryId": "state-result", "direction": "结果", "label": "交收结果状态", "amount": "已结算", "placeholder": "输入结果状态"}
           ],
           "answer": ["BASE-A-20260818-017", "2400", "18750.00", "SETTLED"],
-          "explanation": "工作纸保留业务键、方向、实际数量、实际金额和结果状态；本路线不填写具体分支科目。",
+          "explanation": "工作纸保留业务键、方向、实际数量、实际金额和结果状态；这里不填写具体分支科目。",
           "hints": ["从交收结果资料抄录实际值，并把它们放回同一业务键。"]
         },
         {
           "questionId": "CLR-BASE-Q-05",
           "type": "RECONCILIATION",
-          "prompt": "用 Demo A 的对账资料完成身份对应、数量差和金额差核对。",
+          "prompt": "用对账资料完成身份对应、数量差和金额差核对。",
           "reconciliation": {
             "fields": [
               {"fieldId": "key-date-direction", "label": "业务键、日期和方向", "kind": "SELECT", "formula": "BASE-A-20260818-017 / 2026-08-18 / RECEIVE一致", "placeholder": "选择身份结论", "options": [{"optionId": "KEY_DATE_DIRECTION_MATCH", "text": "业务键、日期和方向一致"}, {"optionId": "KEY_DATE_DIRECTION_MISMATCH", "text": "身份字段未对应"}]},
@@ -200,16 +200,16 @@
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
         "role": "清算资料处理岗",
-        "product": "单一正常 SETTLEMENT_OBLIGATION 教学案例",
+        "product": "单笔正常交收义务处理",
         "date": "2026-08-21",
-        "purpose": "从四份业务资料中完成身份字段、数量和金额计算、结果登记与零差对账，写出一条可追溯的正常结果结论。"
+        "purpose": "从四份业务资料中完成身份字段、数量和金额计算、结果登记与零差对账，写出一条有依据的正常结果结论。"
       },
       "sourceMaterials": [
         {
           "materialId": "CLR-BASE-B-INSTRUCTION",
-          "title": "业务指令资料（综合B）",
+          "title": "业务指令资料",
           "kind": "INSTRUCTION",
-          "description": "本案例的指令资料，承载业务身份、数量分项、金额分项和参与角色。",
+          "description": "这笔业务的指令资料，承载业务身份、数量分项、金额分项和参与角色。",
           "fields": [
             {"fieldId": "business_key", "label": "业务键", "value": "BASE-B-20260821-284"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
@@ -230,9 +230,9 @@
         },
         {
           "materialId": "CLR-BASE-B-CONFIRMATION",
-          "title": "确认/成交资料（综合B）",
+          "title": "确认/成交资料",
           "kind": "CONFIRMATION",
-          "description": "本案例的确认资料，承接指令身份并给出确认数量和确认金额。",
+          "description": "这笔业务的确认资料，承接指令身份并给出确认数量和确认金额。",
           "fields": [
             {"fieldId": "business_key", "label": "业务键", "value": "BASE-B-20260821-284"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
@@ -248,9 +248,9 @@
         },
         {
           "materialId": "CLR-BASE-B-SETTLEMENT",
-          "title": "交收结果资料（综合B）",
+          "title": "交收结果资料",
           "kind": "STATEMENT",
-          "description": "本案例的交收结果，记录实际数量、金额和结果状态。",
+          "description": "这笔业务的交收结果，记录实际数量、金额和结果状态。",
           "fields": [
             {"fieldId": "business_key", "label": "业务键", "value": "BASE-B-20260821-284"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
@@ -265,9 +265,9 @@
         },
         {
           "materialId": "CLR-BASE-B-RECONCILIATION",
-          "title": "对账资料（综合B）",
+          "title": "对账资料",
           "kind": "RECONCILIATION",
-          "description": "本案例的对账资料，按同一身份字段给出预期值、结果值和差额。",
+          "description": "这笔业务的对账资料，按同一身份字段给出预期值、结果值和差额。",
           "fields": [
             {"fieldId": "business_key", "label": "业务键", "value": "BASE-B-20260821-284"},
             {"fieldId": "business_date", "label": "业务日期", "value": "2026-08-21"},
@@ -350,7 +350,7 @@
           "workItemId": "clr-base-b-reconciliation",
           "type": "RECONCILIATION",
           "title": "记录对账结果",
-          "instruction": "数量差为0、金额差为0.00且结果状态为SETTLED时，选择本案例对账结果。",
+          "instruction": "数量差为0、金额差为0.00且结果状态为已结算时，选择这笔业务对账结果。",
           "response": {"kind": "SELECT", "placeholder": "选择对账结果", "options": [{"optionId": "B_RECONCILED_ZERO", "text": "两类差额为零且结果已完成"}, {"optionId": "B_RECONCILIATION_PENDING", "text": "仍需核对"}]}
         },
         {
@@ -358,7 +358,7 @@
           "type": "SHORT_TEXT",
           "title": "写出正常结果结论",
           "instruction": "用一句短结论写明业务键、日期和方向、交收数量与金额、两类差额和结果状态。",
-          "response": {"kind": "TEXT", "placeholder": "输入可追溯的结果结论"}
+          "response": {"kind": "TEXT", "placeholder": "输入有依据的结果结论"}
         }
       ],
       "submissionNote": "提交业务身份、数量和金额计算、交收结果工作纸、身份核对、数量差、金额差和一句结果结论。"
@@ -385,9 +385,9 @@
     },
     {
       "referenceId": "CLR-BASE-REF-CASE",
-      "title": "共同基础教育案例版本",
+      "title": "共同基础资料版本",
       "source": "CLR-BASE-EDU-1.0，content/evidence/clearing/base/CLR-BASE-001-evidence.json",
-      "usage": "Demo A 与 Comprehensive B 的数字、状态、精度和容差均为本案例参数，仅用于本路线练习。"
+      "usage": "两组业务资料中的数字、状态、精度和容差均为对应业务参数，用于字段读取、计算和对账。"
     }
   ]
 }

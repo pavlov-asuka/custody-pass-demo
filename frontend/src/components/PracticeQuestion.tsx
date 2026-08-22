@@ -1,20 +1,25 @@
 import { ArrowDown, ArrowUp, Check, CircleAlert } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import type { PracticeQuestion as Question } from '../api/types';
+import type { Line, PracticeQuestion as Question } from '../api/types';
 import {
   businessActionLabel,
   optionDisplayLabel,
   publicBusinessText,
   publicUnitLabel,
+  practiceFeedbackLabel,
+  practiceLedgerLabels,
+  workItemTypeLabelForLine,
 } from '../utils/format';
 
 export function PracticeQuestion({
   question,
+  line,
   disabled = false,
   feedback,
   onSubmit,
 }: {
   question: Question;
+  line?: Line;
   disabled?: boolean;
   feedback?: { correct: boolean; explanation: string; hint?: string } | null;
   onSubmit: (answer: string[]) => Promise<void> | void;
@@ -120,7 +125,7 @@ export function PracticeQuestion({
                   onChange={(event) => updateValue(fieldIndex, event.target.value)}
                   disabled={disabled || Boolean(feedback?.correct)}
                 />
-                <em>{publicUnitLabel(field.unit)}</em>
+                <em>{publicUnitLabel(field.unit, { line, fieldId: field.fieldId, label: field.label })}</em>
               </span>
             </label>
           ))}
@@ -129,9 +134,10 @@ export function PracticeQuestion({
     }
 
     if (question.type === 'LEDGER_ENTRY') {
+      const labels = practiceLedgerLabels(line);
       return (
         <div className="practice-structured practice-structured--ledger">
-          <div className="practice-ledger__head"><span>方向</span><span>资料行</span><span>补全科目</span></div>
+          <div className="practice-ledger__head"><span>{labels.direction}</span><span>{labels.source}</span><span>{labels.input}</span></div>
           {question.ledgerEntries?.map((entry, entryIndex) => (
             <label className="practice-ledger__row" key={entry.entryId}>
               <b>{businessActionLabel(entry.direction)}</b>
@@ -219,7 +225,7 @@ export function PracticeQuestion({
 
   return (
     <div className="practice-question">
-      <div className="eyebrow">先做判断</div>
+      <div className="eyebrow">{workItemTypeLabelForLine(question.type, line)}</div>
       <h2>{publicBusinessText(question.prompt)}</h2>
 
       {isOrdering ? (
@@ -271,7 +277,7 @@ export function PracticeQuestion({
         <div className={`feedback ${feedback.correct ? 'feedback--correct' : 'feedback--wrong'}`}>
           {feedback.correct ? <Check size={24} /> : <CircleAlert size={24} />}
           <div>
-            <strong>{feedback.correct ? '判断正确' : '请核对资料'}</strong>
+            <strong>{practiceFeedbackLabel(question.type, line, feedback.correct)}</strong>
             <p>{feedback.explanation}</p>
             {feedback.hint && <span>下一步：{feedback.hint}</span>}
           </div>

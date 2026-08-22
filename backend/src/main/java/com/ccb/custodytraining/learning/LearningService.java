@@ -837,6 +837,7 @@ public class LearningService {
             for (JsonNode item : dimension.path("items")) {
                 if (item instanceof ObjectNode object) {
                     object.put("evidence", HumanFeedbackText.publicEvidence(
+                            object.path("itemId").asText(""),
                             object.path("description").asText(""),
                             object.path("evidence").asText(""),
                             object.path("matched").asBoolean()));
