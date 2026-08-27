@@ -1,0 +1,370 @@
+{
+  "routeId": "SPV-CLOSE-004",
+  "contentVersion": "1.0.0",
+  "line": "SUPERVISION",
+  "title": "结果确认、期限豁免、提示函、回函与归档闭环",
+  "summary": "从合成《结果确认/豁免工作表》和《提示函—回函—归档登记表》读取结果键、规则键、数据日和异常开始日，分别完成确认与本轮豁免两条状态链、登记回函/附件/归档证据，并保持已生成 != 已发送的边界。",
+  "estimatedMinutes": 60,
+  "objectives": [
+    "按结果键、规则键、数据日和异常开始日识读两份合成登记资料",
+    "沿待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档完成确认分支",
+    "沿待确认→本轮豁免→合成豁免截止日→不生成提示函→归档完成豁免分支，并保留截止日",
+    "跨来源勾稽回函记录、附件标记和归档类别，明确已生成 != 已发送；全部结论仅适用于 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "SPV-CLOSE-KC-01",
+          "type": "CATEGORIES",
+          "title": "先锁定结果键、规则键和异常开始日",
+          "conclusion": "结果确认和豁免登记都要先按结果键、规则键、数据日和异常开始日对应两份合成资料，所有键和日期均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+          "items": [
+            "从合成《结果确认/豁免工作表》读取结果键、规则键、数据日和异常开始日",
+            "从合成《提示函—回函—归档登记表》按同一结果键与规则键核对分支状态和归档字段",
+            "A/B 使用不同结果键、规则键、数据日、异常开始日和比例，但资料角色与状态结构同构",
+            "不把合成键、日期或比例解释为生产对象、收件人、机构或系统记录"
+          ]
+        },
+        {
+          "cardId": "SPV-CLOSE-KC-02",
+          "type": "FLOW",
+          "title": "确认分支要留下回函、附件和归档证据",
+          "conclusion": "确认分支依次经过待确认、确认异常、待生成/待记录、B复核、A生成、已生成、次日上午检查发送状态、记录管理人反馈/附件和归档；已生成 != 已发送。",
+          "items": [
+            "按状态顺序记录待确认→确认异常→待生成/待记录→B复核→A生成→已生成",
+            "已生成后只记录次日上午检查发送状态，不填写发送成功代码、真实收件人或发送结果",
+            "确认分支必须留下回函记录、附件标记和确认分支归档类别",
+            "业务异常的结果确认链不扩展为技术故障、发送失败补救或其他未给出的处置"
+          ]
+        },
+        {
+          "cardId": "SPV-CLOSE-KC-03",
+          "type": "KEY_POINT",
+          "title": "本轮豁免必须有截止日且不生成提示函",
+          "conclusion": "豁免分支只能表示本轮豁免，必须填写合成豁免截止日，随后不生成提示函并归档；不得写成永久豁免。",
+          "items": [
+            "按待确认→本轮豁免→合成豁免截止日→不生成提示函→归档记录豁免分支",
+            "合成豁免截止日是本案例教学日期，不代表生产期限或永久豁免",
+            "豁免分支不生成提示函，也不补造回函、监管报送、整改或赔偿",
+            "确认分支和豁免分支都必须按结果键与规则键跨来源勾稽后再写归档结论"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "投资监督结果确认与归档复核岗",
+        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：结果确认与期限豁免案例 A",
+        "date": "2026-01-06",
+        "fixture": "SPV-CLOSE-DEMO-A",
+        "facts": [
+          "结果键 EDU-RESULT-A-001、规则键 EDU-RULE-A-001、数据日 2026-01-06、异常开始日 2026-01-06 和 4/100=4% 均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+          "确认分支完成待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档，并记录回函记录、附件标记和确认分支归档类别。",
+          "豁免分支完成待确认→本轮豁免→合成豁免截止日=2026-01-12→不生成提示函→归档；该截止日为合成教学日期。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "从合成《结果确认/豁免工作表》读取结果键 EDU-RESULT-A-001、规则键 EDU-RULE-A-001、数据日 2026-01-06 和异常开始日 2026-01-06",
+          "reason": "先固定本案例两份资料的对应键和日期，避免将其他分支或日期混入。"
+        },
+        {
+          "order": 2,
+          "action": "沿确认分支记录待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态",
+          "reason": "状态顺序要保留已生成后的检查动作；已生成不等同已发送。"
+        },
+        {
+          "order": 3,
+          "action": "在确认分支登记记录管理人反馈/附件、回函记录、附件标记和确认分支归档类别",
+          "reason": "确认分支只有留下回函、附件和归档证据，才能形成可回查的闭环。"
+        },
+        {
+          "order": 4,
+          "action": "沿豁免分支记录待确认→本轮豁免→合成豁免截止日=2026-01-12→不生成提示函→归档",
+          "reason": "豁免不是永久状态，必须有合成截止日，且本分支不生成提示函。"
+        },
+        {
+          "order": 5,
+          "action": "跨两份资料勾稽结果键、规则键、日期、两条分支和归档字段，写出仅适用于案例 A 的短结论",
+          "reason": "结论需同时交代确认证据、豁免截止日和已生成 != 已发送的边界。"
+        }
+      ],
+      "summary": "键与日期识读 → 确认状态链 → 回函/附件/归档证据 → 豁免截止日与不生成提示函 → 跨来源短结论"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "SPV-CLOSE-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "在 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 A 中，将结果键、规则键、日期和分支登记字段映射到两份合成资料。",
+          "fieldMappings": [
+            {
+              "fieldId": "identity-source",
+              "label": "结果键、规则键、数据日和异常开始日的主来源",
+              "source": "合成《结果确认/豁免工作表》",
+              "options": [
+                {"optionId": "CONFIRMATION_WORKSHEET_IDENTITY", "text": "结果确认/豁免工作表"},
+                {"optionId": "REGISTER_IDENTITY", "text": "提示函—回函—归档登记表"}
+              ]
+            },
+            {
+              "fieldId": "branch-register-source",
+              "label": "确认/豁免分支、回函、附件和归档类别的主来源",
+              "source": "合成《提示函—回函—归档登记表》",
+              "options": [
+                {"optionId": "REGISTER_BRANCH_EVIDENCE", "text": "提示函—回函—归档登记表"},
+                {"optionId": "CONFIRMATION_WORKSHEET_BRANCH", "text": "结果确认/豁免工作表"}
+              ]
+            }
+          ],
+          "answer": ["CONFIRMATION_WORKSHEET_IDENTITY", "REGISTER_BRANCH_EVIDENCE"],
+          "explanation": "工作表先锁定键和日期，登记表承接分支状态、回函/附件和归档类别。",
+          "hints": ["先区分案例身份字段与闭环登记字段，再按同一结果键和规则键对应。"]
+        },
+        {
+          "questionId": "SPV-CLOSE-Q-02",
+          "type": "RECONCILIATION",
+          "prompt": "勾稽案例 A 的确认分支状态链和闭环证据。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "confirmation-branch",
+                "label": "确认分支状态链",
+                "kind": "SELECT",
+                "formula": "待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档",
+                "placeholder": "选择确认分支结论",
+                "options": [
+                  {"optionId": "CONFIRMATION_BRANCH_COMPLETE", "text": "确认分支状态和证据完整"},
+                  {"optionId": "CONFIRMATION_BRANCH_INCOMPLETE", "text": "确认分支仍缺状态或证据"}
+                ]
+              },
+              {
+                "fieldId": "confirmation-evidence",
+                "label": "回函、附件和归档证据",
+                "kind": "SELECT",
+                "formula": "回函记录+附件标记+归档类别=确认分支",
+                "placeholder": "选择确认证据结论",
+                "options": [
+                  {"optionId": "CONFIRMATION_EVIDENCE_COMPLETE", "text": "回函、附件和确认分支归档均已登记"},
+                  {"optionId": "CONFIRMATION_EVIDENCE_MISSING", "text": "回函、附件或归档登记缺失"}
+                ]
+              }
+            ]
+          },
+          "answer": ["CONFIRMATION_BRANCH_COMPLETE", "CONFIRMATION_EVIDENCE_COMPLETE"],
+          "explanation": "确认分支必须走完状态链，并留下回函记录、附件标记和确认分支归档类别；已生成 != 已发送。",
+          "hints": ["先看状态顺序，再检查回函、附件和归档三类证据，不把生成状态当发送结果。"]
+        },
+        {
+          "questionId": "SPV-CLOSE-Q-03",
+          "type": "RECONCILIATION",
+          "prompt": "勾稽案例 A 的本轮豁免分支，确认截止日和不生成提示函。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "exemption-branch",
+                "label": "豁免分支状态链",
+                "kind": "SELECT",
+                "formula": "待确认→本轮豁免→合成豁免截止日=2026-01-12→不生成提示函→归档",
+                "placeholder": "选择豁免分支结论",
+                "options": [
+                  {"optionId": "EXEMPTION_BRANCH_COMPLETE", "text": "豁免分支有截止日且不生成提示函后归档"},
+                  {"optionId": "EXEMPTION_BRANCH_INCOMPLETE", "text": "豁免分支缺截止日或错误生成提示函"}
+                ]
+              },
+              {
+                "fieldId": "exemption-deadline",
+                "label": "合成豁免截止日",
+                "kind": "SELECT",
+                "formula": "合成豁免截止日=2026-01-12",
+                "placeholder": "选择豁免期限结论",
+                "options": [
+                  {"optionId": "SYNTHETIC_DEADLINE_RECORDED", "text": "已记录本案例合成豁免截止日"},
+                  {"optionId": "PERMANENT_EXEMPTION_NOT_ALLOWED", "text": "不得写成永久豁免"}
+                ]
+              }
+            ]
+          },
+          "answer": ["EXEMPTION_BRANCH_COMPLETE", "SYNTHETIC_DEADLINE_RECORDED"],
+          "explanation": "本轮豁免必须带合成截止日，之后不生成提示函并归档，不表示永久豁免。",
+          "hints": ["检查豁免状态、截止日期、不生成提示函和归档四个要点。"]
+        },
+        {
+          "questionId": "SPV-CLOSE-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把案例 A 的两条分支和登记证据填入工作纸，明确已生成 != 已发送。",
+          "ledgerEntries": [
+            {"entryId": "result-key", "direction": "案例标识", "label": "结果键", "amount": "EDU-RESULT-A-001", "placeholder": "输入结果键"},
+            {"entryId": "rule-key", "direction": "规则标识", "label": "规则键", "amount": "EDU-RULE-A-001", "placeholder": "输入规则键"},
+            {"entryId": "data-date", "direction": "数据日期", "label": "数据日", "amount": "2026-01-06", "placeholder": "输入数据日"},
+            {"entryId": "anomaly-start-date", "direction": "异常起点", "label": "异常开始日", "amount": "2026-01-06", "placeholder": "输入异常开始日"},
+            {"entryId": "confirmation-evidence", "direction": "确认分支", "label": "回函/附件/归档", "amount": "回函记录=已记录；附件标记=已标记；归档类别=确认分支", "placeholder": "输入确认分支证据"},
+            {"entryId": "exemption-evidence", "direction": "豁免分支", "label": "截止日/提示函/归档", "amount": "合成豁免截止日=2026-01-12；不生成提示函；归档类别=豁免分支", "placeholder": "输入豁免分支证据"},
+            {"entryId": "generated-boundary", "direction": "边界", "label": "生成与发送", "amount": "已生成 != 已发送；次日上午检查发送状态", "placeholder": "输入生成/发送边界"
+            }
+          ],
+          "answer": ["EDU-RESULT-A-001", "EDU-RULE-A-001", "2026-01-06", "2026-01-06", "回函记录=已记录", "附件标记=已标记", "归档类别=确认分支", "合成豁免截止日=2026-01-12", "不生成提示函", "归档类别=豁免分支", "已生成 != 已发送"],
+          "explanation": "登记工作纸同时保留两条分支的关键证据；确认分支留回函/附件/归档，豁免分支留截止日且不生成提示函。",
+          "hints": ["按键和日期→确认证据→豁免证据→生成/发送边界填写，不补造收件人或发送代码。"]
+        },
+        {
+          "questionId": "SPV-CLOSE-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 A 的确认、豁免与归档结论。",
+          "textInput": {
+            "label": "结果闭环归档结论",
+            "placeholder": "写明两条分支、截止日、回函/附件/归档证据及已生成 != 已发送"
+          },
+          "answer": ["EDU-RESULT-A-001", "EDU-RULE-A-001", "2026-01-06", "异常开始日=2026-01-06", "确认异常", "B复核", "A生成", "已生成", "次日上午检查发送状态", "回函记录", "附件标记", "归档类别=确认分支", "本轮豁免", "合成豁免截止日=2026-01-12", "不生成提示函", "归档类别=豁免分支", "已生成 != 已发送", "ONLY_THIS_CASE"],
+          "explanation": "短结论要同时回指结果/规则键、日期、确认分支证据、豁免截止日和生成/发送边界。",
+          "hints": ["按身份日期→确认链与证据→豁免链与截止日→已生成 != 已发送→案例边界组织句子。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "投资监督结果确认与归档复核岗",
+        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：结果确认与期限豁免案例 B",
+        "date": "2026-02-06",
+        "purpose": "依据两份合成资料完成确认/豁免两条状态链、登记表填写、跨来源勾稽和简短归档结论。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "SPV-CLOSE-B-WORKSHEET",
+          "title": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合成《结果确认/豁免工作表》—案例 B",
+          "kind": "RECONCILIATION",
+          "description": "仅供本案例读取结果键、规则键、数据日、异常开始日和两条分支状态；不代表生产确认或豁免记录。",
+          "fields": [
+            {"fieldId": "result_key", "label": "结果键", "value": "EDU-RESULT-B-002"},
+            {"fieldId": "rule_key", "label": "规则键", "value": "EDU-RULE-B-002"},
+            {"fieldId": "data_date", "label": "数据日", "value": "2026-02-06"},
+            {"fieldId": "anomaly_start_date", "label": "异常开始日", "value": "2026-02-06"},
+            {"fieldId": "ratio", "label": "本案例比例", "value": "3/100=0.0300（3%）"},
+            {"fieldId": "confirmation_branch_chain", "label": "确认分支状态链", "value": "待确认 → 确认异常 → 待生成/待记录 → B复核 → A生成 → 已生成 → 次日上午检查发送状态 → 记录管理人反馈/附件 → 归档"},
+            {"fieldId": "exemption_branch_chain", "label": "豁免分支状态链", "value": "待确认 → 本轮豁免 → 合成豁免截止日=2026-02-12 → 不生成提示函 → 归档"},
+            {"fieldId": "synthetic_scope", "label": "材料范围", "value": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"}
+          ]
+        },
+        {
+          "materialId": "SPV-CLOSE-B-REGISTER",
+          "title": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合成《提示函—回函—归档登记表》—案例 B",
+          "kind": "REPORT",
+          "description": "仅供本案例登记确认分支的回函/附件/归档和豁免分支的截止日/不生成提示函；不代表生产发送、收件人或后续处置。",
+          "fields": [
+            {"fieldId": "result_key", "label": "结果键对应值", "value": "EDU-RESULT-B-002"},
+            {"fieldId": "rule_key", "label": "规则键对应值", "value": "EDU-RULE-B-002"},
+            {"fieldId": "data_date", "label": "数据日对应值", "value": "2026-02-06"},
+            {"fieldId": "anomaly_start_date", "label": "异常开始日对应值", "value": "2026-02-06"},
+            {"fieldId": "confirmation_status", "label": "确认分支状态", "value": "确认异常"},
+            {"fieldId": "generated_status", "label": "提示函生成状态", "value": "已生成"},
+            {"fieldId": "send_status_check", "label": "生成后的动作", "value": "次日上午检查发送状态"},
+            {"fieldId": "reply_record", "label": "回函记录", "value": "回函记录=已记录"},
+            {"fieldId": "attachment_flag", "label": "附件标记", "value": "附件标记=已标记"},
+            {"fieldId": "confirmation_archive_category", "label": "确认分支归档类别", "value": "归档类别=确认分支"},
+            {"fieldId": "exemption_status", "label": "豁免分支状态", "value": "本轮豁免"},
+            {"fieldId": "exemption_deadline", "label": "合成豁免截止日", "value": "合成豁免截止日=2026-02-12"},
+            {"fieldId": "exemption_notice", "label": "豁免分支提示函动作", "value": "不生成提示函"},
+            {"fieldId": "exemption_archive_category", "label": "豁免分支归档类别", "value": "归档类别=豁免分支"},
+            {"fieldId": "generated_boundary", "label": "生成/发送边界", "value": "已生成 != 已发送"},
+            {"fieldId": "synthetic_scope", "label": "材料范围", "value": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "spv-close-b-source-map",
+          "type": "FIELD_MAP",
+          "title": "识别工作表与登记表的字段职责",
+          "instruction": "在 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 B 中，选择两份资料共同作为结果/规则键、日期、分支状态和归档证据的对应来源。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择来源职责结论",
+            "options": [
+              {"optionId": "B_TWO_SOURCE_ROLES_MATCH", "text": "工作表负责键/日期/状态链，登记表负责回函/附件/归档和豁免登记，并按键对应"},
+              {"optionId": "B_TWO_SOURCE_ROLES_MISMATCH", "text": "两份资料不能按结果键和规则键对应"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-close-b-confirmation-branch",
+          "type": "RECONCILIATION",
+          "title": "勾稽确认分支状态链",
+          "instruction": "核对案例 B 的确认分支是否完成待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择确认分支结论",
+            "options": [
+              {"optionId": "B_CONFIRMATION_BRANCH_COMPLETE", "text": "确认分支链完整并进入归档"},
+              {"optionId": "B_CONFIRMATION_BRANCH_INCOMPLETE", "text": "确认分支缺少状态或归档证据"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-close-b-exemption-branch",
+          "type": "RECONCILIATION",
+          "title": "勾稽本轮豁免分支",
+          "instruction": "核对案例 B 的豁免分支是否完成待确认→本轮豁免→合成豁免截止日=2026-02-12→不生成提示函→归档。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择豁免分支结论",
+            "options": [
+              {"optionId": "B_EXEMPTION_BRANCH_COMPLETE", "text": "豁免有截止日、不生成提示函并归档"},
+              {"optionId": "B_EXEMPTION_BRANCH_INCOMPLETE", "text": "豁免缺截止日或分支动作不符"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-close-b-generated-status",
+          "type": "RECONCILIATION",
+          "title": "保持已生成与发送检查边界",
+          "instruction": "登记确认分支的已生成状态和次日上午检查发送状态；不要把已生成解释为已发送。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择生成/发送边界结论",
+            "options": [
+              {"optionId": "B_GENERATED_NOT_SENT", "text": "已生成，另记录次日上午检查发送状态；已生成 != 已发送"},
+              {"optionId": "B_GENERATED_AS_SENT", "text": "把已生成直接解释为已发送"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-close-b-register",
+          "type": "LEDGER_ENTRY",
+          "title": "填写两条分支的闭环登记工作纸",
+          "instruction": "将案例 B 的结果/规则键、日期、确认分支回函/附件/归档证据、豁免截止日/不生成提示函/归档类别写入登记工作纸。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "结果键=...；规则键=...；数据日=...；异常开始日=...；回函记录=...；附件标记=...；归档类别=...；合成豁免截止日=...；不生成提示函；已生成 != 已发送"
+          }
+        },
+        {
+          "workItemId": "spv-close-b-conclusion",
+          "type": "SHORT_TEXT",
+          "title": "写出可回查的归档结论",
+          "instruction": "用简短文字交代两份资料、结果/规则键、数据日、确认/豁免两条分支、回函/附件/归档证据、豁免截止日和已生成 != 已发送边界。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "写出两条状态链、证据字段、截止日和 ONLY_THIS_CASE 边界"
+          }
+        }
+      ],
+      "submissionNote": "提交前检查结果键、规则键、数据日和异常开始日是否跨来源对应；确认分支是否保留回函记录/附件标记/归档类别；豁免分支是否有合成截止日且不生成提示函；已生成 != 已发送。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "SPV-CLOSE-REF-CONFIRMATION",
+      "title": "结果确认、提示函生成与回函归档语义材料抽象",
+      "source": "M01 §4.4、§4.5、§6；M11 §4.4—4.5/归档语义",
+      "usage": "用于识读确认异常、待生成/待记录、B复核、A生成、已生成、次日上午检查发送状态、回函/附件和归档字段；不把已生成解释为已发送。"
+    },
+    {
+      "referenceId": "SPV-CLOSE-REF-EXEMPTION",
+      "title": "本轮豁免与截止日材料抽象",
+      "source": "M01 §4.4、§4.5、§6；M11 §4.4—4.5/归档语义",
+      "usage": "用于识读本轮豁免、合成豁免截止日、不生成提示函和豁免分支归档；不扩展为永久豁免、监管报送或其他处置。"
+    }
+  ]
+}

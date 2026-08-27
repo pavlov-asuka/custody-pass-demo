@@ -57,11 +57,11 @@ async function findInstalledChromium() {
 const user = { employeeNo: '10000002', displayName: '培训学员' };
 
 const worlds = {
-  mapVersion: '2026.08.1',
+  mapVersion: '2026.08.12',
   worlds: [
     { line: 'CLEARING', name: '清算学习世界', description: '学习交收、资金与证券清算的核心流程。', availability: 'OPEN', passedRequiredRoutes: 0, publishedRequiredRoutes: 7, progressPercent: 0, status: 'NOT_STARTED' },
     { line: 'ACCOUNTING', name: '核算学习世界', description: '从原始业务资料出发，建立计算、账务处理与结果验证能力。', availability: 'OPEN', passedRequiredRoutes: 2, publishedRequiredRoutes: 6, progressPercent: 33, status: 'IN_PROGRESS' },
-    { line: 'SUPERVISION', name: '监督学习世界', description: '学习投资监督、边界识别与风险报告。', availability: 'BUILDING', passedRequiredRoutes: 0, publishedRequiredRoutes: 0, progressPercent: 0, status: 'BUILDING' },
+    { line: 'SUPERVISION', name: '监督学习世界', description: '学习投资监督、边界识别与风险报告。', availability: 'OPEN', passedRequiredRoutes: 0, publishedRequiredRoutes: 4, progressPercent: 0, status: 'NOT_STARTED' },
   ],
 };
 
@@ -275,7 +275,7 @@ async function run() {
         path: path.join(screenshotDir, '02-worlds-accounting-detail.png'),
       });
        await page.locator('.world-card', { hasText: '监督学习世界' }).screenshot({
-        path: path.join(screenshotDir, '03-worlds-building-detail.png'),
+        path: path.join(screenshotDir, '03-worlds-supervision-detail.png'),
       });
     }
     await page.close();

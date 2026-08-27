@@ -1,0 +1,424 @@
+{
+  "releaseId": "CUSTODY_2026.08.12",
+  "releasedAt": "2026-08-26T00:00:00+08:00",
+  "map": {
+    "id": "CUSTODY_LEARNING_MAP",
+    "version": "2026.08.12",
+    "path": "maps/custody-learning-map.json"
+  },
+  "routes": [
+    {
+      "routeId": "ACC-LIFE-ROLE-001",
+      "contentVersion": "2.0.0",
+      "rubricVersion": "2.0.0",
+      "contentPath": "routes/accounting/ACC-LIFE-ROLE-001.json",
+      "rubricPath": "rubrics/accounting/ACC-LIFE-ROLE-001.json"
+    },
+    {
+      "routeId": "ACC-LIFE-ONBOARD-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-LIFE-ONBOARD-002.json",
+      "rubricPath": "rubrics/accounting/ACC-LIFE-ONBOARD-002.json"
+    },
+    {
+      "routeId": "ACC-LIFE-DAILY-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-LIFE-DAILY-003.json",
+      "rubricPath": "rubrics/accounting/ACC-LIFE-DAILY-003.json"
+    },
+    {
+      "routeId": "ACC-LIFE-EXIT-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-LIFE-EXIT-004.json",
+      "rubricPath": "rubrics/accounting/ACC-LIFE-EXIT-004.json"
+    },
+    {
+      "routeId": "ACC-STOCK-TRADE-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-TRADE-001.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-TRADE-001.json"
+    },
+    {
+      "routeId": "ACC-STOCK-IPO-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-IPO-002.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-IPO-002.json"
+    },
+    {
+      "routeId": "ACC-STOCK-EQUITY-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-EQUITY-003.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-EQUITY-003.json"
+    },
+    {
+      "routeId": "ACC-STOCK-DIVIDEND-TAX-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-DIVIDEND-TAX-004.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-DIVIDEND-TAX-004.json"
+    },
+    {
+      "routeId": "ACC-STOCK-PRIVATE-ISSUE-101",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-PRIVATE-ISSUE-101.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-PRIVATE-ISSUE-101.json"
+    },
+    {
+      "routeId": "ACC-STOCK-RESTRICTED-VALUATION-102",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-RESTRICTED-VALUATION-102.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-RESTRICTED-VALUATION-102.json"
+    },
+    {
+      "routeId": "ACC-STOCK-HK-TRADE-103",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-HK-TRADE-103.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-HK-TRADE-103.json"
+    },
+    {
+      "routeId": "ACC-STOCK-HK-DIVIDEND-104",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-STOCK-HK-DIVIDEND-104.json",
+      "rubricPath": "rubrics/accounting/ACC-STOCK-HK-DIVIDEND-104.json"
+    },
+    {
+      "routeId": "ACC-FI-TRADE-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FI-TRADE-001.json",
+      "rubricPath": "rubrics/accounting/ACC-FI-TRADE-001.json"
+    },
+    {
+      "routeId": "ACC-FI-ACCRUAL-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FI-ACCRUAL-002.json",
+      "rubricPath": "rubrics/accounting/ACC-FI-ACCRUAL-002.json"
+    },
+    {
+      "routeId": "ACC-FI-CASHFLOW-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FI-CASHFLOW-003.json",
+      "rubricPath": "rubrics/accounting/ACC-FI-CASHFLOW-003.json"
+    },
+    {
+      "routeId": "ACC-FI-VALUATION-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FI-VALUATION-004.json",
+      "rubricPath": "rubrics/accounting/ACC-FI-VALUATION-004.json"
+    },
+    {
+      "routeId": "ACC-FI-DISTRIBUTION-101",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FI-DISTRIBUTION-101.json",
+      "rubricPath": "rubrics/accounting/ACC-FI-DISTRIBUTION-101.json"
+    },
+    {
+      "routeId": "ACC-FI-SUBSCRIPTION-102",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FI-SUBSCRIPTION-102.json",
+      "rubricPath": "rubrics/accounting/ACC-FI-SUBSCRIPTION-102.json"
+    },
+    {
+      "routeId": "ACC-FI-PARTIAL-REDEMPTION-103",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FI-PARTIAL-REDEMPTION-103.json",
+      "rubricPath": "rubrics/accounting/ACC-FI-PARTIAL-REDEMPTION-103.json"
+    },
+    {
+      "routeId": "ACC-FI-PUTBACK-104",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FI-PUTBACK-104.json",
+      "rubricPath": "rubrics/accounting/ACC-FI-PUTBACK-104.json"
+    },
+    {
+      "routeId": "ACC-FI-MIGRATION-105",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FI-MIGRATION-105.json",
+      "rubricPath": "rubrics/accounting/ACC-FI-MIGRATION-105.json"
+    },
+    {
+      "routeId": "ACC-FUT-CONTRACT-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FUT-CONTRACT-001.json",
+      "rubricPath": "rubrics/accounting/ACC-FUT-CONTRACT-001.json"
+    },
+    {
+      "routeId": "ACC-FUT-POSITION-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FUT-POSITION-002.json",
+      "rubricPath": "rubrics/accounting/ACC-FUT-POSITION-002.json"
+    },
+    {
+      "routeId": "ACC-FUT-SETTLEMENT-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FUT-SETTLEMENT-003.json",
+      "rubricPath": "rubrics/accounting/ACC-FUT-SETTLEMENT-003.json"
+    },
+    {
+      "routeId": "ACC-FUT-RECON-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FUT-RECON-004.json",
+      "rubricPath": "rubrics/accounting/ACC-FUT-RECON-004.json"
+    },
+    {
+      "routeId": "ACC-ED-WORKPAPER-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-ED-WORKPAPER-001.json",
+      "rubricPath": "rubrics/accounting/ACC-ED-WORKPAPER-001.json"
+    },
+    {
+      "routeId": "ACC-ED-STATEMENTS-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-ED-STATEMENTS-002.json",
+      "rubricPath": "rubrics/accounting/ACC-ED-STATEMENTS-002.json"
+    },
+    {
+      "routeId": "ACC-ED-PORTFOLIO-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-ED-PORTFOLIO-003.json",
+      "rubricPath": "rubrics/accounting/ACC-ED-PORTFOLIO-003.json"
+    },
+    {
+      "routeId": "ACC-ED-QUARTERLY-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-ED-QUARTERLY-004.json",
+      "rubricPath": "rubrics/accounting/ACC-ED-QUARTERLY-004.json"
+    },
+    {
+      "routeId": "ACC-ED-UPDATES-005",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-ED-UPDATES-005.json",
+      "rubricPath": "rubrics/accounting/ACC-ED-UPDATES-005.json"
+    },
+    {
+      "routeId": "ACC-MF-FRAME-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-MF-FRAME-001.json",
+      "rubricPath": "rubrics/accounting/ACC-MF-FRAME-001.json"
+    },
+    {
+      "routeId": "ACC-MF-EIR-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-MF-EIR-002.json",
+      "rubricPath": "rubrics/accounting/ACC-MF-EIR-002.json"
+    },
+    {
+      "routeId": "ACC-MF-TA-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-MF-TA-003.json",
+      "rubricPath": "rubrics/accounting/ACC-MF-TA-003.json"
+    },
+    {
+      "routeId": "ACC-MF-CARRY-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-MF-CARRY-004.json",
+      "rubricPath": "rubrics/accounting/ACC-MF-CARRY-004.json"
+    },
+    {
+      "routeId": "ACC-MF-YIELD-005",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-MF-YIELD-005.json",
+      "rubricPath": "rubrics/accounting/ACC-MF-YIELD-005.json"
+    },
+    {
+      "routeId": "ACC-CBF-BOUNDARY-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-CBF-BOUNDARY-001.json",
+      "rubricPath": "rubrics/accounting/ACC-CBF-BOUNDARY-001.json"
+    },
+    {
+      "routeId": "ACC-CBF-DATA-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-CBF-DATA-002.json",
+      "rubricPath": "rubrics/accounting/ACC-CBF-DATA-002.json"
+    },
+    {
+      "routeId": "ACC-CBF-SETTLEMENT-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-CBF-SETTLEMENT-003.json",
+      "rubricPath": "rubrics/accounting/ACC-CBF-SETTLEMENT-003.json"
+    },
+    {
+      "routeId": "ACC-CBF-CLOSE-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-CBF-CLOSE-004.json",
+      "rubricPath": "rubrics/accounting/ACC-CBF-CLOSE-004.json"
+    },
+    {
+      "routeId": "ACC-FOF-BOUNDARY-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.1.0",
+      "contentPath": "routes/accounting/ACC-FOF-BOUNDARY-001.json",
+      "rubricPath": "rubrics/accounting/ACC-FOF-BOUNDARY-001.json"
+    },
+    {
+      "routeId": "ACC-FOF-SUBSCRIPTION-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.1.0",
+      "contentPath": "routes/accounting/ACC-FOF-SUBSCRIPTION-002.json",
+      "rubricPath": "rubrics/accounting/ACC-FOF-SUBSCRIPTION-002.json"
+    },
+    {
+      "routeId": "ACC-FOF-VALUATION-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FOF-VALUATION-003.json",
+      "rubricPath": "rubrics/accounting/ACC-FOF-VALUATION-003.json"
+    },
+    {
+      "routeId": "ACC-FOF-RETURN-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FOF-RETURN-004.json",
+      "rubricPath": "rubrics/accounting/ACC-FOF-RETURN-004.json"
+    },
+    {
+      "routeId": "ACC-FOF-REDEMPTION-005",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/accounting/ACC-FOF-REDEMPTION-005.json",
+      "rubricPath": "rubrics/accounting/ACC-FOF-REDEMPTION-005.json"
+    },
+    {
+      "routeId": "ACC-ETF-OBJECT-001",
+      "contentVersion": "2026.08.14.1",
+      "rubricVersion": "2026.08.14.1",
+      "contentPath": "routes/accounting/ACC-ETF-OBJECT-001.json",
+      "rubricPath": "rubrics/accounting/ACC-ETF-OBJECT-001.json"
+    },
+    {
+      "routeId": "ACC-ETF-PCF-002",
+      "contentVersion": "2026.08.14.1",
+      "rubricVersion": "2026.08.14.1",
+      "contentPath": "routes/accounting/ACC-ETF-PCF-002.json",
+      "rubricPath": "rubrics/accounting/ACC-ETF-PCF-002.json"
+    },
+    {
+      "routeId": "ACC-ETF-SETTLEMENT-003",
+      "contentVersion": "2026.08.14-etf-b2",
+      "rubricVersion": "2026.08.14-etf-b2",
+      "contentPath": "routes/accounting/ACC-ETF-SETTLEMENT-003.json",
+      "rubricPath": "rubrics/accounting/ACC-ETF-SETTLEMENT-003.json"
+    },
+    {
+      "routeId": "ACC-ETF-CLOSE-004",
+      "contentVersion": "2026.08.14-etf-b2",
+      "rubricVersion": "2026.08.14-etf-b2",
+      "contentPath": "routes/accounting/ACC-ETF-CLOSE-004.json",
+      "rubricPath": "rubrics/accounting/ACC-ETF-CLOSE-004.json"
+    },
+    {
+      "routeId": "CLR-BASE-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/clearing/CLR-BASE-001.json",
+      "rubricPath": "rubrics/clearing/CLR-BASE-001.json"
+    },
+    {
+      "routeId": "CLR-FUND-PAYMENT-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/clearing/CLR-FUND-PAYMENT-001.json",
+      "rubricPath": "rubrics/clearing/CLR-FUND-PAYMENT-001.json"
+    },
+    {
+      "routeId": "CLR-FUND-CLOSE-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/clearing/CLR-FUND-CLOSE-002.json",
+      "rubricPath": "rubrics/clearing/CLR-FUND-CLOSE-002.json"
+    },
+    {
+      "routeId": "CLR-EX-CORE-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/clearing/CLR-EX-CORE-001.json",
+      "rubricPath": "rubrics/clearing/CLR-EX-CORE-001.json"
+    },
+    {
+      "routeId": "CLR-EX-FUNDS-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/clearing/CLR-EX-FUNDS-002.json",
+      "rubricPath": "rubrics/clearing/CLR-EX-FUNDS-002.json"
+    },
+    {
+      "routeId": "CLR-IB-INSTRUCTION-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/clearing/CLR-IB-INSTRUCTION-001.json",
+      "rubricPath": "rubrics/clearing/CLR-IB-INSTRUCTION-001.json"
+    },
+    {
+      "routeId": "CLR-IB-DVP-CLOSE-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/clearing/CLR-IB-DVP-CLOSE-002.json",
+      "rubricPath": "rubrics/clearing/CLR-IB-DVP-CLOSE-002.json"
+    },
+    {
+      "routeId": "SPV-CONTRACT-001",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/supervision/SPV-CONTRACT-001.json",
+      "rubricPath": "rubrics/supervision/SPV-CONTRACT-001.json"
+    },
+    {
+      "routeId": "SPV-RULE-002",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/supervision/SPV-RULE-002.json",
+      "rubricPath": "rubrics/supervision/SPV-RULE-002.json"
+    },
+    {
+      "routeId": "SPV-TASK-003",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/supervision/SPV-TASK-003.json",
+      "rubricPath": "rubrics/supervision/SPV-TASK-003.json"
+    },
+    {
+      "routeId": "SPV-CLOSE-004",
+      "contentVersion": "1.0.0",
+      "rubricVersion": "1.0.0",
+      "contentPath": "routes/supervision/SPV-CLOSE-004.json",
+      "rubricPath": "rubrics/supervision/SPV-CLOSE-004.json"
+    }
+  ]
+}

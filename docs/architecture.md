@@ -23,8 +23,9 @@ Flyway + JDBC
 ## 事实与状态边界
 
 - `content/` 保存发布清单、地图、路线、Rubric 和来源，构建时打入 classpath 的 `formal/`。
-- 当前 active 发布清单为 `content/releases/CUSTODY_2026.08.11.json`，登记 55 条路线（46 条 `REQUIRED`、9 条 `ADVANCED`）；旧 `ACCOUNTING_2026.08.10` 文件作为核算发布快照保留。`custody-learning-map.json` 提供三世界入口：`ACCOUNTING` 与 `CLEARING` 为 `OPEN`，`SUPERVISION` 保持 `BUILDING` 且没有地图 regions。
+- 当前 active 发布清单为 `content/releases/CUSTODY_2026.08.12.json`，登记 59 条路线（50 条 `REQUIRED`、9 条 `ADVANCED`）；旧 `ACCOUNTING_2026.08.10` 文件作为核算发布快照保留。`custody-learning-map.json` 提供三世界入口：`ACCOUNTING`、`CLEARING` 与 `SUPERVISION` 均为 `OPEN`；监督地图登记 `SPV-REGION-CORE / SPV-MODULE-LIFECYCLE` 及 4 条连续 `REQUIRED` 路线。
 - `CLEARING` 长地图包含共同基础及资金、场内、银行间三条分支，共 7 个 `REQUIRED` `ROUTE` 节点；分支内首路线到正常关闭路线串联，不设置 `STAGE_GATE` 或 `ADVANCED` 节点。
+- `SUPERVISION` 长地图包含合同、规则、任务和闭环四个 `REQUIRED` `ROUTE` 节点，按 `SPV-CONTRACT-001 → SPV-RULE-002 → SPV-TASK-003 → SPV-CLOSE-004` 串联；业务扩展路线仍按来源边界保持 DEFER。
 - `contracts/openapi.yaml` 定义公开 HTTP 接口；`contracts/schemas/` 校验内容发布结构。
 - 公开 API 只投影前端需要的安全字段，不返回正确答案、参考答案、Rubric、硬性必达项细节、评分关键词、内部项目 ID、模型名称或参数。
 - 前端不根据分数计算路线结论、进度或解锁。

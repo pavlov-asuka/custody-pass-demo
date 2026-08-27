@@ -1039,6 +1039,7 @@ export function lineMapPath(line?: Line | null): string {
 export function lineFromRouteId(routeId?: string | null): Line | null {
   if (routeId?.startsWith('CLR-')) return 'CLEARING';
   if (routeId?.startsWith('ACC-')) return 'ACCOUNTING';
+  if (routeId?.startsWith('SPV-')) return 'SUPERVISION';
   return null;
 }
 

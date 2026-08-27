@@ -1,0 +1,255 @@
+{
+  "routeId": "SPV-TASK-003",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-SPV-TASK-SOURCE-ROLES",
+          "description": "区分监督文件组导入日志与任务和结果汇总表的字段职责",
+          "weight": 13,
+          "evidenceRequirement": "能把数据日和导入状态定位到导入日志，把任务、比例、业务结果和确认状态定位到汇总表，并按教学组合键对应",
+          "evidenceRules": [
+            {"fieldId": "spv-task-b-source-map", "operator": "EQUALS", "expected": "B_SOURCE_ROLE_MATCH"}
+          ],
+          "remediationTargetId": "SPV-TASK-SOURCES"
+        },
+        {
+          "criterionId": "C-SPV-TASK-STATUS-CLASSIFICATION",
+          "description": "理解导入成功、任务完成、业务结果异常与待确认的状态分类",
+          "weight": 12,
+          "evidenceRequirement": "能沿同一数据日和教学组合键识别状态链，并区分业务性异常与技术故障",
+          "evidenceRules": [
+            {"fieldId": "spv-task-b-workpaper", "operator": "CONTAINS_ALL", "expected": ["importStatus=成功", "taskStatus=已执行完成", "businessResult=异常", "confirmationStatus=待确认", "业务性异常不等同技术故障"]},
+            {"fieldId": "spv-task-b-result-status", "operator": "EQUALS", "expected": "BUSINESS_RESULT_ANOMALY"}
+          ],
+          "remediationTargetId": "SPV-TASK-RESULT"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-SPV-TASK-IMPORT",
+          "description": "按数据日核对导入成功状态",
+          "weight": 10,
+          "evidenceRequirement": "导入状态确定为成功，且与案例 B 的数据日和教学组合键对应",
+          "evidenceRules": [
+            {"fieldId": "spv-task-b-import-status", "operator": "EQUALS", "expected": "IMPORT_SUCCESS"}
+          ],
+          "remediationTargetId": "SPV-TASK-IMPORT"
+        },
+        {
+          "criterionId": "P-SPV-TASK-DECIMAL",
+          "description": "按分子/分母用 Decimal 完成比例复算",
+          "weight": 10,
+          "evidenceRequirement": "使用综合 B 的 3 和 100 计算出 0.0300，并保持四位小数",
+          "evidenceRules": [
+            {"fieldId": "spv-task-b-ratio", "operator": "NUMBER_EQUALS", "expected": 0.03, "tolerance": 0}
+          ],
+          "remediationTargetId": "SPV-TASK-RATIO"
+        },
+        {
+          "criterionId": "P-SPV-TASK-STATE-CHAIN",
+          "description": "完成导入→任务→业务结果→确认状态的跨来源勾稽",
+          "weight": 10,
+          "evidenceRequirement": "工作纸保留导入成功、任务已执行完成、业务结果异常和待确认的完整顺序",
+          "evidenceRules": [
+            {"fieldId": "spv-task-b-workpaper", "operator": "CONTAINS_ALL", "expected": ["importStatus=成功", "taskStatus=已执行完成", "businessResult=异常", "confirmationStatus=待确认"]}
+          ],
+          "remediationTargetId": "SPV-TASK-WORKPAPER"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-SPV-TASK-BUSINESS-ANOMALY",
+          "description": "识别低于本案例比例下限的业务结果异常",
+          "weight": 13,
+          "evidenceRequirement": "比例 3% 低于本案例 CS_BLXX=5% 时，结果性质确定为业务结果异常",
+          "evidenceRules": [
+            {"fieldId": "spv-task-b-result-status", "operator": "EQUALS", "expected": "BUSINESS_RESULT_ANOMALY"},
+            {"fieldId": "spv-task-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["0.0300", "CS_BLXX=5%", "低于"]}
+          ],
+          "remediationTargetId": "SPV-TASK-RESULT"
+        },
+        {
+          "criterionId": "R-SPV-TASK-CONFIRMATION-BOUNDARY",
+          "description": "保持待确认状态并控制业务异常与技术故障混淆风险",
+          "weight": 12,
+          "evidenceRequirement": "确认状态为待确认，结论明确业务性异常不等同技术故障，也不补造失败或修复事实",
+          "evidenceRules": [
+            {"fieldId": "spv-task-b-confirmation-status", "operator": "EQUALS", "expected": "PENDING_CONFIRMATION"},
+            {"fieldId": "spv-task-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["业务性异常不等同技术故障", "不代表生产"]}
+          ],
+          "remediationTargetId": "SPV-TASK-CONFIRM"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-SPV-TASK-TRACEABLE-CONCLUSION",
+          "description": "写出包含来源、数据日、计算和状态链的可回查短结论",
+          "weight": 20,
+          "evidenceRequirement": "短结论交代两份资料、教学组合键、数据日、导入/任务/结果/确认状态、比例与本案例边界",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-task-b-conclusion",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "监督文件组导入日志",
+                "任务与结果汇总表",
+                "EDU-SPV-B-002",
+                "2026-02-06",
+                "导入成功",
+                "已执行完成",
+                "业务结果异常",
+                "待确认",
+                "3/100=0.0300",
+                "3%",
+                "CS_BLXX=5%",
+                "业务性异常不等同技术故障",
+                "ONLY_THIS_CASE"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-TASK-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-SPV-TASK-IMPORT-CHAIN",
+      "description": "必须完成按同一教学组合键和数据日的导入、任务、结果与确认状态链",
+      "evidenceRequirement": "导入状态确定为成功，工作纸同时保留任务已执行完成、业务结果异常和待确认",
+      "evidenceRules": [
+        {"fieldId": "spv-task-b-import-status", "operator": "EQUALS", "expected": "IMPORT_SUCCESS"},
+        {"fieldId": "spv-task-b-workpaper", "operator": "CONTAINS_ALL", "expected": ["teachingKey=EDU-SPV-B-002", "dataDate=2026-02-06", "importStatus=成功", "taskStatus=已执行完成", "businessResult=异常", "confirmationStatus=待确认"]}
+      ],
+      "remediationTargetId": "SPV-TASK-IMPORT"
+    },
+    {
+      "requirementId": "M-SPV-TASK-RATIO-RESULT",
+      "description": "必须复算比例并将低于本案例下限的业务结果保持为异常/待确认",
+      "evidenceRequirement": "3/100=0.0300（3%）低于 CS_BLXX=5%，结果性质和确认状态确定，且不写成技术故障",
+      "evidenceRules": [
+        {"fieldId": "spv-task-b-ratio", "operator": "NUMBER_EQUALS", "expected": 0.03, "tolerance": 0},
+        {"fieldId": "spv-task-b-result-status", "operator": "EQUALS", "expected": "BUSINESS_RESULT_ANOMALY"},
+        {"fieldId": "spv-task-b-confirmation-status", "operator": "EQUALS", "expected": "PENDING_CONFIRMATION"},
+        {"fieldId": "spv-task-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["3/100=0.0300", "CS_BLXX=5%", "业务性异常不等同技术故障"]}
+      ],
+      "remediationTargetId": "SPV-TASK-RATIO"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "SPV-TASK-SOURCES",
+      "title": "补学导入日志与结果汇总来源识读",
+      "reason": "未能按资料职责识别数据日/导入字段与任务/结果字段",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-TASK-KC-01",
+      "questionId": "SPV-TASK-Q-01"
+    },
+    {
+      "targetId": "SPV-TASK-IMPORT",
+      "title": "补学数据日与导入成功核对",
+      "reason": "未能在同一教学组合键下确认数据日和导入成功状态",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-TASK-KC-02",
+      "questionId": "SPV-TASK-Q-03"
+    },
+    {
+      "targetId": "SPV-TASK-RATIO",
+      "title": "补学 Decimal 比例复算",
+      "reason": "未能用 3/100 复算 0.0300 或正确比较本案例 5%",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-TASK-KC-03",
+      "questionId": "SPV-TASK-Q-02"
+    },
+    {
+      "targetId": "SPV-TASK-RESULT",
+      "title": "补学业务结果性质分类",
+      "reason": "未能把低于本案例下限的结果归类为业务结果异常",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-TASK-KC-03",
+      "questionId": "SPV-TASK-Q-03"
+    },
+    {
+      "targetId": "SPV-TASK-CONFIRM",
+      "title": "补学结果待确认边界",
+      "reason": "未能保留待确认状态或将业务异常误写成技术故障",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-TASK-KC-02",
+      "questionId": "SPV-TASK-Q-03"
+    },
+    {
+      "targetId": "SPV-TASK-WORKPAPER",
+      "title": "补填每日任务结果工作纸",
+      "reason": "状态链或比例关系未在同一数据日工作纸闭合",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "SPV-TASK-Q-04"
+    },
+    {
+      "targetId": "SPV-TASK-CONCLUSION",
+      "title": "补写可回查的每日结果结论",
+      "reason": "短结论缺少来源、计算、状态链或本案例边界",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "SPV-TASK-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "SPV-TASK-COMP-B",
+    "responses": {
+      "spv-task-b-source-map": "B_SOURCE_ROLE_MATCH",
+      "spv-task-b-import-status": "IMPORT_SUCCESS",
+      "spv-task-b-ratio": 0.03,
+      "spv-task-b-result-status": "BUSINESS_RESULT_ANOMALY",
+      "spv-task-b-confirmation-status": "PENDING_CONFIRMATION",
+      "spv-task-b-workpaper": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE；teachingKey=EDU-SPV-B-002；dataDate=2026-02-06；importStatus=成功；taskStatus=已执行完成；businessResult=异常；confirmationStatus=待确认；B0100002=3；B0100003=100；B0100001=0.0300；CS_BLXX=5%；3/100=0.0300（3%）低于 CS_BLXX=5%；业务性异常不等同技术故障。",
+      "spv-task-b-conclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：监督文件组导入日志与任务与结果汇总表按 teachingKey=EDU-SPV-B-002、dataDate=2026-02-06 对应；导入成功，任务已执行完成，B0100002=3、B0100003=100，按 B0100001 = B0100002 / B0100003 用 Decimal 复算 3/100=0.0300（3%），低于本案例 CS_BLXX=5%，业务结果异常，确认状态待确认；业务性异常不等同技术故障，该结论不代表生产系统状态或权限。"
+    },
+    "responseMeta": {
+      "spv-task-b-ratio": {
+        "kind": "NUMBER",
+        "unit": "ratio",
+        "precision": 4,
+        "tolerance": 0
+      }
+    },
+    "decimalChain": [
+      {
+        "fieldId": "ratio",
+        "formula": "Decimal('3') / Decimal('100')",
+        "result": "0.0300",
+        "display": "3%",
+        "unit": "ratio",
+        "precision": 4,
+        "tolerance": "0"
+      }
+    ],
+    "ruleCheck": {
+      "formula": "B0100001 = B0100002 / B0100003",
+      "evaluated": "3 / 100 = 0.0300 < 0.0500",
+      "threshold": "CS_BLXX=5%",
+      "result": "BUSINESS_RESULT_ANOMALY",
+      "confirmation": "待确认",
+      "technicalFailure": "NOT_CONSTRUCTED",
+      "scope": "ONLY_THIS_CASE"
+    }
+  }
+}

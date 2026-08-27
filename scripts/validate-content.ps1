@@ -151,7 +151,7 @@ foreach ($schemaFile in $schemaFiles) {
     }
 }
 
-$activeReleasePath = Join-Path $contentRoot 'releases/CUSTODY_2026.08.11.json'
+$activeReleasePath = Join-Path $contentRoot 'releases/CUSTODY_2026.08.12.json'
 $legacyReleasePath = Join-Path $contentRoot 'releases/ACCOUNTING_2026.08.10.json'
 $activeRelease = Read-Json $activeReleasePath
 $legacyRelease = Read-Json $legacyReleasePath
@@ -161,13 +161,13 @@ foreach ($field in @('releaseId', 'releasedAt', 'map', 'routes')) {
     Require-Property $activeRelease $field '当前发布清单'
     Require-Property $legacyRelease $field '旧核算发布清单'
 }
-if ($activeRelease.releaseId -ne 'CUSTODY_2026.08.11') {
-    throw '当前发布清单不是 CUSTODY_2026.08.11。'
+if ($activeRelease.releaseId -ne 'CUSTODY_2026.08.12') {
+    throw '当前发布清单不是 CUSTODY_2026.08.12。'
 }
 if ($legacyRelease.releaseId -ne 'ACCOUNTING_2026.08.10') {
     throw '旧核算发布清单标识已改变。'
 }
-if (@($activeRelease.routes).Count -ne 55) { throw '当前发布清单必须包含55条正式路线。' }
+if (@($activeRelease.routes).Count -ne 59) { throw '当前发布清单必须包含59条正式路线。' }
 if (@($legacyRelease.routes).Count -ne 48) { throw '旧核算发布清单必须保留48条路线。' }
 
 $legacyMapPath = Join-Path $contentRoot $legacyRelease.map.path
@@ -211,10 +211,10 @@ $clearing = @($lines | Where-Object line -eq 'CLEARING')
 $supervision = @($lines | Where-Object line -eq 'SUPERVISION')
 if ($accounting.availability -ne 'OPEN' -or
     $clearing.availability -ne 'OPEN' -or
-    $supervision.availability -ne 'BUILDING') {
+    $supervision.availability -ne 'OPEN') {
     throw '三条线开放状态不符合当前产品决策。'
 }
-if (@($supervision[0].regions).Count -ne 0) { throw '监督地图必须保持空 regions。' }
+if (@($supervision[0].regions).Count -ne 1) { throw '监督地图必须登记一个核心大区。' }
 
 $nodeIds = @{}
 $routeNodes = @{}
@@ -245,6 +245,10 @@ $clearingNodes = @(
     $clearing.regions | ForEach-Object { $_.modules } |
         ForEach-Object { $_.nodes }
 )
+$supervisionNodes = @(
+    $supervision.regions | ForEach-Object { $_.modules } |
+        ForEach-Object { $_.nodes }
+)
 if ($accountingNodes.Count -ne 48 -or
     (@($accountingNodes | Where-Object pathType -eq 'REQUIRED').Count -ne 39) -or
     (@($accountingNodes | Where-Object pathType -eq 'ADVANCED').Count -ne 9)) {
@@ -255,6 +259,31 @@ if ($clearingNodes.Count -ne 7 -or
     (@($clearingNodes | Where-Object pathType -eq 'REQUIRED').Count -ne 7) -or
     (@($clearingNodes | Where-Object nodeType -eq 'STAGE_GATE').Count -ne 0)) {
     throw 'CLEARING 地图必须恰好包含7个 REQUIRED ROUTE 节点且不含阶段闸门。'
+}
+if ($supervisionNodes.Count -ne 4 -or
+    (@($supervisionNodes | Where-Object nodeType -eq 'ROUTE').Count -ne 4) -or
+    (@($supervisionNodes | Where-Object pathType -eq 'REQUIRED').Count -ne 4) -or
+    (@($supervisionNodes | Where-Object nodeType -eq 'STAGE_GATE').Count -ne 0)) {
+    throw 'SUPERVISION 地图必须恰好包含4个 REQUIRED ROUTE 节点且不含阶段闸门。'
+}
+$expectedSupervisionRoutes = @(
+    'SPV-CONTRACT-001', 'SPV-RULE-002', 'SPV-TASK-003', 'SPV-CLOSE-004'
+)
+$actualSupervisionRoutes = @($supervisionNodes | Sort-Object order | ForEach-Object { $_.routeId })
+if (($actualSupervisionRoutes -join '|') -ne ($expectedSupervisionRoutes -join '|')) {
+    throw 'SUPERVISION 地图路线顺序必须为合同→规则→任务→闭环。'
+}
+$expectedSupervisionPrerequisites = @{
+    'SPV-CONTRACT-001' = @()
+    'SPV-RULE-002' = @('SPV-NODE-CONTRACT-001')
+    'SPV-TASK-003' = @('SPV-NODE-RULE-002')
+    'SPV-CLOSE-004' = @('SPV-NODE-TASK-003')
+}
+foreach ($supervisionNode in $supervisionNodes) {
+    $expectedPrerequisites = @($expectedSupervisionPrerequisites[$supervisionNode.routeId])
+    if (($supervisionNode.prerequisiteNodeIds -join '|') -ne ($expectedPrerequisites -join '|')) {
+        throw "监督地图前置不符合主链：$($supervisionNode.routeId)"
+    }
 }
 $expectedClearingPrerequisites = @{
     'CLR-BASE-001' = @()
@@ -378,11 +407,12 @@ if ($activeRouteIds.Count -ne $mapRouteIds.Count -or
 }
 $activeAccountingRoutes = @($activeRelease.routes | Where-Object { $_.contentPath -like 'routes/accounting/*.json' })
 $activeClearingRoutes = @($activeRelease.routes | Where-Object { $_.contentPath -like 'routes/clearing/*.json' })
-if ($activeAccountingRoutes.Count -ne 48 -or $activeClearingRoutes.Count -ne 7) {
-    throw '当前发布清单必须动态登记48条核算路线和7条清算路线。'
+$activeSupervisionRoutes = @($activeRelease.routes | Where-Object { $_.contentPath -like 'routes/supervision/*.json' })
+if ($activeAccountingRoutes.Count -ne 48 -or $activeClearingRoutes.Count -ne 7 -or $activeSupervisionRoutes.Count -ne 4) {
+    throw '当前发布清单必须动态登记48条核算路线、7条清算路线和4条监督路线。'
 }
-if (@($activeRelease.routes | Where-Object { $_.contentPath -notlike 'routes/accounting/*.json' -and $_.contentPath -notlike 'routes/clearing/*.json' }).Count -ne 0) {
-    throw '当前发布清单包含非 ACCOUNTING/CLEARING 正式资产。'
+if (@($activeRelease.routes | Where-Object { $_.contentPath -notlike 'routes/accounting/*.json' -and $_.contentPath -notlike 'routes/clearing/*.json' -and $_.contentPath -notlike 'routes/supervision/*.json' }).Count -ne 0) {
+    throw '当前发布清单包含非 ACCOUNTING/CLEARING/SUPERVISION 正式资产。'
 }
 
 $exampleFiles = @(Get-ChildItem -LiteralPath $examplesRoot -File -Filter '*.json')

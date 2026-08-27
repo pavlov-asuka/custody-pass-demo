@@ -1,0 +1,371 @@
+{
+  "routeId": "SPV-TASK-003",
+  "contentVersion": "1.0.0",
+  "line": "SUPERVISION",
+  "title": "每日数据、任务与结果分类",
+  "summary": "从合成《监督文件组导入日志》和《任务与结果汇总表》识读数据日与导入状态，复算 B0100001 = B0100002 / B0100003，勾稽导入成功→任务完成→业务结果异常→待确认的正常监督流程；全部结论仅适用于本案例。",
+  "estimatedMinutes": 55,
+  "objectives": [
+    "从合成《监督文件组导入日志》读取教学组合键、数据日和导入成功状态",
+    "从合成《任务与结果汇总表》读取任务完成语义、分子/分母、CS_BLXX 和业务结果/确认状态",
+    "按 B0100001 = B0100002 / B0100003 用 Decimal 复算比例，并判断本案例比例低于 CS_BLXX=5%",
+    "跨两份材料勾稽导入、任务、业务结果和确认状态，明确业务性异常不等同技术故障"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "SPV-TASK-KC-01",
+          "type": "CATEGORIES",
+          "title": "先按数据日识读导入资料",
+          "conclusion": "监督文件组导入日志先建立 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 的教学组合键、数据日和导入状态；任务与结果表再按同一组合键承接。",
+          "items": [
+            "从《监督文件组导入日志》读取 teachingKey、dataDate 和 importStatus=成功，不补造文件数量或外部数据源",
+            "从《任务与结果汇总表》按同一教学组合键核对任务完成、比例字段、业务结果和确认状态",
+            "A/B 的教学组合键和数据日不同，但两组资料角色与字段关系同构",
+            "所有键、日期和状态均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE，不代表生产导入记录"
+          ]
+        },
+        {
+          "cardId": "SPV-TASK-KC-02",
+          "type": "FLOW",
+          "title": "导入成功之后才看任务与结果",
+          "conclusion": "本案例先确认导入成功，再将任务完成语义与业务结果、确认状态串起来；业务结果异常是规则结果分类，不等同技术故障。",
+          "items": [
+            "导入状态记录为成功；不把材料未提供的重导次数、失败数量或技术原因写入工作纸",
+            "任务汇总按材料语义记录已执行完成；执行查询中的正在执行若无额外信息，不据此构造技术失败",
+            "业务结果为异常、确认状态为待确认，表示正常监督流程中的业务性异常待确认",
+            "不把业务性异常改写成技术故障、失败重跑、补偿或修复结论"
+          ]
+        },
+        {
+          "cardId": "SPV-TASK-KC-03",
+          "type": "KEY_POINT",
+          "title": "比例复算决定结果分类",
+          "conclusion": "先取分子和分母，再用 Decimal 复算 B0100001；本案例 A 为 4/100=4%，B 为 3/100=3%，均低于本案例 CS_BLXX=5%。",
+          "items": [
+            "B0100002 为分子、B0100003 为分母，公式为 B0100001 = B0100002 / B0100003",
+            "A 用 Decimal('4') / Decimal('100') 得到 0.0400（4%）；B 用 Decimal('3') / Decimal('100') 得到 0.0300（3%）",
+            "CS_BLXX=5% 是本案例材料参数，不把它推广为通用法规阈值",
+            "低于本案例下限只能支持业务结果异常与待确认，不支持技术故障或生产处置推断"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "投资监督每日任务复核岗",
+        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：每日数据与任务案例 A",
+        "date": "2026-01-06",
+        "fixture": "SPV-TASK-DEMO-A",
+        "facts": [
+          "《监督文件组导入日志》记录 teachingKey=EDU-SPV-A-001、dataDate=2026-01-06、importStatus=成功；以上均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+          "《任务与结果汇总表》按同一教学组合键记录任务已执行完成、B0100002=4、B0100003=100、CS_BLXX=5%、businessResult=异常、confirmationStatus=待确认。",
+          "按 Decimal 复算 4/100=0.0400（4%），低于本案例 5%；该业务性异常不等同技术故障。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "从合成《监督文件组导入日志》读取 teachingKey=EDU-SPV-A-001、dataDate=2026-01-06 和 importStatus=成功",
+          "reason": "先锁定同一 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 资料包，避免跨数据日取数。"
+        },
+        {
+          "order": 2,
+          "action": "从《任务与结果汇总表》按 EDU-SPV-A-001 核对任务已执行完成、业务结果异常和确认状态待确认",
+          "reason": "导入、任务、结果和确认状态必须沿同一教学组合键承接，不能只看单一状态。"
+        },
+        {
+          "order": 3,
+          "action": "读取 B0100002=4、B0100003=100 和 CS_BLXX=5%，用 Decimal 复算 B0100001=0.0400（4%）",
+          "reason": "分子、分母和精度明确后，比例结果才可用于本案例结果分类。"
+        },
+        {
+          "order": 4,
+          "action": "勾稽 0.0400 < 0.0500，确认业务结果异常且待确认；不把该结果写成技术故障",
+          "reason": "低于本案例参数下限说明业务性异常，不能推导执行失败、预检失败或修复动作。"
+        },
+        {
+          "order": 5,
+          "action": "将来源、数据日、导入/任务/结果/确认状态、比例和案例边界写成可回查短结论",
+          "reason": "短结论应同时保留状态链和计算链，并明确仅适用于本案例。"
+        }
+      ],
+      "summary": "数据日与导入 → 任务完成与状态 → Decimal 比例 → 业务结果/确认勾稽 → 短结论"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "SPV-TASK-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "在 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 A 中，将每日数据、导入、任务和结果字段映射到两份合成材料。",
+          "fieldMappings": [
+            {
+              "fieldId": "daily-import-source",
+              "label": "teachingKey、dataDate 和 importStatus 的主来源",
+              "source": "合成《监督文件组导入日志》",
+              "options": [
+                {"optionId": "IMPORT_LOG_DAILY_FIELDS", "text": "监督文件组导入日志"},
+                {"optionId": "RESULT_SUMMARY_DAILY_FIELDS", "text": "任务与结果汇总表"}
+              ]
+            },
+            {
+              "fieldId": "task-result-source",
+              "label": "任务完成、比例、业务结果和确认状态的主来源",
+              "source": "合成《任务与结果汇总表》",
+              "options": [
+                {"optionId": "RESULT_SUMMARY_TASK_FIELDS", "text": "任务与结果汇总表"},
+                {"optionId": "IMPORT_LOG_TASK_FIELDS", "text": "监督文件组导入日志"}
+              ]
+            }
+          ],
+          "answer": ["IMPORT_LOG_DAILY_FIELDS", "RESULT_SUMMARY_TASK_FIELDS"],
+          "explanation": "导入日志建立数据日和导入状态，任务与结果汇总表承接任务、比例、业务结果和确认状态。",
+          "hints": ["先区分导入事实与任务结果，再按同一教学组合键对应两份材料。"]
+        },
+        {
+          "questionId": "SPV-TASK-Q-02",
+          "type": "CALCULATION",
+          "prompt": "按案例 A 的分子 4、分母 100，用 Decimal 复算 B0100001，结果保留四位小数。",
+          "calculation": {
+            "fields": [
+              {
+                "fieldId": "daily-ratio",
+                "label": "B0100001 实际比例",
+                "formula": "B0100002 / B0100003 = 4 / 100",
+                "placeholder": "输入比例小数",
+                "unit": "ratio",
+                "precision": 4,
+                "tolerance": 0
+              }
+            ]
+          },
+          "answer": ["0.0400"],
+          "explanation": "Decimal('4') / Decimal('100') = 0.0400，即 4%；本案例 CS_BLXX=5%。",
+          "hints": ["先按分子除以分母保存四位小数，再与本案例 5% 参数比较。"]
+        },
+        {
+          "questionId": "SPV-TASK-Q-03",
+          "type": "RECONCILIATION",
+          "prompt": "勾稽案例 A 的导入、任务、业务结果和确认状态，区分业务性异常与技术故障。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "import-status",
+                "label": "导入状态",
+                "kind": "SELECT",
+                "formula": "importStatus=成功",
+                "placeholder": "选择导入状态",
+                "options": [
+                  {"optionId": "IMPORT_SUCCESS", "text": "导入成功"},
+                  {"optionId": "IMPORT_NOT_CONFIRMED", "text": "导入状态未确认"}
+                ]
+              },
+              {
+                "fieldId": "result-status",
+                "label": "业务结果性质",
+                "kind": "SELECT",
+                "formula": "businessResult=异常",
+                "placeholder": "选择业务结果性质",
+                "options": [
+                  {"optionId": "BUSINESS_RESULT_ANOMALY", "text": "业务结果异常"},
+                  {"optionId": "BUSINESS_RESULT_NORMAL", "text": "业务结果正常"}
+                ]
+              },
+              {
+                "fieldId": "confirmation-status",
+                "label": "确认状态",
+                "kind": "SELECT",
+                "formula": "confirmationStatus=待确认",
+                "placeholder": "选择确认状态",
+                "options": [
+                  {"optionId": "PENDING_CONFIRMATION", "text": "待确认"},
+                  {"optionId": "CONFIRMED", "text": "已确认"}
+                ]
+              }
+            ]
+          },
+          "answer": ["IMPORT_SUCCESS", "BUSINESS_RESULT_ANOMALY", "PENDING_CONFIRMATION"],
+          "explanation": "导入成功、任务已执行完成后，4%低于本案例5%形成业务结果异常，确认状态仍为待确认；这不是技术故障。",
+          "hints": ["按导入→任务→业务结果→确认状态顺序判断，不能因结果异常而倒推出导入失败。"]
+        },
+        {
+          "questionId": "SPV-TASK-Q-04",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把案例 A 的每日状态和比例链填入 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 工作纸。",
+          "ledgerEntries": [
+            {"entryId": "teaching-key", "direction": "案例标识", "label": "teachingKey", "amount": "EDU-SPV-A-001", "placeholder": "输入教学组合键"},
+            {"entryId": "data-date", "direction": "数据日", "label": "dataDate", "amount": "2026-01-06", "placeholder": "输入数据日"},
+            {"entryId": "import-status", "direction": "导入状态", "label": "importStatus", "amount": "成功", "placeholder": "输入导入状态"},
+            {"entryId": "task-status", "direction": "任务状态", "label": "taskStatus", "amount": "已执行完成", "placeholder": "输入任务状态"},
+            {"entryId": "result-status", "direction": "业务结果", "label": "businessResult", "amount": "异常", "placeholder": "输入业务结果"},
+            {"entryId": "confirmation-status", "direction": "确认状态", "label": "confirmationStatus", "amount": "待确认", "placeholder": "输入确认状态"},
+            {"entryId": "ratio-chain", "direction": "比例关系", "label": "B0100002/B0100003/B0100001", "amount": "4/100=0.0400（4%）< CS_BLXX=5%", "placeholder": "输入比例链"}
+          ],
+          "answer": ["EDU-SPV-A-001", "2026-01-06", "成功", "已执行完成", "异常", "待确认", "4/100=0.0400（4%）< CS_BLXX=5%"],
+          "explanation": "工作纸将导入、任务、业务结果、确认状态和比例关系放在同一数据日与教学组合键下。",
+          "hints": ["先填身份和数据日，再填状态链，最后写分子/分母及低于本案例下限的比例关系。"]
+        },
+        {
+          "questionId": "SPV-TASK-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 A 的每日任务结果结论。",
+          "textInput": {
+            "label": "每日任务与结果结论",
+            "placeholder": "写明来源、教学组合键、数据日、导入/任务/结果/确认状态、比例和业务边界"
+          },
+          "answer": ["监督文件组导入日志", "任务与结果汇总表", "EDU-SPV-A-001", "2026-01-06", "成功", "已执行完成", "异常", "待确认", "4/100", "4%", "CS_BLXX=5%", "业务性异常不等同技术故障", "ONLY_THIS_CASE"],
+          "explanation": "短结论应能回查两份材料和状态链，说明比例低于本案例下限，并明确不构造技术故障。",
+          "hints": ["按来源→教学键/数据日→导入→任务→业务结果→确认→比例→案例边界组织一句话。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "投资监督每日任务复核岗",
+        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：每日数据与任务案例 B",
+        "date": "2026-02-06",
+        "purpose": "依据两份合成资料完成来源识读、导入/任务/结果状态核对、Decimal 比例复算、结构化工作纸和简短结论。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "SPV-TASK-B-IMPORT-LOG",
+          "title": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合成《监督文件组导入日志》—案例 B",
+          "kind": "LEDGER",
+          "description": "仅供本案例识读数据日和导入状态；不代表生产导入记录、文件数量或外部数据源。",
+          "fields": [
+            {"fieldId": "teaching_key", "label": "教学组合键", "value": "EDU-SPV-B-002"},
+            {"fieldId": "data_date", "label": "数据日", "value": "2026-02-06"},
+            {"fieldId": "document_group", "label": "资料组", "value": "监督文件组"},
+            {"fieldId": "import_status", "label": "导入状态", "value": "成功"},
+            {"fieldId": "synthetic_scope", "label": "材料范围", "value": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"}
+          ]
+        },
+        {
+          "materialId": "SPV-TASK-B-RESULT-SUMMARY",
+          "title": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合成《任务与结果汇总表》—案例 B",
+          "kind": "REPORT",
+          "description": "仅供本案例识读任务完成、比例和业务结果/确认状态；不代表生产系统状态、失败处置或监管报告。",
+          "fields": [
+            {"fieldId": "teaching_key", "label": "教学组合键", "value": "EDU-SPV-B-002"},
+            {"fieldId": "data_date", "label": "数据日对应值", "value": "2026-02-06"},
+            {"fieldId": "execution_query", "label": "执行查询原文语义", "value": "正在执行"},
+            {"fieldId": "task_status", "label": "任务状态语义", "value": "已执行完成"},
+            {"fieldId": "numerator", "label": "B0100002 分子", "value": "3"},
+            {"fieldId": "denominator", "label": "B0100003 分母", "value": "100"},
+            {"fieldId": "ratio_scale", "label": "比例精度", "value": "0.0300", "unit": "ratio"},
+            {"fieldId": "lower_bound", "label": "本案例比例下限", "value": "CS_BLXX=5%"},
+            {"fieldId": "business_result", "label": "业务结果性质", "value": "异常"},
+            {"fieldId": "confirmation_status", "label": "确认状态", "value": "待确认"},
+            {"fieldId": "synthetic_scope", "label": "材料范围", "value": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "spv-task-b-source-map",
+          "type": "FIELD_MAP",
+          "title": "识别导入日志与任务结果的字段职责",
+          "instruction": "在 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 B 中，选择两份资料共同作为数据日、导入、任务和结果状态的对应来源。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择来源职责结论",
+            "options": [
+              {"optionId": "B_SOURCE_ROLE_MATCH", "text": "导入日志负责数据日/导入状态，任务与结果汇总表负责任务/比例/业务结果/确认，并按教学组合键对应"},
+              {"optionId": "B_SOURCE_ROLE_MISMATCH", "text": "两份资料无法按教学组合键对应"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-task-b-import-status",
+          "type": "RECONCILIATION",
+          "title": "核对数据日与导入状态",
+          "instruction": "从《监督文件组导入日志》核对案例 B 的 dataDate=2026-02-06 和 importStatus=成功。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择导入状态",
+            "options": [
+              {"optionId": "IMPORT_SUCCESS", "text": "数据日对应，导入成功"},
+              {"optionId": "IMPORT_NOT_CONFIRMED", "text": "导入状态未确认"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-task-b-ratio",
+          "type": "CALCULATION",
+          "title": "复算本案例监督比例",
+          "instruction": "从《任务与结果汇总表》读取 B0100002=3、B0100003=100，用 Decimal 复算 B0100001，并与 CS_BLXX=5% 比较。",
+          "response": {
+            "kind": "NUMBER",
+            "placeholder": "输入 B0100001 比例小数",
+            "unit": "ratio",
+            "precision": 4
+          }
+        },
+        {
+          "workItemId": "spv-task-b-result-status",
+          "type": "RECONCILIATION",
+          "title": "分类业务结果",
+          "instruction": "根据 3/100=3% 低于本案例 CS_BLXX=5% 的关系，选择任务完成后的业务结果性质；不要将其改写成技术故障。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择业务结果性质",
+            "options": [
+              {"optionId": "BUSINESS_RESULT_ANOMALY", "text": "业务结果异常"},
+              {"optionId": "BUSINESS_RESULT_NORMAL", "text": "业务结果正常"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-task-b-confirmation-status",
+          "type": "RECONCILIATION",
+          "title": "记录结果确认状态",
+          "instruction": "在业务结果为异常的前提下，按任务与结果汇总表记录确认状态，不补写未提供的回函或处置。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择确认状态",
+            "options": [
+              {"optionId": "PENDING_CONFIRMATION", "text": "待确认"},
+              {"optionId": "CONFIRMED", "text": "已确认"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-task-b-workpaper",
+          "type": "LEDGER_ENTRY",
+          "title": "填写每日任务结果工作纸",
+          "instruction": "将案例 B 的教学组合键、数据日、导入成功、任务已执行完成、业务结果异常、待确认、分子/分母和比例关系写入结构化工作纸，并标明业务性异常不等同技术故障。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "teachingKey=...；dataDate=...；importStatus=...；taskStatus=...；businessResult=...；confirmationStatus=...；3/100=...；CS_BLXX=..."
+          }
+        },
+        {
+          "workItemId": "spv-task-b-conclusion",
+          "type": "SHORT_TEXT",
+          "title": "写出每日任务与结果短结论",
+          "instruction": "用简短文字交代两份资料、教学组合键、数据日、导入→任务→业务结果/确认状态链、Decimal 比例和 ONLY_THIS_CASE 边界。",
+          "response": {
+            "kind": "TEXT",
+            "placeholder": "写出来源、状态链、3/100=3%、CS_BLXX=5% 和业务异常边界"
+          }
+        }
+      ],
+      "submissionNote": "提交前检查两份资料是否按同一教学组合键和数据日对应，导入状态是否为成功，比例是否按 Decimal 复算为 0.0300（3%），以及业务结果异常和待确认是否没有被改写为技术故障；本练习不要求补写任务数量、失败数量、异常编码、外部数据源或处置流程。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "SPV-TASK-REF-IMPORT",
+      "title": "每日数据与监督文件组导入材料抽象",
+      "source": "M01 §4.3.1、§4.3.2；M11 §4.3",
+      "usage": "用于识读数据日、导入成功、任务完成语义及两份资料按教学组合键承接的本案例关系。"
+    },
+    {
+      "referenceId": "SPV-TASK-REF-RESULT",
+      "title": "任务结果、比例与确认状态材料抽象",
+      "source": "M01 §4.4；M11 §4.4",
+      "usage": "用于读取分子/分母、CS_BLXX、业务结果异常和待确认状态，并完成本案例 Decimal 复算与分类。"
+    }
+  ]
+}

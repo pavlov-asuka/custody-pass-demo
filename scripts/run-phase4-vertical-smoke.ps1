@@ -202,12 +202,16 @@ try {
     Assert-True (@($worlds.worlds).Count -eq 3) 'world count is not 3'
     Assert-True ((@($worlds.worlds | Where-Object line -eq 'ACCOUNTING'))[0].availability -eq 'OPEN') `
         'ACCOUNTING is not OPEN'
-    foreach ($buildingLine in @('CLEARING', 'SUPERVISION')) {
-        Assert-True ((@($worlds.worlds | Where-Object line -eq $buildingLine))[0].availability -eq 'BUILDING') `
-            "$buildingLine is not BUILDING"
+    foreach ($openLine in @('ACCOUNTING', 'CLEARING', 'SUPERVISION')) {
+        Assert-True ((@($worlds.worlds | Where-Object line -eq $openLine))[0].availability -eq 'OPEN') `
+            "$openLine is not OPEN"
     }
-    $buildingMap = Invoke-JsonApi -Method GET -Path '/api/lines/CLEARING/map' -ExpectedStatus 409
-    Assert-True ($buildingMap.Body.code -eq 'CONTENT_BUILDING') 'CLEARING map must be CONTENT_BUILDING'
+    $clearingMap = Invoke-JsonApi -Method GET -Path '/api/lines/CLEARING/map'
+    $clearingNodes = @(Get-AllNodes $clearingMap.Body)
+    Assert-True ($clearingNodes.Count -eq 7) 'CLEARING map must expose seven nodes'
+    $supervisionMap = Invoke-JsonApi -Method GET -Path '/api/lines/SUPERVISION/map'
+    $supervisionNodes = @(Get-AllNodes $supervisionMap.Body)
+    Assert-True ($supervisionNodes.Count -eq 4) 'SUPERVISION map must expose four nodes'
 
     $mapBefore = (Invoke-JsonApi -Method GET -Path '/api/lines/ACCOUNTING/map').Body
     $nextBefore = @(Get-AllNodes $mapBefore | Where-Object routeId -eq $nextRouteId)[0]

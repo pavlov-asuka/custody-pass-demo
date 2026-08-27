@@ -1,0 +1,635 @@
+{
+  "evidenceId": "SPV-EVID-TASK-003",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "routeId": "SPV-TASK-003",
+  "routeCode": "SPV-TASK-003",
+  "title": "每日数据、任务与结果分类证据",
+  "scopeNotice": "本文件是 SPV-TASK-003 的私有证据、Decimal 比例链和状态分类映射。所有教学组合键、日期、比例和状态均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE；业务结果异常不等同技术故障，不登记生产系统状态或处置。",
+  "sharedEvidence": [
+    "SPV-FOUNDATION-001",
+    "SPV-EVID-RULE-002",
+    "SPV-EVID-TASK-IMPORT",
+    "SPV-EVID-TASK-RESULT"
+  ],
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "M01",
+      "locators": [
+        "§4.3.1",
+        "§4.3.2",
+        "§4.4"
+      ],
+      "teachingUse": "支持每日资料导入、任务完成语义、比例结果和业务结果/确认状态的材料抽象；不补造任务数量或技术失败。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "M11",
+      "locators": [
+        "§4.3",
+        "§4.4"
+      ],
+      "teachingUse": "独立核对导入→任务→业务结果→确认状态的正常流程和参数读取顺序；不扩写外部数据源、监管报告或修复流程。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "mappingClaims": [
+    {
+      "claimId": "SPV-TASK-CLAIM-01",
+      "claim": "监督文件组导入日志承载教学组合键、数据日和导入成功；任务与结果汇总表承载同一教学组合键下的任务完成、比例、业务结果和确认状态。",
+      "sourceGroups": [
+        "SPV-TASK-B-IMPORT-LOG",
+        "SPV-TASK-B-RESULT-SUMMARY"
+      ],
+      "activity": "FIELD_MAP",
+      "auditedAnchors": ["M01 §4.3.1", "M01 §4.3.2", "M11 §4.3"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "claimId": "SPV-TASK-CLAIM-02",
+      "claim": "B0100001 = B0100002 / B0100003；案例 A 为 4/100=0.0400（4%），案例 B 为 3/100=0.0300（3%），均低于本案例 CS_BLXX=5%。",
+      "sourceGroups": [
+        "SPV-TASK-B-RESULT-SUMMARY"
+      ],
+      "activity": "CALCULATION",
+      "auditedAnchors": ["M01 §4.4", "M11 §4.4"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "claimId": "SPV-TASK-CLAIM-03",
+      "claim": "正常状态链为导入成功→任务已执行完成→业务结果异常→确认状态待确认；业务性异常不等同技术故障。",
+      "sourceGroups": [
+        "SPV-TASK-B-IMPORT-LOG",
+        "SPV-TASK-B-RESULT-SUMMARY"
+      ],
+      "activity": "RECONCILIATION",
+      "auditedAnchors": ["M01 §4.3.1", "M01 §4.3.2", "M01 §4.4", "M11 §4.3", "M11 §4.4"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "claimId": "SPV-TASK-CLAIM-04",
+      "claim": "执行查询原文语义为正在执行且无额外信息时，本案例沿汇总表语义记录已执行完成；不构造执行失败、预检失败或技术修复。",
+      "sourceGroups": [
+        "SPV-TASK-B-RESULT-SUMMARY"
+      ],
+      "activity": "BOUNDARY",
+      "auditedAnchors": ["M01 §4.3.2", "M11 §4.3"],
+      "provenance": "BOUNDARY_ONLY"
+    }
+  ],
+  "caseParameters": [
+    {
+      "fixtureId": "SPV-TASK-DEMO-A",
+      "parameter": "identity",
+      "value": "teachingKey=EDU-SPV-A-001; dataDate=2026-01-06",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-TASK-DEMO-A",
+      "parameter": "ratio",
+      "value": "B0100002=4; B0100003=100; B0100001=0.0400（4%）; CS_BLXX=5%",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-TASK-DEMO-A",
+      "parameter": "statusChain",
+      "value": "importStatus=成功; taskStatus=已执行完成; businessResult=异常; confirmationStatus=待确认",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-TASK-COMP-B",
+      "parameter": "identity",
+      "value": "teachingKey=EDU-SPV-B-002; dataDate=2026-02-06",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-TASK-COMP-B",
+      "parameter": "ratio",
+      "value": "B0100002=3; B0100003=100; B0100001=0.0300（3%）; CS_BLXX=5%",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-TASK-COMP-B",
+      "parameter": "statusChain",
+      "value": "importStatus=成功; taskStatus=已执行完成; businessResult=异常; confirmationStatus=待确认",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "ruleCatalog": [
+    {
+      "ruleId": "SPV-TASK-RULE-SOURCE-MAP",
+      "description": "导入日志与任务结果汇总表按同一教学组合键分工",
+      "expected": "B_SOURCE_ROLE_MATCH",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-TASK-RULE-IMPORT-STATUS",
+      "description": "案例 B 的导入状态",
+      "expected": "IMPORT_SUCCESS",
+      "materialValue": "成功",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-TASK-RULE-RATIO",
+      "description": "案例 B 的实际比例",
+      "formula": "Decimal('3') / Decimal('100')",
+      "expected": 0.03,
+      "displayExpected": "0.0300 / 3%",
+      "precision": 4,
+      "tolerance": "0",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-TASK-RULE-RESULT-STATUS",
+      "description": "比例低于本案例下限时的业务结果性质",
+      "expected": "BUSINESS_RESULT_ANOMALY",
+      "materialValue": "异常",
+      "condition": "3/100=3% < CS_BLXX=5%",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-TASK-RULE-CONFIRMATION-STATUS",
+      "description": "案例 B 的结果确认状态",
+      "expected": "PENDING_CONFIRMATION",
+      "materialValue": "待确认",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-TASK-RULE-WORKPAPER-CHAIN",
+      "description": "导入→任务→业务结果→确认状态工作纸链",
+      "expected": ["importStatus=成功", "taskStatus=已执行完成", "businessResult=异常", "confirmationStatus=待确认", "业务性异常不等同技术故障"],
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-TASK-RULE-CONCLUSION",
+      "description": "案例 B 可回查的每日任务结果结论",
+      "expected": ["监督文件组导入日志", "任务与结果汇总表", "EDU-SPV-B-002", "2026-02-06", "导入成功", "已执行完成", "业务结果异常", "待确认", "3/100=0.0300", "3%", "CS_BLXX=5%", "业务性异常不等同技术故障"],
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "SPV-TASK-DEMO-A",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE",
+      "identity": {
+        "teachingKey": "EDU-SPV-A-001",
+        "dataDate": "2026-01-06",
+        "importStatus": "成功",
+        "taskStatus": "已执行完成",
+        "businessResult": "异常",
+        "confirmationStatus": "待确认",
+        "numerator": "4",
+        "denominator": "100",
+        "ratio": "0.0400",
+        "lowerBound": "CS_BLXX=5%"
+      },
+      "sourceToRole": [
+        {
+          "sourceMaterialId": "SPV-TASK-A-IMPORT-LOG",
+          "role": "SUPERVISION_DOCUMENT_IMPORT_LOG",
+          "fields": [
+            "teachingKey=EDU-SPV-A-001",
+            "dataDate=2026-01-06",
+            "documentGroup=监督文件组",
+            "importStatus=成功",
+            "scope=SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+          ]
+        },
+        {
+          "sourceMaterialId": "SPV-TASK-A-RESULT-SUMMARY",
+          "role": "TASK_RESULT_SUMMARY",
+          "fields": [
+            "teachingKey=EDU-SPV-A-001",
+            "dataDate=2026-01-06",
+            "executionQuery=正在执行",
+            "taskStatus=已执行完成",
+            "numerator=4",
+            "denominator=100",
+            "ratio=0.0400",
+            "lowerBound=CS_BLXX=5%",
+            "businessResult=异常",
+            "confirmationStatus=待确认",
+            "scope=SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+          ]
+        }
+      ],
+      "decimalChain": [
+        {
+          "fieldId": "ratio",
+          "formula": "Decimal('4') / Decimal('100')",
+          "result": "0.0400",
+          "display": "4%",
+          "unit": "ratio",
+          "precision": 4,
+          "tolerance": "0"
+        }
+      ],
+      "stateChain": {
+        "importStatus": "成功",
+        "taskStatus": "已执行完成",
+        "businessResult": "异常",
+        "confirmationStatus": "待确认",
+        "classification": "BUSINESS_ANOMALY_NOT_TECHNICAL_FAILURE",
+        "chain": "导入成功 → 任务已执行完成 → 业务结果异常 → 待确认"
+      },
+      "reconciliation": {
+        "teachingKeyMatch": "YES",
+        "dataDateMatch": "YES",
+        "importStatus": "成功",
+        "taskStatus": "已执行完成",
+        "businessResult": "异常",
+        "confirmationStatus": "待确认",
+        "ratio": "0.0400",
+        "threshold": "CS_BLXX=5%",
+        "relation": "0.0400 < 0.0500",
+        "status": "BUSINESS_ANOMALY_PENDING_CONFIRMATION"
+      },
+      "expectedConclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：监督文件组导入日志与任务与结果汇总表按 teachingKey=EDU-SPV-A-001、dataDate=2026-01-06 对应；导入成功，任务已执行完成，B0100002=4、B0100003=100，按 B0100001 = B0100002 / B0100003 用 Decimal 复算 4/100=0.0400（4%），低于本案例 CS_BLXX=5%，业务结果异常，确认状态待确认；业务性异常不等同技术故障。"
+    },
+    "comprehensiveB": {
+      "fixtureId": "SPV-TASK-COMP-B",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE",
+      "identity": {
+        "teachingKey": "EDU-SPV-B-002",
+        "dataDate": "2026-02-06",
+        "importStatus": "成功",
+        "taskStatus": "已执行完成",
+        "businessResult": "异常",
+        "confirmationStatus": "待确认",
+        "numerator": "3",
+        "denominator": "100",
+        "ratio": "0.0300",
+        "lowerBound": "CS_BLXX=5%"
+      },
+      "sourceToRole": [
+        {
+          "sourceMaterialId": "SPV-TASK-B-IMPORT-LOG",
+          "role": "SUPERVISION_DOCUMENT_IMPORT_LOG",
+          "fields": [
+            "teachingKey=EDU-SPV-B-002",
+            "dataDate=2026-02-06",
+            "documentGroup=监督文件组",
+            "importStatus=成功",
+            "scope=SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+          ]
+        },
+        {
+          "sourceMaterialId": "SPV-TASK-B-RESULT-SUMMARY",
+          "role": "TASK_RESULT_SUMMARY",
+          "fields": [
+            "teachingKey=EDU-SPV-B-002",
+            "dataDate=2026-02-06",
+            "executionQuery=正在执行",
+            "taskStatus=已执行完成",
+            "numerator=3",
+            "denominator=100",
+            "ratio=0.0300",
+            "lowerBound=CS_BLXX=5%",
+            "businessResult=异常",
+            "confirmationStatus=待确认",
+            "scope=SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+          ]
+        }
+      ],
+      "decimalChain": [
+        {
+          "fieldId": "ratio",
+          "formula": "Decimal('3') / Decimal('100')",
+          "result": "0.0300",
+          "display": "3%",
+          "unit": "ratio",
+          "precision": 4,
+          "tolerance": "0"
+        }
+      ],
+      "stateChain": {
+        "importStatus": "成功",
+        "taskStatus": "已执行完成",
+        "businessResult": "异常",
+        "confirmationStatus": "待确认",
+        "classification": "BUSINESS_ANOMALY_NOT_TECHNICAL_FAILURE",
+        "chain": "导入成功 → 任务已执行完成 → 业务结果异常 → 待确认"
+      },
+      "reconciliation": {
+        "teachingKeyMatch": "YES",
+        "dataDateMatch": "YES",
+        "importStatus": "成功",
+        "taskStatus": "已执行完成",
+        "businessResult": "异常",
+        "confirmationStatus": "待确认",
+        "ratio": "0.0300",
+        "threshold": "CS_BLXX=5%",
+        "relation": "0.0300 < 0.0500",
+        "status": "BUSINESS_ANOMALY_PENDING_CONFIRMATION"
+      },
+      "expectedConclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：监督文件组导入日志与任务与结果汇总表按 teachingKey=EDU-SPV-B-002、dataDate=2026-02-06 对应；导入成功，任务已执行完成，B0100002=3、B0100003=100，按 B0100001 = B0100002 / B0100003 用 Decimal 复算 3/100=0.0300（3%），低于本案例 CS_BLXX=5%，业务结果异常，确认状态待确认；业务性异常不等同技术故障，该结论不代表生产系统状态或权限。"
+    }
+  },
+  "atomicWorkItems": [
+    {
+      "workItemId": "spv-task-b-source-map",
+      "responseKind": "SELECT",
+      "observableAction": "定位导入日志与任务结果汇总表的字段职责",
+      "fixtureValue": "B_SOURCE_ROLE_MATCH",
+      "sourceMaterialIds": ["SPV-TASK-B-IMPORT-LOG", "SPV-TASK-B-RESULT-SUMMARY"],
+      "materialLocators": ["M01 §4.3.1", "M01 §4.3.2", "M11 §4.3", "M11 §4.4"],
+      "scoreTargets": ["C-SPV-TASK-SOURCE-ROLES", "P-SPV-TASK-IMPORT", "M-SPV-TASK-IMPORT-CHAIN"],
+      "remediationTargetId": "SPV-TASK-SOURCES",
+      "source": {
+        "materialIds": ["SPV-TASK-B-IMPORT-LOG", "SPV-TASK-B-RESULT-SUMMARY"],
+        "fieldIds": ["teaching_key", "data_date", "document_group", "import_status", "task_status", "numerator", "denominator", "ratio_scale", "business_result", "confirmation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-TASK-REF-IMPORT", "SPV-TASK-REF-RESULT"],
+        "anchor": "导入日志负责数据日/导入状态，任务与结果汇总表负责任务/比例/业务结果/确认状态"
+      },
+      "rule": {
+        "ruleId": "SPV-TASK-RULE-SOURCE-MAP",
+        "expected": "B_SOURCE_ROLE_MATCH",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-TASK-SOURCES",
+        "criterionIds": ["C-SPV-TASK-SOURCE-ROLES", "P-SPV-TASK-IMPORT", "M-SPV-TASK-IMPORT-CHAIN"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-TASK-KC-01",
+        "questionId": "SPV-TASK-Q-01"
+      }
+    },
+    {
+      "workItemId": "spv-task-b-import-status",
+      "responseKind": "SELECT",
+      "observableAction": "按数据日核对导入成功状态",
+      "fixtureValue": "IMPORT_SUCCESS",
+      "sourceMaterialIds": ["SPV-TASK-B-IMPORT-LOG"],
+      "materialLocators": ["M01 §4.3.1", "M11 §4.3"],
+      "scoreTargets": ["P-SPV-TASK-IMPORT", "M-SPV-TASK-IMPORT-CHAIN"],
+      "remediationTargetId": "SPV-TASK-IMPORT",
+      "source": {
+        "materialIds": ["SPV-TASK-B-IMPORT-LOG"],
+        "fieldIds": ["teaching_key", "data_date", "import_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-TASK-REF-IMPORT"],
+        "anchor": "dataDate=2026-02-06 对应 importStatus=成功"
+      },
+      "rule": {
+        "ruleId": "SPV-TASK-RULE-IMPORT-STATUS",
+        "expected": "IMPORT_SUCCESS",
+        "materialValue": "成功",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-TASK-IMPORT",
+        "criterionIds": ["P-SPV-TASK-IMPORT", "M-SPV-TASK-IMPORT-CHAIN"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-TASK-KC-02",
+        "questionId": "SPV-TASK-Q-03"
+      }
+    },
+    {
+      "workItemId": "spv-task-b-ratio",
+      "responseKind": "NUMBER",
+      "observableAction": "读取 3 和 100，用 Decimal 复算 B0100001",
+      "fixtureValue": "0.0300",
+      "unit": "ratio",
+      "precision": 4,
+      "tolerance": "0",
+      "sourceMaterialIds": ["SPV-TASK-B-RESULT-SUMMARY"],
+      "materialLocators": ["M01 §4.4", "M11 §4.4"],
+      "scoreTargets": ["P-SPV-TASK-DECIMAL", "R-SPV-TASK-BUSINESS-ANOMALY", "M-SPV-TASK-RATIO-RESULT"],
+      "remediationTargetId": "SPV-TASK-RATIO",
+      "source": {
+        "materialIds": ["SPV-TASK-B-RESULT-SUMMARY"],
+        "fieldIds": ["numerator", "denominator", "ratio_scale", "lower_bound"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-TASK-REF-RESULT"],
+        "anchor": "B0100002/B0100003 的 Decimal 复算和 CS_BLXX=5% 比较"
+      },
+      "rule": {
+        "ruleId": "SPV-TASK-RULE-RATIO",
+        "formula": "Decimal('3') / Decimal('100')",
+        "expected": 0.03,
+        "precision": 4,
+        "tolerance": "0",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-TASK-RATIO",
+        "criterionIds": ["P-SPV-TASK-DECIMAL", "R-SPV-TASK-BUSINESS-ANOMALY", "M-SPV-TASK-RATIO-RESULT"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "SPV-TASK-Q-02"
+      }
+    },
+    {
+      "workItemId": "spv-task-b-result-status",
+      "responseKind": "SELECT",
+      "observableAction": "按比例低于本案例下限分类业务结果性质",
+      "fixtureValue": "BUSINESS_RESULT_ANOMALY",
+      "sourceMaterialIds": ["SPV-TASK-B-RESULT-SUMMARY"],
+      "materialLocators": ["M01 §4.4", "M11 §4.4"],
+      "scoreTargets": ["C-SPV-TASK-STATUS-CLASSIFICATION", "R-SPV-TASK-BUSINESS-ANOMALY", "M-SPV-TASK-RATIO-RESULT"],
+      "remediationTargetId": "SPV-TASK-RESULT",
+      "source": {
+        "materialIds": ["SPV-TASK-B-RESULT-SUMMARY"],
+        "fieldIds": ["numerator", "denominator", "ratio_scale", "lower_bound", "business_result"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-TASK-REF-RESULT"],
+        "anchor": "3/100=3% 低于 CS_BLXX=5%，材料业务结果为异常"
+      },
+      "rule": {
+        "ruleId": "SPV-TASK-RULE-RESULT-STATUS",
+        "expected": "BUSINESS_RESULT_ANOMALY",
+        "materialValue": "异常",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-TASK-RESULT",
+        "criterionIds": ["C-SPV-TASK-STATUS-CLASSIFICATION", "R-SPV-TASK-BUSINESS-ANOMALY", "M-SPV-TASK-RATIO-RESULT"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-TASK-KC-03",
+        "questionId": "SPV-TASK-Q-03"
+      }
+    },
+    {
+      "workItemId": "spv-task-b-confirmation-status",
+      "responseKind": "SELECT",
+      "observableAction": "在业务结果异常后保留待确认状态",
+      "fixtureValue": "PENDING_CONFIRMATION",
+      "sourceMaterialIds": ["SPV-TASK-B-RESULT-SUMMARY"],
+      "materialLocators": ["M01 §4.4", "M11 §4.4"],
+      "scoreTargets": ["R-SPV-TASK-CONFIRMATION-BOUNDARY", "M-SPV-TASK-RATIO-RESULT"],
+      "remediationTargetId": "SPV-TASK-CONFIRM",
+      "source": {
+        "materialIds": ["SPV-TASK-B-RESULT-SUMMARY"],
+        "fieldIds": ["business_result", "confirmation_status"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-TASK-REF-RESULT"],
+        "anchor": "业务结果异常后的确认状态为待确认，不补造回函或处置"
+      },
+      "rule": {
+        "ruleId": "SPV-TASK-RULE-CONFIRMATION-STATUS",
+        "expected": "PENDING_CONFIRMATION",
+        "materialValue": "待确认",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-TASK-CONFIRM",
+        "criterionIds": ["R-SPV-TASK-CONFIRMATION-BOUNDARY", "M-SPV-TASK-RATIO-RESULT"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-TASK-KC-02",
+        "questionId": "SPV-TASK-Q-03"
+      }
+    },
+    {
+      "workItemId": "spv-task-b-workpaper",
+      "responseKind": "TEXT",
+      "observableAction": "将每日导入、任务、业务结果、确认状态和比例关系写入工作纸",
+      "fixtureValue": "teachingKey=EDU-SPV-B-002；dataDate=2026-02-06；importStatus=成功；taskStatus=已执行完成；businessResult=异常；confirmationStatus=待确认；B0100002=3；B0100003=100；B0100001=0.0300；CS_BLXX=5%；业务性异常不等同技术故障",
+      "sourceMaterialIds": ["SPV-TASK-B-IMPORT-LOG", "SPV-TASK-B-RESULT-SUMMARY"],
+      "materialLocators": ["M01 §4.3.1", "M01 §4.3.2", "M01 §4.4", "M11 §4.3", "M11 §4.4"],
+      "scoreTargets": ["C-SPV-TASK-STATUS-CLASSIFICATION", "P-SPV-TASK-STATE-CHAIN", "M-SPV-TASK-IMPORT-CHAIN"],
+      "remediationTargetId": "SPV-TASK-WORKPAPER",
+      "source": {
+        "materialIds": ["SPV-TASK-B-IMPORT-LOG", "SPV-TASK-B-RESULT-SUMMARY"],
+        "fieldIds": ["teaching_key", "data_date", "import_status", "execution_query", "task_status", "numerator", "denominator", "ratio_scale", "lower_bound", "business_result", "confirmation_status", "synthetic_scope"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-TASK-REF-IMPORT", "SPV-TASK-REF-RESULT"],
+        "anchor": "状态链与比例链在同一教学组合键和数据日工作纸中闭合"
+      },
+      "rule": {
+        "ruleId": "SPV-TASK-RULE-WORKPAPER-CHAIN",
+        "expected": ["importStatus=成功", "taskStatus=已执行完成", "businessResult=异常", "confirmationStatus=待确认", "业务性异常不等同技术故障"],
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-TASK-WORKPAPER",
+        "criterionIds": ["C-SPV-TASK-STATUS-CLASSIFICATION", "P-SPV-TASK-STATE-CHAIN", "M-SPV-TASK-IMPORT-CHAIN"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-05",
+        "questionId": "SPV-TASK-Q-04"
+      }
+    },
+    {
+      "workItemId": "spv-task-b-conclusion",
+      "responseKind": "TEXT",
+      "observableAction": "写出包含来源、数据日、Decimal 比例、状态链和业务边界的短结论",
+      "fixtureValue": "监督文件组导入日志与任务与结果汇总表；EDU-SPV-B-002；2026-02-06；导入成功→任务已执行完成→业务结果异常→待确认；3/100=0.0300（3%）< CS_BLXX=5%；业务性异常不等同技术故障",
+      "sourceMaterialIds": ["SPV-TASK-B-IMPORT-LOG", "SPV-TASK-B-RESULT-SUMMARY"],
+      "materialLocators": ["M01 §4.3.1", "M01 §4.3.2", "M01 §4.4", "M11 §4.3", "M11 §4.4"],
+      "scoreTargets": ["R-SPV-TASK-CONFIRMATION-BOUNDARY", "E-SPV-TASK-TRACEABLE-CONCLUSION", "M-SPV-TASK-RATIO-RESULT"],
+      "remediationTargetId": "SPV-TASK-CONCLUSION",
+      "source": {
+        "materialIds": ["SPV-TASK-B-IMPORT-LOG", "SPV-TASK-B-RESULT-SUMMARY"],
+        "fieldIds": ["teaching_key", "data_date", "import_status", "execution_query", "task_status", "numerator", "denominator", "ratio_scale", "lower_bound", "business_result", "confirmation_status", "synthetic_scope"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-TASK-REF-IMPORT", "SPV-TASK-REF-RESULT"],
+        "anchor": "一句话回指两份资料、比例计算、状态链和 ONLY_THIS_CASE 边界"
+      },
+      "rule": {
+        "ruleId": "SPV-TASK-RULE-CONCLUSION",
+        "expected": ["监督文件组导入日志", "任务与结果汇总表", "EDU-SPV-B-002", "2026-02-06", "导入成功", "已执行完成", "业务结果异常", "待确认", "3/100=0.0300", "3%", "CS_BLXX=5%", "业务性异常不等同技术故障"],
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-TASK-CONCLUSION",
+        "criterionIds": ["R-SPV-TASK-CONFIRMATION-BOUNDARY", "E-SPV-TASK-TRACEABLE-CONCLUSION", "M-SPV-TASK-RATIO-RESULT"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-05",
+        "questionId": "SPV-TASK-Q-05"
+      }
+    }
+  ],
+  "coverage": {
+    "FIELD_MAP": ["spv-task-b-source-map"],
+    "CALCULATION": ["spv-task-b-ratio"],
+    "RECONCILIATION": ["spv-task-b-import-status", "spv-task-b-result-status", "spv-task-b-confirmation-status"],
+    "LEDGER_ENTRY": ["spv-task-b-workpaper"],
+    "SHORT_TEXT": ["spv-task-b-conclusion"]
+  },
+  "dependencyPolicy": {
+    "hardPrerequisiteNodeIds": ["SPV-NODE-RULE-002"],
+    "dependsOnRouteIds": ["SPV-RULE-002"],
+    "serialOrder": 3,
+    "stageGate": false,
+    "releaseRegistration": "PUBLISHED_IN_CUSTODY_2026.08.12",
+    "registrationStage": "C1",
+    "status": "PUBLISHED",
+    "availability": "OPEN",
+    "releaseId": "CUSTODY_2026.08.12",
+    "mapVersion": "2026.08.12"
+  },
+  "fixturePolicy": {
+    "routeOwnsIndependentDemoA": "SPV-TASK-DEMO-A",
+    "routeOwnsIndependentComprehensiveB": "SPV-TASK-COMP-B",
+    "sharedWithOtherRoute": false,
+    "isomorphicStructure": true,
+    "variationNotice": "A/B 使用不同教学组合键、数据日、分子值和比例；两组均保留同一资料角色、状态链、公式和结果分类结构。",
+    "markerPolicy": "两组案例及每个 concrete evidence 对象均标记 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+    "foundationSharedFixtureIds": ["EDU-SPV-A-001", "EDU-SPV-B-002"],
+    "usesFoundationSharedFixtures": false,
+    "routePracticeScope": "ROUTE_PRIVATE_INDEPENDENT",
+    "routePracticeFixtureIds": ["SPV-TASK-DEMO-A", "SPV-TASK-COMP-B"]
+  },
+  "exclusionBoundary": {
+    "status": "BUILDING_DEFER",
+    "topics": [
+      "任务数量、失败数量、异常编码和外部数据源",
+      "执行失败、预检失败、技术故障、失败重跑、补偿和技术修复",
+      "监管报告、提示函、回函、生产确认和其他后续处置",
+      "真实对象、产品、组合、账户、机构、人员和生产系统状态",
+      "图片、截图、图像元数据和原材料绝对路径"
+    ],
+    "reason": "本路线仅使用 M01 §4.3.1、§4.3.2、§4.4 与 M11 §4.3、§4.4 的已审计材料抽象；业务结果异常仅是本案例比例分类，不等同技术故障或生产异常代码。"
+  },
+  "integrity": {
+    "workItemMappingCount": 7,
+    "uniqueWorkItemMappings": true,
+    "everyWorkItemHasSourceReferenceRuleRemediation": true,
+    "everyWorkItemHasMaterialLocator": true,
+    "demoAndComprehensiveAreIsomorphic": true,
+    "demoAndComprehensiveUseDifferentKeysDatesAndNumbers": true,
+    "bothCasesUseSuccessfulImportAndCompletedTask": true,
+    "bothCasesUseBusinessAnomalyAndPendingConfirmation": true,
+    "businessAnomalyNotTechnicalFailure": true,
+    "allCaseValuesMarkedOnlyThisCase": true,
+    "normalCaseOnly": true,
+    "mapAndReleaseRegistration": true
+  }
+}

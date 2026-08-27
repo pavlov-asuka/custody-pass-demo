@@ -845,7 +845,7 @@ def check_continuity(
 def check_registration(validation: Validation) -> None:
     validation.section("W6 正式登记边界")
     map_path = CONTENT / "maps" / "custody-learning-map.json"
-    active_release_path = CONTENT / "releases" / "CUSTODY_2026.08.11.json"
+    active_release_path = CONTENT / "releases" / "CUSTODY_2026.08.12.json"
     old_release_path = CONTENT / "releases" / "ACCOUNTING_2026.08.10.json"
     try:
         learning_map = read_json(map_path)
@@ -899,7 +899,21 @@ def check_registration(validation: Validation) -> None:
         for route_id in node_by_route
     }
     validation.check("registration.map.clearing-dependencies", actual_dependencies == EXPECTED_DEPENDENCIES, f"actual={actual_dependencies}")
-    validation.check("registration.map.supervision-building-empty", supervision_line.get("availability") == "BUILDING" and supervision_line.get("regions") == [])
+    supervision_nodes = [
+        node
+        for region in supervision_line.get("regions", [])
+        for module in region.get("modules", [])
+        for node in module.get("nodes", [])
+    ]
+    supervision_routes = [node.get("routeId") for node in sorted(supervision_nodes, key=lambda node: node.get("order", 0))]
+    validation.check("registration.map.supervision-open", supervision_line.get("availability") == "OPEN")
+    validation.check(
+        "registration.map.supervision-core-chain",
+        supervision_line.get("regions", [{}])[0].get("regionId") == "SPV-REGION-CORE"
+        and supervision_line.get("regions", [{}])[0].get("modules", [{}])[0].get("moduleId") == "SPV-MODULE-LIFECYCLE"
+        and supervision_routes == ["SPV-CONTRACT-001", "SPV-RULE-002", "SPV-TASK-003", "SPV-CLOSE-004"]
+        and all(node.get("pathType") == "REQUIRED" and node.get("nodeType") == "ROUTE" for node in supervision_nodes),
+    )
     validation.check("registration.map.accounting-open", accounting_line.get("availability") == "OPEN")
 
     all_nodes = [
@@ -909,13 +923,13 @@ def check_registration(validation: Validation) -> None:
         for module in region.get("modules", [])
         for node in module.get("nodes", [])
     ]
-    validation.check("registration.map.total-counts", len(all_nodes) == 55 and sum(node.get("pathType") == "REQUIRED" for node in all_nodes) == 46 and sum(node.get("pathType") == "ADVANCED" for node in all_nodes) == 9)
+    validation.check("registration.map.total-counts", len(all_nodes) == 59 and sum(node.get("pathType") == "REQUIRED" for node in all_nodes) == 50 and sum(node.get("pathType") == "ADVANCED" for node in all_nodes) == 9)
 
     active_entries = [item for item in active_release.get("routes", []) if item.get("routeId") in expected]
     active_ids = [item.get("routeId") for item in active_entries]
-    validation.check("registration.active-release.identity", active_release.get("releaseId") == "CUSTODY_2026.08.11")
-    validation.check("registration.active-release.map-pointer", active_release.get("map", {}).get("path") == "maps/custody-learning-map.json" and active_release.get("map", {}).get("version") == learning_map.get("version") == "2026.08.11")
-    validation.check("registration.active-release.total-routes", len(active_release.get("routes", [])) == 55)
+    validation.check("registration.active-release.identity", active_release.get("releaseId") == "CUSTODY_2026.08.12")
+    validation.check("registration.active-release.map-pointer", active_release.get("map", {}).get("path") == "maps/custody-learning-map.json" and active_release.get("map", {}).get("version") == learning_map.get("version") == "2026.08.12")
+    validation.check("registration.active-release.total-routes", len(active_release.get("routes", [])) == 59)
     validation.check("registration.active-release.clearing-seven", len(active_entries) == 7 and set(active_ids) == expected and len(active_ids) == len(set(active_ids)))
     validation.check(
         "registration.active-release.clearing-route-rubric-pairs",
@@ -925,6 +939,19 @@ def check_registration(validation: Validation) -> None:
             and item.get("contentVersion") == "1.0.0"
             and item.get("rubricVersion") == "1.0.0"
             for item in active_entries
+        ),
+    )
+    active_supervision_entries = [item for item in active_release.get("routes", []) if item.get("routeId", "").startswith("SPV-")]
+    validation.check(
+        "registration.active-release.supervision-four",
+        len(active_supervision_entries) == 4
+        and {item.get("routeId") for item in active_supervision_entries} == {"SPV-CONTRACT-001", "SPV-RULE-002", "SPV-TASK-003", "SPV-CLOSE-004"}
+        and all(
+            item.get("contentPath") == f"routes/supervision/{item.get('routeId')}.json"
+            and item.get("rubricPath") == f"rubrics/supervision/{item.get('routeId')}.json"
+            and item.get("contentVersion") == "1.0.0"
+            and item.get("rubricVersion") == "1.0.0"
+            for item in active_supervision_entries
         ),
     )
 

@@ -26,6 +26,8 @@ assert.equal(format.publicUnitLabel('unit', { line: 'CLEARING', label: '批次�
 assert.equal(format.publicUnitLabel('unit', { line: 'CLEARING', label: '指令数量' }), '单位');
 assert.equal(format.publicUnitLabel('batch', 'CLEARING'), '批');
 assert.equal(format.publicUnitLabel('unit/batch', 'CLEARING'), '单位/批');
+assert.equal(format.lineFromRouteId('SPV-CONTRACT-001'), 'SUPERVISION');
+assert.equal(format.lineMapPath('SUPERVISION'), '/map/supervision');
 assert.equal(format.publicBusinessText('2400 share / 12 batch / 110 unit/batch'), '2400 份 / 12 批 / 110 单位/批');
 assert.equal(format.businessActionLabel('RETURN_TO_AP'), '退回申赎参与人');
 assert.equal(format.businessActionLabel('IN_KIND'), '实物交付');

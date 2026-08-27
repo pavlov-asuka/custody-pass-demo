@@ -1,6 +1,6 @@
 {
   "mapId": "CUSTODY_LEARNING_MAP",
-  "version": "2026.08.11",
+  "version": "2026.08.12",
   "lines": [
     {
       "line": "CLEARING",
@@ -739,9 +739,69 @@
       "name": "监督学习世界",
       "description": "学习投资监督、边界识别与风险报告。",
       "order": 3,
-      "availability": "BUILDING",
+      "availability": "OPEN",
       "sceneAssetId": "world-supervision-source-v1",
-      "regions": []
+      "regions": [
+        {
+          "regionId": "SPV-REGION-CORE",
+          "name": "投资监督日常作业",
+          "description": "从合同条款与监督规则可实现性进入对象启停、每日任务，再完成结果确认与归档。",
+          "order": 1,
+          "modules": [
+            {
+              "moduleId": "SPV-MODULE-LIFECYCLE",
+              "name": "监督规则与结果闭环",
+              "order": 1,
+              "nodes": [
+                {
+                  "nodeId": "SPV-NODE-CONTRACT-001",
+                  "nodeType": "ROUTE",
+                  "routeId": "SPV-CONTRACT-001",
+                  "title": "合同条款与监督规则可实现性",
+                  "pathType": "REQUIRED",
+                  "order": 1,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": [],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "SPV-NODE-RULE-002",
+                  "nodeType": "ROUTE",
+                  "routeId": "SPV-RULE-002",
+                  "title": "监督对象启停与规则生效期",
+                  "pathType": "REQUIRED",
+                  "order": 2,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["SPV-NODE-CONTRACT-001"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "SPV-NODE-TASK-003",
+                  "nodeType": "ROUTE",
+                  "routeId": "SPV-TASK-003",
+                  "title": "每日数据、任务与结果分类",
+                  "pathType": "REQUIRED",
+                  "order": 3,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["SPV-NODE-RULE-002"],
+                  "contentAvailability": "PUBLISHED"
+                },
+                {
+                  "nodeId": "SPV-NODE-CLOSE-004",
+                  "nodeType": "ROUTE",
+                  "routeId": "SPV-CLOSE-004",
+                  "title": "结果确认、期限豁免、提示函、回函与归档闭环",
+                  "pathType": "REQUIRED",
+                  "order": 4,
+                  "position": "CENTER",
+                  "prerequisiteNodeIds": ["SPV-NODE-TASK-003"],
+                  "contentAvailability": "PUBLISHED"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
