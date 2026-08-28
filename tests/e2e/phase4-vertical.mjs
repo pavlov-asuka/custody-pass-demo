@@ -162,8 +162,13 @@ async function answerCurrentPractice(page) {
 
 async function waitFeedbackCorrect(page) {
   await page.waitForFunction(() => {
-    const nodes = [...document.querySelectorAll('.practice-actionbar__feedback, .feedback')];
-    return nodes.some((node) => /判断正确|正确/.test(node.textContent || ''));
+    const nodes = [...document.querySelectorAll(
+      '.practice-actionbar--correct .practice-actionbar__feedback, .feedback--correct',
+    )];
+    return nodes.some((node) => {
+      const style = getComputedStyle(node);
+      return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+    });
   }, null, { timeout: 10000 });
 }
 
@@ -292,7 +297,9 @@ async function run() {
   check('清算开放且显示 7 条必修路线',
     (await page.locator('.world-card', { hasText: '清算' }).locator('button', { hasText: '进入学习地图' }).count()) === 1
       && (await page.locator('.world-card', { hasText: '清算' }).getByText('0 / 7 条必修路线', { exact: true }).count()) === 1);
-  check('监督显示内容建设中', await page.locator('.world-card', { hasText: '监督' }).locator('.building-tag').count() > 0);
+  check('监督开放且显示 4 条必修路线',
+    (await page.locator('.world-card', { hasText: '监督' }).locator('button', { hasText: '进入学习地图' }).count()) === 1
+      && (await page.locator('.world-card', { hasText: '监督' }).getByText('0 / 4 条必修路线', { exact: true }).count()) === 1);
   await page.locator('.world-card', { hasText: '清算' }).locator('button', { hasText: '进入学习地图' }).click();
   await page.waitForSelector('[data-testid="learning-map"]', { timeout: 15000 });
   check('清算地图显示 7 个节点', (await page.locator('.map-node').count()) === 7);

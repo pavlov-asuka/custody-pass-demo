@@ -3,13 +3,13 @@
   "contentVersion": "1.0.0",
   "line": "SUPERVISION",
   "title": "监督对象启停与规则生效期",
-  "summary": "从合成《组合成立/到期依据表》和《规则配置及生效期表》识别资产组合、教学组合键及启停日期，勾稽 enableDate <= dataDate < stopDate，并将 N=10 复算为 N-1=9；全部结论仅适用于本案例。",
+  "summary": "依据《组合成立/到期依据表》和《规则配置及生效期表》识别资产组合、教学组合键及启停日期，勾稽 enableDate <= dataDate < stopDate，并将 N=10 复算为 N-1=9；结论范围以资料标明的适用范围为准。",
   "estimatedMinutes": 50,
   "objectives": [
     "从合成《组合成立/到期依据表》识别对象类型、教学组合键、启用日期、数据日期和默认停用日期",
-    "从合成《规则配置及生效期表》读取规则生效状态和 N=10，并按本案例规则复算 N-1=9",
+    "从《规则配置及生效期表》读取规则生效状态和 N=10，并按资料中的规则复算 N-1=9",
     "按 enableDate <= dataDate < stopDate 勾稽两份材料的对象启停窗口，保留字段与来源对应关系",
-    "在 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 边界内写出包含对象、日期、规则参数和勾稽结果的简短结论"
+    "按资料标明的适用范围，写出包含对象、日期、规则参数和勾稽结果的简短结论"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -18,36 +18,36 @@
           "cardId": "SPV-RULE-KC-01",
           "type": "CATEGORIES",
           "title": "先识别对象，再读取教学组合键",
-          "conclusion": "监督对象字段先从合成《组合成立/到期依据表》建立对象类型和教学组合键；本案例对象类型固定为资产组合。",
+          "conclusion": "监督对象字段先从《组合成立/到期依据表》资料建立对象类型和教学组合键；资料中的对象类型为资产组合。",
           "items": [
-            "对象类型填写资产组合，教学组合键只作为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 的案例标识",
-            "从《组合成立/到期依据表》读取 enableDate、dataDate、stopDate，不把材料外的生产对象信息补入工作纸",
-            "从《规则配置及生效期表》按同一教学组合键读取 RULE_CONFIGURED 和 N、N-1 参数",
-            "对象类型、教学组合键和日期均须回指合成材料，不代表真实产品、账户或生产编号"
+            "对象类型填写资产组合，教学组合键用于对应资料中的对象标识；资料范围以材料中的适用范围标记为准",
+            "从《组合成立/到期依据表》读取 enableDate、dataDate、stopDate，不把资料外的生产对象信息补入工作纸",
+            "从《规则配置及生效期表》按同一教学组合键读取规则状态、N 和 N-1 参数",
+            "对象类型、教学组合键和日期均须回查资料，不代表真实产品、账户或生产编号"
           ]
         },
         {
           "cardId": "SPV-RULE-KC-02",
           "type": "FLOW",
           "title": "启用、数据、停用构成一个日期窗口",
-          "conclusion": "只有在 enableDate <= dataDate < stopDate 时，本案例数据日才落在对象有效窗口内；29991231 是本案例默认停用日期。",
+          "conclusion": "只有在 enableDate <= dataDate < stopDate 时，资料中的数据日才落在对象有效窗口内；29991231 是资料给出的默认停用日期。",
           "items": [
             "先读取启用日期和数据日期，再读取默认 stopDate=29991231",
             "按 enableDate <= dataDate < stopDate 逐项比较，不把日期比较泛化为未给出的交易日历规则",
-            "A 为 2026-01-05 <= 2026-01-06 < 29991231；以上日期是合成教学值",
-            "窗口勾稽只说明本案例数据日是否在材料给出的生效期内，不推断生产关闭日或系统状态"
+            "A 为 2026-01-05 <= 2026-01-06 < 29991231；日期取自资料",
+            "窗口勾稽只说明资料中的数据日是否在材料给出的生效期内，不推断生产关闭日或系统状态"
           ]
         },
         {
           "cardId": "SPV-RULE-KC-03",
           "type": "KEY_POINT",
           "title": "规则参数 N 与 N-1 要分开记录",
-          "conclusion": "规则配置页给出 N=10，按本案例的 Decimal 复算链得到 N-1=9；对象窗口和参数复算都要回到同一教学组合键。",
+          "conclusion": "规则配置页给出 N=10，按资料规则用 Decimal 复算得到 N-1=9；对象窗口和参数复算都要回到同一教学组合键。",
           "items": [
-            "N=10 是本案例规则配置值，N-1=9 是按 N - 1 复算的结果",
+            "N=10 是资料中的规则配置值，N-1=9 是按 N - 1 复算的结果",
             "用 Decimal('10') - Decimal('1') 复算，结果以整数 9 记录，避免把两个字段混写",
             "跨来源勾稽至少核对 subjectType、teachingKey、enableDate、dataDate 和 stopDate",
-            "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 结论不扩展为通用生效期、权限或技术处理规则"
+            "资料适用范围标记不扩展为通用生效期、权限或技术处理规则"
           ]
         }
       ]
@@ -55,29 +55,29 @@
     "DEMONSTRATION": {
       "scenario": {
         "role": "投资监督规则复核岗",
-        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：资产组合启停案例 A",
+        "product": "资产组合启停案例 A（适用范围见资料标记）",
         "date": "2026-01-06",
         "fixture": "SPV-RULE-DEMO-A",
         "facts": [
-          "《组合成立/到期依据表》记录教学组合键 EDU-SPV-A-001、对象类型资产组合、enableDate=2026-01-05、dataDate=2026-01-06、stopDate=29991231；均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
-          "《规则配置及生效期表》按 EDU-SPV-A-001 记录 ruleStatus=RULE_CONFIGURED、N=10、N-1=9；参数结果仍须按 Decimal 复算。",
-          "本示范不含生产关闭日期，不推断交易日历、系统权限或其他生效规则。"
+          "《组合成立/到期依据表》记录教学组合键 EDU-SPV-A-001、对象类型资产组合、enableDate=2026-01-05、dataDate=2026-01-06、stopDate=29991231；适用范围以资料标记为准。",
+          "《规则配置及生效期表》按 EDU-SPV-A-001 记录规则状态为“已配置”、N=10、N-1=9；参数结果仍须按 Decimal 复算。",
+          "示范资料不含生产关闭日期，不推断交易日历、系统权限或其他生效规则。"
         ]
       },
       "steps": [
         {
           "order": 1,
           "action": "从合成《组合成立/到期依据表》读取 subjectType=资产组合 和 teachingKey=EDU-SPV-A-001",
-          "reason": "先锁定本案例对象及教学组合键，避免把其他对象或未给出的生产编号带入。"
+          "reason": "先锁定资料中的对象及教学组合键，避免把其他对象或未给出的生产编号带入。"
         },
         {
           "order": 2,
           "action": "读取 enableDate=2026-01-05、dataDate=2026-01-06、stopDate=29991231，并从规则配置表核对同一 teachingKey",
-          "reason": "启停窗口和规则配置必须按同一 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 教学键对应。"
+          "reason": "启停窗口和规则配置必须按同一教学组合键对应资料。"
         },
         {
           "order": 3,
-          "action": "逐项检查 2026-01-05 <= 2026-01-06 < 29991231，确认数据日落在本案例有效窗口内",
+          "action": "逐项检查 2026-01-05 <= 2026-01-06 < 29991231，确认数据日落在资料给出的有效窗口内",
           "reason": "明确的日期关系比单独抄录日期更能证明对象在数据日处于生效窗口。"
         },
         {
@@ -87,7 +87,7 @@
         },
         {
           "order": 5,
-          "action": "勾稽对象类型、教学组合键、三项日期和规则参数，写出仅适用于案例 A 的短结论",
+          "action": "勾稽对象类型、教学组合键、三项日期和规则参数，写出案例 A 的短结论",
           "reason": "短结论应同时交代来源、日期窗口和 N/N-1，并明确不代表生产日期或权限。"
         }
       ],
@@ -98,7 +98,7 @@
         {
           "questionId": "SPV-RULE-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "在 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 的案例 A 中，将对象字段、日期字段和规则参数字段映射到两份合成材料。",
+          "prompt": "根据资料中的案例 A，将对象字段、日期字段和规则参数字段映射到两份资料。",
           "fieldMappings": [
             {
               "fieldId": "object-identity-source",
@@ -135,7 +135,7 @@
         {
           "questionId": "SPV-RULE-Q-02",
           "type": "CALCULATION",
-          "prompt": "对 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 A 的 N=10 做 N-1 复算。",
+          "prompt": "根据资料中的案例 A，对 N=10 做 N-1 复算。",
           "calculation": {
             "fields": [
               {
@@ -150,13 +150,13 @@
             ]
           },
           "answer": ["9"],
-          "explanation": "按本案例规则配置值 N=10，Decimal('10') - Decimal('1') = 9，因此 N-1=9。",
+          "explanation": "按资料中的规则配置值 N=10，Decimal('10') - Decimal('1') = 9，因此 N-1=9。",
           "hints": ["先读取 N=10，再做 N - 1；不要把 N-1 当作另一个未经复算的日期。"]
         },
         {
           "questionId": "SPV-RULE-Q-03",
           "type": "LEDGER_ENTRY",
-          "prompt": "把案例 A 的对象与启停窗口填入 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 工作纸。",
+          "prompt": "把案例 A 的对象与启停窗口填入工作纸。",
           "ledgerEntries": [
             {
               "entryId": "subject-type",
@@ -195,7 +195,7 @@
             }
           ],
           "answer": ["资产组合", "EDU-SPV-A-001", "2026-01-05", "2026-01-06", "29991231"],
-          "explanation": "工作纸保留对象类型、教学组合键及三项日期；日期和值均为本案例合成教学数据。",
+          "explanation": "工作纸保留对象类型、教学组合键及三项日期；日期和值取自资料。",
           "hints": ["按 subjectType → teachingKey → enableDate → dataDate → stopDate 顺序填写，并保留字段名称。"]
         },
         {
@@ -235,13 +235,13 @@
         {
           "questionId": "SPV-RULE-Q-05",
           "type": "SHORT_TEXT",
-          "prompt": "用一句话写出 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 A 的启停与规则参数结论。",
+          "prompt": "用一句话写出资料中案例 A 的启停与规则参数结论。",
           "textInput": {
             "label": "启停与生效期结论",
-            "placeholder": "写明资产组合、教学组合键、三项日期、日期关系、N=10、N-1=9 和案例边界"
+            "placeholder": "写明资产组合、教学组合键、三项日期、日期关系、N=10、N-1=9 和资料适用范围"
           },
           "answer": ["EDU-SPV-A-001", "资产组合", "2026-01-05", "2026-01-06", "29991231", "enableDate <= dataDate < stopDate", "N=10", "N-1=9", "ONLY_THIS_CASE"],
-          "explanation": "短结论要能回查两份材料的对象、日期窗口和规则参数，并明确仅适用于本案例。",
+          "explanation": "短结论要能回查两份资料的对象、日期窗口和规则参数，并注明资料适用范围。",
           "hints": ["按对象与教学键→启停日期→窗口关系→N/N-1→不代表生产事实的顺序组织句子。"]
         }
       ]
@@ -249,16 +249,16 @@
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
         "role": "投资监督规则复核岗",
-        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：资产组合启停案例 B",
+        "product": "资产组合启停案例 B（适用范围见资料标记）",
         "date": "2026-02-06",
-        "purpose": "依据两份合成材料完成对象识别、启停窗口勾稽、N-1 复算、结构化工作纸和简短结论。"
+        "purpose": "依据两份资料完成对象识别、启停窗口勾稽、N-1 复算、工作纸填写和简短结论。"
       },
       "sourceMaterials": [
         {
           "materialId": "SPV-RULE-B-BASIS",
-          "title": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合成《组合成立/到期依据表》—案例 B",
+          "title": "《组合成立/到期依据表》资料—案例 B（适用范围见资料标记）",
           "kind": "INSTRUCTION",
-          "description": "仅供本案例识读对象与启停日期；不代表生产成立、到期或关闭记录。",
+          "description": "用于识读对象与启停日期；不代表生产成立、到期或关闭记录。",
           "fields": [
             {"fieldId": "teaching_key", "label": "教学组合键", "value": "EDU-SPV-B-002"},
             {"fieldId": "subject_type", "label": "对象类型", "value": "资产组合"},
@@ -270,9 +270,9 @@
         },
         {
           "materialId": "SPV-RULE-B-EFFECTIVE",
-          "title": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合成《规则配置及生效期表》—案例 B",
+          "title": "《规则配置及生效期表》资料—案例 B（适用范围见资料标记）",
           "kind": "PARAMETER",
-          "description": "仅供本案例识读规则配置、生效期对应关系和 N/N-1 参数；不代表生产系统状态或权限。",
+          "description": "用于识读规则配置、生效期对应关系和 N/N-1 参数；不代表生产系统状态或权限。",
           "fields": [
             {"fieldId": "teaching_key", "label": "教学组合键", "value": "EDU-SPV-B-002"},
             {"fieldId": "subject_type", "label": "对象类型", "value": "资产组合"},
@@ -292,7 +292,7 @@
           "workItemId": "spv-rule-b-source-map",
           "type": "FIELD_MAP",
           "title": "识别两份材料的字段职责",
-          "instruction": "在 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 B 中，选择组合成立/到期依据表与规则配置及生效期表共同作为对象、日期和规则参数的对应来源。",
+          "instruction": "根据资料中的案例 B，选择组合成立/到期依据表与规则配置及生效期表共同作为对象、日期和规则参数的对应来源。",
           "response": {
             "kind": "SELECT",
             "placeholder": "选择来源职责结论",
@@ -332,7 +332,7 @@
           "workItemId": "spv-rule-b-object-period-entry",
           "type": "LEDGER_ENTRY",
           "title": "填写对象启停与规则参数工作纸",
-          "instruction": "将案例 B 的 subjectType、teachingKey、enableDate、dataDate、stopDate、ruleStatus、N 和 N-1 写入结构化工作纸；每个值均保持 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+          "instruction": "将案例 B 的 subjectType、teachingKey、enableDate、dataDate、stopDate、ruleStatus、N 和 N-1 写入工作纸；填写时遵循资料中的适用范围标记。",
           "response": {
             "kind": "TEXT",
             "placeholder": "subjectType=...；teachingKey=...；enableDate=...；dataDate=...；stopDate=...；ruleStatus=...；N=...；N-1=..."
@@ -345,7 +345,7 @@
           "instruction": "用简短文字交代两份材料、资产组合、教学组合键、启停日期窗口、N=10→N-1=9，并明确结论不代表生产日期、系统状态或权限。",
           "response": {
             "kind": "TEXT",
-            "placeholder": "写出来源、对象、日期关系、N/N-1 与 ONLY_THIS_CASE 边界"
+            "placeholder": "写出来源、对象、日期关系、N/N-1 与资料适用范围"
           }
         }
       ],

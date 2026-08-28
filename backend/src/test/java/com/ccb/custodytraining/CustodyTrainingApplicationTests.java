@@ -3,7 +3,9 @@ package com.ccb.custodytraining;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import com.ccb.custodytraining.auth.AuthConstants;
 import com.ccb.custodytraining.config.MockUserBootstrapper;
@@ -11,6 +13,8 @@ import com.ccb.custodytraining.user.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +23,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 @SpringBootTest(properties = {
         "spring.profiles.active=mock",
@@ -45,6 +50,36 @@ class CustodyTrainingApplicationTests {
 
     @Test
     void contextLoads() {
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/map/accounting",
+            "/map/supervision",
+            "/learn/ACC-LIFE-ROLE-001",
+            "/records/42"
+    })
+    void browserDeepLinksForwardToSpaEntryPoint(String path) throws Exception {
+        mockMvc.perform(get(path))
+                .andExpect(status().isOk())
+                .andExpect(view().name("forward:/index.html"));
+    }
+
+    @Test
+    void unknownApiRouteRemainsJsonNotFound() throws Exception {
+        MockHttpSession session = sessionFrom(login(getCsrfSession(), "10000001"));
+
+        mockMvc.perform(get("/api/not-a-route").session(session))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+    }
+
+    @Test
+    void staticAssetRequestsRemainWithResourceHandler() throws Exception {
+        mockMvc.perform(get("/assets/not-a-real-file.js"))
+                .andExpect(status().isNotFound())
+                .andExpect(handler().handlerType(ResourceHttpRequestHandler.class))
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
     }
 
     @Test

@@ -15,19 +15,18 @@
 
 - 分支：`learning-map-rebuild`
 - 跟踪分支：`origin/learning-map-rebuild`
-- 基线提交：`b1302022c5029dcd4260a0ef8b8c8661c33bee6d`
-- 基线状态：新克隆工作树干净，无既有修改或未跟踪文件。
-- 当前 writeSet：C1 候选开放登记共 19 个冻结路径：现役 map、新 release、新监督来源目录、4 份说明文档、2 个后端登记类、4 个脚本、1 个后端测试、2 个前端实现文件和 3 个前端测试；计划文件仍只由主 Agent 维护。
-- 重叠检查：主 Agent 已对 19 个 C1 路径执行精确 `git status`，均无既有修改或未跟踪重叠；新 release 与监督来源目录尚不存在，允许创建。两份旧检出的未提交监督文件仍原样保护，不读取为现役材料、不覆盖、不清理。
-- 后续候选 writeSet：在 A 阶段审计和 A→B 拓扑冻结后逐批登记精确文件，每批开始前重新执行重叠门禁。
+- 历史施工基线：`b1302022c5029dcd4260a0ef8b8c8661c33bee6d`。
+- 最终发布提交：`4eaf87ef71b0b451787d595ad00dba9f0a05cef1`（PR #1 已合并）；`origin/learning-map-rebuild` 与本地提交一致，最终工作树干净。
+- C1 的 19 个路径和后续 D/E 验收均已完成；当前不再存在候选工作树、未提交或待推送的监督发布变更。
+- 历史重叠检查：主 Agent 曾对 C1 路径执行精确 `git status`，均无既有修改或未跟踪重叠；两份旧检出的未提交监督文件原样保护，未读取为现役材料、未覆盖、未清理。
 - 保护要求：不 stash、不清理、不覆盖、不重写历史；不创建分支或 worktree；子代理不 commit、不 push。
 
 ## 现役边界
 
-- 基线 active release：`CUSTODY_2026.08.11`，55 条正式路线；C1 候选 active selector 已切至 `CUSTODY_2026.08.12`，59 条正式路线（50 REQUIRED、9 ADVANCED）。
-- 基线仅 `ACCOUNTING`、`CLEARING` 开放；C1 候选中 `SUPERVISION` 已为 `OPEN`，登记 1 个 region、1 个 module、4 个连续 REQUIRED 节点。
+- 当前 active release：`CUSTODY_2026.08.12`，59 条正式路线（50 REQUIRED、9 ADVANCED）。
+- `ACCOUNTING`、`CLEARING`、`SUPERVISION` 三个世界均为 `OPEN`；监督登记 1 个 region、1 个 module、4 个连续 REQUIRED 节点。
 - 现役四环节、公开 HTTP 契约、内容 Schema、四维评分、数据库、桌面视觉和其他世界内容保持不变。
-- candidateWorktree：`APPLIED_C1`；尚未提交、推送。
+- 发布状态：`APPLIED_C1` 已完成并合并；开放态 smoke 已确认监督世界 OPEN、4 节点、首节点可进入且私有评分资产不泄漏。
 
 ## 材料索引
 
@@ -60,9 +59,15 @@
 | B4 结果确认与归档闭环 | `PASSED` | `write_b1_contract` | B4 四个冻结文件 | 主 Agent 使用正式 Schema 验 route/rubric；四环节、2 份资料、6 个工作项、确认/豁免双分支、回函/附件/归档、已生成≠已发送、四维/硬要求/workItem 映射通过；B0 route 721/721、安全与 diff 通过 | 无 | 启动 B5 verifier 收口 |
 | B5 统一确定性 verifier 收口 | `PASSED` | `write_b0_foundation`（主 Agent 完成负向验收） | `scripts/verify-supervision-content.py` | `--shared-only` 720/720，四条 `--route` 分别 1215/1192/1245/1276 全过，`--full` 2765/2765；评分、workItem、任务状态、生成/发送边界四类临时负向变异均非零退出；py_compile/diff 通过 | 无 | 启动 C0 只读发现 |
 | C0 候选开放登记只读发现 | `PASSED` | `discover_c_registration` | 只读现役架构与登记路径 | 已定位 active selector、map/release、来源目录约定、后端/前端登记点、校验常量及相关测试；现役 55 条，新增后 59 条（REQUIRED 50、ADVANCED 9） | 无 | 按冻结 writeSet 启动 C1 |
-| C1 候选开放登记 | `PASSED` | `write_b0_foundation` | 19 个冻结路径（详见“C1 冻结 writeSet”） | candidateWorktree=`APPLIED_C1`；监督 verifier 2765/2765；map/release/source 断言通过；后端 62/62；前端 typecheck、build、page/text/style 全过；diff check 通过 | 无；clearing 独立校验的 41 个旧原材料 physical-exists 缺口为基线外部依赖，登记断言通过 | 启动 D fresh-context 独立复核 |
-| D Fresh-context 去 AI 味 | `PASSED` | `audit_core_laws`（只读）、`write_b0_foundation`（最小修复）；`discover_c_registration` 因代理额度耗尽未返回 | 8 个冻结修复路径 | 内容、公式、日期、状态链、答案-Rubric、合成边界和安全均通过；共享 fixture 明确为 foundation normal reference，当前登记元数据同步为 OPEN/PUBLISHED；全量 verifier 2868/2868，状态负向变异非零失败 | 无 | 启动 E 完整候选验收 |
-| E 候选验收与发布 | `IN_PROGRESS` | 主 Agent | 候选工作树 | D 后 verifier 2868/2868；JSON/安全/图片/diff 检查通过；后端 62/62；前端 typecheck/build/page/text/style 通过；同源 JAR 构建成功；隔离服务 API smoke 通过监督 OPEN/4 节点/首节点可进入/私有资产不泄漏；Chromium 页面回归与截图通过。应用内浏览器发现结果为空，按 Browser skill 未冒充交互验收 | 无；应用内浏览器实例为环境不可用，已有真实 Chromium 自动化证据覆盖页面回归 | 提交后推送 `origin/supervision`，核对远端哈希并做远端提交 smoke |
+| C1 候选开放登记 | `PASSED` | `write_b0_foundation` | 19 个冻结路径（详见“C1 冻结 writeSet”，历史记录） | 历史候选 `APPLIED_C1` 已纳入最终发布；监督 verifier 2765/2765；map/release/source 断言通过；后端 62/62；前端 typecheck、build、page/text/style 全过；diff check 通过 | 无；clearing 独立校验的 41 个旧原材料 physical-exists 缺口为基线外部依赖，登记断言通过 | 启动 D fresh-context 独立复核 |
+| D Fresh-context 去 AI 味 | `PASSED` | `audit_core_laws`（只读）、`write_b0_foundation`（最小修复）；`discover_c_registration` 因代理额度耗尽未返回 | 8 个冻结修复路径 | 内容、公式、日期、状态链、答案-Rubric、合成边界和安全均通过；共享 fixture 明确为 foundation normal reference，当前登记元数据同步为 OPEN/PUBLISHED；全量 verifier 2868/2868，状态负向变异非零失败 | 无 | 进入 E 完整验收 |
+| E 完整验收与发布 | `PASSED` | 主 Agent | 最终发布提交与远端跟踪分支 | verifier 2868/2868；JSON/安全/图片/diff 检查通过；后端 68/68；前端 typecheck/build/page/text/style 通过；同源 JAR 构建成功；隔离服务 API smoke 通过监督 OPEN/4 节点/首节点可进入/私有资产不泄漏；Chromium 页面回归与截图通过；PR #1 已合并为 `4eaf87e`，远端哈希一致 | 无；应用内浏览器实例不可用，但已有真实 Chromium 自动化证据覆盖页面回归 | 无；仅保留真实新人试学和业务人员复核，Fin-X-Scope 内网核验另列为部署环境前置 |
+
+## 当前收口结论
+
+- 工程发布已完成：监督四条路线已进入 `CUSTODY_2026.08.12`，PR #1 已合并，合并提交 `4eaf87e`，本地与 `origin/learning-map-rebuild` 一致；监督 OPEN smoke 和当前自动化回归均已完成。
+- 唯一保留的产品验收待办：线下组织 6—8 名真实新人试学，以及至少 2 名业务人员复核；不得用自动化或模拟账号替代。
+- Fin-X-Scope 私有 starter、凭据和内网环境核验是部署环境前置，不是本地工程未完成；当前不宣称 Fin-X-Scope 已通过。
 
 ## BUILDING / DEFER
 
@@ -73,10 +78,12 @@
 - M11 相对 M01 保留旧版年金、保险、理财、QFII/WFOE 业务章节，移除 M01 后增的公募/REITs、非标债 DOTX/XLSX 等内容；它补充了报告、层级、时点与归档说明，但仍没有同一产品共享键、同一数据日连续业务包或两套正常 fixture。
 - M11 可支持的新增候选仅作为证据边界：年金监督事项表 1—3 个工作日审阅、季度/年度报告时限；QFII/WFOE 成立/停用增减表、T+1/T+2 监督、30%/24%持股比例提示与外汇衍生品实需原则。没有配套材料的年金/保险/理财/QFII/WFOE 正式路线继续 `BUILDING/DEFER`。
 
-## 首轮 A→B 裁决：EMPTY_TOPOLOGY_DEFER（已解除）
+## 首轮 A→B 裁决：EMPTY_TOPOLOGY_DEFER（历史记录，已解除）
 
-- 当前不能冻结任何正式 region、module、route 或 node；`SUPERVISION` 继续保持 `BUILDING` 且 `regions: []`，active release 继续为 `CUSTODY_2026.08.11`。
-- 仅保留不发布、不分配正式 ID、不计入地图进度的概念候选链：合同与监督事项表审阅 → 产品成立及监督启停 → 母规则/指标/阈值配置 → 当日数据与任务执行 → 结果确认/提示函/回函 → 停用与归档。
+以下记录的是 A→B 拓扑冻结前的历史阻塞，不代表当前产品状态。当前 `SUPERVISION` 已完成正式拓扑冻结、登记和开放发布。
+
+- 当时不能冻结任何正式 region、module、route 或 node；`SUPERVISION` 当时保持 `BUILDING` 且 `regions: []`，active release 当时为 `CUSTODY_2026.08.11`。
+- 当时仅保留不发布、不分配正式 ID、不计入地图进度的概念候选链：合同与监督事项表审阅 → 产品成立及监督启停 → 母规则/指标/阈值配置 → 当日数据与任务执行 → 结果确认/提示函/回函 → 停用与归档。
 - CONTRACT 失败：没有同一产品合同、监督事项表、字段值和正常审阅结论。
 - LIFECYCLE 失败：没有同一产品的成立依据、首笔流入、启停记录、A/B 审核与权限闭合。
 - RULE 失败：只有公式结构，没有同案分子、分母、阈值、指标因子、规则编码和配置对象。

@@ -82,5 +82,6 @@ Mock 账号：
 - React 18、TypeScript、Vite 6。
 - 本地 Mock 使用 H2；正式配置支持 MySQL。
 - 前端生产构建通过 Maven `web` profile 打入同源可执行 JAR。
-- Fin-X-Scope 3.0.4 仅作为内网可选 profile；默认构建不解析私有依赖。
+- 同源 JAR 对当前前端非 API 路由提供显式 SPA fallback；`/api/**` 和静态资源不由 fallback 捕获。
+- Fin-X-Scope 3.0.4 仅作为内网可选 profile；私有 starter、凭据和内网环境核验属于部署前置，默认构建不解析私有依赖。
 - HTTP 契约以 `contracts/openapi.yaml` 为准，正式内容以 `content/` 为准。

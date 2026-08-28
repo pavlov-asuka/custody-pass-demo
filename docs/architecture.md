@@ -63,6 +63,10 @@ Flyway 保留 `app_user`，学习闭环使用：
 
 答案、内容、Rubric 和评分结果均快照化；用户隔离由服务端认证身份和数据库查询共同保证。
 
+## 同源 SPA 深链
+
+生产 JAR 同时承载前端静态资源和 REST API。`SpaForwardController` 仅显式映射当前前端非 API 路由（登录、世界入口、地图、学习、作答结果和训练记录），统一转发到 `forward:/index.html`，因此浏览器直接打开这些深链时仍由 React Router 接管。`/api/**` 不在该控制器映射内，继续由 REST 控制器和 JSON 异常处理器负责；静态资源继续由 Spring ResourceHttpRequestHandler 负责，不被 SPA fallback 吞掉。
+
 ## 构建与环境
 
 - Java 17、Spring Boot 3.5.3。
@@ -70,6 +74,7 @@ Flyway 保留 `app_user`，学习闭环使用：
 - 默认 Mock 不依赖模型或内网凭据。
 - `finxscope` Maven profile 加载内网 3.0.4 starter 和专用源码；默认构建不解析该私有依赖。
 - `.local/` 承载隔离数据库、日志和测试证据，不进入 Git。
+- Fin-X-Scope 的私有 starter、凭据和内网运行环境核验属于部署环境前置；本地默认 profile 的工程完成度不以该内网核验代替。
 
 部署操作分别见：
 

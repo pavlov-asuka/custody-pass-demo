@@ -1,8 +1,8 @@
 """Independent validator for the ETF B0+B1+B2 content batch.
 
-This validator intentionally does not register a map or release.  It checks the
-four authored routes, their private rubrics, the shared and route evidence assets,
-all eleven physical source hashes, and the eight independent Decimal fixtures.
+This validator checks the four authored routes against the current active
+``CUSTODY_2026.08.12`` release.  The older ``ACCOUNTING_2026.08.10`` manifest
+is retained only as a legacy snapshot existence and ETF-registration check.
 """
 
 from __future__ import annotations
@@ -48,7 +48,15 @@ EVIDENCE = {
     "R3": EVIDENCE_DIR / "r3-settlement-evidence.json",
     "R4": EVIDENCE_DIR / "r4-close-evidence.json",
 }
-RELEASE = REPO / "content/releases/ACCOUNTING_2026.08.10.json"
+ACTIVE_RELEASE_ID = "CUSTODY_2026.08.12"
+LEGACY_RELEASE_ID = "ACCOUNTING_2026.08.10"
+ACTIVE_MAP_VERSION = "2026.08.12"
+ALLOWED_RELEASE_REGISTRATIONS = {
+    f"PUBLISHED_IN_{ACTIVE_RELEASE_ID}",
+    f"PUBLISHED_IN_{LEGACY_RELEASE_ID}",
+}
+RELEASE = REPO / f"content/releases/{ACTIVE_RELEASE_ID}.json"
+LEGACY_RELEASE = REPO / f"content/releases/{LEGACY_RELEASE_ID}.json"
 EXPECTED_ROUTE_IDS = {"R1": "ACC-ETF-OBJECT-001", "R2": "ACC-ETF-PCF-002", "R3": "ACC-ETF-SETTLEMENT-003", "R4": "ACC-ETF-CLOSE-004"}
 EXPECTED_WORK_COUNTS = {"R1": 10, "R2": 20, "R3": 18, "R4": 23}
 EXPECTED_TYPE_COUNTS = {
@@ -565,7 +573,7 @@ def check_b0_assets(audit: dict[str, Any], fields: dict[str, Any], states: dict[
     if "ONLY_THIS_CASE" not in snapshot.get("scopeNotice", "") or snapshot.get("precisionPolicy", {}).get("binaryFloatForbidden") is not True:
         raise AssertionError("snapshot does not declare ONLY_THIS_CASE and Decimal policy")
     source_policy = states.get("dependencyPolicy", {})
-    if source_policy.get("stageGate") is not False or source_policy.get("releaseRegistration") != "PUBLISHED_IN_ACCOUNTING_2026.08.10":
+    if source_policy.get("stageGate") is not False or source_policy.get("releaseRegistration") not in ALLOWED_RELEASE_REGISTRATIONS:
         raise AssertionError("source-state matrix release registration is invalid")
     if not states.get("deferBoundary") or not audit.get("exclusionBoundary"):
         raise AssertionError("B0 exclusion boundaries are incomplete")
@@ -890,7 +898,7 @@ def check_evidence(label: str, evidence: dict[str, Any], route: dict[str, Any], 
     expected_dep = {"R1": [], "R2": [EXPECTED_ROUTE_IDS["R1"]], "R3": [EXPECTED_ROUTE_IDS["R2"]], "R4": [EXPECTED_ROUTE_IDS["R3"]]}[label]
     if dependency.get("hardPrerequisiteNodeIds") != ["ACC-NODE-DAILY-003"] or dependency.get("dependsOnRouteIds") != expected_dep or dependency.get("serialOrder") != {"R1": 1, "R2": 2, "R3": 3, "R4": 4}[label] or dependency.get("stageGate") is not False:
         raise AssertionError(f"{label} serial dependency or stage gate is invalid")
-    if dependency.get("releaseRegistration") != "PUBLISHED_IN_ACCOUNTING_2026.08.10" or dependency.get("status") != "PUBLISHED":
+    if dependency.get("releaseRegistration") not in ALLOWED_RELEASE_REGISTRATIONS or dependency.get("status") != "PUBLISHED":
         raise AssertionError(f"{label} evidence release registration is invalid")
     expected_planned = {"R1": ["ACC-NODE-DAILY-003", "ACC-NODE-STOCK-TRADE-001"], "R2": ["ACC-NODE-ETF-OBJECT-001"], "R3": [], "R4": []}[label]
     if dependency.get("plannedMapPrerequisites") != expected_planned:
@@ -1098,11 +1106,17 @@ def check_route_evidence_consistency(routes: dict[str, dict[str, Any]], rubrics:
 
 def check_reference_release() -> None:
     release = read_json(RELEASE)
-    if release.get("releaseId") != "ACCOUNTING_2026.08.10" or len(release.get("routes", [])) != 48:
-        raise AssertionError("current release must be ACCOUNTING_2026.08.10 with 48 routes")
+    legacy_release = read_json(LEGACY_RELEASE)
+    if release.get("releaseId") != ACTIVE_RELEASE_ID or len(release.get("routes", [])) != 59:
+        raise AssertionError(f"active release must be {ACTIVE_RELEASE_ID} with 59 routes")
     released_route_ids = {route["routeId"] for route in release["routes"]}
     if not set(EXPECTED_ROUTE_IDS.values()).issubset(released_route_ids):
-        raise AssertionError("ETF R1-R4 routes must all be release-registered")
+        raise AssertionError("ETF R1-R4 routes must all be registered in the active release")
+    if legacy_release.get("releaseId") != LEGACY_RELEASE_ID or len(legacy_release.get("routes", [])) != 48:
+        raise AssertionError(f"legacy snapshot must be {LEGACY_RELEASE_ID} with 48 routes")
+    legacy_route_ids = {route["routeId"] for route in legacy_release["routes"]}
+    if not set(EXPECTED_ROUTE_IDS.values()).issubset(legacy_route_ids):
+        raise AssertionError("ETF R1-R4 routes must remain present in the legacy snapshot")
     map_data = read_json(REPO / "content/maps/custody-learning-map.json")
     accounting = next(line for line in map_data["lines"] if line["line"] == "ACCOUNTING")
     modules = accounting["regions"][0]["modules"]
@@ -1117,9 +1131,11 @@ def check_reference_release() -> None:
     ]
     if [node["prerequisiteNodeIds"] for node in etf["nodes"]] != expected_prerequisites:
         raise AssertionError("ETF map prerequisite chain is invalid")
-    if map_data.get("version") != "2026.08.10" or release.get("map", {}).get("version") != "2026.08.10":
-        raise AssertionError("ETF map and release versions must both be 2026.08.10")
-    print("RELEASE PASS: ACCOUNTING_2026.08.10 publishes 48 routes including four serial REQUIRED ETF routes")
+    if map_data.get("version") != ACTIVE_MAP_VERSION or release.get("map", {}).get("version") != ACTIVE_MAP_VERSION:
+        raise AssertionError(f"active ETF map and release versions must both be {ACTIVE_MAP_VERSION}")
+    if release.get("map", {}).get("path") != "maps/custody-learning-map.json":
+        raise AssertionError("active release must point to the custody learning map")
+    print(f"RELEASE PASS: {ACTIVE_RELEASE_ID} publishes 59 routes including four serial REQUIRED ETF routes; legacy {LEGACY_RELEASE_ID} retained")
 
 
 def check_no_sensitive_content(values: dict[str, Any]) -> None:
@@ -1175,7 +1191,7 @@ def main() -> int:
     check_route_evidence_consistency(routes, rubrics, route_evidence)
     check_no_sensitive_content({"audit": audit, "fields": fields, "states": states, "snapshot": snapshot, **route_evidence})
     check_reference_release()
-    print("ETF validation passed: R1-R4 routes/rubrics/evidence, eleven source hashes, eight Decimal fixtures and ACCOUNTING_2026.08.10 registration are complete")
+    print(f"ETF validation passed: R1-R4 routes/rubrics/evidence, eleven source hashes, eight Decimal fixtures and {ACTIVE_RELEASE_ID} registration are complete")
     return 0
 
 

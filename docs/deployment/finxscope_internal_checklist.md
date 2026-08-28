@@ -1,5 +1,7 @@
 # Fin-X-Scope 内网验证清单
 
+本清单是正式部署环境的前置核验，不是本地默认 Mock 工程的完成条件。私有 starter、凭据和内网服务只能在具备相应权限的环境中验证。
+
 ## 1. 首次构建
 
 在可访问内网 Maven 仓库的环境中进入 `Repository/backend`，先执行：
@@ -61,4 +63,4 @@ mvn -Pfinxscope spring-boot:run -Dspring-boot.run.profiles=internal,finxscope
 
 ## 6. 验收边界
 
-本机无法解析内网私有 starter，默认构建通过不代表官方框架验收完成。只有内网完成上述构建、启动、Agent 注册、网关用户头、单次评分、用户隔离、技术失败重试和框架调用行为检查后，才能宣称 Fin-X-Scope 接入验收通过。
+本机缺少内网私有 starter、凭据和服务，默认构建通过不代表官方框架验收完成，也不表示本地工程未完成。只有内网完成上述构建、启动、Agent 注册、网关用户头、单次评分、用户隔离、技术失败重试和框架调用行为检查后，才能宣称 Fin-X-Scope 接入验收通过。

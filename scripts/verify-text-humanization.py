@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 """Verify the stage-6 learner-facing copy migration.
 
-The migration is deliberately text-only.  This check compares every formal
-route with the last pre-migration commit and rejects changes to data, answers,
-formulas, identifiers, release topology, rubrics, or visual assets.
+The migration is deliberately text-only.  ACCOUNTING/CLEARING routes use the
+pre-migration commit as their copy baseline.  SUPERVISION routes use the
+    merged product commit as their exact baseline, while their current visible
+    copy is scanned absolutely for learner-facing residue.  The supervision
+    scan permits only an explicit set of business field names that learners
+    must read and submit; unknown raw tokens remain failures.  Frozen product
+    assets are always compared with the merged product commit, so a later map,
+    release, rubric, contract, or visual change cannot hide behind the older
+    copy baseline.
 """
 
 from __future__ import annotations
@@ -17,15 +23,25 @@ from typing import Any, Iterable
 
 
 ROOT = Path(__file__).resolve().parents[1]
-BASELINE = "aed6d24"
+MIGRATION_BASELINE = "aed6d24"
+PRODUCT_BASELINE = "4eaf87e"
+# Keep the old singular name available to callers that imported the first
+# version of this script.  New checks use the explicit baselines above.
+BASELINE = MIGRATION_BASELINE
 ROUTE_RELATIVE_DIRS = (
     "content/routes/accounting",
     "content/routes/clearing",
+    "content/routes/supervision",
 )
 ROUTE_DIRS = tuple(ROOT / relative for relative in ROUTE_RELATIVE_DIRS)
 # Keep the old singular name available to callers that imported the first
 # version of this script; all verification below uses both route directories.
 ROUTE_DIR = ROUTE_DIRS[0]
+ROUTE_BASELINES = {
+    "content/routes/accounting": MIGRATION_BASELINE,
+    "content/routes/clearing": MIGRATION_BASELINE,
+    "content/routes/supervision": PRODUCT_BASELINE,
+}
 
 PROTECTED_KEYS = {
     "routeId",
@@ -61,6 +77,33 @@ FROZEN_PREFIXES = (
     "frontend/src/assets/",
     "frontend/src/styles/",
 )
+
+# The final product closeout is allowed to correct the stale "only accounting
+# is open" statements in the visual source of truth.  Keep that exception as
+# an exact baseline-to-current transformation; any other DESIGN.md edit still
+# fails the frozen-product gate.
+ALLOWED_PRODUCT_DOC_EDITS = {
+    "frontend/DESIGN.md": (
+        (
+            "- 首版只有核算可进入，清算和监督显示建设中；\n"
+            "- 核算世界采用连续纵向长地图；",
+            "- 首版清算、核算、监督三个世界均可进入，并分别承载各自的连续纵向长地图；",
+        ),
+        (
+            "- 只有核算显示推进绿可行动按钮；\n"
+            "- 清算和监督显示明确“建设中”，无按压深度，不做假按钮；",
+            "- 三个已开放世界均显示推进绿可行动按钮；尚未发布的路线节点仍以灰色锁定态呈现，不做假按钮；",
+        ),
+        (
+            "| 三世界入口 | 三座世界场景 | 三线等权、仅核算可进入 | 企业门户卡、假按钮 |",
+            "| 三世界入口 | 三座世界场景 | 三线等权、三世界均可进入 | 企业门户卡、假按钮 |",
+        ),
+        (
+            "- [ ] **三世界**：三世界同级可辨；仅核算可进入；建设中不可误点。",
+            "- [ ] **三世界**：三世界同级可辨；三个已开放世界均可进入；未发布节点不可误点。",
+        ),
+    ),
+}
 
 FORBIDDEN_PUBLIC_PHRASES = (
     "再想一步",
@@ -210,9 +253,9 @@ def git(*args: str) -> str:
     )
 
 
-def baseline_text(path: Path) -> str:
+def baseline_text(path: Path, revision: str = BASELINE) -> str:
     relative = path.relative_to(ROOT).as_posix()
-    return git("show", f"{BASELINE}:{relative}")
+    return git("show", f"{revision}:{relative}")
 
 
 def current_route_paths() -> set[str]:
@@ -223,16 +266,16 @@ def current_route_paths() -> set[str]:
     }
 
 
-def baseline_route_paths() -> set[str]:
+def baseline_route_paths(relative_dir: str, revision: str) -> set[str]:
     return {
         path
         for path in git(
             "ls-tree",
             "-r",
             "--name-only",
-            BASELINE,
+            revision,
             "--",
-            *ROUTE_RELATIVE_DIRS,
+            relative_dir,
         ).splitlines()
         if path.endswith(".json")
     }
@@ -350,6 +393,125 @@ def verify_clearing_visible_copy(
                 )
 
 
+SUPERVISION_COPY_FORBIDDEN_MARKERS = (
+    "SYNTHETIC_EDUCATIONAL",
+    "ONLY_THIS_CASE",
+)
+SUPERVISION_COPY_FORBIDDEN_PHRASES = tuple(
+    dict.fromkeys(
+        (
+            *FORBIDDEN_PUBLIC_PHRASES,
+            *CLEARING_COPY_FORBIDDEN_PHRASES,
+            *SUPERVISION_COPY_FORBIDDEN_MARKERS,
+        )
+    )
+)
+
+# These field names are part of the supervision learner workflow: the route,
+# rubric, and reference answer use them as evidence keys.  Keep the exception
+# exact and small; status values and any unknown raw token remain forbidden.
+SUPERVISION_BUSINESS_FIELD_TOKENS = frozenset(
+    {
+        "INVESTMENT_RATIO",
+        "CS_BLXX",
+        "B0100001",
+        "B0100002",
+        "B0100003",
+        "subjectType",
+        "teachingKey",
+        "enableDate",
+        "dataDate",
+        "stopDate",
+        "ruleStatus",
+        "importStatus",
+        "taskStatus",
+        "businessResult",
+        "confirmationStatus",
+    }
+)
+
+
+def supervision_spacing_probe(value: str) -> str:
+    """Hide only approved evidence tokens before checking mixed spacing."""
+
+    probe = value
+    for token in SUPERVISION_BUSINESS_FIELD_TOKENS:
+        probe = re.sub(
+            rf"(?<![A-Za-z0-9_]){re.escape(token)}(?![A-Za-z0-9_])",
+            "FIELD_TOKEN",
+            probe,
+        )
+    return probe
+
+
+def verify_supervision_visible_copy(
+    route_pairs: dict[str, tuple[str, str]], failures: list[str]
+) -> None:
+    """Scan supervision copy without treating its merged product baseline as a migration.
+
+    The supervision routes were published before the stage-6 copy migration
+    closed.  Their exact product-baseline values are therefore trusted as the
+    frozen starting point, not admitted through a broad phrase allowlist.
+    Every current learner-visible value is scanned absolutely: any AI-style
+    phrase, raw camelCase/snake_case/status token, spacing residue, or repeated
+    word fails the gate.
+    """
+
+    for relative, (_, current_text) in route_pairs.items():
+        if not relative.startswith("content/routes/supervision/"):
+            continue
+        try:
+            visible_copy = tuple(iter_clearing_visible_copy(current_text))
+        except (OSError, UnicodeError, json.JSONDecodeError) as error:
+            failures.append(f"{relative}: unable to scan visible copy ({error})")
+            continue
+
+        for node_path, value in visible_copy:
+            location = f"{relative}:{path_label(node_path)}"
+            for phrase in SUPERVISION_COPY_FORBIDDEN_PHRASES:
+                if phrase in value:
+                    failures.append(
+                        f"supervision visible copy still contains {phrase}: {location}"
+                    )
+            for pattern, label in (
+                (CLEARING_RAW_CAMEL_CASE, "raw camelCase label"),
+                (CLEARING_RAW_SNAKE_CASE, "raw snake_case label"),
+                (CLEARING_RAW_STATUS, "raw status code"),
+            ):
+                for match in pattern.finditer(value):
+                    if match.group(0) in SUPERVISION_COPY_FORBIDDEN_MARKERS:
+                        continue
+                    if match.group(0) in SUPERVISION_BUSINESS_FIELD_TOKENS:
+                        continue
+                    failures.append(
+                        f"supervision visible copy still contains {label} "
+                        f"{match.group(0)}: {location}"
+                    )
+            if re.search(r"\s{2,}", value):
+                failures.append(
+                    f"supervision visible copy contains repeated whitespace: {location}"
+                )
+            spacing_probe = supervision_spacing_probe(value)
+            for pattern, label in CLEARING_BAD_MIXED_SPACING:
+                if pattern.search(spacing_probe):
+                    failures.append(
+                        f"supervision visible copy contains unnatural mixed spacing "
+                        f"({label}): {location}"
+                    )
+            repeated = CLEARING_REPEATED_WORD.search(value)
+            if repeated:
+                failures.append(
+                    f"supervision visible copy contains repeated Chinese word "
+                    f"{repeated.group('word')}: {location}"
+                )
+            repeated_latin = CLEARING_REPEATED_LATIN_WORD.search(value)
+            if repeated_latin:
+                failures.append(
+                    f"supervision visible copy contains repeated English word "
+                    f"{repeated_latin.group('word')}: {location}"
+                )
+
+
 def protected_string(path: tuple[Any, ...], value: str | None = None) -> bool:
     string_keys = [part for part in path if isinstance(part, str)]
     if not string_keys:
@@ -370,9 +532,9 @@ def protected_string(path: tuple[Any, ...], value: str | None = None) -> bool:
     return False
 
 
-def verify_route(path: Path, failures: list[str]) -> tuple[str, str]:
+def verify_route(path: Path, revision: str, failures: list[str]) -> tuple[str, str]:
     current_text = path.read_text(encoding="utf-8")
-    old_text = baseline_text(path)
+    old_text = baseline_text(path, revision)
     current = json.loads(current_text)
     old = json.loads(old_text)
 
@@ -408,29 +570,32 @@ def verify_route(path: Path, failures: list[str]) -> tuple[str, str]:
 
 def verify_route_set(failures: list[str]) -> dict[str, tuple[str, str]]:
     current_paths = current_route_paths()
-    baseline_paths = baseline_route_paths()
-
-    missing = sorted(baseline_paths - current_paths)
-    added = sorted(current_paths - baseline_paths)
-    if missing:
-        failures.append(f"formal route files removed: {', '.join(missing)}")
-    if added:
-        failures.append(f"formal route files added: {', '.join(added)}")
-
     route_pairs: dict[str, tuple[str, str]] = {}
-    for relative in sorted(current_paths & baseline_paths):
-        path = ROOT / relative
-        try:
-            old_text, current_text = verify_route(path, failures)
-        except (
-            OSError,
-            UnicodeError,
-            json.JSONDecodeError,
-            subprocess.CalledProcessError,
-        ) as error:
-            failures.append(f"{relative}: unable to verify route ({error})")
-            continue
-        route_pairs[relative] = (old_text, current_text)
+    for relative_dir in ROUTE_RELATIVE_DIRS:
+        baseline_paths = baseline_route_paths(relative_dir, ROUTE_BASELINES[relative_dir])
+        scoped_current_paths = {path for path in current_paths if path.startswith(f"{relative_dir}/")}
+        missing = sorted(baseline_paths - scoped_current_paths)
+        added = sorted(scoped_current_paths - baseline_paths)
+        if missing:
+            failures.append(f"formal route files removed: {', '.join(missing)}")
+        if added:
+            failures.append(f"formal route files added: {', '.join(added)}")
+
+        for relative in sorted(scoped_current_paths & baseline_paths):
+            path = ROOT / relative
+            try:
+                old_text, current_text = verify_route(
+                    path, ROUTE_BASELINES[relative_dir], failures
+                )
+            except (
+                OSError,
+                UnicodeError,
+                json.JSONDecodeError,
+                subprocess.CalledProcessError,
+            ) as error:
+                failures.append(f"{relative}: unable to verify route ({error})")
+                continue
+            route_pairs[relative] = (old_text, current_text)
     return route_pairs
 
 
@@ -447,6 +612,8 @@ def verify_route_phrase_reduction(
     """
 
     for relative, (old_text, current_text) in route_pairs.items():
+        if not relative.startswith(("content/routes/accounting/", "content/routes/clearing/")):
+            continue
         if old_text == current_text:
             continue
         for phrase in ROUTE_PHRASES_THAT_MUST_DECREASE:
@@ -461,11 +628,34 @@ def verify_route_phrase_reduction(
                 )
 
 
+def verify_allowed_product_doc_edit(relative: str, failures: list[str]) -> None:
+    """Allow only the explicitly approved final documentation correction."""
+
+    path = ROOT / relative
+    try:
+        expected = baseline_text(path, PRODUCT_BASELINE)
+        for old, new in ALLOWED_PRODUCT_DOC_EDITS[relative]:
+            if expected.count(old) != 1:
+                failures.append(
+                    f"approved product-doc baseline text is not unique: {relative}"
+                )
+                return
+            expected = expected.replace(old, new, 1)
+        current = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError, subprocess.CalledProcessError) as error:
+        failures.append(f"unable to verify approved product-doc edit {relative}: {error}")
+        return
+    if current != expected:
+        failures.append(
+            f"unexpected change outside approved product-doc edit: {relative}"
+        )
+
+
 def main() -> int:
     failures: list[str] = []
     route_pairs = verify_route_set(failures)
 
-    changed_files = set(git("diff", "--name-only", BASELINE, "--").splitlines())
+    changed_files = set(git("diff", "--name-only", PRODUCT_BASELINE, "--").splitlines())
     changed_files.update(git("ls-files", "--others", "--exclude-standard").splitlines())
     for name in changed_files:
         normalized = name.replace("\\", "/")
@@ -473,7 +663,10 @@ def main() -> int:
             normalized == prefix.rstrip("/") or normalized.startswith(prefix)
             for prefix in FROZEN_PREFIXES
         ):
-            failures.append(f"frozen product or visual path changed: {normalized}")
+            if normalized in ALLOWED_PRODUCT_DOC_EDITS:
+                verify_allowed_product_doc_edit(normalized, failures)
+            else:
+                failures.append(f"frozen product or visual path changed: {normalized}")
 
     frontend_text = "\n".join(
         path.read_text(encoding="utf-8")
@@ -515,17 +708,23 @@ def main() -> int:
     if not format_test.exists():
         failures.append("missing frontend dynamic text mapping regression test")
 
+    migration_route_pairs = {
+        relative: pair
+        for relative, pair in route_pairs.items()
+        if relative.startswith(("content/routes/accounting/", "content/routes/clearing/"))
+    }
     baseline_route_text = "\n".join(
-        old_text for old_text, _ in route_pairs.values()
+        old_text for old_text, _ in migration_route_pairs.values()
     )
     current_route_text = "\n".join(
-        current_text for _, current_text in route_pairs.values()
+        current_text for _, current_text in migration_route_pairs.values()
     )
     verify_route_phrase_reduction(route_pairs, failures)
     for phrase in ROUTE_PHRASES_FORBIDDEN:
         if phrase in current_route_text:
             failures.append(f"route copy still contains templated sentence: {phrase}")
     verify_clearing_visible_copy(route_pairs, failures)
+    verify_supervision_visible_copy(route_pairs, failures)
 
     if failures:
         print("Learner-facing copy verification failed:")

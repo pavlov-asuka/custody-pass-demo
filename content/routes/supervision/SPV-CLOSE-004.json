@@ -9,7 +9,7 @@
     "按结果键、规则键、数据日和异常开始日识读两份合成登记资料",
     "沿待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档完成确认分支",
     "沿待确认→本轮豁免→合成豁免截止日→不生成提示函→归档完成豁免分支，并保留截止日",
-    "跨来源勾稽回函记录、附件标记和归档类别，明确已生成 != 已发送；全部结论仅适用于 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+    "跨来源勾稽回函记录、附件标记和归档类别，明确已生成 != 已发送；结论范围以引用资料中的适用范围标记为准"
   ],
   "steps": {
     "KNOWLEDGE_CARD": {
@@ -18,7 +18,7 @@
           "cardId": "SPV-CLOSE-KC-01",
           "type": "CATEGORIES",
           "title": "先锁定结果键、规则键和异常开始日",
-          "conclusion": "结果确认和豁免登记都要先按结果键、规则键、数据日和异常开始日对应两份合成资料，所有键和日期均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+          "conclusion": "结果确认和豁免登记都要先按结果键、规则键、数据日和异常开始日对应两份登记资料，所有键和日期均按资料中注明的适用范围使用。",
           "items": [
             "从合成《结果确认/豁免工作表》读取结果键、规则键、数据日和异常开始日",
             "从合成《提示函—回函—归档登记表》按同一结果键与规则键核对分支状态和归档字段",
@@ -45,7 +45,7 @@
           "conclusion": "豁免分支只能表示本轮豁免，必须填写合成豁免截止日，随后不生成提示函并归档；不得写成永久豁免。",
           "items": [
             "按待确认→本轮豁免→合成豁免截止日→不生成提示函→归档记录豁免分支",
-            "合成豁免截止日是本案例教学日期，不代表生产期限或永久豁免",
+            "资料中的豁免截止日是教学日期，不代表生产期限或永久豁免",
             "豁免分支不生成提示函，也不补造回函、监管报送、整改或赔偿",
             "确认分支和豁免分支都必须按结果键与规则键跨来源勾稽后再写归档结论"
           ]
@@ -55,11 +55,11 @@
     "DEMONSTRATION": {
       "scenario": {
         "role": "投资监督结果确认与归档复核岗",
-        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：结果确认与期限豁免案例 A",
+        "product": "结果确认与期限豁免案例 A",
         "date": "2026-01-06",
         "fixture": "SPV-CLOSE-DEMO-A",
         "facts": [
-          "结果键 EDU-RESULT-A-001、规则键 EDU-RULE-A-001、数据日 2026-01-06、异常开始日 2026-01-06 和 4/100=4% 均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+          "结果键 EDU-RESULT-A-001、规则键 EDU-RULE-A-001、数据日 2026-01-06、异常开始日 2026-01-06 和 4/100=4% 均按引用资料中的适用范围使用。",
           "确认分支完成待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档，并记录回函记录、附件标记和确认分支归档类别。",
           "豁免分支完成待确认→本轮豁免→合成豁免截止日=2026-01-12→不生成提示函→归档；该截止日为合成教学日期。"
         ]
@@ -68,7 +68,7 @@
         {
           "order": 1,
           "action": "从合成《结果确认/豁免工作表》读取结果键 EDU-RESULT-A-001、规则键 EDU-RULE-A-001、数据日 2026-01-06 和异常开始日 2026-01-06",
-          "reason": "先固定本案例两份资料的对应键和日期，避免将其他分支或日期混入。"
+          "reason": "先固定两份资料的对应键和日期，避免将其他分支或日期混入。"
         },
         {
           "order": 2,
@@ -98,7 +98,7 @@
         {
           "questionId": "SPV-CLOSE-Q-01",
           "type": "FIELD_MAP",
-          "prompt": "在 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 A 中，将结果键、规则键、日期和分支登记字段映射到两份合成资料。",
+          "prompt": "在案例 A 中，依据引用资料中的适用范围标记，将结果键、规则键、日期和分支登记字段映射到两份登记资料。",
           "fieldMappings": [
             {
               "fieldId": "identity-source",
@@ -181,7 +181,7 @@
                 "formula": "合成豁免截止日=2026-01-12",
                 "placeholder": "选择豁免期限结论",
                 "options": [
-                  {"optionId": "SYNTHETIC_DEADLINE_RECORDED", "text": "已记录本案例合成豁免截止日"},
+                  {"optionId": "SYNTHETIC_DEADLINE_RECORDED", "text": "已记录资料所示的豁免截止日"},
                   {"optionId": "PERMANENT_EXEMPTION_NOT_ALLOWED", "text": "不得写成永久豁免"}
                 ]
               }
@@ -212,7 +212,7 @@
         {
           "questionId": "SPV-CLOSE-Q-05",
           "type": "SHORT_TEXT",
-          "prompt": "用一句话写出 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 A 的确认、豁免与归档结论。",
+          "prompt": "用一句话写出案例 A 的确认、豁免与归档结论，并说明引用资料中的适用范围标记。",
           "textInput": {
             "label": "结果闭环归档结论",
             "placeholder": "写明两条分支、截止日、回函/附件/归档证据及已生成 != 已发送"
@@ -226,22 +226,22 @@
     "COMPREHENSIVE_PRACTICE": {
       "scenario": {
         "role": "投资监督结果确认与归档复核岗",
-        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：结果确认与期限豁免案例 B",
+        "product": "结果确认与期限豁免案例 B",
         "date": "2026-02-06",
         "purpose": "依据两份合成资料完成确认/豁免两条状态链、登记表填写、跨来源勾稽和简短归档结论。"
       },
       "sourceMaterials": [
         {
           "materialId": "SPV-CLOSE-B-WORKSHEET",
-          "title": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合成《结果确认/豁免工作表》—案例 B",
+          "title": "合成《结果确认/豁免工作表》—案例 B",
           "kind": "RECONCILIATION",
-          "description": "仅供本案例读取结果键、规则键、数据日、异常开始日和两条分支状态；不代表生产确认或豁免记录。",
+          "description": "用于读取结果键、规则键、数据日、异常开始日和两条分支状态；不代表生产确认或豁免记录。",
           "fields": [
             {"fieldId": "result_key", "label": "结果键", "value": "EDU-RESULT-B-002"},
             {"fieldId": "rule_key", "label": "规则键", "value": "EDU-RULE-B-002"},
             {"fieldId": "data_date", "label": "数据日", "value": "2026-02-06"},
             {"fieldId": "anomaly_start_date", "label": "异常开始日", "value": "2026-02-06"},
-            {"fieldId": "ratio", "label": "本案例比例", "value": "3/100=0.0300（3%）"},
+            {"fieldId": "ratio", "label": "资料比例", "value": "3/100=0.0300（3%）"},
             {"fieldId": "confirmation_branch_chain", "label": "确认分支状态链", "value": "待确认 → 确认异常 → 待生成/待记录 → B复核 → A生成 → 已生成 → 次日上午检查发送状态 → 记录管理人反馈/附件 → 归档"},
             {"fieldId": "exemption_branch_chain", "label": "豁免分支状态链", "value": "待确认 → 本轮豁免 → 合成豁免截止日=2026-02-12 → 不生成提示函 → 归档"},
             {"fieldId": "synthetic_scope", "label": "材料范围", "value": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"}
@@ -249,9 +249,9 @@
         },
         {
           "materialId": "SPV-CLOSE-B-REGISTER",
-          "title": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合成《提示函—回函—归档登记表》—案例 B",
+          "title": "合成《提示函—回函—归档登记表》—案例 B",
           "kind": "REPORT",
-          "description": "仅供本案例登记确认分支的回函/附件/归档和豁免分支的截止日/不生成提示函；不代表生产发送、收件人或后续处置。",
+          "description": "用于登记确认分支的回函/附件/归档和豁免分支的截止日/不生成提示函；不代表生产发送、收件人或后续处置。",
           "fields": [
             {"fieldId": "result_key", "label": "结果键对应值", "value": "EDU-RESULT-B-002"},
             {"fieldId": "rule_key", "label": "规则键对应值", "value": "EDU-RULE-B-002"},
@@ -277,7 +277,7 @@
           "workItemId": "spv-close-b-source-map",
           "type": "FIELD_MAP",
           "title": "识别工作表与登记表的字段职责",
-          "instruction": "在 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例 B 中，选择两份资料共同作为结果/规则键、日期、分支状态和归档证据的对应来源。",
+          "instruction": "在案例 B 中，依据引用资料中的适用范围标记，选择两份资料共同作为结果/规则键、日期、分支状态和归档证据的对应来源。",
           "response": {
             "kind": "SELECT",
             "placeholder": "选择来源职责结论",
@@ -346,7 +346,7 @@
           "instruction": "用简短文字交代两份资料、结果/规则键、数据日、确认/豁免两条分支、回函/附件/归档证据、豁免截止日和已生成 != 已发送边界。",
           "response": {
             "kind": "TEXT",
-            "placeholder": "写出两条状态链、证据字段、截止日和 ONLY_THIS_CASE 边界"
+            "placeholder": "写出两条状态链、证据字段、截止日，并注明引用资料中的适用范围标记"
           }
         }
       ],
