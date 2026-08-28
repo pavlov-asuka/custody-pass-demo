@@ -1,0 +1,709 @@
+{
+  "evidenceId": "SPV-EVID-CONTRACT-001",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "routeId": "SPV-CONTRACT-001",
+  "routeCode": "SPV-CONTRACT-001",
+  "title": "合同条款与监督规则可实现性证据",
+  "scopeNotice": "本文件是 SPV-CONTRACT-001 的私有证据、Decimal 答案链和原子 workItem 映射。所有案例键、合同版本、日期和数值均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE；不登记地图、发布清单、生产权限或通用规则。",
+  "sharedEvidence": [
+    "SPV-FOUNDATION-001",
+    "SPV-EVID-IDENTITY",
+    "SPV-EVID-CONTRACT-RATIO"
+  ],
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "M01",
+      "locators": [
+        "§2.2 P40-P43",
+        "§2.3",
+        "§4.2.1 P191-P206",
+        "§4.2.2 P221-P223"
+      ],
+      "teachingUse": "支持合同审阅、条款关系、分子/分母字段、比例下限和调整期的材料抽象；本路线只使用已冻结的比例关系。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "M11",
+      "locators": [
+        "§2.2",
+        "§4.2",
+        "§4.2.1",
+        "§4.2.2"
+      ],
+      "teachingUse": "独立核对合同条款、规则关系、比例参数和复算顺序；不把未给出的生产字段补入案例。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "M09",
+      "locators": [
+        "p.8 / 第36—37条"
+      ],
+      "teachingUse": "仅用于托管人监督基金管理人投资运作的职责边界；不用于推导本案例阈值、规则编码或生产权限。",
+      "provenance": "BOUNDARY_ONLY"
+    }
+  ],
+  "mappingClaims": [
+    {
+      "claimId": "SPV-CONTRACT-CLAIM-01",
+      "claim": "条款页先承载教学键、合同版本、规则类型和分子/分母关系；参数页承载分子、分母和 CS_BLXX 数值。",
+      "sourceGroups": [
+        "SPV-CONTRACT-B-CLAUSE",
+        "SPV-CONTRACT-B-PARAM"
+      ],
+      "activity": "FIELD_MAP",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "claimId": "SPV-CONTRACT-CLAIM-02",
+      "claim": "B0100001 = B0100002 / B0100003，B0100002 为分子合计，B0100003 为分母合计，比例按四位小数复算。",
+      "sourceGroups": [
+        "SPV-CONTRACT-B-PARAM"
+      ],
+      "activity": "CALCULATION",
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "claimId": "SPV-CONTRACT-CLAIM-03",
+      "claim": "本案例母规则参数页的 CS_BLXX=5%，复算结果需回到条款页的 B0100001 < CS_BLXX 关系。",
+      "sourceGroups": [
+        "SPV-CONTRACT-B-CLAUSE",
+        "SPV-CONTRACT-B-PARAM"
+      ],
+      "activity": "RECONCILIATION",
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "claimId": "SPV-CONTRACT-CLAIM-04",
+      "claim": "托管监督职责只作为边界背景；本路线不把 M09 的职责条款扩写成未获材料支持的系统权限或规则事实。",
+      "sourceGroups": [
+        "M09"
+      ],
+      "activity": "BOUNDARY",
+      "provenance": "BOUNDARY_ONLY"
+    }
+  ],
+  "caseParameters": [
+    {
+      "fixtureId": "SPV-CONTRACT-DEMO-A",
+      "parameter": "contractVersion",
+      "value": "EDU-CONTRACT-A-2026-06",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CONTRACT-DEMO-A",
+      "parameter": "dates",
+      "value": "contractReviewDate=2026-06-01; dataDate=2026-06-15",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CONTRACT-DEMO-A",
+      "parameter": "ratio",
+      "value": "B0100002=4; B0100003=100; B0100001=0.0400 (4%); CS_BLXX=5%",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CONTRACT-COMP-B",
+      "parameter": "contractVersion",
+      "value": "EDU-CONTRACT-B-2026-07",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CONTRACT-COMP-B",
+      "parameter": "dates",
+      "value": "contractReviewDate=2026-07-03; dataDate=2026-07-18",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CONTRACT-COMP-B",
+      "parameter": "ratio",
+      "value": "B0100002=3; B0100003=100; B0100001=0.0300 (3%); CS_BLXX=5%",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "ruleCatalog": [
+    {
+      "ruleId": "SPV-CONTRACT-RULE-SOURCE-MAP",
+      "description": "条款页与母规则参数页按同一合同版本共同取数",
+      "expected": "B_CLAUSE_AND_PARAM_MATCH",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-CONTRACT-RULE-RATIO",
+      "description": "综合 B 的实际比例",
+      "formula": "Decimal('3') / Decimal('100')",
+      "expected": 0.03,
+      "displayExpected": "0.0300 / 3%",
+      "precision": 4,
+      "tolerance": "0",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-CONTRACT-RULE-PARAMETER-ENTRY",
+      "description": "综合 B 规则参数工作纸字段集合",
+      "expected": [
+        "EDU-CONTRACT-B-2026-07",
+        "INVESTMENT_RATIO",
+        "B0100002",
+        "B0100003",
+        "CS_BLXX=5%"
+      ],
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-CONTRACT-RULE-RECONCILIATION",
+      "description": "来源、版本和比例下限关系同时闭合",
+      "expected": "B_RATIO_BELOW_CASE_BOUND_AND_SOURCES_MATCH",
+      "condition": "合同版本、规则类型、分子/分母编码一致，3/100=3%且小于本案例5%",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-CONTRACT-RULE-CONCLUSION",
+      "description": "综合 B 可回查的短结论",
+      "expected": [
+        "EDU-CONTRACT-B-2026-07",
+        "B0100002",
+        "B0100003",
+        "3/100",
+        "0.0300",
+        "3%",
+        "CS_BLXX=5%",
+        "跨来源一致"
+      ],
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "SPV-CONTRACT-DEMO-A",
+      "identity": {
+        "teachingKey": "EDU-SPV-A-001",
+        "contractVersion": "EDU-CONTRACT-A-2026-06",
+        "contractReviewDate": "2026-06-01",
+        "dataDate": "2026-06-15"
+      },
+      "sourceToRole": [
+        {
+          "sourceMaterialId": "SPV-CONTRACT-A-CLAUSE",
+          "role": "INVESTMENT_SUPERVISION_CLAUSE_PAGE",
+          "fields": [
+            "teachingKey=EDU-SPV-A-001",
+            "contractVersion=EDU-CONTRACT-A-2026-06",
+            "contractReviewDate=2026-06-01",
+            "ruleType=INVESTMENT_RATIO",
+            "numeratorCode=B0100002",
+            "denominatorCode=B0100003",
+            "relation=B0100001 < CS_BLXX"
+          ]
+        },
+        {
+          "sourceMaterialId": "SPV-CONTRACT-A-PARAM",
+          "role": "MASTER_RULE_PARAMETER_PAGE",
+          "fields": [
+            "contractVersion=EDU-CONTRACT-A-2026-06",
+            "dataDate=2026-06-15",
+            "numeratorValue=4",
+            "denominatorValue=100",
+            "lowerBound=CS_BLXX=5%"
+          ]
+        }
+      ],
+      "decimalChain": [
+        {
+          "fieldId": "ratio",
+          "formula": "Decimal('4') / Decimal('100')",
+          "result": "0.0400",
+          "display": "4%",
+          "unit": "ratio",
+          "precision": 4,
+          "tolerance": "0"
+        },
+        {
+          "fieldId": "ratio-percent",
+          "formula": "Decimal('0.0400') * Decimal('100')",
+          "result": "4",
+          "display": "4%",
+          "unit": "%",
+          "precision": 0,
+          "tolerance": "0"
+        }
+      ],
+      "ruleCheck": {
+        "formula": "B0100001 = B0100002 / B0100003",
+        "evaluated": "4 / 100 = 0.0400",
+        "threshold": "B0100001 < CS_BLXX",
+        "evaluatedThreshold": "0.0400 < 0.0500",
+        "result": "TRUE",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reconciliation": {
+        "contractVersionMatch": "YES",
+        "sourceFieldsMatch": "YES",
+        "ratio": "0.0400",
+        "ratioDisplay": "4%",
+        "caseLowerBound": "0.0500 / 5%",
+        "relation": "B0100001 < CS_BLXX",
+        "status": "PARAMETERS_MATCH_AND_READY"
+      },
+      "expectedConclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合同版本 EDU-CONTRACT-A-2026-06 在投资监督事项表条款页与母规则参数页一致；B0100002=4、B0100003=100，按 B0100001 = B0100002 / B0100003 用 Decimal 复算 4/100=0.0400（4%），CS_BLXX=5%，满足 B0100001 < CS_BLXX，跨来源一致。"
+    },
+    "comprehensiveB": {
+      "fixtureId": "SPV-CONTRACT-COMP-B",
+      "identity": {
+        "teachingKey": "EDU-SPV-B-002",
+        "contractVersion": "EDU-CONTRACT-B-2026-07",
+        "contractReviewDate": "2026-07-03",
+        "dataDate": "2026-07-18"
+      },
+      "sourceToRole": [
+        {
+          "sourceMaterialId": "SPV-CONTRACT-B-CLAUSE",
+          "role": "INVESTMENT_SUPERVISION_CLAUSE_PAGE",
+          "fields": [
+            "teachingKey=EDU-SPV-B-002",
+            "contractVersion=EDU-CONTRACT-B-2026-07",
+            "contractReviewDate=2026-07-03",
+            "ruleType=INVESTMENT_RATIO",
+            "numeratorCode=B0100002",
+            "denominatorCode=B0100003",
+            "relation=B0100001 < CS_BLXX"
+          ]
+        },
+        {
+          "sourceMaterialId": "SPV-CONTRACT-B-PARAM",
+          "role": "MASTER_RULE_PARAMETER_PAGE",
+          "fields": [
+            "contractVersion=EDU-CONTRACT-B-2026-07",
+            "dataDate=2026-07-18",
+            "numeratorValue=3",
+            "denominatorValue=100",
+            "lowerBound=CS_BLXX=5%"
+          ]
+        }
+      ],
+      "decimalChain": [
+        {
+          "fieldId": "ratio",
+          "formula": "Decimal('3') / Decimal('100')",
+          "result": "0.0300",
+          "display": "3%",
+          "unit": "ratio",
+          "precision": 4,
+          "tolerance": "0"
+        },
+        {
+          "fieldId": "ratio-percent",
+          "formula": "Decimal('0.0300') * Decimal('100')",
+          "result": "3",
+          "display": "3%",
+          "unit": "%",
+          "precision": 0,
+          "tolerance": "0"
+        }
+      ],
+      "ruleCheck": {
+        "formula": "B0100001 = B0100002 / B0100003",
+        "evaluated": "3 / 100 = 0.0300",
+        "threshold": "B0100001 < CS_BLXX",
+        "evaluatedThreshold": "0.0300 < 0.0500",
+        "result": "TRUE",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reconciliation": {
+        "contractVersionMatch": "YES",
+        "sourceFieldsMatch": "YES",
+        "ratio": "0.0300",
+        "ratioDisplay": "3%",
+        "caseLowerBound": "0.0500 / 5%",
+        "relation": "B0100001 < CS_BLXX",
+        "status": "B_RATIO_BELOW_CASE_BOUND_AND_SOURCES_MATCH"
+      },
+      "expectedConclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：合同版本 EDU-CONTRACT-B-2026-07 在投资监督事项表条款页与母规则参数页一致；B0100002=3、B0100003=100，按 B0100001 = B0100002 / B0100003 用 Decimal 复算 3/100=0.0300（3%），CS_BLXX=5%，满足 B0100001 < CS_BLXX，跨来源一致。"
+    }
+  },
+  "atomicWorkItems": [
+    {
+      "workItemId": "spv-contract-b-source-map",
+      "responseKind": "SELECT",
+      "observableAction": "从条款页与母规则参数页定位合同版本、规则类型、分子/分母及数值字段",
+      "fixtureValue": "B_CLAUSE_AND_PARAM_MATCH",
+      "sourceMaterialIds": [
+        "SPV-CONTRACT-B-CLAUSE",
+        "SPV-CONTRACT-B-PARAM"
+      ],
+      "scoreTargets": [
+        "C-SPV-CONTRACT-SOURCE-ROLES",
+        "P-SPV-CONTRACT-FIELD-READ",
+        "M-SPV-CONTRACT-SOURCE-CHAIN"
+      ],
+      "remediationTargetId": "SPV-CONTRACT-SOURCES",
+      "source": {
+        "materialIds": [
+          "SPV-CONTRACT-B-CLAUSE",
+          "SPV-CONTRACT-B-PARAM"
+        ],
+        "fieldIds": [
+          "teaching_key",
+          "contract_version",
+          "rule_type",
+          "numerator_code",
+          "denominator_code",
+          "clause_relation",
+          "numerator_value",
+          "denominator_value",
+          "lower_bound_code",
+          "lower_bound_value"
+        ],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": [
+          "SPV-CONTRACT-REF-CLAUSE",
+          "SPV-CONTRACT-REF-RATIO"
+        ],
+        "anchor": "条款页建立关系，母规则参数页提供数值，合同版本用于跨来源对应"
+      },
+      "rule": {
+        "ruleId": "SPV-CONTRACT-RULE-SOURCE-MAP",
+        "expected": "B_CLAUSE_AND_PARAM_MATCH",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-CONTRACT-SOURCES",
+        "criterionIds": [
+          "C-SPV-CONTRACT-SOURCE-ROLES",
+          "P-SPV-CONTRACT-FIELD-READ",
+          "M-SPV-CONTRACT-SOURCE-CHAIN"
+        ],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-CONTRACT-KC-01",
+        "questionId": "SPV-CONTRACT-Q-01"
+      }
+    },
+    {
+      "workItemId": "spv-contract-b-ratio",
+      "responseKind": "NUMBER",
+      "observableAction": "读取 3 和 100，用 Decimal 复算 B0100001",
+      "fixtureValue": "0.0300",
+      "unit": "ratio",
+      "precision": 4,
+      "tolerance": "0",
+      "sourceMaterialIds": [
+        "SPV-CONTRACT-B-PARAM"
+      ],
+      "scoreTargets": [
+        "C-SPV-CONTRACT-RATIO-MEANING",
+        "P-SPV-CONTRACT-DECIMAL",
+        "M-SPV-CONTRACT-RATIO-RECONCILED"
+      ],
+      "remediationTargetId": "SPV-CONTRACT-RATIO",
+      "source": {
+        "materialIds": [
+          "SPV-CONTRACT-B-PARAM"
+        ],
+        "fieldIds": [
+          "numerator_value",
+          "denominator_value",
+          "ratio_scale"
+        ],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": [
+          "SPV-CONTRACT-REF-RATIO"
+        ],
+        "anchor": "B0100002/B0100003 的 Decimal 比例复算"
+      },
+      "rule": {
+        "ruleId": "SPV-CONTRACT-RULE-RATIO",
+        "formula": "Decimal('3') / Decimal('100')",
+        "expected": 0.03,
+        "precision": 4,
+        "tolerance": "0",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-CONTRACT-RATIO",
+        "criterionIds": [
+          "C-SPV-CONTRACT-RATIO-MEANING",
+          "P-SPV-CONTRACT-DECIMAL",
+          "M-SPV-CONTRACT-RATIO-RECONCILED"
+        ],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "SPV-CONTRACT-Q-02"
+      }
+    },
+    {
+      "workItemId": "spv-contract-b-parameter-entry",
+      "responseKind": "TEXT",
+      "observableAction": "把合同版本、规则类型、分子/分母和比例下限填入规则参数工作纸",
+      "fixtureValue": "EDU-CONTRACT-B-2026-07；INVESTMENT_RATIO；B0100002；B0100003；CS_BLXX=5%",
+      "sourceMaterialIds": [
+        "SPV-CONTRACT-B-CLAUSE",
+        "SPV-CONTRACT-B-PARAM"
+      ],
+      "scoreTargets": [
+        "C-SPV-CONTRACT-SOURCE-ROLES",
+        "P-SPV-CONTRACT-WORKPAPER",
+        "R-SPV-CONTRACT-CROSS-SOURCE",
+        "M-SPV-CONTRACT-SOURCE-CHAIN"
+      ],
+      "remediationTargetId": "SPV-CONTRACT-PARAMETERS",
+      "source": {
+        "materialIds": [
+          "SPV-CONTRACT-B-CLAUSE",
+          "SPV-CONTRACT-B-PARAM"
+        ],
+        "fieldIds": [
+          "contract_version",
+          "rule_type",
+          "numerator_code",
+          "denominator_code",
+          "clause_relation",
+          "lower_bound_code",
+          "lower_bound_value"
+        ],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": [
+          "SPV-CONTRACT-REF-CLAUSE",
+          "SPV-CONTRACT-REF-RATIO"
+        ],
+        "anchor": "规则参数工作纸保留合同版本和字段关系"
+      },
+      "rule": {
+        "ruleId": "SPV-CONTRACT-RULE-PARAMETER-ENTRY",
+        "expected": [
+          "EDU-CONTRACT-B-2026-07",
+          "INVESTMENT_RATIO",
+          "B0100002",
+          "B0100003",
+          "CS_BLXX=5%"
+        ],
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-CONTRACT-PARAMETERS",
+        "criterionIds": [
+          "C-SPV-CONTRACT-SOURCE-ROLES",
+          "P-SPV-CONTRACT-WORKPAPER",
+          "R-SPV-CONTRACT-CROSS-SOURCE",
+          "M-SPV-CONTRACT-SOURCE-CHAIN"
+        ],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-CONTRACT-KC-03",
+        "questionId": "SPV-CONTRACT-Q-03"
+      }
+    },
+    {
+      "workItemId": "spv-contract-b-cross-source",
+      "responseKind": "SELECT",
+      "observableAction": "核对合同版本、条款字段、参数字段和实际比例与本案例下限的关系",
+      "fixtureValue": "B_RATIO_BELOW_CASE_BOUND_AND_SOURCES_MATCH",
+      "sourceMaterialIds": [
+        "SPV-CONTRACT-B-CLAUSE",
+        "SPV-CONTRACT-B-PARAM"
+      ],
+      "scoreTargets": [
+        "R-SPV-CONTRACT-CROSS-SOURCE",
+        "M-SPV-CONTRACT-RATIO-RECONCILED"
+      ],
+      "remediationTargetId": "SPV-CONTRACT-RECONCILIATION",
+      "source": {
+        "materialIds": [
+          "SPV-CONTRACT-B-CLAUSE",
+          "SPV-CONTRACT-B-PARAM"
+        ],
+        "fieldIds": [
+          "contract_version",
+          "rule_type",
+          "numerator_code",
+          "denominator_code",
+          "clause_relation",
+          "numerator_value",
+          "denominator_value",
+          "lower_bound_code",
+          "lower_bound_value"
+        ],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": [
+          "SPV-CONTRACT-REF-CLAUSE",
+          "SPV-CONTRACT-REF-RATIO"
+        ],
+        "anchor": "同一合同版本的跨来源字段与比例下限勾稽"
+      },
+      "rule": {
+        "ruleId": "SPV-CONTRACT-RULE-RECONCILIATION",
+        "expected": "B_RATIO_BELOW_CASE_BOUND_AND_SOURCES_MATCH",
+        "condition": "0.0300 < 0.0500 且合同版本和字段关系一致",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-CONTRACT-RECONCILIATION",
+        "criterionIds": [
+          "R-SPV-CONTRACT-CROSS-SOURCE",
+          "M-SPV-CONTRACT-RATIO-RECONCILED"
+        ],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-05",
+        "questionId": "SPV-CONTRACT-Q-04"
+      }
+    },
+    {
+      "workItemId": "spv-contract-b-conclusion",
+      "responseKind": "TEXT",
+      "observableAction": "写出包含来源、字段、公式、比例、下限和案例边界的短结论",
+      "fixtureValue": "合同版本、两份来源、B0100002/B0100003、3/100=0.0300（3%）、CS_BLXX=5%、B0100001 < CS_BLXX、跨来源一致",
+      "sourceMaterialIds": [
+        "SPV-CONTRACT-B-CLAUSE",
+        "SPV-CONTRACT-B-PARAM"
+      ],
+      "scoreTargets": [
+        "C-SPV-CONTRACT-RATIO-MEANING",
+        "R-SPV-CONTRACT-BOUNDARY",
+        "E-SPV-CONTRACT-TRACEABLE",
+        "M-SPV-CONTRACT-RATIO-RECONCILED"
+      ],
+      "remediationTargetId": "SPV-CONTRACT-CONCLUSION",
+      "source": {
+        "materialIds": [
+          "SPV-CONTRACT-B-CLAUSE",
+          "SPV-CONTRACT-B-PARAM"
+        ],
+        "fieldIds": [
+          "teaching_key",
+          "contract_version",
+          "contract_review_date",
+          "data_date",
+          "rule_type",
+          "numerator_code",
+          "denominator_code",
+          "clause_relation",
+          "numerator_value",
+          "denominator_value",
+          "lower_bound_code",
+          "lower_bound_value",
+          "synthetic_marker"
+        ],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": [
+          "SPV-CONTRACT-REF-CLAUSE",
+          "SPV-CONTRACT-REF-RATIO",
+          "SPV-CONTRACT-REF-CUSTODY-BOUNDARY"
+        ],
+        "anchor": "一句话回指两份来源、公式、阈值关系和材料边界"
+      },
+      "rule": {
+        "ruleId": "SPV-CONTRACT-RULE-CONCLUSION",
+        "expected": [
+          "EDU-CONTRACT-B-2026-07",
+          "B0100002",
+          "B0100003",
+          "3/100",
+          "0.0300",
+          "3%",
+          "CS_BLXX=5%",
+          "跨来源一致"
+        ],
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-CONTRACT-CONCLUSION",
+        "criterionIds": [
+          "C-SPV-CONTRACT-RATIO-MEANING",
+          "R-SPV-CONTRACT-BOUNDARY",
+          "E-SPV-CONTRACT-TRACEABLE",
+          "M-SPV-CONTRACT-RATIO-RECONCILED"
+        ],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-05",
+        "questionId": "SPV-CONTRACT-Q-05"
+      }
+    }
+  ],
+  "coverage": {
+    "FIELD_MAP": [
+      "spv-contract-b-source-map"
+    ],
+    "CALCULATION": [
+      "spv-contract-b-ratio"
+    ],
+    "LEDGER_ENTRY": [
+      "spv-contract-b-parameter-entry"
+    ],
+    "RECONCILIATION": [
+      "spv-contract-b-cross-source"
+    ],
+    "SHORT_TEXT": [
+      "spv-contract-b-conclusion"
+    ]
+  },
+  "dependencyPolicy": {
+    "hardPrerequisiteNodeIds": [],
+    "dependsOnRouteIds": [],
+    "serialOrder": 1,
+    "stageGate": false,
+    "releaseRegistration": "PUBLISHED_IN_CUSTODY_2026.08.12",
+    "registrationStage": "C1",
+    "status": "PUBLISHED",
+    "availability": "OPEN",
+    "releaseId": "CUSTODY_2026.08.12",
+    "mapVersion": "2026.08.12"
+  },
+  "fixturePolicy": {
+    "routeOwnsIndependentDemoA": "SPV-CONTRACT-DEMO-A",
+    "routeOwnsIndependentComprehensiveB": "SPV-CONTRACT-COMP-B",
+    "sharedWithOtherRoute": false,
+    "isomorphicStructure": true,
+    "numericVariationNotice": "A/B 使用不同教学键、合同版本、合同审阅日期、数据日期和分子值；两组均保留同一条款页/参数页角色、公式与勾稽结构。",
+    "markerPolicy": "两组案例及每个 concrete evidence 对象均标记 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+    "foundationSharedFixtureIds": ["EDU-SPV-A-001", "EDU-SPV-B-002"],
+    "usesFoundationSharedFixtures": false,
+    "routePracticeScope": "ROUTE_PRIVATE_INDEPENDENT",
+    "routePracticeFixtureIds": ["SPV-CONTRACT-DEMO-A", "SPV-CONTRACT-COMP-B"]
+  },
+  "exclusionBoundary": {
+    "status": "BUILDING_DEFER",
+    "topics": [
+      "真实合同主体、机构、产品、组合、账户、人员和联系人",
+      "生产规则编码、系统状态、菜单和权限",
+      "除 B0100001/B0100002/B0100003/CS_BLXX 之外的指标或阈值",
+      "技术失败、异常处置、发送失败和补救流程",
+      "图片、截图、图像元数据和原材料绝对路径"
+    ],
+    "reason": "本路线只由 M01 §2.2、§2.3、§4.2.1—4.2.2、M11 §2.2、§4.2 及 M09 p.8 / 第36—37条的已审计边界支撑；缺少材料支持的规则和生产事实继续 BUILDING/DEFER。"
+  },
+  "integrity": {
+    "workItemMappingCount": 5,
+    "uniqueWorkItemMappings": true,
+    "everyWorkItemHasSourceReferenceRuleRemediation": true,
+    "demoAndComprehensiveAreIsomorphic": true,
+    "demoAndComprehensiveUseDifferentKeysVersionsDatesAndNumbers": true,
+    "allCaseValuesMarkedOnlyThisCase": true,
+    "normalCaseOnly": true,
+    "mapAndReleaseRegistration": true
+  }
+}

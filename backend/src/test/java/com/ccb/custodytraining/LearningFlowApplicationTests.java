@@ -89,7 +89,7 @@ class LearningFlowApplicationTests {
     }
 
     @Test
-    void worldsExposeLineScopedProgressAndProtectBuildingWorld() throws Exception {
+    void worldsExposeLineScopedProgressAndOpenSupervisionWorld() throws Exception {
         Session learner = login("10000001");
         mockMvc.perform(get("/api/worlds").session(learner.session()))
                 .andExpect(status().isOk())
@@ -105,11 +105,11 @@ class LearningFlowApplicationTests {
                 .andExpect(jsonPath("$.worlds[1].passedRequiredRoutes").value(0))
                 .andExpect(jsonPath("$.worlds[1].progressPercent").value(0))
                 .andExpect(jsonPath("$.worlds[2].line").value("SUPERVISION"))
-                .andExpect(jsonPath("$.worlds[2].availability").value("BUILDING"))
-                .andExpect(jsonPath("$.worlds[2].publishedRequiredRoutes").value(0))
+                .andExpect(jsonPath("$.worlds[2].availability").value("OPEN"))
+                .andExpect(jsonPath("$.worlds[2].publishedRequiredRoutes").value(4))
                 .andExpect(jsonPath("$.worlds[2].passedRequiredRoutes").value(0))
                 .andExpect(jsonPath("$.worlds[2].progressPercent").value(0))
-                .andExpect(jsonPath("$.worlds[2].status").value("BUILDING"));
+                .andExpect(jsonPath("$.worlds[2].status").value("NOT_STARTED"));
 
         mockMvc.perform(get("/api/lines/CLEARING/map").session(learner.session()))
                 .andExpect(status().isOk())
@@ -127,8 +127,15 @@ class LearningFlowApplicationTests {
                 .andExpect(jsonPath("$.regions[0].modules[3].nodes[0].locked").value(true))
                 .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(7));
         mockMvc.perform(get("/api/lines/SUPERVISION/map").session(learner.session()))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value("CONTENT_BUILDING"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.regions[0].regionId").value("SPV-REGION-CORE"))
+                .andExpect(jsonPath("$.regions[0].modules[0].moduleId").value("SPV-MODULE-LIFECYCLE"))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes.length()").value(4))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[0].routeId").value("SPV-CONTRACT-001"))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[1].routeId").value("SPV-RULE-002"))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[2].routeId").value("SPV-TASK-003"))
+                .andExpect(jsonPath("$.regions[0].modules[0].nodes[3].routeId").value("SPV-CLOSE-004"))
+                .andExpect(jsonPath("$.progress.publishedRequiredRoutes").value(4));
     }
 
     @Test

@@ -120,12 +120,12 @@ try {
         throw 'CLEARING world is not OPEN with seven untouched required routes'
     }
     $supervisionWorld = @($worlds.worlds | Where-Object line -eq 'SUPERVISION')[0]
-    if ($supervisionWorld.availability -ne 'BUILDING' -or
-        $supervisionWorld.publishedRequiredRoutes -ne 0 -or
+    if ($supervisionWorld.availability -ne 'OPEN' -or
+        $supervisionWorld.publishedRequiredRoutes -ne 4 -or
         $supervisionWorld.passedRequiredRoutes -ne 0 -or
         $supervisionWorld.progressPercent -ne 0 -or
-        $supervisionWorld.status -ne 'BUILDING') {
-        throw 'SUPERVISION world is not protected as BUILDING'
+        $supervisionWorld.status -ne 'NOT_STARTED') {
+        throw 'SUPERVISION world is not OPEN with four untouched required routes'
     }
 
     $clearingMap = Invoke-JsonApi -Method GET -Path '/api/lines/CLEARING/map'
@@ -151,6 +151,17 @@ try {
         [string]::IsNullOrWhiteSpace([string]$clearingRoute.contentVersion) -or
         [string]::IsNullOrWhiteSpace([string]$clearingRoute.rubricVersion)) {
         throw 'CLEARING BASE route is not publicly readable'
+    }
+    $supervisionMap = Invoke-JsonApi -Method GET -Path '/api/lines/SUPERVISION/map'
+    $supervisionNodes = @($supervisionMap.regions | ForEach-Object modules |
+        ForEach-Object nodes | ForEach-Object { $_ })
+    if ($supervisionNodes.Count -ne 4 -or
+        $supervisionNodes[0].routeId -ne 'SPV-CONTRACT-001' -or
+        $supervisionNodes[0].locked -or -not $supervisionNodes[0].enterable -or
+        $supervisionNodes[1].locked -eq $false -or
+        $supervisionNodes[2].locked -eq $false -or
+        $supervisionNodes[3].locked -eq $false) {
+        throw 'SUPERVISION map does not expose the four-route required chain'
     }
 
     $mapBefore = Invoke-JsonApi -Method GET -Path '/api/lines/ACCOUNTING/map'

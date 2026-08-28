@@ -1,0 +1,232 @@
+{
+  "routeId": "SPV-RULE-002",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-SPV-RULE-SOURCE-OBJECT",
+          "description": "区分组合成立/到期依据表与规则配置及生效期表的字段职责，并识别本案例对象",
+          "weight": 13,
+          "evidenceRequirement": "能按同一教学组合键对应两份材料，明确 subjectType=资产组合，并读出案例 B 的教学组合键",
+          "evidenceRules": [
+            {"fieldId": "spv-rule-b-source-map", "operator": "EQUALS", "expected": "B_SOURCE_ROLE_MATCH"},
+            {"fieldId": "spv-rule-b-object-period-entry", "operator": "CONTAINS_ALL", "expected": ["subjectType=资产组合", "teachingKey=EDU-SPV-B-002"]}
+          ],
+          "remediationTargetId": "SPV-RULE-SOURCES-DATES"
+        },
+        {
+          "criterionId": "C-SPV-RULE-WINDOW-PARAM",
+          "description": "理解启停日期窗口和 N/N-1 参数的关系",
+          "weight": 12,
+          "evidenceRequirement": "能确认数据日位于 enableDate <= dataDate < stopDate，并将 N=10 复算为 N-1=9",
+          "evidenceRules": [
+            {"fieldId": "spv-rule-b-date-window", "operator": "EQUALS", "expected": "B_ACTIVE_WINDOW_RECONCILED"},
+            {"fieldId": "spv-rule-b-n-minus-1", "operator": "NUMBER_EQUALS", "expected": 9, "tolerance": 0}
+          ],
+          "remediationTargetId": "SPV-RULE-DATE-WINDOW"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-SPV-RULE-FIELD-READ",
+          "description": "按材料职责读取对象、日期和规则参数字段",
+          "weight": 10,
+          "evidenceRequirement": "来源选择能把对象与启停日期放回依据表，把规则状态与 N/N-1 放回配置表",
+          "evidenceRules": [
+            {"fieldId": "spv-rule-b-source-map", "operator": "EQUALS", "expected": "B_SOURCE_ROLE_MATCH"}
+          ],
+          "remediationTargetId": "SPV-RULE-SOURCES-DATES"
+        },
+        {
+          "criterionId": "P-SPV-RULE-DATE-RECONCILIATION",
+          "description": "按同一教学组合键完成启停日期窗口勾稽",
+          "weight": 10,
+          "evidenceRequirement": "对象类型、教学组合键和三项日期对应，并得到确定的日期关系结论",
+          "evidenceRules": [
+            {"fieldId": "spv-rule-b-date-window", "operator": "EQUALS", "expected": "B_ACTIVE_WINDOW_RECONCILED"}
+          ],
+          "remediationTargetId": "SPV-RULE-DATE-WINDOW"
+        },
+        {
+          "criterionId": "P-SPV-RULE-N-MINUS-1",
+          "description": "使用 Decimal 完成 N-1 复算并保留整数精度",
+          "weight": 10,
+          "evidenceRequirement": "从 N=10 得到 N-1=9，数值证据必须确定为 9",
+          "evidenceRules": [
+            {"fieldId": "spv-rule-b-n-minus-1", "operator": "NUMBER_EQUALS", "expected": 9, "tolerance": 0}
+          ],
+          "remediationTargetId": "SPV-RULE-N-MINUS-1"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-SPV-RULE-DEFAULT-STOP",
+          "description": "控制默认停用日期和跨来源字段错配风险",
+          "weight": 13,
+          "evidenceRequirement": "工作纸明确记录 stopDate=29991231，并保留同一教学键、对象类型和日期对应关系",
+          "evidenceRules": [
+            {"fieldId": "spv-rule-b-object-period-entry", "operator": "CONTAINS_ALL", "expected": ["teachingKey=EDU-SPV-B-002", "stopDate=29991231", "ONLY_THIS_CASE"]},
+            {"fieldId": "spv-rule-b-date-window", "operator": "EQUALS", "expected": "B_ACTIVE_WINDOW_RECONCILED"}
+          ],
+          "remediationTargetId": "SPV-RULE-WORKPAPER"
+        },
+        {
+          "criterionId": "R-SPV-RULE-BOUNDARY",
+          "description": "控制把合成教学值误写成生产日期、系统状态或权限事实",
+          "weight": 12,
+          "evidenceRequirement": "结论明确带有 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE，并声明不代表生产日期、系统状态或权限",
+          "evidenceRules": [
+            {"fieldId": "spv-rule-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["SYNTHETIC_EDUCATIONAL", "ONLY_THIS_CASE", "不代表生产日期", "不代表系统状态或权限"]}
+          ],
+          "remediationTargetId": "SPV-RULE-CONCLUSION"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-SPV-RULE-TRACEABLE-CONCLUSION",
+          "description": "写出包含来源、对象、日期窗口、N/N-1 和边界的可回查短结论",
+          "weight": 20,
+          "evidenceRequirement": "短结论同时交代两份材料、资产组合、教学组合键、三项日期、日期关系、N=10、N-1=9、跨来源一致及本案例边界",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-rule-b-conclusion",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "组合成立/到期依据表",
+                "规则配置及生效期表",
+                "资产组合",
+                "EDU-SPV-B-002",
+                "2026-02-05",
+                "2026-02-06",
+                "29991231",
+                "enableDate <= dataDate < stopDate",
+                "N=10",
+                "N-1=9",
+                "跨来源一致"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-RULE-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-SPV-RULE-SOURCE-DATE-CHAIN",
+      "description": "必须完成同一教学组合键下的来源识读、对象/日期填写和有效窗口勾稽",
+      "evidenceRequirement": "来源映射、对象启停工作纸和日期窗口三项证据同时闭合",
+      "evidenceRules": [
+        {"fieldId": "spv-rule-b-source-map", "operator": "EQUALS", "expected": "B_SOURCE_ROLE_MATCH"},
+        {"fieldId": "spv-rule-b-object-period-entry", "operator": "CONTAINS_ALL", "expected": ["subjectType=资产组合", "teachingKey=EDU-SPV-B-002", "enableDate=2026-02-05", "dataDate=2026-02-06", "stopDate=29991231"]},
+        {"fieldId": "spv-rule-b-date-window", "operator": "EQUALS", "expected": "B_ACTIVE_WINDOW_RECONCILED"}
+      ],
+      "remediationTargetId": "SPV-RULE-SOURCES-DATES"
+    },
+    {
+      "requirementId": "M-SPV-RULE-N-MINUS-1-AND-SCOPE",
+      "description": "必须把 N=10 确定性复算为 N-1=9，并在结论中保留日期关系和案例边界",
+      "evidenceRequirement": "N-1 数值为 9，短结论同时说明 enableDate <= dataDate < stopDate、N=10、N-1=9 和 ONLY_THIS_CASE",
+      "evidenceRules": [
+        {"fieldId": "spv-rule-b-n-minus-1", "operator": "NUMBER_EQUALS", "expected": 9, "tolerance": 0},
+        {"fieldId": "spv-rule-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["enableDate <= dataDate < stopDate", "N=10", "N-1=9", "SYNTHETIC_EDUCATIONAL", "ONLY_THIS_CASE"]}
+      ],
+      "remediationTargetId": "SPV-RULE-N-MINUS-1"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "SPV-RULE-SOURCES-DATES",
+      "title": "补学对象与材料来源识读",
+      "reason": "未能按材料职责识别资产组合、教学组合键和启停日期来源",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-RULE-KC-01",
+      "questionId": "SPV-RULE-Q-01"
+    },
+    {
+      "targetId": "SPV-RULE-DATE-WINDOW",
+      "title": "补学启停日期窗口勾稽",
+      "reason": "未能逐项验证 enableDate <= dataDate < stopDate 或混淆默认停用日期",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-RULE-KC-02",
+      "questionId": "SPV-RULE-Q-04"
+    },
+    {
+      "targetId": "SPV-RULE-N-MINUS-1",
+      "title": "补学 N-1 Decimal 复算",
+      "reason": "未能从 N=10 确定性复算出 N-1=9",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-RULE-KC-03",
+      "questionId": "SPV-RULE-Q-02"
+    },
+    {
+      "targetId": "SPV-RULE-WORKPAPER",
+      "title": "补填对象启停与规则参数工作纸",
+      "reason": "工作纸缺少对象类型、教学组合键、日期或规则参数字段",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-02",
+      "questionId": "SPV-RULE-Q-03"
+    },
+    {
+      "targetId": "SPV-RULE-CONCLUSION",
+      "title": "补写可回查的启停与生效期结论",
+      "reason": "短结论缺少来源、日期关系、N/N-1 或本案例边界",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "SPV-RULE-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "SPV-RULE-COMP-B",
+    "responses": {
+      "spv-rule-b-source-map": "B_SOURCE_ROLE_MATCH",
+      "spv-rule-b-date-window": "B_ACTIVE_WINDOW_RECONCILED",
+      "spv-rule-b-n-minus-1": 9,
+      "spv-rule-b-object-period-entry": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE；subjectType=资产组合；teachingKey=EDU-SPV-B-002；enableDate=2026-02-05；dataDate=2026-02-06；stopDate=29991231；ruleStatus=RULE_CONFIGURED；N=10；N-1=9。",
+      "spv-rule-b-conclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：组合成立/到期依据表与规则配置及生效期表按 teachingKey=EDU-SPV-B-002 跨来源一致；对象为资产组合，enableDate=2026-02-05、dataDate=2026-02-06、stopDate=29991231，满足 enableDate <= dataDate < stopDate；规则状态为 RULE_CONFIGURED，N=10，按 Decimal('10') - Decimal('1') 复算 N-1=9；该结论不代表生产日期、系统状态或权限。"
+    },
+    "responseMeta": {
+      "spv-rule-b-n-minus-1": {
+        "kind": "NUMBER",
+        "unit": "day",
+        "precision": 0,
+        "tolerance": 0
+      }
+    },
+    "decimalChain": [
+      {
+        "fieldId": "adjustmentDaysNMinus1",
+        "formula": "Decimal('10') - Decimal('1')",
+        "result": "9",
+        "unit": "day",
+        "precision": 0,
+        "tolerance": "0"
+      }
+    ],
+    "ruleCheck": {
+      "formula": "enableDate <= dataDate < stopDate",
+      "evaluated": "2026-02-05 <= 2026-02-06 < 29991231",
+      "result": "TRUE",
+      "nFormula": "N-1 = N - 1",
+      "nEvaluated": "10 - 1 = 9",
+      "scope": "ONLY_THIS_CASE"
+    }
+  }
+}

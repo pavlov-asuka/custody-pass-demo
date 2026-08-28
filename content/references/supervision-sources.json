@@ -1,0 +1,93 @@
+{
+  "teachingBoundary": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：本目录只登记 M01—M11 的公开可追溯定位、用途和边界；不登记绝对路径、图片、截图、图像元数据或真实敏感实体。",
+  "references": [
+    {
+      "sourceId": "M01",
+      "referenceId": "SPV-SOURCE-M01",
+      "title": "【汇总清洁版】内控监督处运营服务事项-更新版2025.06",
+      "locator": "source-pack/supervision/M01/§1.1.1-1.1.3；§2.1-2.4；§3.2.1；§4.1-4.5；§6.1-6.2",
+      "contentUse": "核心流程、合同审阅、规则公式、日期、任务、提示函、回函与归档的主要来源。",
+      "reviewNote": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 教学抽象仅保留已审计字段关系；不复制图片、截图、图像元数据、机构、账户、联系人或生产值。"
+    },
+    {
+      "sourceId": "M02",
+      "referenceId": "SPV-SOURCE-M02",
+      "title": "《证券投资基金托管业务管理办法》（证监会令【第172号】）",
+      "locator": "public-law-pack/supervision/M02/p.7-10 / 第15条、第17-23条",
+      "contentUse": "托管职责与基金合同约定的法规边界。",
+      "reviewNote": "仅作为法规边界来源；不从法规直接补造合成案例字段、系统权限或生产结论。图片与图像元数据不纳入。"
+    },
+    {
+      "sourceId": "M03",
+      "referenceId": "SPV-SOURCE-M03",
+      "title": "公开募集证券投资基金运作管理办法",
+      "locator": "public-law-pack/supervision/M03/p.10-12 / 第30-35条",
+      "contentUse": "基金运作和监督管理的法规边界。",
+      "reviewNote": "仅用于运作监督边界核对；不把法规背景写成合成案例的系统状态或规则编码。图片与图像元数据不纳入。"
+    },
+    {
+      "sourceId": "M04",
+      "referenceId": "SPV-SOURCE-M04",
+      "title": "中华人民共和国公司法（2023年修订）",
+      "locator": "public-law-pack/supervision/M04/p.1-4 / 第1-37条",
+      "contentUse": "合同主体与终止事项的法律背景边界。",
+      "reviewNote": "只作法律背景边界，不生成真实主体、产品、合同或退出事实。教学内容仍显式限定为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。"
+    },
+    {
+      "sourceId": "M05",
+      "referenceId": "SPV-SOURCE-M05",
+      "title": "《公开募集证券投资基金信息披露管理办法》",
+      "locator": "public-law-pack/supervision/M05/p.1-4 / 第1-9条；p.11-12 / 第24-28条",
+      "contentUse": "信息披露、复核审查和报告边界；本批不形成独立披露路线。",
+      "reviewNote": "主题继续 DEFER；不登记图片、截图、真实报告值或联系人。SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 仅描述本批教学范围。"
+    },
+    {
+      "sourceId": "M06",
+      "referenceId": "SPV-SOURCE-M06",
+      "title": "公开募集证券投资基金投资信用衍生品指引",
+      "locator": "public-law-pack/supervision/M06/p.1-3 / 第1-11条",
+      "contentUse": "信用衍生品监督主题的边界材料；本批 DEFER。",
+      "reviewNote": "不从边界材料补造独立路线、产品参数或生产权限；图片与图像元数据不纳入。"
+    },
+    {
+      "sourceId": "M07",
+      "referenceId": "SPV-SOURCE-M07",
+      "title": "中华人民共和国证券法（2019年修订版）",
+      "locator": "public-law-pack/supervision/M07/p.1-5 / 总则与监督管理章节",
+      "contentUse": "证券活动法律背景和监督管理边界。",
+      "reviewNote": "不把通用法律背景写成案例规则、阈值或系统事实；不登记图片及任何真实敏感实体。"
+    },
+    {
+      "sourceId": "M08",
+      "referenceId": "SPV-SOURCE-M08",
+      "title": "《公开募集开放式证券投资基金流动性风险管理规定》（证监会公告〔2017〕12号）",
+      "locator": "public-law-pack/supervision/M08/p.1-3 / 总则与流动性要求；p.8-10 / 信息披露与托管相关条款",
+      "contentUse": "流动性风险主题的边界材料；本批 DEFER。",
+      "reviewNote": "不补造流动性指标、异常处置或披露路线；图片、截图和图像元数据不纳入。"
+    },
+    {
+      "sourceId": "M09",
+      "referenceId": "SPV-SOURCE-M09",
+      "title": "《中华人民共和国证券投资基金法》",
+      "locator": "public-law-pack/supervision/M09/p.2-3 / 第1-11条；p.8 / 第36-37条",
+      "contentUse": "托管人监督基金管理人投资运作的核心法规依据。",
+      "reviewNote": "只支持监督职责边界；不生成真实机构、产品、账户、人员、权限或生产阈值。"
+    },
+    {
+      "sourceId": "M10",
+      "referenceId": "SPV-SOURCE-M10",
+      "title": "关于实施公开募集证券投资基金信息披露管理办法有关问题的规定",
+      "locator": "public-law-pack/supervision/M10/p.1-4 / 第一至九项",
+      "contentUse": "披露实施问题的边界材料；本批不形成独立披露路线。",
+      "reviewNote": "继续 DEFER，不补造报告、时点、收件人或发送事实；仅保留公开法规定位。"
+    },
+    {
+      "sourceId": "M11",
+      "referenceId": "SPV-SOURCE-M11",
+      "title": "投资监督处运营服务事项-清洁版",
+      "locator": "source-pack/supervision/M11/§1.1.1-1.1.3；§2.1-2.4；§3.2.1；§4.1-4.5；§6.1-6.2",
+      "contentUse": "独立核对流程、规则、状态、提示函、回函和归档表述；年金、保险、理财、QFII-WFOE 继续 DEFER。",
+      "reviewNote": "只用于已冻结四路线的材料边界和交叉核对；SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 案例不代表生产记录。"
+    }
+  ]
+}

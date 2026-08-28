@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FormalContentCatalog {
 
-    private static final String RELEASE = "formal/releases/CUSTODY_2026.08.11.json";
+    private static final String RELEASE = "formal/releases/CUSTODY_2026.08.12.json";
 
     private final ObjectMapper objectMapper;
     private final JsonNode release;

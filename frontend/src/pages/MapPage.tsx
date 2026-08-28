@@ -21,7 +21,7 @@ export function MapPage() {
   const navigate = useNavigate();
   const { line: lineParam } = useParams<{ line: string }>();
   const line = parseLine(lineParam);
-  const canLoadMap = line === 'ACCOUNTING' || line === 'CLEARING';
+  const canLoadMap = line === 'ACCOUNTING' || line === 'CLEARING' || line === 'SUPERVISION';
   const { data, error, loading, reload } = useAsync<MapResponse | null>(
     () => (canLoadMap && line ? getMap(line) : Promise.resolve(null)),
     [canLoadMap, line],

@@ -181,11 +181,11 @@ const workItemTitles = Object.fromEntries(
 );
 
 const worlds = {
-  mapVersion: '2026.08.1',
+  mapVersion: '2026.08.12',
   worlds: [
     { line: 'CLEARING', name: '清算学习世界', description: '学习交收、资金与证券清算的核心流程。', availability: 'OPEN', passedRequiredRoutes: 0, publishedRequiredRoutes: 7, progressPercent: 0, status: 'NOT_STARTED' },
     { line: 'ACCOUNTING', name: '核算学习世界', description: '从原始业务资料出发，建立计算、账务处理与结果验证能力。', availability: 'OPEN', passedRequiredRoutes: 0, publishedRequiredRoutes: 1, progressPercent: 0, status: 'IN_PROGRESS' },
-    { line: 'SUPERVISION', name: '监督学习世界', description: '学习投资监督、边界识别与风险报告。', availability: 'BUILDING', passedRequiredRoutes: 0, publishedRequiredRoutes: 0, progressPercent: 0, status: 'BUILDING' },
+    { line: 'SUPERVISION', name: '监督学习世界', description: '学习投资监督、边界识别与风险报告。', availability: 'OPEN', passedRequiredRoutes: 0, publishedRequiredRoutes: 4, progressPercent: 0, status: 'NOT_STARTED' },
   ],
 };
 
@@ -256,6 +256,29 @@ const clearingMapResponse = {
   progress: { passedRequiredRoutes: 0, publishedRequiredRoutes: 7, percent: 0 },
 };
 
+const supervisionMapResponse = {
+  line: 'SUPERVISION',
+  name: '监督学习世界',
+  mapVersion: '2026.08.12',
+  regions: [{
+    regionId: 'SPV-REGION-CORE',
+    name: '投资监督日常作业',
+    description: '从合同条款与监督规则可实现性进入对象启停、每日任务，再完成结果确认与归档。',
+    modules: [{
+      moduleId: 'SPV-MODULE-LIFECYCLE',
+      name: '监督规则与结果闭环',
+      nodes: [
+        { nodeId: 'SPV-NODE-CONTRACT-001', nodeType: 'ROUTE', routeId: 'SPV-CONTRACT-001', title: '合同条款与监督规则可实现性', pathType: 'REQUIRED', position: 'CENTER', state: 'NOT_STARTED', locked: false, contentAvailability: 'PUBLISHED', enterable: true, completedSteps: 0, totalSteps: 4, prerequisiteNodeIds: [] },
+        { nodeId: 'SPV-NODE-RULE-002', nodeType: 'ROUTE', routeId: 'SPV-RULE-002', title: '监督对象启停与规则生效期', pathType: 'REQUIRED', position: 'CENTER', state: 'LOCKED', locked: true, contentAvailability: 'PUBLISHED', enterable: false, completedSteps: 0, totalSteps: 4, prerequisiteNodeIds: ['SPV-NODE-CONTRACT-001'] },
+        { nodeId: 'SPV-NODE-TASK-003', nodeType: 'ROUTE', routeId: 'SPV-TASK-003', title: '每日数据、任务与结果分类', pathType: 'REQUIRED', position: 'CENTER', state: 'LOCKED', locked: true, contentAvailability: 'PUBLISHED', enterable: false, completedSteps: 0, totalSteps: 4, prerequisiteNodeIds: ['SPV-NODE-RULE-002'] },
+        { nodeId: 'SPV-NODE-CLOSE-004', nodeType: 'ROUTE', routeId: 'SPV-CLOSE-004', title: '结果确认、期限豁免、提示函、回函与归档闭环', pathType: 'REQUIRED', position: 'CENTER', state: 'LOCKED', locked: true, contentAvailability: 'PUBLISHED', enterable: false, completedSteps: 0, totalSteps: 4, prerequisiteNodeIds: ['SPV-NODE-TASK-003'] },
+      ],
+    }],
+  }],
+  recommendedNodeId: 'SPV-NODE-CONTRACT-001',
+  progress: { passedRequiredRoutes: 0, publishedRequiredRoutes: 4, percent: 0 },
+};
+
 async function run() {
   await mkdir(screenshotDir, { recursive: true });
   await waitForServer();
@@ -310,6 +333,10 @@ async function run() {
     if (pathname === '/api/lines/CLEARING/map') {
       mapRequests.push(pathname);
       return json(clearingMapResponse);
+    }
+    if (pathname === '/api/lines/SUPERVISION/map') {
+      mapRequests.push(pathname);
+      return json(supervisionMapResponse);
     }
     if (pathname === '/api/lines/ACCOUNTING/map') {
       mapRequests.push(pathname);
@@ -460,9 +487,10 @@ async function run() {
   await page.getByTestId('world-grid').waitFor();
   assert.equal(await page.locator('.world-card').count(), 3);
   assert.equal(await page.locator('.world-card', { hasText: '清算学习世界' }).locator('button', { hasText: '进入学习地图' }).count(), 1);
-  assert.equal(await page.locator('.world-card', { hasText: '监督学习世界' }).locator('button', { hasText: '进入学习地图' }).count(), 0);
+  assert.equal(await page.locator('.world-card', { hasText: '监督学习世界' }).locator('button', { hasText: '进入学习地图' }).count(), 1);
   assert.equal(await page.getByText('0 / 7 条必修路线', { exact: true }).count(), 1);
-  assert.equal(await page.getByText('内容建设中', { exact: true }).count(), 2);
+  assert.equal(await page.getByText('0 / 4 条必修路线', { exact: true }).count(), 1);
+  assert.equal(await page.getByText('内容建设中', { exact: true }).count(), 0);
   await settle();
   await page.screenshot({ path: path.join(screenshotDir, screenshotName('02-worlds.png')) });
 
@@ -490,8 +518,11 @@ async function run() {
   assert.ok(page.url().endsWith('/map/clearing'), '清算学习页应返回清算地图。');
 
   await navigateTo('/map/supervision');
-  await page.getByText('监督内容建设中', { exact: true }).waitFor();
-  assert.ok(!mapRequests.includes('/api/lines/SUPERVISION/map'), '监督建设中不得请求地图。');
+  await page.getByTestId('learning-map').first().waitFor();
+  assert.equal(await page.locator('.map-node').count(), 4);
+  assert.equal(await page.locator('.map-node:enabled').count(), 1);
+  assert.equal(await page.locator('button.map-node[aria-label*="合同条款与监督规则可实现性"]:enabled').count(), 1);
+  assert.ok(mapRequests.includes('/api/lines/SUPERVISION/map'), '监督地图必须请求 SUPERVISION 条线。');
   await navigateTo('/map/not-a-line');
   await page.getByText('学习地图不可用', { exact: true }).waitFor();
 

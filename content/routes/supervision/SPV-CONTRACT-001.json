@@ -1,0 +1,374 @@
+{
+  "routeId": "SPV-CONTRACT-001",
+  "contentVersion": "1.0.0",
+  "line": "SUPERVISION",
+  "title": "合同条款与监督规则可实现性",
+  "summary": "从合成《投资监督事项表条款页》和《母规则参数页》读取合同版本、规则类型、分子/分母与比例下限，用 Decimal 复算比例，并在同一合同版本下完成跨来源勾稽和简短结论。",
+  "estimatedMinutes": 60,
+  "objectives": [
+    "从合成《投资监督事项表条款页》定位教学键、合同版本、合同审阅日期、规则类型以及分子和分母指标编码",
+    "从合成《母规则参数页》读取分子、分母和比例下限，按 B0100001 = B0100002 / B0100003 用 Decimal 复算本案例比例",
+    "把规则类型、分子/分母、比例下限、合同版本和公式关系填入规则参数工作纸；只使用本案例材料，不补造生产权限或其他规则",
+    "按合同版本和字段关系跨来源勾稽，确认本案例 B0100001 < CS_BLXX 后写出可回查来源的简短结论"
+  ],
+  "steps": {
+    "KNOWLEDGE_CARD": {
+      "cards": [
+        {
+          "cardId": "SPV-CONTRACT-KC-01",
+          "type": "CATEGORIES",
+          "title": "先读条款页，再锁定合同版本",
+          "conclusion": "合同审阅先建立本案例的教学键和合同版本；条款页的规则类型、分子/分母关系是后续参数核对的业务来源。",
+          "items": [
+            "先从合成《投资监督事项表条款页》读取教学键、合同版本和合同审阅日期",
+            "再从条款页定位规则类型、分子指标编码、分母指标编码及 B0100001 < CS_BLXX 的关系",
+            "教学键和合同版本只用于 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE 的案例识别，不代表真实产品或生产编号",
+            "托管监督动作只落在材料可核对的职责边界内，不把条款页名称当成系统权限事实"
+          ]
+        },
+        {
+          "cardId": "SPV-CONTRACT-KC-02",
+          "type": "FLOW",
+          "title": "分子、分母和比例下限要分别取数",
+          "conclusion": "先从母规则参数页取得 B0100002、B0100003 和 CS_BLXX，再把分子除以分母；比例结果必须回到条款页的关系。",
+          "items": [
+            "B0100002 是比例公式的分子合计，B0100003 是分母合计，不能互换位置",
+            "B0100001 = B0100002 / B0100003；本案例比例按四位小数保存",
+            "CS_BLXX 是本案例母规则参数页给出的比例下限，值为 5%，不把通用法规阈值当成案例答案",
+            "取数时同时保留合同版本和字段编码，避免把其他版本参数混入本案例"
+          ]
+        },
+        {
+          "cardId": "SPV-CONTRACT-KC-03",
+          "type": "KEY_POINT",
+          "title": "可实现性要经过关系和来源勾稽",
+          "conclusion": "规则参数只有在合同版本、规则类型、分子/分母、比例下限和复算关系均可回查时，才可形成本案例的规则参数输入结论。",
+          "items": [
+            "合同版本必须在条款页和母规则参数页之间一致",
+            "规则类型、分子编码和分母编码要与两份材料的字段含义对应",
+            "用 Decimal 复算 4 / 100 = 4% 或 3 / 100 = 3%，并保留四位小数结果",
+            "本案例只判断 B0100001 < CS_BLXX 的材料关系，不推断真实系统编码、权限或其他阈值"
+          ]
+        }
+      ]
+    },
+    "DEMONSTRATION": {
+      "scenario": {
+        "role": "投资监督条款审阅岗",
+        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：投资监督合同条款案例 A",
+        "date": "2026-06-15",
+        "fixture": "SPV-CONTRACT-DEMO-A",
+        "facts": [
+          "教学键为 EDU-SPV-A-001，合同版本为 EDU-CONTRACT-A-2026-06，合同审阅日期为 2026-06-01，数据日期为 2026-06-15；以上均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+          "条款页给出规则类型 INVESTMENT_RATIO、分子指标编码 B0100002、分母指标编码 B0100003，以及关系 B0100001 < CS_BLXX。",
+          "母规则参数页给出 B0100002=4、B0100003=100、CS_BLXX=5%；按本案例计算 4/100=4%。",
+          "合同版本、规则类型、分子/分母编码和比例下限在两份合成材料之间一致；本示范不代表生产系统配置或权限。"
+        ]
+      },
+      "steps": [
+        {
+          "order": 1,
+          "action": "从合成《投资监督事项表条款页》读取教学键 EDU-SPV-A-001、合同版本 EDU-CONTRACT-A-2026-06 和合同审阅日期 2026-06-01",
+          "reason": "先锁定案例身份和合同版本，后续参数才能回到同一条款来源。"
+        },
+        {
+          "order": 2,
+          "action": "从条款页定位 INVESTMENT_RATIO、B0100002、B0100003 以及 B0100001 < CS_BLXX，并从合成《母规则参数页》定位对应数值字段",
+          "reason": "规则类型和指标编码来自条款关系；分子、分母和比例下限的数值要从参数页独立读取。"
+        },
+        {
+          "order": 3,
+          "action": "用 Decimal 计算 B0100001 = B0100002 / B0100003 = 4 / 100 = 0.0400，并将显示比例记录为 4%；同时读取 CS_BLXX=5%",
+          "reason": "分子、分母和精度明确后，比例才可复算，不能只抄录显示百分比。"
+        },
+        {
+          "order": 4,
+          "action": "在规则参数工作纸填入合同版本、规则类型、B0100002、B0100003、CS_BLXX 和公式 B0100001 = B0100002 / B0100003",
+          "reason": "工作纸要保留字段来源和公式关系，便于复核；不填写未由材料支持的生产编码或权限。"
+        },
+        {
+          "order": 5,
+          "action": "按合同版本和字段关系跨两份材料勾稽，确认 0.0400 < 0.0500，结论为本案例规则参数关系可形成输入记录",
+          "reason": "可实现性需要来源、字段、计算和阈值关系共同成立；该结论仅适用于本案例。"
+        }
+      ],
+      "summary": "条款身份 → 指标编码 → Decimal复算 → 参数工作纸 → 跨来源与比例下限勾稽"
+    },
+    "BASIC_PRACTICE": {
+      "questions": [
+        {
+          "questionId": "SPV-CONTRACT-Q-01",
+          "type": "FIELD_MAP",
+          "prompt": "把合同条款与母规则参数中的字段映射到正确来源。",
+          "fieldMappings": [
+            {
+              "fieldId": "contract-source",
+              "label": "教学键、合同版本和合同审阅日期主来源",
+              "source": "合成《投资监督事项表条款页》",
+              "options": [
+                {"optionId": "CLAUSE_PAGE_IDENTITY", "text": "投资监督事项表条款页"},
+                {"optionId": "PARAMETER_PAGE_IDENTITY", "text": "母规则参数页"}
+              ]
+            },
+            {
+              "fieldId": "rule-relation-source",
+              "label": "规则类型、分子/分母编码和 B0100001 < CS_BLXX 的关系主来源",
+              "source": "合成《投资监督事项表条款页》",
+              "options": [
+                {"optionId": "CLAUSE_PAGE_RULE_RELATION", "text": "投资监督事项表条款页"},
+                {"optionId": "PARAMETER_PAGE_RULE_RELATION", "text": "母规则参数页"}
+              ]
+            },
+            {
+              "fieldId": "ratio-parameter-source",
+              "label": "B0100002、B0100003 和 CS_BLXX 的数值主来源",
+              "source": "合成《母规则参数页》",
+              "options": [
+                {"optionId": "PARAMETER_PAGE_VALUES", "text": "母规则参数页"},
+                {"optionId": "CLAUSE_PAGE_VALUES", "text": "投资监督事项表条款页"}
+              ]
+            }
+          ],
+          "answer": ["CLAUSE_PAGE_IDENTITY", "CLAUSE_PAGE_RULE_RELATION", "PARAMETER_PAGE_VALUES"],
+          "explanation": "条款页建立案例身份并承载规则关系；母规则参数页提供分子、分母和比例下限的数值。",
+          "hints": ["先判断字段是在说明合同关系，还是在提供用于计算的参数数值。"]
+        },
+        {
+          "questionId": "SPV-CONTRACT-Q-02",
+          "type": "CALCULATION",
+          "prompt": "按案例 A 的母规则参数页复算比例，结果保留四位小数。",
+          "calculation": {
+            "fields": [
+              {
+                "fieldId": "ratio-value",
+                "label": "B0100001 实际比例",
+                "formula": "B0100002 / B0100003 = 4 / 100",
+                "placeholder": "输入比例小数",
+                "unit": "ratio",
+                "precision": 4,
+                "tolerance": 0
+              },
+              {
+                "fieldId": "ratio-percent",
+                "label": "实际比例显示值",
+                "formula": "0.0400 × 100",
+                "placeholder": "输入百分比数值",
+                "unit": "%",
+                "precision": 0,
+                "tolerance": 0
+              }
+            ]
+          },
+          "answer": ["0.0400", "4"],
+          "explanation": "4 ÷ 100 = 0.0400，显示为 4%；计算仅使用本案例参数。",
+          "hints": ["先用分子除以分母保存四位小数，再将小数比例换算为百分比显示。"]
+        },
+        {
+          "questionId": "SPV-CONTRACT-Q-03",
+          "type": "LEDGER_ENTRY",
+          "prompt": "把案例 A 的条款关系和参数填入规则参数工作纸，不填写生产系统权限或未获支持的规则。",
+          "ledgerEntries": [
+            {
+              "entryId": "contract-version",
+              "direction": "来源标识",
+              "label": "合同版本",
+              "amount": "EDU-CONTRACT-A-2026-06",
+              "placeholder": "输入合同版本"
+            },
+            {
+              "entryId": "rule-type",
+              "direction": "规则类型",
+              "label": "监督规则类型",
+              "amount": "INVESTMENT_RATIO",
+              "placeholder": "输入规则类型"
+            },
+            {
+              "entryId": "ratio-fields",
+              "direction": "字段关系",
+              "label": "分子 / 分母 / 比例下限",
+              "amount": "B0100002 / B0100003 / CS_BLXX=5%",
+              "placeholder": "输入字段关系"
+            }
+          ],
+          "answer": ["EDU-CONTRACT-A-2026-06", "INVESTMENT_RATIO", "B0100002", "B0100003", "CS_BLXX=5%"],
+          "explanation": "规则参数工作纸保留案例合同版本、规则类型、分子/分母编码和本案例比例下限。",
+          "hints": ["把合同版本、规则类型和三个比例字段分别写回工作纸，保持字段编码原样。"]
+        },
+        {
+          "questionId": "SPV-CONTRACT-Q-04",
+          "type": "RECONCILIATION",
+          "prompt": "按条款页与母规则参数页完成案例 A 的跨来源勾稽。",
+          "reconciliation": {
+            "fields": [
+              {
+                "fieldId": "version-match",
+                "label": "合同版本对应",
+                "kind": "SELECT",
+                "formula": "EDU-CONTRACT-A-2026-06 在两份材料中一致",
+                "placeholder": "选择合同版本结论",
+                "options": [
+                  {"optionId": "VERSION_MATCH", "text": "合同版本一致"},
+                  {"optionId": "VERSION_MISMATCH", "text": "合同版本不一致"}
+                ]
+              },
+              {
+                "fieldId": "ratio-relation",
+                "label": "比例与下限关系",
+                "kind": "SELECT",
+                "formula": "0.0400 < 0.0500",
+                "placeholder": "选择比例关系",
+                "options": [
+                  {"optionId": "RATIO_BELOW_CASE_BOUND", "text": "实际比例低于本案例比例下限"},
+                  {"optionId": "RATIO_NOT_BELOW_CASE_BOUND", "text": "实际比例不低于本案例比例下限"}
+                ]
+              },
+              {
+                "fieldId": "reconciliation-result",
+                "label": "跨来源结论",
+                "kind": "SELECT",
+                "formula": "合同版本、字段关系一致且 B0100001 < CS_BLXX",
+                "placeholder": "选择勾稽结论",
+                "options": [
+                  {"optionId": "PARAMETERS_MATCH_AND_READY", "text": "来源一致，比例关系可形成案例参数输入"},
+                  {"optionId": "PARAMETERS_NOT_READY", "text": "仍需补充或核对材料"}
+                ]
+              }
+            ]
+          },
+          "answer": ["VERSION_MATCH", "RATIO_BELOW_CASE_BOUND", "PARAMETERS_MATCH_AND_READY"],
+          "explanation": "两份材料合同版本一致，0.0400 小于 0.0500，且字段关系与公式可以相互回查。",
+          "hints": ["先勾稽版本，再检查比例和下限，最后给出是否可以形成本案例参数输入的结论。"]
+        },
+        {
+          "questionId": "SPV-CONTRACT-Q-05",
+          "type": "SHORT_TEXT",
+          "prompt": "用一句话写出案例 A 的可追溯规则参数结论。",
+          "textInput": {
+            "label": "条款可实现性结论",
+            "placeholder": "写明合同版本、来源字段、Decimal比例、5%下限和跨来源勾稽结果"
+          },
+          "answer": ["EDU-CONTRACT-A-2026-06", "投资监督事项表条款页", "母规则参数页", "B0100002", "B0100003", "Decimal", "4/100", "4%", "CS_BLXX=5%", "跨来源一致"],
+          "explanation": "短结论应能回查合同版本、两份来源、分子/分母、Decimal复算和本案例比例下限。",
+          "hints": ["按合同版本→条款页/参数页→分子分母→Decimal复算→5%下限→勾稽结果组织一句话。"]
+        }
+      ]
+    },
+    "COMPREHENSIVE_PRACTICE": {
+      "scenario": {
+        "role": "投资监督条款审阅岗",
+        "product": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：投资监督合同条款案例 B",
+        "date": "2026-07-18",
+        "purpose": "使用两份合成正常业务资料完成来源识读、合同版本与指标字段提取、Decimal 比例复算、规则参数工作纸填写、跨来源勾稽和一条可回查结论；不代表生产系统事实。"
+      },
+      "sourceMaterials": [
+        {
+          "materialId": "SPV-CONTRACT-B-CLAUSE",
+          "title": "合成《投资监督事项表条款页》—案例 B",
+          "kind": "INSTRUCTION",
+          "description": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。该条款页提供教学键、合同版本、审阅日期、规则类型、分子/分母编码及条款关系；只用于本案例来源识读。",
+          "fields": [
+            {"fieldId": "teaching_key", "label": "教学键", "value": "EDU-SPV-B-002"},
+            {"fieldId": "contract_version", "label": "合同版本", "value": "EDU-CONTRACT-B-2026-07"},
+            {"fieldId": "contract_review_date", "label": "合同审阅日期", "value": "2026-07-03"},
+            {"fieldId": "rule_type", "label": "规则类型", "value": "INVESTMENT_RATIO"},
+            {"fieldId": "numerator_code", "label": "分子指标编码", "value": "B0100002"},
+            {"fieldId": "denominator_code", "label": "分母指标编码", "value": "B0100003"},
+            {"fieldId": "clause_relation", "label": "条款关系", "value": "B0100001 < CS_BLXX"},
+            {"fieldId": "synthetic_marker", "label": "案例标记", "value": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"}
+          ]
+        },
+        {
+          "materialId": "SPV-CONTRACT-B-PARAM",
+          "title": "合成《母规则参数页》—案例 B",
+          "kind": "PARAMETER",
+          "description": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。该参数页提供同一合同版本下的分子、分母和本案例比例下限；数值只用于本案例 Decimal 复算。",
+          "fields": [
+            {"fieldId": "contract_version", "label": "合同版本", "value": "EDU-CONTRACT-B-2026-07"},
+            {"fieldId": "data_date", "label": "数据日期", "value": "2026-07-18"},
+            {"fieldId": "numerator_code", "label": "分子指标编码", "value": "B0100002"},
+            {"fieldId": "denominator_code", "label": "分母指标编码", "value": "B0100003"},
+            {"fieldId": "numerator_value", "label": "B0100002 分子合计", "value": "3", "unit": "case-unit"},
+            {"fieldId": "denominator_value", "label": "B0100003 分母合计", "value": "100", "unit": "case-unit"},
+            {"fieldId": "lower_bound_code", "label": "比例下限编码", "value": "CS_BLXX"},
+            {"fieldId": "lower_bound_value", "label": "比例下限", "value": "5%", "unit": "ratio"},
+            {"fieldId": "ratio_scale", "label": "比例保存精度", "value": "4位小数"},
+            {"fieldId": "synthetic_marker", "label": "案例标记", "value": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"}
+          ]
+        }
+      ],
+      "workItems": [
+        {
+          "workItemId": "spv-contract-b-source-map",
+          "type": "FIELD_MAP",
+          "title": "定位条款与参数来源",
+          "instruction": "从两份合成材料中选择能共同承载 EDU-CONTRACT-B-2026-07、INVESTMENT_RATIO、B0100002/B0100003 及数值参数的来源关系。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择来源关系",
+            "options": [
+              {"optionId": "B_CLAUSE_AND_PARAM_MATCH", "text": "条款页提供合同版本、规则类型、分子/分母关系；母规则参数页提供分子、分母和 CS_BLXX 数值，并按合同版本交叉核对"},
+              {"optionId": "B_PARAM_ONLY", "text": "只读母规则参数页，忽略条款页合同版本和指标关系"},
+              {"optionId": "B_CLAUSE_ONLY", "text": "只读条款页，不读取母规则参数页数值"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-contract-b-ratio",
+          "type": "CALCULATION",
+          "title": "用 Decimal 复算实际比例",
+          "instruction": "从母规则参数页读取 B0100002=3、B0100003=100，按 B0100001 = B0100002 / B0100003 用 Decimal 复算实际比例，保留四位小数。",
+          "response": {"kind": "NUMBER", "placeholder": "输入 B0100001 比例小数", "unit": "ratio", "precision": 4}
+        },
+        {
+          "workItemId": "spv-contract-b-parameter-entry",
+          "type": "LEDGER_ENTRY",
+          "title": "填写规则参数工作纸",
+          "instruction": "将两份材料交叉核对后的合同版本、规则类型、分子编码、分母编码和 CS_BLXX=5% 填入规则参数工作纸；只写本案例字段，不写生产权限或其他阈值。",
+          "response": {"kind": "TEXT", "placeholder": "按合同版本/规则类型/分子/分母/下限填写工作纸"}
+        },
+        {
+          "workItemId": "spv-contract-b-cross-source",
+          "type": "RECONCILIATION",
+          "title": "完成跨来源比例勾稽",
+          "instruction": "核对两份材料的合同版本、规则类型、分子/分母编码和 CS_BLXX，并确认复算的 0.0300 低于 0.0500。",
+          "response": {
+            "kind": "SELECT",
+            "placeholder": "选择跨来源勾稽结论",
+            "options": [
+              {"optionId": "B_RATIO_BELOW_CASE_BOUND_AND_SOURCES_MATCH", "text": "合同版本和字段关系一致，3/100=3%低于本案例5%比例下限"},
+              {"optionId": "B_SOURCE_OR_RATIO_UNRESOLVED", "text": "来源或比例关系仍未闭合"}
+            ]
+          }
+        },
+        {
+          "workItemId": "spv-contract-b-conclusion",
+          "type": "SHORT_TEXT",
+          "title": "写出可回查的条款结论",
+          "instruction": "用一句短结论写明合同版本、两份来源、分子/分母、Decimal 复算、CS_BLXX=5%及跨来源勾稽结果；结论只适用于 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+          "response": {"kind": "TEXT", "placeholder": "输入一条包含来源、字段、公式、比例和勾稽结果的短结论"}
+        }
+      ],
+      "submissionNote": "提交前检查：条款页与母规则参数页均已读取；合同版本为 EDU-CONTRACT-B-2026-07；B0100002=3、B0100003=100；Decimal 复算为 0.0300（3%）；CS_BLXX=5%；并已按 B0100001 < CS_BLXX 完成跨来源勾稽。以上内容均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE，不代表生产规则、系统状态或权限。"
+    }
+  },
+  "references": [
+    {
+      "referenceId": "SPV-CONTRACT-REF-CLAUSE",
+      "title": "合同条款与监督事项字段关系",
+      "source": "M01 §2.2、§2.3、§4.2.1—4.2.2；M11 §2.2、§4.2",
+      "usage": "支持合同审阅、规则类型、分子/分母指标关系、比例下限和调整期字段的材料抽象；只把本路线冻结的比例关系用于本案例。"
+    },
+    {
+      "referenceId": "SPV-CONTRACT-REF-RATIO",
+      "title": "比例公式与案例参数读取",
+      "source": "M01 §4.2.1—4.2.2；M11 §4.2",
+      "usage": "支持 B0100001 = B0100002 / B0100003、B0100001 < CS_BLXX、CS_BLXX=5% 以及本案例 Decimal 复算；不把通用法规阈值当成案例答案。"
+    },
+    {
+      "referenceId": "SPV-CONTRACT-REF-CUSTODY-BOUNDARY",
+      "title": "托管监督职责边界",
+      "source": "M09 p.8 / 第36—37条",
+      "usage": "仅用于说明托管人监督基金管理人投资运作的职责边界；不从该定位推断本案例规则编码、生产权限或系统状态。"
+    }
+  ]
+}

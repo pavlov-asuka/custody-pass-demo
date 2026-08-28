@@ -1,0 +1,354 @@
+{
+  "routeId": "SPV-CONTRACT-001",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-SPV-CONTRACT-SOURCE-ROLES",
+          "description": "区分投资监督事项表条款页与母规则参数页的字段职责",
+          "weight": 13,
+          "evidenceRequirement": "能把合同版本和规则关系定位到条款页，把分子、分母和 CS_BLXX 数值定位到母规则参数页，并按版本交叉核对",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-contract-b-source-map",
+              "operator": "EQUALS",
+              "expected": "B_CLAUSE_AND_PARAM_MATCH"
+            },
+            {
+              "fieldId": "spv-contract-b-parameter-entry",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "EDU-CONTRACT-B-2026-07",
+                "INVESTMENT_RATIO",
+                "B0100002",
+                "B0100003",
+                "CS_BLXX=5%"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-CONTRACT-SOURCES"
+        },
+        {
+          "criterionId": "C-SPV-CONTRACT-RATIO-MEANING",
+          "description": "理解分子、分母、实际比例与本案例比例下限的关系",
+          "weight": 12,
+          "evidenceRequirement": "知道 B0100002 是分子、B0100003 是分母，能用 B0100001 = B0100002 / B0100003 得到实际比例，并保留 CS_BLXX=5%",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-contract-b-ratio",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.03,
+              "tolerance": 0
+            },
+            {
+              "fieldId": "spv-contract-b-conclusion",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "B0100002",
+                "B0100003",
+                "B0100001 = B0100002 / B0100003",
+                "0.0300",
+                "CS_BLXX=5%"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-CONTRACT-RATIO"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-SPV-CONTRACT-FIELD-READ",
+          "description": "按来源读取合同身份、关系和参数字段",
+          "weight": 10,
+          "evidenceRequirement": "来源选择正确，且规则参数工作纸保留合同版本、规则类型、分子/分母和比例下限",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-contract-b-source-map",
+              "operator": "EQUALS",
+              "expected": "B_CLAUSE_AND_PARAM_MATCH"
+            },
+            {
+              "fieldId": "spv-contract-b-parameter-entry",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "条款页",
+                "母规则参数页",
+                "EDU-CONTRACT-B-2026-07",
+                "B0100002",
+                "B0100003"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-CONTRACT-SOURCES"
+        },
+        {
+          "criterionId": "P-SPV-CONTRACT-DECIMAL",
+          "description": "按固定分子/分母用 Decimal 完成比例复算",
+          "weight": 10,
+          "evidenceRequirement": "使用综合 B 的 3 和 100 计算出 0.0300，并保持 ratio 四位小数",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-contract-b-ratio",
+              "operator": "NUMBER_EQUALS",
+              "expected": 0.03,
+              "tolerance": 0
+            }
+          ],
+          "remediationTargetId": "SPV-CONTRACT-RATIO"
+        },
+        {
+          "criterionId": "P-SPV-CONTRACT-WORKPAPER",
+          "description": "将条款关系和规则参数落到结构化工作纸",
+          "weight": 10,
+          "evidenceRequirement": "工作纸同时记录合同版本、规则类型、分子、分母和 CS_BLXX=5%，并保留字段关系",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-contract-b-parameter-entry",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "EDU-CONTRACT-B-2026-07",
+                "INVESTMENT_RATIO",
+                "B0100002",
+                "B0100003",
+                "CS_BLXX=5%"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-CONTRACT-PARAMETERS"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-SPV-CONTRACT-CROSS-SOURCE",
+          "description": "控制合同版本和条款/参数来源错配",
+          "weight": 13,
+          "evidenceRequirement": "两份材料的合同版本、规则类型、分子/分母编码和比例下限可相互核对，不能只读单一来源",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-contract-b-cross-source",
+              "operator": "EQUALS",
+              "expected": "B_RATIO_BELOW_CASE_BOUND_AND_SOURCES_MATCH"
+            },
+            {
+              "fieldId": "spv-contract-b-parameter-entry",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "条款页",
+                "母规则参数页",
+                "合同版本",
+                "跨来源"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-CONTRACT-RECONCILIATION"
+        },
+        {
+          "criterionId": "R-SPV-CONTRACT-BOUNDARY",
+          "description": "控制把本案例关系误写成通用法规阈值或生产系统事实",
+          "weight": 12,
+          "evidenceRequirement": "结论明确以本案例 CS_BLXX=5% 和 B0100001 < CS_BLXX 为依据，不延伸到未获材料支持的编码、权限或系统状态",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-contract-b-conclusion",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "本案例",
+                "CS_BLXX=5%",
+                "B0100001 < CS_BLXX",
+                "不代表生产"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-CONTRACT-CONCLUSION"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-SPV-CONTRACT-TRACEABLE",
+          "description": "形成一条字段、公式、阈值和勾稽结果完整的短结论",
+          "weight": 20,
+          "evidenceRequirement": "短结论能回查合同版本、两份来源、分子/分母、Decimal 结果、5%下限及跨来源结论",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-contract-b-conclusion",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "EDU-CONTRACT-B-2026-07",
+                "投资监督事项表条款页",
+                "母规则参数页",
+                "B0100002",
+                "B0100003",
+                "Decimal",
+                "3/100",
+                "0.0300",
+                "3%",
+                "CS_BLXX=5%",
+                "跨来源一致"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-CONTRACT-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-SPV-CONTRACT-SOURCE-CHAIN",
+      "description": "合同条款与母规则参数必须形成同一版本的来源链",
+      "evidenceRequirement": "来源选择覆盖条款页和参数页，规则参数工作纸保留合同版本、规则类型、分子/分母和比例下限",
+      "evidenceRules": [
+        {
+          "fieldId": "spv-contract-b-source-map",
+          "operator": "EQUALS",
+          "expected": "B_CLAUSE_AND_PARAM_MATCH"
+        },
+        {
+          "fieldId": "spv-contract-b-parameter-entry",
+          "operator": "CONTAINS_ALL",
+          "expected": [
+            "EDU-CONTRACT-B-2026-07",
+            "INVESTMENT_RATIO",
+            "B0100002",
+            "B0100003",
+            "CS_BLXX=5%"
+          ]
+        }
+      ],
+      "remediationTargetId": "SPV-CONTRACT-PARAMETERS"
+    },
+    {
+      "requirementId": "M-SPV-CONTRACT-RATIO-RECONCILED",
+      "description": "比例复算、比例下限关系和跨来源勾稽必须同时闭合",
+      "evidenceRequirement": "3/100=0.0300（3%），CS_BLXX=5%，且两份材料字段关系一致并形成本案例结论",
+      "evidenceRules": [
+        {
+          "fieldId": "spv-contract-b-ratio",
+          "operator": "NUMBER_EQUALS",
+          "expected": 0.03,
+          "tolerance": 0
+        },
+        {
+          "fieldId": "spv-contract-b-cross-source",
+          "operator": "EQUALS",
+          "expected": "B_RATIO_BELOW_CASE_BOUND_AND_SOURCES_MATCH"
+        },
+        {
+          "fieldId": "spv-contract-b-conclusion",
+          "operator": "CONTAINS_ALL",
+          "expected": [
+            "3/100",
+            "0.0300",
+            "3%",
+            "CS_BLXX=5%",
+            "B0100001 < CS_BLXX",
+            "跨来源一致"
+          ]
+        }
+      ],
+      "remediationTargetId": "SPV-CONTRACT-RECONCILIATION"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "SPV-CONTRACT-SOURCES",
+      "title": "补学条款页与参数页来源识读",
+      "reason": "未能区分合同版本/规则关系来源与分子、分母、比例下限数值来源",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-CONTRACT-KC-01",
+      "questionId": "SPV-CONTRACT-Q-01"
+    },
+    {
+      "targetId": "SPV-CONTRACT-RATIO",
+      "title": "补学分子分母与 Decimal 比例复算",
+      "reason": "未能按 B0100002 / B0100003 用 Decimal 复算本案例比例",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "SPV-CONTRACT-Q-02"
+    },
+    {
+      "targetId": "SPV-CONTRACT-PARAMETERS",
+      "title": "补填规则参数工作纸",
+      "reason": "工作纸缺少合同版本、规则类型、分子/分母或 CS_BLXX",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-CONTRACT-KC-03",
+      "questionId": "SPV-CONTRACT-Q-03"
+    },
+    {
+      "targetId": "SPV-CONTRACT-RECONCILIATION",
+      "title": "补学跨来源比例勾稽",
+      "reason": "未同时核对合同版本、字段关系、比例与本案例下限",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "SPV-CONTRACT-Q-04"
+    },
+    {
+      "targetId": "SPV-CONTRACT-CONCLUSION",
+      "title": "补写可回查条款结论",
+      "reason": "短结论缺少来源、字段、公式、比例、阈值关系或案例边界",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "SPV-CONTRACT-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "SPV-CONTRACT-COMP-B",
+    "responses": {
+      "spv-contract-b-source-map": "B_CLAUSE_AND_PARAM_MATCH",
+      "spv-contract-b-ratio": 0.03,
+      "spv-contract-b-parameter-entry": "合同版本 EDU-CONTRACT-B-2026-07；规则类型 INVESTMENT_RATIO；分子 B0100002；分母 B0100003；比例下限 CS_BLXX=5%；来源为投资监督事项表条款页与母规则参数页。",
+      "spv-contract-b-cross-source": "B_RATIO_BELOW_CASE_BOUND_AND_SOURCES_MATCH",
+      "spv-contract-b-conclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：投资监督事项表条款页与母规则参数页的合同版本 EDU-CONTRACT-B-2026-07、分子 B0100002、分母 B0100003 和 CS_BLXX=5% 跨来源一致；按 B0100001 = B0100002 / B0100003 用 Decimal 复算 3/100=0.0300（3%），确认 B0100001 < CS_BLXX；该结论不代表生产规则、系统状态或权限。"
+    },
+    "responseMeta": {
+      "spv-contract-b-ratio": {
+        "kind": "NUMBER",
+        "unit": "ratio",
+        "precision": 4
+      }
+    },
+    "decimalChain": [
+      {
+        "fieldId": "ratio",
+        "formula": "Decimal('3') / Decimal('100')",
+        "result": "0.0300",
+        "unit": "ratio",
+        "precision": 4,
+        "tolerance": "0"
+      },
+      {
+        "fieldId": "ratio-percent",
+        "formula": "Decimal('0.0300') * Decimal('100')",
+        "result": "3",
+        "unit": "%",
+        "precision": 0,
+        "tolerance": "0"
+      }
+    ],
+    "ruleCheck": {
+      "formula": "B0100001 = B0100002 / B0100003",
+      "evaluated": "3 / 100 = 0.0300",
+      "threshold": "B0100001 < CS_BLXX",
+      "evaluatedThreshold": "0.0300 < 0.0500",
+      "result": "TRUE",
+      "scope": "ONLY_THIS_CASE"
+    }
+  }
+}

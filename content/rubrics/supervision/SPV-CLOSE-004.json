@@ -1,0 +1,234 @@
+{
+  "routeId": "SPV-CLOSE-004",
+  "rubricVersion": "1.0.0",
+  "totalScore": 100,
+  "passScore": 75,
+  "dimensions": [
+    {
+      "dimension": "CONCEPT",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "C-SPV-CLOSE-SOURCE-ROLES",
+          "description": "区分结果确认/豁免工作表与提示函—回函—归档登记表的字段职责",
+          "weight": 13,
+          "evidenceRequirement": "能将结果/规则键及日期定位到工作表，将分支、回函、附件和归档定位到登记表，并按键对应",
+          "evidenceRules": [
+            {"fieldId": "spv-close-b-source-map", "operator": "EQUALS", "expected": "B_TWO_SOURCE_ROLES_MATCH"}
+          ],
+          "remediationTargetId": "SPV-CLOSE-SOURCES"
+        },
+        {
+          "criterionId": "C-SPV-CLOSE-BRANCHES",
+          "description": "理解确认与本轮豁免两条状态分支的不同闭环",
+          "weight": 12,
+          "evidenceRequirement": "能分别完成确认分支和豁免分支，并保留确认所需证据及豁免截止日",
+          "evidenceRules": [
+            {"fieldId": "spv-close-b-confirmation-branch", "operator": "EQUALS", "expected": "B_CONFIRMATION_BRANCH_COMPLETE"},
+            {"fieldId": "spv-close-b-exemption-branch", "operator": "EQUALS", "expected": "B_EXEMPTION_BRANCH_COMPLETE"}
+          ],
+          "remediationTargetId": "SPV-CLOSE-CONFIRMATION"
+        }
+      ]
+    },
+    {
+      "dimension": "PROCESS",
+      "maxScore": 30,
+      "criteria": [
+        {
+          "criterionId": "P-SPV-CLOSE-CONFIRMATION-CHAIN",
+          "description": "按顺序完成确认分支并留下回函/附件/归档证据",
+          "weight": 10,
+          "evidenceRequirement": "状态链从待确认到归档完整，且工作纸包含确认分支的回函记录、附件标记和归档类别",
+          "evidenceRules": [
+            {"fieldId": "spv-close-b-confirmation-branch", "operator": "EQUALS", "expected": "B_CONFIRMATION_BRANCH_COMPLETE"},
+            {"fieldId": "spv-close-b-register", "operator": "CONTAINS_ALL", "expected": ["待确认", "确认异常", "待生成/待记录", "B复核", "A生成", "已生成", "次日上午检查发送状态", "记录管理人反馈/附件", "回函记录=已记录", "附件标记=已标记", "归档类别=确认分支"]}
+          ],
+          "remediationTargetId": "SPV-CLOSE-CONFIRMATION"
+        },
+        {
+          "criterionId": "P-SPV-CLOSE-EXEMPTION-CHAIN",
+          "description": "按顺序完成本轮豁免分支并保留期限与不生成提示函动作",
+          "weight": 10,
+          "evidenceRequirement": "豁免链包含合成截止日、不生成提示函和豁免分支归档",
+          "evidenceRules": [
+            {"fieldId": "spv-close-b-exemption-branch", "operator": "EQUALS", "expected": "B_EXEMPTION_BRANCH_COMPLETE"},
+            {"fieldId": "spv-close-b-register", "operator": "CONTAINS_ALL", "expected": ["待确认", "本轮豁免", "合成豁免截止日=2026-02-12", "不生成提示函", "归档类别=豁免分支"]}
+          ],
+          "remediationTargetId": "SPV-CLOSE-EXEMPTION"
+        },
+        {
+          "criterionId": "P-SPV-CLOSE-REGISTER",
+          "description": "将两条分支的键、日期和证据字段落到登记工作纸",
+          "weight": 10,
+          "evidenceRequirement": "工作纸同时保留结果键、规则键、数据日、异常开始日、确认分支证据和豁免分支截止日",
+          "evidenceRules": [
+            {"fieldId": "spv-close-b-register", "operator": "CONTAINS_ALL", "expected": ["结果键=EDU-RESULT-B-002", "规则键=EDU-RULE-B-002", "数据日=2026-02-06", "异常开始日=2026-02-06", "归档类别=确认分支", "归档类别=豁免分支"]}
+          ],
+          "remediationTargetId": "SPV-CLOSE-REGISTER"
+        }
+      ]
+    },
+    {
+      "dimension": "RISK",
+      "maxScore": 25,
+      "criteria": [
+        {
+          "criterionId": "R-SPV-CLOSE-GENERATED-BOUNDARY",
+          "description": "控制把已生成误写成已发送的风险",
+          "weight": 13,
+          "evidenceRequirement": "明确已生成后只记录次日上午检查发送状态，已生成 != 已发送",
+          "evidenceRules": [
+            {"fieldId": "spv-close-b-generated-status", "operator": "EQUALS", "expected": "B_GENERATED_NOT_SENT"},
+            {"fieldId": "spv-close-b-register", "operator": "CONTAINS_ALL", "expected": ["已生成 != 已发送", "次日上午检查发送状态"]}
+          ],
+          "remediationTargetId": "SPV-CLOSE-GENERATED-BOUNDARY"
+        },
+        {
+          "criterionId": "R-SPV-CLOSE-EVIDENCE-BOUNDARY",
+          "description": "控制确认分支证据缺失和豁免期限/动作错误",
+          "weight": 12,
+          "evidenceRequirement": "确认分支有回函、附件和归档证据；豁免分支有合成截止日、不生成提示函并归档",
+          "evidenceRules": [
+            {"fieldId": "spv-close-b-register", "operator": "CONTAINS_ALL", "expected": ["待确认", "确认异常", "待生成/待记录", "B复核", "A生成", "已生成", "次日上午检查发送状态", "记录管理人反馈/附件", "回函记录=已记录", "附件标记=已标记", "归档类别=确认分支", "本轮豁免", "合成豁免截止日=2026-02-12", "不生成提示函", "归档类别=豁免分支"]},
+            {"fieldId": "spv-close-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["业务异常不是技术故障", "ONLY_THIS_CASE"]}
+          ],
+          "remediationTargetId": "SPV-CLOSE-REGISTER"
+        }
+      ]
+    },
+    {
+      "dimension": "EXPRESSION",
+      "maxScore": 20,
+      "criteria": [
+        {
+          "criterionId": "E-SPV-CLOSE-TRACEABLE-CONCLUSION",
+          "description": "写出包含两条分支、证据字段和边界的可回查归档结论",
+          "weight": 20,
+          "evidenceRequirement": "短结论交代两份资料、键、日期、确认链、回函/附件/归档、豁免截止日、不生成提示函和已生成/已发送边界",
+          "evidenceRules": [
+            {
+              "fieldId": "spv-close-b-conclusion",
+              "operator": "CONTAINS_ALL",
+              "expected": [
+                "结果确认/豁免工作表",
+                "提示函—回函—归档登记表",
+                "EDU-RESULT-B-002",
+                "EDU-RULE-B-002",
+                "数据日=2026-02-06",
+                "异常开始日=2026-02-06",
+                "待确认",
+                "确认异常",
+                "B复核",
+                "A生成",
+                "已生成",
+                "次日上午检查发送状态",
+                "回函记录=已记录",
+                "附件标记=已标记",
+                "归档类别=确认分支",
+                "本轮豁免",
+                "合成豁免截止日=2026-02-12",
+                "不生成提示函",
+                "归档类别=豁免分支",
+                "已生成 != 已发送",
+                "业务异常不是技术故障",
+                "ONLY_THIS_CASE"
+              ]
+            }
+          ],
+          "remediationTargetId": "SPV-CLOSE-CONCLUSION"
+        }
+      ]
+    }
+  ],
+  "mandatoryRequirements": [
+    {
+      "requirementId": "M-SPV-CLOSE-BRANCH-CLOSURE",
+      "description": "必须闭合确认和豁免两条分支",
+      "evidenceRequirement": "确认分支走到归档并保留回函/附件证据；豁免分支有截止日、不生成提示函并归档",
+      "evidenceRules": [
+        {"fieldId": "spv-close-b-confirmation-branch", "operator": "EQUALS", "expected": "B_CONFIRMATION_BRANCH_COMPLETE"},
+        {"fieldId": "spv-close-b-exemption-branch", "operator": "EQUALS", "expected": "B_EXEMPTION_BRANCH_COMPLETE"},
+        {"fieldId": "spv-close-b-register", "operator": "CONTAINS_ALL", "expected": ["回函记录=已记录", "附件标记=已标记", "归档类别=确认分支", "合成豁免截止日=2026-02-12", "不生成提示函", "归档类别=豁免分支"]}
+      ],
+      "remediationTargetId": "SPV-CLOSE-CONFIRMATION"
+    },
+    {
+      "requirementId": "M-SPV-CLOSE-GENERATED-AND-SCOPE",
+      "description": "必须保持已生成/已发送边界并限定本案例范围",
+      "evidenceRequirement": "确认分支明确已生成 != 已发送，短结论明确业务异常不是技术故障且仅适用于本案例",
+      "evidenceRules": [
+        {"fieldId": "spv-close-b-generated-status", "operator": "EQUALS", "expected": "B_GENERATED_NOT_SENT"},
+        {"fieldId": "spv-close-b-conclusion", "operator": "CONTAINS_ALL", "expected": ["已生成 != 已发送", "业务异常不是技术故障", "SYNTHETIC_EDUCATIONAL", "ONLY_THIS_CASE"]}
+      ],
+      "remediationTargetId": "SPV-CLOSE-GENERATED-BOUNDARY"
+    }
+  ],
+  "remediationTargets": [
+    {
+      "targetId": "SPV-CLOSE-SOURCES",
+      "title": "补学两份登记资料的字段职责",
+      "reason": "未能区分结果/规则键日期来源与分支/回函/附件/归档来源",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-CLOSE-KC-01",
+      "questionId": "SPV-CLOSE-Q-01"
+    },
+    {
+      "targetId": "SPV-CLOSE-CONFIRMATION",
+      "title": "补学确认分支状态与证据",
+      "reason": "确认分支未按顺序完成或缺少回函、附件、归档证据",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-CLOSE-KC-02",
+      "questionId": "SPV-CLOSE-Q-02"
+    },
+    {
+      "targetId": "SPV-CLOSE-EXEMPTION",
+      "title": "补学本轮豁免截止日与不生成提示函",
+      "reason": "未记录合成豁免截止日或误生成提示函",
+      "materialStep": "KNOWLEDGE_CARD",
+      "materialItemId": "SPV-CLOSE-KC-03",
+      "questionId": "SPV-CLOSE-Q-03"
+    },
+    {
+      "targetId": "SPV-CLOSE-GENERATED-BOUNDARY",
+      "title": "补学已生成与已发送边界",
+      "reason": "把已生成解释成已发送或遗漏次日上午检查发送状态",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-02",
+      "questionId": "SPV-CLOSE-Q-02"
+    },
+    {
+      "targetId": "SPV-CLOSE-REGISTER",
+      "title": "补填回函、附件和归档登记表",
+      "reason": "登记工作纸缺少确认分支证据、豁免期限或归档类别",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-03",
+      "questionId": "SPV-CLOSE-Q-04"
+    },
+    {
+      "targetId": "SPV-CLOSE-CONCLUSION",
+      "title": "补写两分支归档短结论",
+      "reason": "短结论缺少键、日期、状态链、证据字段或本案例边界",
+      "materialStep": "DEMONSTRATION",
+      "materialItemId": "DEMONSTRATION-STEP-05",
+      "questionId": "SPV-CLOSE-Q-05"
+    }
+  ],
+  "referenceAnswer": {
+    "fixtureId": "SPV-CLOSE-COMP-B",
+    "responses": {
+      "spv-close-b-source-map": "B_TWO_SOURCE_ROLES_MATCH",
+      "spv-close-b-confirmation-branch": "B_CONFIRMATION_BRANCH_COMPLETE",
+      "spv-close-b-exemption-branch": "B_EXEMPTION_BRANCH_COMPLETE",
+      "spv-close-b-generated-status": "B_GENERATED_NOT_SENT",
+      "spv-close-b-register": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE；结果键=EDU-RESULT-B-002；规则键=EDU-RULE-B-002；数据日=2026-02-06；异常开始日=2026-02-06；确认分支：待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档；回函记录=已记录；附件标记=已标记；归档类别=确认分支；豁免分支：待确认→本轮豁免→合成豁免截止日=2026-02-12→不生成提示函→归档；归档类别=豁免分支；已生成 != 已发送。",
+      "spv-close-b-conclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：结果确认/豁免工作表与提示函—回函—归档登记表按结果键=EDU-RESULT-B-002、规则键=EDU-RULE-B-002、数据日=2026-02-06、异常开始日=2026-02-06 对应；确认分支完成待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档，并留存回函记录=已记录、附件标记=已标记、归档类别=确认分支；豁免分支完成待确认→本轮豁免→合成豁免截止日=2026-02-12→不生成提示函→归档，并留存归档类别=豁免分支；已生成 != 已发送，业务异常不是技术故障。"
+    },
+    "statusChecks": {
+      "confirmationBranch": "B_CONFIRMATION_BRANCH_COMPLETE",
+      "exemptionBranch": "B_EXEMPTION_BRANCH_COMPLETE",
+      "generatedBoundary": "B_GENERATED_NOT_SENT",
+      "scope": "ONLY_THIS_CASE"
+    }
+  }
+}

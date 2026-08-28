@@ -1,0 +1,445 @@
+{
+  "evidenceId": "SPV-EVID-CLOSE-004",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "routeId": "SPV-CLOSE-004",
+  "routeCode": "SPV-CLOSE-004",
+  "title": "结果确认、期限豁免、提示函、回函与归档闭环证据",
+  "scopeNotice": "本文件是 SPV-CLOSE-004 的私有证据、两条状态链和登记字段映射。所有结果键、规则键、日期、比例和状态均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE；已生成 != 已发送，业务异常不是技术故障。",
+  "sharedEvidence": [
+    "SPV-FOUNDATION-001",
+    "SPV-EVID-TASK-003",
+    "SPV-EVID-CLOSE-BRANCHES"
+  ],
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "M01",
+      "locators": ["§4.4", "§4.5", "§6"],
+      "teachingUse": "支持结果确认、提示函生成、回函/附件记录、豁免截止日和归档语义；不补造生产收件人或发送状态。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "M11",
+      "locators": ["§4.4—4.5/归档语义"],
+      "teachingUse": "独立核对确认/豁免分支、登记字段和归档动作；不扩展为其他主题邮件或生产流程。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "mappingClaims": [
+    {
+      "claimId": "SPV-CLOSE-CLAIM-01",
+      "claim": "结果确认/豁免工作表承载结果键、规则键、数据日、异常开始日和两条分支状态；提示函—回函—归档登记表承载回函、附件、提示函动作和归档类别。",
+      "sourceGroups": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+      "activity": "FIELD_MAP",
+      "auditedAnchors": ["M01 §4.4", "M01 §4.5", "M11 §4.4—4.5/归档语义"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "claimId": "SPV-CLOSE-CLAIM-02",
+      "claim": "确认分支依次为待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档。",
+      "sourceGroups": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+      "activity": "RECONCILIATION",
+      "auditedAnchors": ["M01 §4.4", "M01 §4.5", "M01 §6", "M11 §4.4—4.5/归档语义"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "claimId": "SPV-CLOSE-CLAIM-03",
+      "claim": "豁免分支依次为待确认→本轮豁免→合成豁免截止日→不生成提示函→归档，截止日不得被写成永久豁免。",
+      "sourceGroups": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+      "activity": "RECONCILIATION",
+      "auditedAnchors": ["M01 §4.4", "M01 §4.5", "M01 §6", "M11 §4.4—4.5/归档语义"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "claimId": "SPV-CLOSE-CLAIM-04",
+      "claim": "已生成 != 已发送；确认分支必须留回函记录、附件标记和归档类别，豁免分支不生成提示函。",
+      "sourceGroups": ["SPV-CLOSE-B-REGISTER"],
+      "activity": "BOUNDARY",
+      "auditedAnchors": ["M01 §4.5", "M01 §6", "M11 §4.5/归档语义"],
+      "provenance": "BOUNDARY_ONLY"
+    }
+  ],
+  "caseParameters": [
+    {
+      "fixtureId": "SPV-CLOSE-DEMO-A",
+      "parameter": "identity",
+      "value": "结果键=EDU-RESULT-A-001; 规则键=EDU-RULE-A-001; 数据日=2026-01-06; 异常开始日=2026-01-06",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CLOSE-DEMO-A",
+      "parameter": "ratio",
+      "value": "4/100=4%",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CLOSE-DEMO-A",
+      "parameter": "branches",
+      "value": "确认分支有回函/附件/确认分支归档；豁免分支截止日=2026-01-12且不生成提示函",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CLOSE-COMP-B",
+      "parameter": "identity",
+      "value": "结果键=EDU-RESULT-B-002; 规则键=EDU-RULE-B-002; 数据日=2026-02-06; 异常开始日=2026-02-06",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CLOSE-COMP-B",
+      "parameter": "ratio",
+      "value": "3/100=3%",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-CLOSE-COMP-B",
+      "parameter": "branches",
+      "value": "确认分支有回函/附件/确认分支归档；豁免分支截止日=2026-02-12且不生成提示函",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "ruleCatalog": [
+    {
+      "ruleId": "SPV-CLOSE-RULE-SOURCE-MAP",
+      "description": "两份登记资料按结果键和规则键对应",
+      "expected": "B_TWO_SOURCE_ROLES_MATCH",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-CLOSE-RULE-CONFIRMATION-BRANCH",
+      "description": "确认分支状态和证据完整",
+      "expected": "B_CONFIRMATION_BRANCH_COMPLETE",
+      "chain": "待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-CLOSE-RULE-EXEMPTION-BRANCH",
+      "description": "豁免分支有截止日且不生成提示函",
+      "expected": "B_EXEMPTION_BRANCH_COMPLETE",
+      "chain": "待确认→本轮豁免→合成豁免截止日=2026-02-12→不生成提示函→归档",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-CLOSE-RULE-GENERATED-BOUNDARY",
+      "description": "已生成后只记录次日上午检查发送状态",
+      "expected": "B_GENERATED_NOT_SENT",
+      "condition": "已生成 != 已发送",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-CLOSE-RULE-REGISTER",
+      "description": "确认/豁免两条分支登记字段",
+      "expected": ["回函记录=已记录", "附件标记=已标记", "归档类别=确认分支", "合成豁免截止日=2026-02-12", "不生成提示函", "归档类别=豁免分支"],
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-CLOSE-RULE-CONCLUSION",
+      "description": "案例 B 两分支可回查短结论",
+      "expected": ["结果确认/豁免工作表", "提示函—回函—归档登记表", "EDU-RESULT-B-002", "EDU-RULE-B-002", "数据日=2026-02-06", "异常开始日=2026-02-06", "已生成 != 已发送", "业务异常不是技术故障"],
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "SPV-CLOSE-DEMO-A",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE",
+      "identity": {
+        "resultKey": "EDU-RESULT-A-001",
+        "ruleKey": "EDU-RULE-A-001",
+        "dataDate": "2026-01-06",
+        "anomalyStartDate": "2026-01-06",
+        "ratio": "4/100=4%"
+      },
+      "confirmationBranch": {
+        "chain": ["待确认", "确认异常", "待生成/待记录", "B复核", "A生成", "已生成", "次日上午检查发送状态", "记录管理人反馈/附件", "归档"],
+        "status": "CONFIRMATION_BRANCH_COMPLETE",
+        "generatedStatus": "已生成",
+        "sendStatusCheck": "次日上午检查发送状态",
+        "replyRecord": "回函记录=已记录",
+        "attachmentFlag": "附件标记=已标记",
+        "archiveCategory": "归档类别=确认分支"
+      },
+      "exemptionBranch": {
+        "chain": ["待确认", "本轮豁免", "合成豁免截止日=2026-01-12", "不生成提示函", "归档"],
+        "status": "EXEMPTION_BRANCH_COMPLETE",
+        "deadline": "合成豁免截止日=2026-01-12",
+        "notice": "不生成提示函",
+        "archiveCategory": "归档类别=豁免分支"
+      },
+      "reconciliation": {
+        "resultKeyMatch": "YES",
+        "ruleKeyMatch": "YES",
+        "dataDateMatch": "YES",
+        "anomalyStartDateMatch": "YES",
+        "confirmationEvidence": "COMPLETE",
+        "exemptionDeadline": "2026-01-12",
+        "generatedNotSent": "YES",
+        "status": "BOTH_BRANCHES_ARCHIVED"
+      },
+      "expectedConclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：结果确认/豁免工作表与提示函—回函—归档登记表按结果键=EDU-RESULT-A-001、规则键=EDU-RULE-A-001、数据日=2026-01-06、异常开始日=2026-01-06 对应；确认分支完成待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档，并留存回函记录=已记录、附件标记=已标记、归档类别=确认分支；豁免分支完成待确认→本轮豁免→合成豁免截止日=2026-01-12→不生成提示函→归档，并留存归档类别=豁免分支；已生成 != 已发送，业务异常不是技术故障。"
+    },
+    "comprehensiveB": {
+      "fixtureId": "SPV-CLOSE-COMP-B",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE",
+      "identity": {
+        "resultKey": "EDU-RESULT-B-002",
+        "ruleKey": "EDU-RULE-B-002",
+        "dataDate": "2026-02-06",
+        "anomalyStartDate": "2026-02-06",
+        "ratio": "3/100=3%"
+      },
+      "confirmationBranch": {
+        "chain": ["待确认", "确认异常", "待生成/待记录", "B复核", "A生成", "已生成", "次日上午检查发送状态", "记录管理人反馈/附件", "归档"],
+        "status": "CONFIRMATION_BRANCH_COMPLETE",
+        "generatedStatus": "已生成",
+        "sendStatusCheck": "次日上午检查发送状态",
+        "replyRecord": "回函记录=已记录",
+        "attachmentFlag": "附件标记=已标记",
+        "archiveCategory": "归档类别=确认分支"
+      },
+      "exemptionBranch": {
+        "chain": ["待确认", "本轮豁免", "合成豁免截止日=2026-02-12", "不生成提示函", "归档"],
+        "status": "EXEMPTION_BRANCH_COMPLETE",
+        "deadline": "合成豁免截止日=2026-02-12",
+        "notice": "不生成提示函",
+        "archiveCategory": "归档类别=豁免分支"
+      },
+      "reconciliation": {
+        "resultKeyMatch": "YES",
+        "ruleKeyMatch": "YES",
+        "dataDateMatch": "YES",
+        "anomalyStartDateMatch": "YES",
+        "confirmationEvidence": "COMPLETE",
+        "exemptionDeadline": "2026-02-12",
+        "generatedNotSent": "YES",
+        "status": "BOTH_BRANCHES_ARCHIVED"
+      },
+      "expectedConclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：结果确认/豁免工作表与提示函—回函—归档登记表按结果键=EDU-RESULT-B-002、规则键=EDU-RULE-B-002、数据日=2026-02-06、异常开始日=2026-02-06 对应；确认分支完成待确认→确认异常→待生成/待记录→B复核→A生成→已生成→次日上午检查发送状态→记录管理人反馈/附件→归档，并留存回函记录=已记录、附件标记=已标记、归档类别=确认分支；豁免分支完成待确认→本轮豁免→合成豁免截止日=2026-02-12→不生成提示函→归档，并留存归档类别=豁免分支；已生成 != 已发送，业务异常不是技术故障。"
+    }
+  },
+  "atomicWorkItems": [
+    {
+      "workItemId": "spv-close-b-source-map",
+      "responseKind": "SELECT",
+      "observableAction": "定位工作表的键/日期字段和登记表的分支/归档字段",
+      "fixtureValue": "B_TWO_SOURCE_ROLES_MATCH",
+      "sourceMaterialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+      "materialLocators": ["M01 §4.4", "M01 §4.5", "M11 §4.4—4.5/归档语义"],
+      "scoreTargets": ["C-SPV-CLOSE-SOURCE-ROLES", "M-SPV-CLOSE-BRANCH-CLOSURE"],
+      "remediationTargetId": "SPV-CLOSE-SOURCES",
+      "source": {
+        "materialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+        "fieldIds": ["result_key", "rule_key", "data_date", "anomaly_start_date", "confirmation_branch_chain", "exemption_branch_chain", "confirmation_archive_category", "exemption_archive_category"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-CLOSE-REF-CONFIRMATION", "SPV-CLOSE-REF-EXEMPTION"],
+        "anchor": "工作表锁定键/日期，登记表承接两条分支和归档证据"
+      },
+      "rule": {"ruleId": "SPV-CLOSE-RULE-SOURCE-MAP", "expected": "B_TWO_SOURCE_ROLES_MATCH", "scope": "ONLY_THIS_CASE"},
+      "remediation": {
+        "remediationTargetId": "SPV-CLOSE-SOURCES",
+        "criterionIds": ["C-SPV-CLOSE-SOURCE-ROLES", "M-SPV-CLOSE-BRANCH-CLOSURE"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-CLOSE-KC-01",
+        "questionId": "SPV-CLOSE-Q-01"
+      }
+    },
+    {
+      "workItemId": "spv-close-b-confirmation-branch",
+      "responseKind": "SELECT",
+      "observableAction": "按顺序勾稽确认分支状态链",
+      "fixtureValue": "B_CONFIRMATION_BRANCH_COMPLETE",
+      "sourceMaterialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+      "materialLocators": ["M01 §4.4", "M01 §4.5", "M01 §6", "M11 §4.4—4.5/归档语义"],
+      "scoreTargets": ["C-SPV-CLOSE-BRANCHES", "P-SPV-CLOSE-CONFIRMATION-CHAIN", "M-SPV-CLOSE-BRANCH-CLOSURE"],
+      "remediationTargetId": "SPV-CLOSE-CONFIRMATION",
+      "source": {
+        "materialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+        "fieldIds": ["confirmation_branch_chain", "confirmation_status", "generated_status", "send_status_check", "reply_record", "attachment_flag", "confirmation_archive_category"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {"referenceIds": ["SPV-CLOSE-REF-CONFIRMATION"], "anchor": "确认分支链及回函/附件/确认分支归档"},
+      "rule": {"ruleId": "SPV-CLOSE-RULE-CONFIRMATION-BRANCH", "expected": "B_CONFIRMATION_BRANCH_COMPLETE", "scope": "ONLY_THIS_CASE"},
+      "remediation": {
+        "remediationTargetId": "SPV-CLOSE-CONFIRMATION",
+        "criterionIds": ["C-SPV-CLOSE-BRANCHES", "P-SPV-CLOSE-CONFIRMATION-CHAIN", "M-SPV-CLOSE-BRANCH-CLOSURE"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-CLOSE-KC-02",
+        "questionId": "SPV-CLOSE-Q-02"
+      }
+    },
+    {
+      "workItemId": "spv-close-b-exemption-branch",
+      "responseKind": "SELECT",
+      "observableAction": "按顺序勾稽本轮豁免分支及截止日",
+      "fixtureValue": "B_EXEMPTION_BRANCH_COMPLETE",
+      "sourceMaterialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+      "materialLocators": ["M01 §4.4", "M01 §4.5", "M01 §6", "M11 §4.4—4.5/归档语义"],
+      "scoreTargets": ["C-SPV-CLOSE-BRANCHES", "P-SPV-CLOSE-EXEMPTION-CHAIN", "M-SPV-CLOSE-BRANCH-CLOSURE"],
+      "remediationTargetId": "SPV-CLOSE-EXEMPTION",
+      "source": {
+        "materialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+        "fieldIds": ["exemption_branch_chain", "exemption_status", "exemption_deadline", "exemption_notice", "exemption_archive_category"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {"referenceIds": ["SPV-CLOSE-REF-EXEMPTION"], "anchor": "本轮豁免截止日、不生成提示函和豁免分支归档"},
+      "rule": {"ruleId": "SPV-CLOSE-RULE-EXEMPTION-BRANCH", "expected": "B_EXEMPTION_BRANCH_COMPLETE", "scope": "ONLY_THIS_CASE"},
+      "remediation": {
+        "remediationTargetId": "SPV-CLOSE-EXEMPTION",
+        "criterionIds": ["C-SPV-CLOSE-BRANCHES", "P-SPV-CLOSE-EXEMPTION-CHAIN", "M-SPV-CLOSE-BRANCH-CLOSURE"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-CLOSE-KC-03",
+        "questionId": "SPV-CLOSE-Q-03"
+      }
+    },
+    {
+      "workItemId": "spv-close-b-generated-status",
+      "responseKind": "SELECT",
+      "observableAction": "核对已生成后的发送检查边界",
+      "fixtureValue": "B_GENERATED_NOT_SENT",
+      "sourceMaterialIds": ["SPV-CLOSE-B-REGISTER"],
+      "materialLocators": ["M01 §4.5", "M01 §6", "M11 §4.5/归档语义"],
+      "scoreTargets": ["R-SPV-CLOSE-GENERATED-BOUNDARY", "M-SPV-CLOSE-GENERATED-AND-SCOPE"],
+      "remediationTargetId": "SPV-CLOSE-GENERATED-BOUNDARY",
+      "source": {
+        "materialIds": ["SPV-CLOSE-B-REGISTER"],
+        "fieldIds": ["generated_status", "send_status_check", "generated_boundary"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {"referenceIds": ["SPV-CLOSE-REF-CONFIRMATION"], "anchor": "已生成 != 已发送，已生成后记录次日上午检查发送状态"},
+      "rule": {"ruleId": "SPV-CLOSE-RULE-GENERATED-BOUNDARY", "expected": "B_GENERATED_NOT_SENT", "scope": "ONLY_THIS_CASE"},
+      "remediation": {
+        "remediationTargetId": "SPV-CLOSE-GENERATED-BOUNDARY",
+        "criterionIds": ["R-SPV-CLOSE-GENERATED-BOUNDARY", "M-SPV-CLOSE-GENERATED-AND-SCOPE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-02",
+        "questionId": "SPV-CLOSE-Q-02"
+      }
+    },
+    {
+      "workItemId": "spv-close-b-register",
+      "responseKind": "TEXT",
+      "observableAction": "填写确认/豁免两条分支的登记工作纸",
+      "fixtureValue": "结果键=EDU-RESULT-B-002；规则键=EDU-RULE-B-002；数据日=2026-02-06；异常开始日=2026-02-06；回函记录=已记录；附件标记=已标记；归档类别=确认分支；合成豁免截止日=2026-02-12；不生成提示函；归档类别=豁免分支；已生成 != 已发送",
+      "sourceMaterialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+      "materialLocators": ["M01 §4.4", "M01 §4.5", "M01 §6", "M11 §4.4—4.5/归档语义"],
+      "scoreTargets": ["P-SPV-CLOSE-REGISTER", "R-SPV-CLOSE-EVIDENCE-BOUNDARY", "M-SPV-CLOSE-BRANCH-CLOSURE"],
+      "remediationTargetId": "SPV-CLOSE-REGISTER",
+      "source": {
+        "materialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+        "fieldIds": ["result_key", "rule_key", "data_date", "anomaly_start_date", "confirmation_status", "generated_status", "send_status_check", "reply_record", "attachment_flag", "confirmation_archive_category", "exemption_status", "exemption_deadline", "exemption_notice", "exemption_archive_category", "generated_boundary"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {"referenceIds": ["SPV-CLOSE-REF-CONFIRMATION", "SPV-CLOSE-REF-EXEMPTION"], "anchor": "登记表同时保留确认证据、豁免截止日和两类归档"},
+      "rule": {"ruleId": "SPV-CLOSE-RULE-REGISTER", "expected": ["回函记录=已记录", "附件标记=已标记", "归档类别=确认分支", "合成豁免截止日=2026-02-12", "不生成提示函", "归档类别=豁免分支"], "scope": "ONLY_THIS_CASE"},
+      "remediation": {
+        "remediationTargetId": "SPV-CLOSE-REGISTER",
+        "criterionIds": ["P-SPV-CLOSE-REGISTER", "R-SPV-CLOSE-EVIDENCE-BOUNDARY", "M-SPV-CLOSE-BRANCH-CLOSURE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-03",
+        "questionId": "SPV-CLOSE-Q-04"
+      }
+    },
+    {
+      "workItemId": "spv-close-b-conclusion",
+      "responseKind": "TEXT",
+      "observableAction": "写出包含两条分支、证据和边界的归档短结论",
+      "fixtureValue": "结果确认/豁免工作表与提示函—回函—归档登记表；结果键=EDU-RESULT-B-002；规则键=EDU-RULE-B-002；数据日=2026-02-06；异常开始日=2026-02-06；确认分支回函/附件/归档；豁免截止日=2026-02-12且不生成提示函；已生成 != 已发送；业务异常不是技术故障",
+      "sourceMaterialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+      "materialLocators": ["M01 §4.4", "M01 §4.5", "M01 §6", "M11 §4.4—4.5/归档语义"],
+      "scoreTargets": ["R-SPV-CLOSE-EVIDENCE-BOUNDARY", "E-SPV-CLOSE-TRACEABLE-CONCLUSION", "M-SPV-CLOSE-GENERATED-AND-SCOPE"],
+      "remediationTargetId": "SPV-CLOSE-CONCLUSION",
+      "source": {
+        "materialIds": ["SPV-CLOSE-B-WORKSHEET", "SPV-CLOSE-B-REGISTER"],
+        "fieldIds": ["result_key", "rule_key", "data_date", "anomaly_start_date", "confirmation_branch_chain", "exemption_branch_chain", "reply_record", "attachment_flag", "confirmation_archive_category", "exemption_deadline", "exemption_notice", "exemption_archive_category", "generated_boundary", "synthetic_scope"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {"referenceIds": ["SPV-CLOSE-REF-CONFIRMATION", "SPV-CLOSE-REF-EXEMPTION"], "anchor": "短结论回指两份资料、状态链、截止日、证据和 ONLY_THIS_CASE 边界"},
+      "rule": {"ruleId": "SPV-CLOSE-RULE-CONCLUSION", "expected": ["结果确认/豁免工作表", "提示函—回函—归档登记表", "EDU-RESULT-B-002", "EDU-RULE-B-002", "数据日=2026-02-06", "异常开始日=2026-02-06", "已生成 != 已发送", "业务异常不是技术故障"], "scope": "ONLY_THIS_CASE"},
+      "remediation": {
+        "remediationTargetId": "SPV-CLOSE-CONCLUSION",
+        "criterionIds": ["R-SPV-CLOSE-EVIDENCE-BOUNDARY", "E-SPV-CLOSE-TRACEABLE-CONCLUSION", "M-SPV-CLOSE-GENERATED-AND-SCOPE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-05",
+        "questionId": "SPV-CLOSE-Q-05"
+      }
+    }
+  ],
+  "coverage": {
+    "FIELD_MAP": ["spv-close-b-source-map"],
+    "RECONCILIATION": ["spv-close-b-confirmation-branch", "spv-close-b-exemption-branch", "spv-close-b-generated-status"],
+    "LEDGER_ENTRY": ["spv-close-b-register"],
+    "SHORT_TEXT": ["spv-close-b-conclusion"]
+  },
+  "dependencyPolicy": {
+    "hardPrerequisiteNodeIds": ["SPV-NODE-TASK-003"],
+    "dependsOnRouteIds": ["SPV-TASK-003"],
+    "serialOrder": 4,
+    "stageGate": false,
+    "releaseRegistration": "PUBLISHED_IN_CUSTODY_2026.08.12",
+    "registrationStage": "C1",
+    "status": "PUBLISHED",
+    "availability": "OPEN",
+    "releaseId": "CUSTODY_2026.08.12",
+    "mapVersion": "2026.08.12"
+  },
+  "fixturePolicy": {
+    "routeOwnsIndependentDemoA": "SPV-CLOSE-DEMO-A",
+    "routeOwnsIndependentComprehensiveB": "SPV-CLOSE-COMP-B",
+    "sharedWithOtherRoute": false,
+    "isomorphicStructure": true,
+    "variationNotice": "A/B 使用不同结果键、规则键、数据日、异常开始日和比例；两组均保留确认/豁免两条同构状态链及证据字段。",
+    "markerPolicy": "两组案例及每个 concrete evidence 对象均标记 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+    "foundationSharedFixtureIds": ["EDU-SPV-A-001", "EDU-SPV-B-002"],
+    "usesFoundationSharedFixtures": false,
+    "routePracticeScope": "ROUTE_PRIVATE_INDEPENDENT",
+    "routePracticeFixtureIds": ["SPV-CLOSE-DEMO-A", "SPV-CLOSE-COMP-B"]
+  },
+  "exclusionBoundary": {
+    "status": "BUILDING_DEFER",
+    "topics": [
+      "发送成功代码、真实收件人、邮箱、机构和权限",
+      "监管报送、整改、赔偿、技术失败、发送失败补救和其他处置",
+      "永久豁免、生产关闭日期、生产确认和未给出的回函内容",
+      "其他主题的邮件流程、QFII 泛化和外部业务规则",
+      "图片、截图、图像元数据和原材料绝对路径"
+    ],
+    "reason": "本路线仅使用 M01 §4.4、§4.5、§6 与 M11 §4.4—4.5/归档语义的已审计材料抽象；确认分支和豁免分支均为合成教学案例，未支持的生产事实继续 BUILDING/DEFER。"
+  },
+  "integrity": {
+    "workItemMappingCount": 6,
+    "uniqueWorkItemMappings": true,
+    "everyWorkItemHasSourceReferenceRuleRemediation": true,
+    "everyWorkItemHasMaterialLocator": true,
+    "demoAndComprehensiveAreIsomorphic": true,
+    "demoAndComprehensiveUseDifferentKeysDatesAndRatios": true,
+    "bothBranchesPresentInAAndB": true,
+    "confirmationBranchHasReplyAttachmentArchive": true,
+    "exemptionBranchHasDeadlineAndNoNotice": true,
+    "generatedNotSentBoundary": true,
+    "allCaseValuesMarkedOnlyThisCase": true,
+    "normalCaseOnly": true,
+    "mapAndReleaseRegistration": true
+  }
+}

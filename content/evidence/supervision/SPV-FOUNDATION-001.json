@@ -1,0 +1,816 @@
+{
+  "evidenceId": "SPV-FOUNDATION-001",
+  "version": "1.0.0",
+  "line": "SUPERVISION",
+  "scope": "ONLY_THIS_CASE",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "scopeNotice": "本文件建立投资监督四条已登记路线共用的字段、状态、公式、日期、来源和脱敏边界。教学键、日期、数值和状态时间线只适用于本案例版本，不代表生产系统事实；C1 已将四条路线登记为 OPEN/PUBLISHED，路线私有综合实务仍以各自 route evidence fixture 为准。",
+  "topology": {
+    "regionId": "SPV-REGION-CORE",
+    "moduleId": "SPV-MODULE-LIFECYCLE",
+    "availability": "OPEN",
+    "publicationStatus": "PUBLISHED",
+    "releaseRegistration": "PUBLISHED_IN_CUSTODY_2026.08.12",
+    "registrationStage": "C1",
+    "releaseId": "CUSTODY_2026.08.12",
+    "mapVersion": "2026.08.12",
+    "routeOrder": [
+      "SPV-CONTRACT-001",
+      "SPV-RULE-002",
+      "SPV-TASK-003",
+      "SPV-CLOSE-004"
+    ],
+    "routes": [
+      {
+        "routeId": "SPV-CONTRACT-001",
+        "nodeId": "SPV-NODE-CONTRACT-001",
+        "pathType": "REQUIRED",
+        "prerequisiteNodeIds": [],
+        "nextRouteId": "SPV-RULE-002",
+        "stageGate": false,
+        "availability": "OPEN"
+      },
+      {
+        "routeId": "SPV-RULE-002",
+        "nodeId": "SPV-NODE-RULE-002",
+        "pathType": "REQUIRED",
+        "prerequisiteNodeIds": ["SPV-NODE-CONTRACT-001"],
+        "nextRouteId": "SPV-TASK-003",
+        "stageGate": false,
+        "availability": "OPEN"
+      },
+      {
+        "routeId": "SPV-TASK-003",
+        "nodeId": "SPV-NODE-TASK-003",
+        "pathType": "REQUIRED",
+        "prerequisiteNodeIds": ["SPV-NODE-RULE-002"],
+        "nextRouteId": "SPV-CLOSE-004",
+        "stageGate": false,
+        "availability": "OPEN"
+      },
+      {
+        "routeId": "SPV-CLOSE-004",
+        "nodeId": "SPV-NODE-CLOSE-004",
+        "pathType": "REQUIRED",
+        "prerequisiteNodeIds": ["SPV-NODE-TASK-003"],
+        "nextRouteId": null,
+        "stageGate": false,
+        "availability": "OPEN"
+      }
+    ],
+    "topologyNote": "四条路线是连续主链；C1 已登记到 CUSTODY_2026.08.12 并开放发布，路线私有内容和综合实务证据仍按各 route evidence 独立维护。"
+  },
+  "sourceMaterials": [
+    {
+      "sourceId": "M01",
+      "title": "【汇总清洁版】内控监督处运营服务事项-更新版2025.06",
+      "objectType": "DOCX",
+      "locator": "§1.1.1-1.1.3；§2.1-2.4；§3.2.1；§4.1-4.5；§6.1-6.2",
+      "role": "核心流程、合同审阅、规则公式、日期、任务、提示函、回函与归档来源",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M02",
+      "title": "《证券投资基金托管业务管理办法》（证监会令【第172号】）",
+      "objectType": "PDF",
+      "locator": "p.7-10 / 第15条、第17-23条",
+      "role": "托管职责与基金合同约定的法规边界",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M03",
+      "title": "公开募集证券投资基金运作管理办法",
+      "objectType": "PDF",
+      "locator": "p.10-12 / 第30-35条",
+      "role": "基金运作和监督管理的法规边界；不补造案例字段",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M04",
+      "title": "中华人民共和国公司法（2023年修订）",
+      "objectType": "PDF",
+      "locator": "p.1-4 / 第1-37条",
+      "role": "合同主体与终止事项的法律背景边界；不生成真实主体",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M05",
+      "title": "《公开募集证券投资基金信息披露管理办法》",
+      "objectType": "PDF",
+      "locator": "p.1-4 / 第1-9条；p.11-12 / 第24-28条",
+      "role": "信息披露、复核审查和报告边界；本批不形成独立披露路线",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M06",
+      "title": "公开募集证券投资基金投资信用衍生品指引",
+      "objectType": "PDF",
+      "locator": "p.1-3 / 第1-11条",
+      "role": "信用衍生品监督主题的边界材料；本批 DEFER",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M07",
+      "title": "中华人民共和国证券法(2019年修订版)",
+      "objectType": "PDF",
+      "locator": "p.1-5 / 总则与监督管理章节",
+      "role": "证券活动法律背景边界；不把通用法律背景写成案例规则",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M08",
+      "title": "《公开募集开放式证券投资基金流动性风险管理规定》（证监会公告〔2017〕12号）",
+      "objectType": "PDF",
+      "locator": "p.1-3 / 总则与流动性要求；p.8-10 / 信息披露与托管相关条款",
+      "role": "流动性风险主题的边界材料；本批 DEFER",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M09",
+      "title": "《中华人民共和国证券投资基金法》",
+      "objectType": "PDF",
+      "locator": "p.2-3 / 第1-11条；p.8 / 第36-37条",
+      "role": "托管人监督基金管理人投资运作的核心法规依据",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M10",
+      "title": "关于实施公开募集证券投资基金信息披露管理办法有关问题的规定",
+      "objectType": "PDF",
+      "locator": "p.1-4 / 第一至九项",
+      "role": "披露实施问题的边界材料；本批不形成独立披露路线",
+      "imageHandling": "不取用图像对象或图像元数据"
+    },
+    {
+      "sourceId": "M11",
+      "title": "投资监督处运营服务事项-清洁版",
+      "objectType": "DOCX",
+      "locator": "§1.1.1-1.1.3；§2.1-2.4；§3.2.1；§4.1-4.5；§6.1-6.2",
+      "role": "补充核对流程、规则、状态、提示函与归档表述的独立来源",
+      "imageHandling": "不取用图像对象或图像元数据"
+    }
+  ],
+  "fieldDictionary": [
+    {
+      "fieldId": "teachingKey",
+      "label": "教学键",
+      "kind": "IDENTIFIER",
+      "unit": "text",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "同一教学案例的脱敏识别键",
+      "syntheticPolicy": "EDU-SPV-A-001 或 EDU-SPV-B-002，仅本案例"
+    },
+    {
+      "fieldId": "contractReviewDate",
+      "label": "合同审阅日期",
+      "kind": "DATE",
+      "unit": "calendar-date",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "合同审阅是监督工作的开端",
+      "syntheticPolicy": "教学日期，不代表生产日期"
+    },
+    {
+      "fieldId": "enableDate",
+      "label": "启用日期",
+      "kind": "DATE",
+      "unit": "calendar-date",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "事中或事后监督功能的启用日期",
+      "syntheticPolicy": "教学日期，不推断真实交易日历"
+    },
+    {
+      "fieldId": "dataDate",
+      "label": "数据日期",
+      "kind": "DATE",
+      "unit": "calendar-date",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "监督任务使用的数据日期",
+      "syntheticPolicy": "教学日期，不推断真实交易日历"
+    },
+    {
+      "fieldId": "stopDate",
+      "label": "停用日期",
+      "kind": "DATE",
+      "unit": "calendar-date",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "启用/停用区间的右边界；材料明示默认值为 29991231",
+      "syntheticPolicy": "默认教学值 29991231；特殊约定不在 B0 构造"
+    },
+    {
+      "fieldId": "contractReviewStatus",
+      "label": "合同审阅状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "审阅产品合同并反馈意见",
+      "syntheticPolicy": "只使用状态模型中的材料语义"
+    },
+    {
+      "fieldId": "intradayStatus",
+      "label": "事中监督功能状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "根据建账情况开启事中监督功能（或有）",
+      "syntheticPolicy": "只记录开启语义，不虚构权限或界面值"
+    },
+    {
+      "fieldId": "posttradeStatus",
+      "label": "事后监督功能状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "开启或关闭事后监督功能",
+      "syntheticPolicy": "只记录开启/关闭语义，不虚构权限或界面值"
+    },
+    {
+      "fieldId": "ruleStatus",
+      "label": "监督规则配置状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "依据合同和法规配置监督规则",
+      "syntheticPolicy": "只记录已配置，不写生产审核角色"
+    },
+    {
+      "fieldId": "ruleType",
+      "label": "监督规则类型",
+      "kind": "ENUM",
+      "unit": "text",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "投资比例类等监督业务大类",
+      "syntheticPolicy": "本 B0 只采用比例关系，不扩展其他规则参数"
+    },
+    {
+      "fieldId": "numeratorCode",
+      "label": "分子指标编码",
+      "kind": "IDENTIFIER",
+      "unit": "text",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "B0100002 为分子合计",
+      "syntheticPolicy": "材料示例编码，仅本案例公式"
+    },
+    {
+      "fieldId": "denominatorCode",
+      "label": "分母指标编码",
+      "kind": "IDENTIFIER",
+      "unit": "text",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "B0100003 为分母合计",
+      "syntheticPolicy": "材料示例编码，仅本案例公式"
+    },
+    {
+      "fieldId": "B0100001",
+      "label": "实际比例",
+      "kind": "DECIMAL",
+      "unit": "ratio",
+      "scale": 4,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "B0100001 = B0100002 / B0100003",
+      "syntheticPolicy": "A=4/100=4%，B=3/100=3%"
+    },
+    {
+      "fieldId": "B0100002",
+      "label": "分子合计",
+      "kind": "DECIMAL",
+      "unit": "case-unit",
+      "scale": 0,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "比例公式的分子合计",
+      "syntheticPolicy": "A=4，B=3；仅本案例"
+    },
+    {
+      "fieldId": "B0100003",
+      "label": "分母合计",
+      "kind": "DECIMAL",
+      "unit": "case-unit",
+      "scale": 0,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "比例公式的分母合计",
+      "syntheticPolicy": "A/B=100；仅本案例"
+    },
+    {
+      "fieldId": "CS_BLXX",
+      "label": "比例下限",
+      "kind": "DECIMAL",
+      "unit": "ratio",
+      "scale": 4,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "CS_BLXX 为比例下限；材料示例为 5%",
+      "syntheticPolicy": "A/B=5%；仅本案例"
+    },
+    {
+      "fieldId": "adjustmentDaysN",
+      "label": "合同调整期 N",
+      "kind": "DECIMAL",
+      "unit": "day",
+      "scale": 0,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "合同约定的调整期天数",
+      "syntheticPolicy": "本案例 N=10"
+    },
+    {
+      "fieldId": "adjustmentDaysNMinus1",
+      "label": "系统调整期 N-1",
+      "kind": "DECIMAL",
+      "unit": "day",
+      "scale": 0,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "系统因 T+1 日发函将 N 配置为 N-1",
+      "syntheticPolicy": "本案例 10→9"
+    },
+    {
+      "fieldId": "dataImportStatus",
+      "label": "监督文件组数据导入状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "数据全部成功导入",
+      "syntheticPolicy": "只使用成功导入语义"
+    },
+    {
+      "fieldId": "systemSettingsStatus",
+      "label": "系统设置状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "系统内相关设置的状态正常",
+      "syntheticPolicy": "只使用正常语义"
+    },
+    {
+      "fieldId": "taskStatus",
+      "label": "监督任务状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "监督任务自动执行",
+      "syntheticPolicy": "不编码技术失败或异常处置"
+    },
+    {
+      "fieldId": "resultStatus",
+      "label": "监督结果状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "确认监督结果",
+      "syntheticPolicy": "业务结果不等同于技术故障"
+    },
+    {
+      "fieldId": "noticeGenerationStatus",
+      "label": "提示函生成状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "提示函状态为已生成；已生成不等于已发送",
+      "syntheticPolicy": "与发送状态分开保存"
+    },
+    {
+      "fieldId": "noticeSendStatus",
+      "label": "提示函发送状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "发送风险提示函",
+      "syntheticPolicy": "本案例只使用已发送语义，不写收件地址"
+    },
+    {
+      "fieldId": "managerReplyStatus",
+      "label": "管理人回函记录状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "记录提示函回复",
+      "syntheticPolicy": "不写回函正文、联系人或附件内容"
+    },
+    {
+      "fieldId": "archiveStatus",
+      "label": "资料归档状态",
+      "kind": "STATUS",
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "materialSemantics": "监督管理资料及时归档",
+      "syntheticPolicy": "只记录已归档，不写存储路径"
+    }
+  ],
+  "statusModel": {
+    "provenance": "MATERIAL_ABSTRACTION_WITH_SYNTHETIC_EDUCATIONAL",
+    "scope": "ONLY_THIS_CASE",
+    "allowedStatuses": [
+      {"code": "CONTRACT_REVIEWED", "display": "合同已审阅并反馈意见"},
+      {"code": "INTRADAY_ENABLED", "display": "事中监督功能已开启"},
+      {"code": "POSTTRADE_ENABLED", "display": "事后监督功能已开启"},
+      {"code": "RULE_CONFIGURED", "display": "监督规则已配置"},
+      {"code": "DATA_IMPORT_SUCCESS", "display": "数据全部成功导入"},
+      {"code": "SYSTEM_SETTINGS_NORMAL", "display": "系统内相关设置的状态正常"},
+      {"code": "TASK_EXECUTED", "display": "监督任务已自动执行"},
+      {"code": "RESULT_CONFIRMED", "display": "监督结果已确认"},
+      {"code": "NOTICE_GENERATED", "display": "提示函状态为已生成"},
+      {"code": "NOTICE_SENT", "display": "风险提示函已发送"},
+      {"code": "NOTICE_WAIVED", "display": "本轮豁免"},
+      {"code": "REPLY_RECORDED", "display": "管理人回函已记录"},
+      {"code": "POSTTRADE_DISABLED", "display": "事后监督功能已关闭"},
+      {"code": "ARCHIVED", "display": "监督资料已归档"}
+    ],
+    "allowedTransitions": [
+      {"from": "CONTRACT_REVIEWED", "to": "INTRADAY_ENABLED"},
+      {"from": "CONTRACT_REVIEWED", "to": "POSTTRADE_ENABLED"},
+      {"from": "INTRADAY_ENABLED", "to": "POSTTRADE_ENABLED"},
+      {"from": "POSTTRADE_ENABLED", "to": "RULE_CONFIGURED"},
+      {"from": "POSTTRADE_ENABLED", "to": "POSTTRADE_DISABLED"},
+      {"from": "RULE_CONFIGURED", "to": "DATA_IMPORT_SUCCESS"},
+      {"from": "DATA_IMPORT_SUCCESS", "to": "SYSTEM_SETTINGS_NORMAL"},
+      {"from": "SYSTEM_SETTINGS_NORMAL", "to": "TASK_EXECUTED"},
+      {"from": "TASK_EXECUTED", "to": "RESULT_CONFIRMED"},
+      {"from": "RESULT_CONFIRMED", "to": "NOTICE_GENERATED"},
+      {"from": "RESULT_CONFIRMED", "to": "NOTICE_WAIVED"},
+      {"from": "NOTICE_GENERATED", "to": "NOTICE_SENT"},
+      {"from": "NOTICE_SENT", "to": "REPLY_RECORDED"},
+      {"from": "NOTICE_WAIVED", "to": "ARCHIVED"},
+      {"from": "REPLY_RECORDED", "to": "ARCHIVED"},
+      {"from": "POSTTRADE_DISABLED", "to": "ARCHIVED"}
+    ],
+    "normalSequence": [
+      "CONTRACT_REVIEWED",
+      "INTRADAY_ENABLED",
+      "POSTTRADE_ENABLED",
+      "RULE_CONFIGURED",
+      "DATA_IMPORT_SUCCESS",
+      "SYSTEM_SETTINGS_NORMAL",
+      "TASK_EXECUTED",
+      "RESULT_CONFIRMED",
+      "NOTICE_GENERATED",
+      "NOTICE_SENT",
+      "REPLY_RECORDED",
+      "ARCHIVED"
+    ],
+    "stateInterpretation": "业务结果分类不等同于技术故障；B0 不登记技术失败、异常码或补救流程。"
+  },
+  "formulaRules": [
+    {
+      "formulaId": "SPV-FORMULA-RATIO",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "expression": "B0100001 = B0100002 / B0100003",
+      "operator": "EQUALS",
+      "resultFieldId": "B0100001",
+      "operandFieldIds": ["B0100002", "B0100003"],
+      "precision": 4,
+      "tolerance": "0",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §4.2.1 P191-P206", "M11 §4.2.1 P187-P202"],
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "formulaId": "SPV-FORMULA-LOWER-BOUND",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "expression": "B0100001 < CS_BLXX",
+      "operator": "LESS_THAN",
+      "operandFieldIds": ["B0100001", "CS_BLXX"],
+      "precision": 4,
+      "tolerance": "0",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §4.2.1 P203-P206", "M11 §4.2.1 P199-P202"],
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "formulaId": "SPV-FORMULA-LOWER-LIMIT",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "expression": "CS_BLXX = 5%",
+      "operator": "EQUALS_PERCENT",
+      "resultFieldId": "CS_BLXX",
+      "expected": "0.05",
+      "precision": 4,
+      "tolerance": "0",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §2.2 P40-P43；§4.2.1 P203-P206", "M11 §2.2；§4.2.1"],
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "formulaId": "SPV-FORMULA-N-MINUS-1",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "expression": "adjustmentDaysNMinus1 = adjustmentDaysN - 1",
+      "operator": "EQUALS",
+      "resultFieldId": "adjustmentDaysNMinus1",
+      "operandFieldIds": ["adjustmentDaysN"],
+      "precision": 0,
+      "tolerance": "0",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §4.2.2 P221-P223", "M11 §4.2.2 P217-P219"],
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "dateRules": [
+    {
+      "ruleId": "SPV-DATE-ACTIVE-WINDOW",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "expression": "enableDate <= dataDate < stopDate",
+      "leftInclusive": true,
+      "rightExclusive": true,
+      "defaultStopDate": "29991231",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §3.2.1 P133-P138；§4.1.1 P161-P169", "M11 §3.2.1；§4.1.1"],
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "ruleId": "SPV-DATE-RESULT-CLOSURE",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "expression": "结果确认 → 发函或豁免 → 回函记录 → 归档；到期/清算后关闭事后监督功能",
+      "leftInclusive": true,
+      "rightExclusive": true,
+      "defaultStopDate": "29991231",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §4.4-4.5；§6.1-6.2", "M11 §4.4-4.5；§6.1-6.2"],
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "evidenceIndex": [
+    {
+      "evidenceRef": "SPV-EVID-IDENTITY",
+      "sourceMaterialIds": ["M01", "M11", "M09"],
+      "locators": ["M01 §1.1.1-1.1.2；§2.1-2.2", "M11 §1.1.1-1.1.2；§2.1-2.2", "M09 p.8 / 第36-37条"],
+      "coveredFields": ["teachingKey", "contractReviewStatus", "ruleType"],
+      "allowImages": false,
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "evidenceRef": "SPV-EVID-CONTRACT-RATIO",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §2.2 P40-P43；§4.2.1 P191-P206", "M11 §2.2；§4.2.1"],
+      "coveredFields": ["numeratorCode", "denominatorCode", "B0100001", "B0100002", "B0100003", "CS_BLXX"],
+      "allowImages": false,
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "evidenceRef": "SPV-EVID-DATE-STATUS",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §3.2.1 P133-P138；§4.1.1-4.1.2 P161-P176", "M11 §3.2.1；§4.1.1-4.1.2"],
+      "coveredFields": ["enableDate", "dataDate", "stopDate", "intradayStatus", "posttradeStatus"],
+      "allowImages": false,
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "evidenceRef": "SPV-EVID-N-MINUS-1",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §4.2.2 P221-P223", "M11 §4.2.2 P217-P219"],
+      "coveredFields": ["adjustmentDaysN", "adjustmentDaysNMinus1"],
+      "allowImages": false,
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "evidenceRef": "SPV-EVID-DAILY-RESULT",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §4.3.1-4.4 P236-P289", "M11 §4.3.1-4.4"],
+      "coveredFields": ["dataImportStatus", "systemSettingsStatus", "taskStatus", "resultStatus"],
+      "allowImages": false,
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "evidenceRef": "SPV-EVID-NOTICE-REPLY",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §4.5.1-4.5.5 P291-P327", "M11 §4.5.1-4.5.5 P287-P325"],
+      "coveredFields": ["noticeGenerationStatus", "noticeSendStatus", "managerReplyStatus"],
+      "allowImages": false,
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "evidenceRef": "SPV-EVID-ARCHIVE",
+      "sourceMaterialIds": ["M01", "M11"],
+      "locators": ["M01 §6.1-6.2 P435-P445", "M11 §6.1-6.2"],
+      "coveredFields": ["archiveStatus", "posttradeStatus"],
+      "allowImages": false,
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "deidentificationPolicy": {
+    "provenance": "SYNTHETIC_EDUCATIONAL",
+    "scope": "ONLY_THIS_CASE",
+    "originalMaterialPolicy": "原始 DOCX/PDF 只读；不修改、不复制、不提交原始对象。",
+    "excludedData": [
+      "源图片、截图、EMF、Visio 对象和图像元数据",
+      "绝对源路径、系统菜单路径、内部地址和接口地址",
+      "真实机构、产品、账户、联系人、邮箱、操作员和客户信息",
+      "未公开持仓、净值、异常记录、监管信息和截图值"
+    ],
+    "replacementPolicy": [
+      "教学键使用 EDU-SPV-A-001 / EDU-SPV-B-002",
+      "日期使用本案例教学日期；停用默认值保持材料明示的 29991231",
+      "比例只使用材料关系 B0100001=B0100002/B0100003、B0100001<CS_BLXX、CS_BLXX=5%",
+      "数值只使用 A=4/100=4%、B=3/100=3%，不表示真实资产金额",
+      "状态只使用材料出现的业务语义；不添加技术故障或异常处置状态"
+    ],
+    "publicPrivateSplit": "B0 只公开字段、资料关系、教学值和作答所需状态；真实身份、生产权限、生产地址与未公开数据不进入任何资产。"
+  },
+  "fixtureContract": {
+    "provenance": "SYNTHETIC_EDUCATIONAL",
+    "scope": "ONLY_THIS_CASE",
+    "fixtureIds": ["EDU-SPV-A-001", "EDU-SPV-B-002"],
+    "fixtureRole": "FOUNDATION_NORMAL_REFERENCE",
+    "fixtureUsage": "FOUNDATION_SHARED_ONLY",
+    "sharedFixtureBoundary": "共享 A/B fixture 只作为 foundation 的正常字段、公式和状态顺序参考，不是任何路线的私有综合实务 fixture；其中的完整正常状态序列不构成 SPV-TASK-003 或 SPV-CLOSE-004 私有案例已经发送、回函或归档的事实。",
+    "routeSpecificPracticePolicy": {
+      "required": true,
+      "ownership": "EACH_ROUTE_INDEPENDENT",
+      "routeIds": ["SPV-CONTRACT-001", "SPV-RULE-002", "SPV-TASK-003", "SPV-CLOSE-004"],
+      "sharedFixturesAreNotRoutePractice": true,
+      "privatePracticeFixtureSource": "各路线 evidence.fixturePolicy.routePracticeFixtureIds"
+    },
+    "isomorphic": true,
+    "requiredValueKeys": [
+      "teachingKey",
+      "contractReviewDate",
+      "enableDate",
+      "dataDate",
+      "stopDate",
+      "contractReviewStatus",
+      "intradayStatus",
+      "posttradeStatus",
+      "ruleStatus",
+      "ruleType",
+      "numeratorCode",
+      "denominatorCode",
+      "B0100001",
+      "B0100002",
+      "B0100003",
+      "CS_BLXX",
+      "adjustmentDaysN",
+      "adjustmentDaysNMinus1",
+      "dataImportStatus",
+      "systemSettingsStatus",
+      "taskStatus",
+      "resultStatus",
+      "noticeGenerationStatus",
+      "noticeSendStatus",
+      "managerReplyStatus",
+      "archiveStatus"
+    ],
+    "requiredNormalStatusSequence": [
+      "CONTRACT_REVIEWED",
+      "INTRADAY_ENABLED",
+      "POSTTRADE_ENABLED",
+      "RULE_CONFIGURED",
+      "DATA_IMPORT_SUCCESS",
+      "SYSTEM_SETTINGS_NORMAL",
+      "TASK_EXECUTED",
+      "RESULT_CONFIRMED",
+      "NOTICE_GENERATED",
+      "NOTICE_SENT",
+      "REPLY_RECORDED",
+      "ARCHIVED"
+    ],
+    "decimalPolicy": {
+      "representation": "JSON strings parsed with Decimal",
+      "ratioScale": 4,
+      "integerScale": 0,
+      "tolerance": "0"
+    },
+    "datePolicy": {
+      "format": "YYYY-MM-DD or compact YYYYMMDD for the material default",
+      "activeWindow": "enableDate <= dataDate < stopDate",
+      "defaultStopDate": "29991231"
+    },
+    "sourcePolicy": "每个字段和状态记录保留 M01/M11 来源 ID；不引用图片或绝对路径。共享 A/B 只服务 foundation 正常参考；四条路线综合实务必须使用各自独立 fixture。"
+  },
+  "routeEvidenceBoundaries": [
+    {
+      "routeId": "SPV-CONTRACT-001",
+      "routePurpose": "合同条款与监督规则可实现性",
+      "evidenceRefs": ["SPV-EVID-IDENTITY", "SPV-EVID-CONTRACT-RATIO"],
+      "allowedSourceMaterialIds": ["M01", "M02", "M09", "M11"],
+      "allowedFields": ["contractReviewStatus", "ruleType", "numeratorCode", "denominatorCode", "B0100001", "B0100002", "B0100003", "CS_BLXX"],
+      "excluded": ["真实合同主体和机构名称", "系统菜单或权限事实", "没有材料支持的规则参数"],
+      "status": "PUBLISHED",
+      "availability": "OPEN",
+      "releaseRegistration": "PUBLISHED_IN_CUSTODY_2026.08.12",
+      "registrationStage": "C1",
+      "releaseId": "CUSTODY_2026.08.12",
+      "mapVersion": "2026.08.12",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "routeId": "SPV-RULE-002",
+      "routePurpose": "监督对象启停与规则生效期",
+      "evidenceRefs": ["SPV-EVID-DATE-STATUS", "SPV-EVID-N-MINUS-1"],
+      "allowedSourceMaterialIds": ["M01", "M11"],
+      "allowedFields": ["teachingKey", "enableDate", "dataDate", "stopDate", "intradayStatus", "posttradeStatus", "ruleStatus", "adjustmentDaysN", "adjustmentDaysNMinus1"],
+      "excluded": ["真实组合成立依据、账户、操作员和权限矩阵", "未获支持的交易日历或日期口径", "技术失败和异常处置"],
+      "status": "PUBLISHED",
+      "availability": "OPEN",
+      "releaseRegistration": "PUBLISHED_IN_CUSTODY_2026.08.12",
+      "registrationStage": "C1",
+      "releaseId": "CUSTODY_2026.08.12",
+      "mapVersion": "2026.08.12",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "routeId": "SPV-TASK-003",
+      "routePurpose": "每日数据、任务与结果分类",
+      "evidenceRefs": ["SPV-EVID-DAILY-RESULT"],
+      "allowedSourceMaterialIds": ["M01", "M02", "M09", "M11"],
+      "allowedFields": ["dataDate", "dataImportStatus", "systemSettingsStatus", "taskStatus", "resultStatus"],
+      "excluded": ["技术故障码、失败数量、系统版本和接口事实", "真实持仓、净值或异常记录", "把业务结果写成技术故障"],
+      "status": "PUBLISHED",
+      "availability": "OPEN",
+      "releaseRegistration": "PUBLISHED_IN_CUSTODY_2026.08.12",
+      "registrationStage": "C1",
+      "releaseId": "CUSTODY_2026.08.12",
+      "mapVersion": "2026.08.12",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "routeId": "SPV-CLOSE-004",
+      "routePurpose": "结果确认、期限豁免、提示函、回函与归档闭环",
+      "evidenceRefs": ["SPV-EVID-NOTICE-REPLY", "SPV-EVID-ARCHIVE"],
+      "allowedSourceMaterialIds": ["M01", "M05", "M09", "M10", "M11"],
+      "allowedFields": ["resultStatus", "noticeGenerationStatus", "noticeSendStatus", "managerReplyStatus", "archiveStatus", "posttradeStatus", "stopDate"],
+      "excluded": ["真实发送参与人、邮箱、联系人和机构信息", "提示函正文、回函正文和附件内容", "发送失败补救、异常码和技术故障路线"],
+      "status": "PUBLISHED",
+      "availability": "OPEN",
+      "releaseRegistration": "PUBLISHED_IN_CUSTODY_2026.08.12",
+      "registrationStage": "C1",
+      "releaseId": "CUSTODY_2026.08.12",
+      "mapVersion": "2026.08.12",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "deferRegister": [
+    {
+      "topic": "年金",
+      "sourceMaterialId": "M11",
+      "locator": "§5.1",
+      "status": "DEFER",
+      "reason": "缺少可与共享教学键、数据日、规则参数和两套正常 fixture 对齐的完整案例包。"
+    },
+    {
+      "topic": "保险",
+      "sourceMaterialId": "M11",
+      "locator": "§5.2",
+      "status": "DEFER",
+      "reason": "缺少保险公司资产数据、组合封账结果和同案正常字段闭环。"
+    },
+    {
+      "topic": "理财",
+      "sourceMaterialId": "M11",
+      "locator": "§5.3",
+      "status": "DEFER",
+      "reason": "缺少与共享案例连续对应的合同、规则和正常结果资料包。"
+    },
+    {
+      "topic": "QFII-WFOE",
+      "sourceMaterialId": "M11",
+      "locator": "§5.4",
+      "status": "DEFER",
+      "reason": "独立层级、T+1/T+2 和外汇衍生品口径没有共享正常 fixture 与权限闭合。"
+    },
+    {
+      "topic": "信息披露",
+      "sourceMaterialIds": ["M05", "M10"],
+      "locator": "M05 p.1-4、p.11-12；M10 p.1-4",
+      "status": "DEFER",
+      "reason": "本批只保留披露边界，不构造独立报告或披露时限路线。"
+    },
+    {
+      "topic": "流动性",
+      "sourceMaterialId": "M08",
+      "locator": "p.1-3、p.8-10",
+      "status": "DEFER",
+      "reason": "缺少同一产品的流动性数据、规则参数和正常跨来源勾稽包。"
+    },
+    {
+      "topic": "信用衍生品",
+      "sourceMaterialId": "M06",
+      "locator": "p.1-3 / 第1-11条",
+      "status": "DEFER",
+      "reason": "只有法规边界，没有可复算的同案持仓、估值和风险揭示资料包。"
+    }
+  ]
+}

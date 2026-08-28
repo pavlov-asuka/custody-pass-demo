@@ -1,0 +1,556 @@
+{
+  "evidenceId": "SPV-EVID-RULE-002",
+  "version": "1.0.0",
+  "scope": "ONLY_THIS_CASE",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "routeId": "SPV-RULE-002",
+  "routeCode": "SPV-RULE-002",
+  "title": "监督对象启停与规则生效期证据",
+  "scopeNotice": "本文件是 SPV-RULE-002 的私有证据、日期窗口与 N-1 答案链。所有教学组合键、日期和参数均为 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE；不登记地图、发布清单、生产关闭日期、系统状态或权限。",
+  "sharedEvidence": [
+    "SPV-FOUNDATION-001",
+    "SPV-EVID-RULE-OBJECT-PERIOD",
+    "SPV-EVID-RULE-EFFECTIVE"
+  ],
+  "materialAnchors": [
+    {
+      "sourceMaterialCode": "M01",
+      "locators": [
+        "§1.1.2—1.1.3",
+        "§4.1.1—4.1.2",
+        "§4.2.2"
+      ],
+      "teachingUse": "支持对象类型、组合成立/到期信息、启停日期、规则生效期和本案例参数关系的材料抽象；不补造生产关闭记录。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "sourceMaterialCode": "M11",
+      "locators": [
+        "§4.1",
+        "§4.2"
+      ],
+      "teachingUse": "独立核对对象启停窗口、规则配置和生效期参数读取顺序；不推断未给出的交易日历或权限。",
+      "provenance": "MATERIAL_ABSTRACTION"
+    }
+  ],
+  "mappingClaims": [
+    {
+      "claimId": "SPV-RULE-CLAIM-01",
+      "claim": "组合成立/到期依据表承载对象类型、教学组合键和启停日期；规则配置及生效期表承载同一教学组合键下的规则状态及 N/N-1 参数。",
+      "sourceGroups": [
+        "SPV-RULE-B-BASIS",
+        "SPV-RULE-B-EFFECTIVE"
+      ],
+      "activity": "FIELD_MAP",
+      "auditedAnchors": ["M01 §1.1.2—1.1.3", "M01 §4.1.1—4.1.2", "M11 §4.1"],
+      "provenance": "MATERIAL_ABSTRACTION"
+    },
+    {
+      "claimId": "SPV-RULE-CLAIM-02",
+      "claim": "本案例日期窗口按 enableDate <= dataDate < stopDate 逐项勾稽，stopDate 默认值为 29991231。",
+      "sourceGroups": [
+        "SPV-RULE-B-BASIS",
+        "SPV-RULE-B-EFFECTIVE"
+      ],
+      "activity": "RECONCILIATION",
+      "auditedAnchors": ["M01 §4.1.1—4.1.2", "M11 §4.1"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "claimId": "SPV-RULE-CLAIM-03",
+      "claim": "规则配置给出 N=10；按 Decimal('10') - Decimal('1') 复算得到 N-1=9。",
+      "sourceGroups": [
+        "SPV-RULE-B-EFFECTIVE"
+      ],
+      "activity": "CALCULATION",
+      "auditedAnchors": ["M01 §4.2.2", "M11 §4.2"],
+      "provenance": "CASE_POLICY"
+    },
+    {
+      "claimId": "SPV-RULE-CLAIM-04",
+      "claim": "日期窗口和参数结论只服务本案例，不扩展为生产关闭日期、通用交易日历、权限或技术处理规则。",
+      "sourceGroups": [
+        "M01",
+        "M11"
+      ],
+      "activity": "BOUNDARY",
+      "auditedAnchors": ["M01 §1.1.2—1.1.3", "M01 §4.1.1—4.1.2", "M01 §4.2.2", "M11 §4.1", "M11 §4.2"],
+      "provenance": "BOUNDARY_ONLY"
+    }
+  ],
+  "caseParameters": [
+    {
+      "fixtureId": "SPV-RULE-DEMO-A",
+      "parameter": "objectAndKey",
+      "value": "subjectType=资产组合; teachingKey=EDU-SPV-A-001",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-RULE-DEMO-A",
+      "parameter": "dates",
+      "value": "enableDate=2026-01-05; dataDate=2026-01-06; stopDate=29991231",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-RULE-DEMO-A",
+      "parameter": "period",
+      "value": "ruleStatus=RULE_CONFIGURED; N=10; N-1=9",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-RULE-COMP-B",
+      "parameter": "objectAndKey",
+      "value": "subjectType=资产组合; teachingKey=EDU-SPV-B-002",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-RULE-COMP-B",
+      "parameter": "dates",
+      "value": "enableDate=2026-02-05; dataDate=2026-02-06; stopDate=29991231",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    {
+      "fixtureId": "SPV-RULE-COMP-B",
+      "parameter": "period",
+      "value": "ruleStatus=RULE_CONFIGURED; N=10; N-1=9",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    }
+  ],
+  "ruleCatalog": [
+    {
+      "ruleId": "SPV-RULE-RULE-SOURCE-MAP",
+      "description": "两份合成材料按同一教学组合键对应字段职责",
+      "expected": "B_SOURCE_ROLE_MATCH",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-RULE-RULE-DATE-WINDOW",
+      "description": "对象、教学组合键和日期窗口在案例 B 中闭合",
+      "expected": "B_ACTIVE_WINDOW_RECONCILED",
+      "condition": "资产组合 EDU-SPV-B-002；2026-02-05 <= 2026-02-06 < 29991231",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-RULE-RULE-N-MINUS-1",
+      "description": "从 N=10 复算 N-1",
+      "formula": "Decimal('10') - Decimal('1')",
+      "expected": 9,
+      "precision": 0,
+      "tolerance": "0",
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-RULE-RULE-PERIOD-ENTRY",
+      "description": "案例 B 对象启停与规则参数工作纸字段集合",
+      "expected": [
+        "subjectType=资产组合",
+        "teachingKey=EDU-SPV-B-002",
+        "enableDate=2026-02-05",
+        "dataDate=2026-02-06",
+        "stopDate=29991231",
+        "ruleStatus=RULE_CONFIGURED",
+        "N=10",
+        "N-1=9"
+      ],
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    },
+    {
+      "ruleId": "SPV-RULE-RULE-CONCLUSION",
+      "description": "案例 B 可回查的启停与生效期短结论",
+      "expected": [
+        "组合成立/到期依据表",
+        "规则配置及生效期表",
+        "资产组合",
+        "EDU-SPV-B-002",
+        "2026-02-05",
+        "2026-02-06",
+        "29991231",
+        "enableDate <= dataDate < stopDate",
+        "N=10",
+        "N-1=9",
+        "跨来源一致"
+      ],
+      "scope": "ONLY_THIS_CASE",
+      "provenance": "SYNTHETIC_EDUCATIONAL"
+    }
+  ],
+  "answerChains": {
+    "demonstrationA": {
+      "fixtureId": "SPV-RULE-DEMO-A",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE",
+      "identity": {
+        "teachingKey": "EDU-SPV-A-001",
+        "subjectType": "资产组合",
+        "enableDate": "2026-01-05",
+        "dataDate": "2026-01-06",
+        "stopDate": "29991231",
+        "ruleStatus": "RULE_CONFIGURED",
+        "adjustmentDaysN": "10",
+        "adjustmentDaysNMinus1": "9"
+      },
+      "sourceToRole": [
+        {
+          "sourceMaterialId": "SPV-RULE-A-BASIS",
+          "role": "COMPOSITION_BASIS_TABLE",
+          "fields": [
+            "subjectType=资产组合",
+            "teachingKey=EDU-SPV-A-001",
+            "enableDate=2026-01-05",
+            "dataDate=2026-01-06",
+            "stopDate=29991231",
+            "scope=SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+          ]
+        },
+        {
+          "sourceMaterialId": "SPV-RULE-A-EFFECTIVE",
+          "role": "RULE_EFFECTIVE_PERIOD_TABLE",
+          "fields": [
+            "subjectType=资产组合",
+            "teachingKey=EDU-SPV-A-001",
+            "ruleStatus=RULE_CONFIGURED",
+            "adjustmentDaysN=10",
+            "adjustmentDaysNMinus1=9",
+            "enableDate=2026-01-05",
+            "dataDate=2026-01-06",
+            "stopDate=29991231",
+            "scope=SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+          ]
+        }
+      ],
+      "decimalChain": [
+        {
+          "fieldId": "adjustmentDaysNMinus1",
+          "formula": "Decimal('10') - Decimal('1')",
+          "result": "9",
+          "unit": "day",
+          "precision": 0,
+          "tolerance": "0"
+        }
+      ],
+      "dateCheck": {
+        "formula": "enableDate <= dataDate < stopDate",
+        "evaluated": "2026-01-05 <= 2026-01-06 < 29991231",
+        "result": "TRUE",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reconciliation": {
+        "subjectTypeMatch": "YES",
+        "teachingKeyMatch": "YES",
+        "enableDateMatch": "YES",
+        "dataDateMatch": "YES",
+        "stopDateDefault": "29991231",
+        "activeWindow": "enableDate <= dataDate < stopDate",
+        "adjustmentDaysN": "10",
+        "adjustmentDaysNMinus1": "9",
+        "status": "ACTIVE_WINDOW_AND_PERIOD_MATCHED"
+      },
+      "expectedConclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：资产组合 EDU-SPV-A-001 在两份合成材料中跨来源一致；enableDate=2026-01-05、dataDate=2026-01-06、stopDate=29991231，满足 enableDate <= dataDate < stopDate；ruleStatus=RULE_CONFIGURED，N=10，按 Decimal('10') - Decimal('1') 复算 N-1=9；该结论不代表生产日期、系统状态或权限。"
+    },
+    "comprehensiveB": {
+      "fixtureId": "SPV-RULE-COMP-B",
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE",
+      "identity": {
+        "teachingKey": "EDU-SPV-B-002",
+        "subjectType": "资产组合",
+        "enableDate": "2026-02-05",
+        "dataDate": "2026-02-06",
+        "stopDate": "29991231",
+        "ruleStatus": "RULE_CONFIGURED",
+        "adjustmentDaysN": "10",
+        "adjustmentDaysNMinus1": "9"
+      },
+      "sourceToRole": [
+        {
+          "sourceMaterialId": "SPV-RULE-B-BASIS",
+          "role": "COMPOSITION_BASIS_TABLE",
+          "fields": [
+            "subjectType=资产组合",
+            "teachingKey=EDU-SPV-B-002",
+            "enableDate=2026-02-05",
+            "dataDate=2026-02-06",
+            "stopDate=29991231",
+            "scope=SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+          ]
+        },
+        {
+          "sourceMaterialId": "SPV-RULE-B-EFFECTIVE",
+          "role": "RULE_EFFECTIVE_PERIOD_TABLE",
+          "fields": [
+            "subjectType=资产组合",
+            "teachingKey=EDU-SPV-B-002",
+            "ruleStatus=RULE_CONFIGURED",
+            "adjustmentDaysN=10",
+            "adjustmentDaysNMinus1=9",
+            "enableDate=2026-02-05",
+            "dataDate=2026-02-06",
+            "stopDate=29991231",
+            "scope=SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE"
+          ]
+        }
+      ],
+      "decimalChain": [
+        {
+          "fieldId": "adjustmentDaysNMinus1",
+          "formula": "Decimal('10') - Decimal('1')",
+          "result": "9",
+          "unit": "day",
+          "precision": 0,
+          "tolerance": "0"
+        }
+      ],
+      "dateCheck": {
+        "formula": "enableDate <= dataDate < stopDate",
+        "evaluated": "2026-02-05 <= 2026-02-06 < 29991231",
+        "result": "TRUE",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reconciliation": {
+        "subjectTypeMatch": "YES",
+        "teachingKeyMatch": "YES",
+        "enableDateMatch": "YES",
+        "dataDateMatch": "YES",
+        "stopDateDefault": "29991231",
+        "activeWindow": "enableDate <= dataDate < stopDate",
+        "adjustmentDaysN": "10",
+        "adjustmentDaysNMinus1": "9",
+        "status": "B_ACTIVE_WINDOW_RECONCILED"
+      },
+      "expectedConclusion": "SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE：组合成立/到期依据表与规则配置及生效期表按 teachingKey=EDU-SPV-B-002 跨来源一致；对象为资产组合，enableDate=2026-02-05、dataDate=2026-02-06、stopDate=29991231，满足 enableDate <= dataDate < stopDate；规则状态为 RULE_CONFIGURED，N=10，按 Decimal('10') - Decimal('1') 复算 N-1=9；跨来源一致；该结论不代表生产日期、系统状态或权限。"
+    }
+  },
+  "atomicWorkItems": [
+    {
+      "workItemId": "spv-rule-b-source-map",
+      "responseKind": "SELECT",
+      "observableAction": "定位两份材料中对象、教学组合键、启停日期和规则参数的字段职责",
+      "fixtureValue": "B_SOURCE_ROLE_MATCH",
+      "sourceMaterialIds": ["SPV-RULE-B-BASIS", "SPV-RULE-B-EFFECTIVE"],
+      "materialLocators": ["M01 §1.1.2—1.1.3", "M01 §4.1.1—4.1.2", "M11 §4.1", "M11 §4.2"],
+      "scoreTargets": ["C-SPV-RULE-SOURCE-OBJECT", "P-SPV-RULE-FIELD-READ", "M-SPV-RULE-SOURCE-DATE-CHAIN"],
+      "remediationTargetId": "SPV-RULE-SOURCES-DATES",
+      "source": {
+        "materialIds": ["SPV-RULE-B-BASIS", "SPV-RULE-B-EFFECTIVE"],
+        "fieldIds": ["subject_type", "teaching_key", "enable_date", "data_date", "stop_date", "rule_status", "adjustment_days_n", "adjustment_days_n_minus_1"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-RULE-REF-OBJECT-PERIOD", "SPV-RULE-REF-EFFECTIVE"],
+        "anchor": "依据表负责对象与启停日期，配置表负责规则状态和 N/N-1；两者按教学组合键对应"
+      },
+      "rule": {
+        "ruleId": "SPV-RULE-RULE-SOURCE-MAP",
+        "expected": "B_SOURCE_ROLE_MATCH",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-RULE-SOURCES-DATES",
+        "criterionIds": ["C-SPV-RULE-SOURCE-OBJECT", "P-SPV-RULE-FIELD-READ", "M-SPV-RULE-SOURCE-DATE-CHAIN"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-RULE-KC-01",
+        "questionId": "SPV-RULE-Q-01"
+      }
+    },
+    {
+      "workItemId": "spv-rule-b-date-window",
+      "responseKind": "SELECT",
+      "observableAction": "按同一教学组合键勾稽对象类型和 enableDate <= dataDate < stopDate",
+      "fixtureValue": "B_ACTIVE_WINDOW_RECONCILED",
+      "sourceMaterialIds": ["SPV-RULE-B-BASIS", "SPV-RULE-B-EFFECTIVE"],
+      "materialLocators": ["M01 §4.1.1—4.1.2", "M11 §4.1"],
+      "scoreTargets": ["C-SPV-RULE-WINDOW-PARAM", "P-SPV-RULE-DATE-RECONCILIATION", "R-SPV-RULE-DEFAULT-STOP", "M-SPV-RULE-SOURCE-DATE-CHAIN"],
+      "remediationTargetId": "SPV-RULE-DATE-WINDOW",
+      "source": {
+        "materialIds": ["SPV-RULE-B-BASIS", "SPV-RULE-B-EFFECTIVE"],
+        "fieldIds": ["subject_type", "teaching_key", "enable_date", "data_date", "stop_date", "effective_window"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-RULE-REF-OBJECT-PERIOD"],
+        "anchor": "subjectType、teachingKey 和三项日期对应，且 2026-02-05 <= 2026-02-06 < 29991231"
+      },
+      "rule": {
+        "ruleId": "SPV-RULE-RULE-DATE-WINDOW",
+        "expected": "B_ACTIVE_WINDOW_RECONCILED",
+        "condition": "enableDate <= dataDate < stopDate",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-RULE-DATE-WINDOW",
+        "criterionIds": ["C-SPV-RULE-WINDOW-PARAM", "P-SPV-RULE-DATE-RECONCILIATION", "R-SPV-RULE-DEFAULT-STOP", "M-SPV-RULE-SOURCE-DATE-CHAIN"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-RULE-KC-02",
+        "questionId": "SPV-RULE-Q-04"
+      }
+    },
+    {
+      "workItemId": "spv-rule-b-n-minus-1",
+      "responseKind": "NUMBER",
+      "observableAction": "读取 N=10 并用 Decimal 复算 N-1",
+      "fixtureValue": "9",
+      "unit": "day",
+      "precision": 0,
+      "tolerance": "0",
+      "sourceMaterialIds": ["SPV-RULE-B-EFFECTIVE"],
+      "materialLocators": ["M01 §4.2.2", "M11 §4.2"],
+      "scoreTargets": ["C-SPV-RULE-WINDOW-PARAM", "P-SPV-RULE-N-MINUS-1", "M-SPV-RULE-N-MINUS-1-AND-SCOPE"],
+      "remediationTargetId": "SPV-RULE-N-MINUS-1",
+      "source": {
+        "materialIds": ["SPV-RULE-B-EFFECTIVE"],
+        "fieldIds": ["adjustment_days_n", "adjustment_days_n_minus_1"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-RULE-REF-EFFECTIVE"],
+        "anchor": "规则配置及生效期表给出 N=10；Decimal('10') - Decimal('1') = 9"
+      },
+      "rule": {
+        "ruleId": "SPV-RULE-RULE-N-MINUS-1",
+        "formula": "Decimal('10') - Decimal('1')",
+        "expected": 9,
+        "precision": 0,
+        "tolerance": "0",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-RULE-N-MINUS-1",
+        "criterionIds": ["C-SPV-RULE-WINDOW-PARAM", "P-SPV-RULE-N-MINUS-1", "M-SPV-RULE-N-MINUS-1-AND-SCOPE"],
+        "materialStep": "KNOWLEDGE_CARD",
+        "materialItemId": "SPV-RULE-KC-03",
+        "questionId": "SPV-RULE-Q-02"
+      }
+    },
+    {
+      "workItemId": "spv-rule-b-object-period-entry",
+      "responseKind": "TEXT",
+      "observableAction": "将对象、教学组合键、启停日期和规则参数写入结构化工作纸",
+      "fixtureValue": "subjectType=资产组合；teachingKey=EDU-SPV-B-002；enableDate=2026-02-05；dataDate=2026-02-06；stopDate=29991231；ruleStatus=RULE_CONFIGURED；N=10；N-1=9",
+      "sourceMaterialIds": ["SPV-RULE-B-BASIS", "SPV-RULE-B-EFFECTIVE"],
+      "materialLocators": ["M01 §1.1.2—1.1.3", "M01 §4.1.1—4.1.2", "M01 §4.2.2", "M11 §4.1", "M11 §4.2"],
+      "scoreTargets": ["C-SPV-RULE-SOURCE-OBJECT", "R-SPV-RULE-DEFAULT-STOP", "M-SPV-RULE-SOURCE-DATE-CHAIN"],
+      "remediationTargetId": "SPV-RULE-WORKPAPER",
+      "source": {
+        "materialIds": ["SPV-RULE-B-BASIS", "SPV-RULE-B-EFFECTIVE"],
+        "fieldIds": ["subject_type", "teaching_key", "enable_date", "data_date", "stop_date", "rule_status", "adjustment_days_n", "adjustment_days_n_minus_1", "synthetic_scope"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-RULE-REF-OBJECT-PERIOD", "SPV-RULE-REF-EFFECTIVE"],
+        "anchor": "工作纸同时保留 subjectType、teachingKey、enableDate、dataDate、stopDate、ruleStatus、N 和 N-1"
+      },
+      "rule": {
+        "ruleId": "SPV-RULE-RULE-PERIOD-ENTRY",
+        "expected": ["subjectType=资产组合", "teachingKey=EDU-SPV-B-002", "enableDate=2026-02-05", "dataDate=2026-02-06", "stopDate=29991231", "ruleStatus=RULE_CONFIGURED", "N=10", "N-1=9"],
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-RULE-WORKPAPER",
+        "criterionIds": ["C-SPV-RULE-SOURCE-OBJECT", "R-SPV-RULE-DEFAULT-STOP", "M-SPV-RULE-SOURCE-DATE-CHAIN"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-02",
+        "questionId": "SPV-RULE-Q-03"
+      }
+    },
+    {
+      "workItemId": "spv-rule-b-conclusion",
+      "responseKind": "TEXT",
+      "observableAction": "写出包含两份来源、对象、日期关系、N/N-1 和案例边界的短结论",
+      "fixtureValue": "组合成立/到期依据表与规则配置及生效期表；资产组合 EDU-SPV-B-002；2026-02-05 <= 2026-02-06 < 29991231；N=10，N-1=9；跨来源一致；不代表生产日期、系统状态或权限",
+      "sourceMaterialIds": ["SPV-RULE-B-BASIS", "SPV-RULE-B-EFFECTIVE"],
+      "materialLocators": ["M01 §1.1.2—1.1.3", "M01 §4.1.1—4.1.2", "M01 §4.2.2", "M11 §4.1", "M11 §4.2"],
+      "scoreTargets": ["R-SPV-RULE-BOUNDARY", "E-SPV-RULE-TRACEABLE-CONCLUSION", "M-SPV-RULE-N-MINUS-1-AND-SCOPE"],
+      "remediationTargetId": "SPV-RULE-CONCLUSION",
+      "source": {
+        "materialIds": ["SPV-RULE-B-BASIS", "SPV-RULE-B-EFFECTIVE"],
+        "fieldIds": ["subject_type", "teaching_key", "enable_date", "data_date", "stop_date", "rule_status", "adjustment_days_n", "adjustment_days_n_minus_1", "effective_window", "synthetic_scope"],
+        "provenance": "SYNTHETIC_EDUCATIONAL",
+        "scope": "ONLY_THIS_CASE"
+      },
+      "reference": {
+        "referenceIds": ["SPV-RULE-REF-OBJECT-PERIOD", "SPV-RULE-REF-EFFECTIVE"],
+        "anchor": "一句话回指两份来源、对象、日期窗口、Decimal 复算和 ONLY_THIS_CASE 边界"
+      },
+      "rule": {
+        "ruleId": "SPV-RULE-RULE-CONCLUSION",
+        "expected": ["组合成立/到期依据表", "规则配置及生效期表", "资产组合", "EDU-SPV-B-002", "2026-02-05", "2026-02-06", "29991231", "enableDate <= dataDate < stopDate", "N=10", "N-1=9", "跨来源一致"],
+        "scope": "ONLY_THIS_CASE"
+      },
+      "remediation": {
+        "remediationTargetId": "SPV-RULE-CONCLUSION",
+        "criterionIds": ["R-SPV-RULE-BOUNDARY", "E-SPV-RULE-TRACEABLE-CONCLUSION", "M-SPV-RULE-N-MINUS-1-AND-SCOPE"],
+        "materialStep": "DEMONSTRATION",
+        "materialItemId": "DEMONSTRATION-STEP-05",
+        "questionId": "SPV-RULE-Q-05"
+      }
+    }
+  ],
+  "coverage": {
+    "FIELD_MAP": ["spv-rule-b-source-map"],
+    "RECONCILIATION": ["spv-rule-b-date-window"],
+    "CALCULATION": ["spv-rule-b-n-minus-1"],
+    "LEDGER_ENTRY": ["spv-rule-b-object-period-entry"],
+    "SHORT_TEXT": ["spv-rule-b-conclusion"]
+  },
+  "dependencyPolicy": {
+    "hardPrerequisiteNodeIds": ["SPV-NODE-CONTRACT-001"],
+    "dependsOnRouteIds": ["SPV-CONTRACT-001"],
+    "serialOrder": 2,
+    "stageGate": false,
+    "releaseRegistration": "PUBLISHED_IN_CUSTODY_2026.08.12",
+    "registrationStage": "C1",
+    "status": "PUBLISHED",
+    "availability": "OPEN",
+    "releaseId": "CUSTODY_2026.08.12",
+    "mapVersion": "2026.08.12"
+  },
+  "fixturePolicy": {
+    "routeOwnsIndependentDemoA": "SPV-RULE-DEMO-A",
+    "routeOwnsIndependentComprehensiveB": "SPV-RULE-COMP-B",
+    "sharedWithOtherRoute": false,
+    "isomorphicStructure": true,
+    "variationNotice": "A/B 使用不同教学组合键、启用日期和数据日期；两组均使用 subjectType=资产组合、stopDate=29991231、N=10 和 N-1=9，字段角色与计算/勾稽结构同构。",
+    "markerPolicy": "两组案例及每个 concrete evidence 对象均标记 SYNTHETIC_EDUCATIONAL / ONLY_THIS_CASE。",
+    "foundationSharedFixtureIds": ["EDU-SPV-A-001", "EDU-SPV-B-002"],
+    "usesFoundationSharedFixtures": false,
+    "routePracticeScope": "ROUTE_PRIVATE_INDEPENDENT",
+    "routePracticeFixtureIds": ["SPV-RULE-DEMO-A", "SPV-RULE-COMP-B"]
+  },
+  "exclusionBoundary": {
+    "status": "BUILDING_DEFER",
+    "topics": [
+      "真实对象、产品、组合、账户、机构、人员和联系人",
+      "真实交易日历、生产关闭日期、生产启用日期和未给出的关闭原因",
+      "QFII/WFOE 流程、T+1/T+2 普遍规则和其他通用生效期规则",
+      "生产权限矩阵、系统菜单、技术失败和异常处置",
+      "图片、截图、图像元数据和原材料绝对路径"
+    ],
+    "reason": "本路线仅使用 M01 §1.1.2—1.1.3、§4.1.1—4.1.2、§4.2.2 与 M11 §4.1、§4.2 的已审计材料抽象；未被支持的生产事实继续 BUILDING/DEFER。"
+  },
+  "integrity": {
+    "workItemMappingCount": 5,
+    "uniqueWorkItemMappings": true,
+    "everyWorkItemHasSourceReferenceRuleRemediation": true,
+    "everyWorkItemHasMaterialLocator": true,
+    "demoAndComprehensiveAreIsomorphic": true,
+    "demoAndComprehensiveUseDifferentKeysAndDates": true,
+    "bothCasesUseN10AndNMinus1_9": true,
+    "allCaseValuesMarkedOnlyThisCase": true,
+    "normalCaseOnly": true,
+    "mapAndReleaseRegistration": true
+  }
+}

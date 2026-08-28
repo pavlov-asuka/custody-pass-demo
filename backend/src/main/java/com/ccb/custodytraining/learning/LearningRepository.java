@@ -340,7 +340,13 @@ public class LearningRepository {
         parameters.add(userId);
         if (line != null) {
             where.append(" AND route_id LIKE ?");
-            parameters.add(line.equals("ACCOUNTING") ? "ACC-%" : line + "-%");
+            String routePrefix = switch (line) {
+                case "ACCOUNTING", "ACC" -> "ACC";
+                case "CLEARING", "CLR" -> "CLR";
+                case "SUPERVISION", "SPV" -> "SPV";
+                default -> line;
+            };
+            parameters.add(routePrefix + "-%");
         }
         if (conclusion != null) {
             where.append(" AND conclusion=?");

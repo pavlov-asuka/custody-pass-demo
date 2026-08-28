@@ -1,0 +1,314 @@
+{
+  "fixtureId": "EDU-SPV-B-002",
+  "caseLabel": "B",
+  "provenance": "SYNTHETIC_EDUCATIONAL",
+  "scope": "ONLY_THIS_CASE",
+  "fixtureRole": "FOUNDATION_NORMAL_REFERENCE",
+  "fixtureUsage": "FOUNDATION_SHARED_ONLY",
+  "routeSpecificPracticePolicy": {
+    "isFoundationOnly": true,
+    "isRoutePrivatePractice": false,
+    "independentRoutePracticeRequired": true,
+    "routePracticeOwner": "ROUTE_EVIDENCE_BUNDLES",
+    "sharedStatusTimelineInterpretation": "仅供 foundation 正常字段、公式和状态顺序参考；不代表任一路线私有综合实务已发送、回函或归档。"
+  },
+  "routeIds": [
+    "SPV-CONTRACT-001",
+    "SPV-RULE-002",
+    "SPV-TASK-003",
+    "SPV-CLOSE-004"
+  ],
+  "sourceMaterialIds": ["M01", "M11"],
+  "evidenceRefs": [
+    "SPV-EVID-IDENTITY",
+    "SPV-EVID-CONTRACT-RATIO",
+    "SPV-EVID-DATE-STATUS",
+    "SPV-EVID-N-MINUS-1",
+    "SPV-EVID-DAILY-RESULT",
+    "SPV-EVID-NOTICE-REPLY",
+    "SPV-EVID-ARCHIVE"
+  ],
+  "values": {
+    "teachingKey": {
+      "kind": "IDENTIFIER",
+      "value": "EDU-SPV-B-002",
+      "formula": null,
+      "unit": "text",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "contractReviewDate": {
+      "kind": "DATE",
+      "value": "2026-07-03",
+      "formula": null,
+      "unit": "calendar-date",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "enableDate": {
+      "kind": "DATE",
+      "value": "2026-07-04",
+      "formula": null,
+      "unit": "calendar-date",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "dataDate": {
+      "kind": "DATE",
+      "value": "2026-07-18",
+      "formula": null,
+      "unit": "calendar-date",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "stopDate": {
+      "kind": "DATE",
+      "value": "29991231",
+      "formula": null,
+      "unit": "calendar-date",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "contractReviewStatus": {
+      "kind": "STATUS",
+      "value": "CONTRACT_REVIEWED",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "intradayStatus": {
+      "kind": "STATUS",
+      "value": "INTRADAY_ENABLED",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "posttradeStatus": {
+      "kind": "STATUS",
+      "value": "POSTTRADE_ENABLED",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "ruleStatus": {
+      "kind": "STATUS",
+      "value": "RULE_CONFIGURED",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "ruleType": {
+      "kind": "ENUM",
+      "value": "INVESTMENT_RATIO",
+      "formula": null,
+      "unit": "text",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "numeratorCode": {
+      "kind": "IDENTIFIER",
+      "value": "B0100002",
+      "formula": null,
+      "unit": "text",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "denominatorCode": {
+      "kind": "IDENTIFIER",
+      "value": "B0100003",
+      "formula": null,
+      "unit": "text",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "B0100001": {
+      "kind": "DECIMAL",
+      "value": "0.0300",
+      "formula": "B0100002 / B0100003",
+      "unit": "ratio",
+      "scale": 4,
+      "displayValue": "3%",
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "B0100002": {
+      "kind": "DECIMAL",
+      "value": "3",
+      "formula": null,
+      "unit": "case-unit",
+      "scale": 0,
+      "displayValue": "3",
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "B0100003": {
+      "kind": "DECIMAL",
+      "value": "100",
+      "formula": null,
+      "unit": "case-unit",
+      "scale": 0,
+      "displayValue": "100",
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "CS_BLXX": {
+      "kind": "DECIMAL",
+      "value": "0.0500",
+      "formula": "5%",
+      "unit": "ratio",
+      "scale": 4,
+      "displayValue": "5%",
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "adjustmentDaysN": {
+      "kind": "DECIMAL",
+      "value": "10",
+      "formula": null,
+      "unit": "day",
+      "scale": 0,
+      "displayValue": "10",
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "adjustmentDaysNMinus1": {
+      "kind": "DECIMAL",
+      "value": "9",
+      "formula": "adjustmentDaysN - 1",
+      "unit": "day",
+      "scale": 0,
+      "displayValue": "9",
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "dataImportStatus": {
+      "kind": "STATUS",
+      "value": "DATA_IMPORT_SUCCESS",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "systemSettingsStatus": {
+      "kind": "STATUS",
+      "value": "SYSTEM_SETTINGS_NORMAL",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "taskStatus": {
+      "kind": "STATUS",
+      "value": "TASK_EXECUTED",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "resultStatus": {
+      "kind": "STATUS",
+      "value": "RESULT_CONFIRMED",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "noticeGenerationStatus": {
+      "kind": "STATUS",
+      "value": "NOTICE_GENERATED",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "noticeSendStatus": {
+      "kind": "STATUS",
+      "value": "NOTICE_SENT",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "managerReplyStatus": {
+      "kind": "STATUS",
+      "value": "REPLY_RECORDED",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    },
+    "archiveStatus": {
+      "kind": "STATUS",
+      "value": "ARCHIVED",
+      "formula": null,
+      "unit": "status",
+      "scale": null,
+      "sourceMaterialIds": ["M01", "M11"],
+      "provenance": "SYNTHETIC_EDUCATIONAL",
+      "scope": "ONLY_THIS_CASE"
+    }
+  },
+  "statusTimeline": [
+    {"status": "CONTRACT_REVIEWED", "date": "2026-07-03", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "INTRADAY_ENABLED", "date": "2026-07-04", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "POSTTRADE_ENABLED", "date": "2026-07-05", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "RULE_CONFIGURED", "date": "2026-07-06", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "DATA_IMPORT_SUCCESS", "date": "2026-07-18", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "SYSTEM_SETTINGS_NORMAL", "date": "2026-07-18", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "TASK_EXECUTED", "date": "2026-07-18", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "RESULT_CONFIRMED", "date": "2026-07-18", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "NOTICE_GENERATED", "date": "2026-07-18", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "NOTICE_SENT", "date": "2026-07-18", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "REPLY_RECORDED", "date": "2026-07-19", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"},
+    {"status": "ARCHIVED", "date": "2026-07-20", "provenance": "SYNTHETIC_EDUCATIONAL", "scope": "ONLY_THIS_CASE"}
+  ],
+  "caseNote": "B 仅用于 foundation 正常字段、公式和连续状态顺序参考；不是任一路线的私有综合实务 fixture，尤其不代表 SPV-TASK-003 或 SPV-CLOSE-004 私有案例已发送、回函或归档。数值 3/100=3% 及日期均为本案例教学值。"
+}
