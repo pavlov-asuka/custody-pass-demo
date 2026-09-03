@@ -67,6 +67,21 @@ py -3 .\scripts\verify-text-humanization.py
 .\scripts\run-mock.ps1
 ```
 
+内网机器使用统一入口：
+
+```powershell
+.\scripts\start-training.ps1
+```
+
+统一入口需要 PowerShell 7（`pwsh.exe`）。首次运行会引导填写模型网关、模型标识、登录账号，并以当前 Windows 用户可解密的方式把 API Key 和密码保存在被 Git 忽略的 `.local/`；后续直接运行同一命令即可构建或复用 JAR、启动服务、完成健康检查并打开登录页。也可以双击 `scripts\start-training.cmd`。停止服务或更换 Key：
+
+```powershell
+.\scripts\start-training.ps1 -Stop
+.\scripts\start-training.ps1 -ResetKey
+```
+
+未提供 `DB_URL` 时，统一入口使用 `.local/` 下的 H2 数据库，适合内网试用；正式部署应由平台注入 MySQL 和模型相关环境变量。DPAPI 密钥文件与 Windows 用户绑定，更换运行账号后需重新执行 `-ResetKey`。
+
 Mock 账号：
 
 | 员工号 | 显示名 | 密码 |

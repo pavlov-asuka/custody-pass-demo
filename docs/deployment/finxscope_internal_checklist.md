@@ -2,6 +2,18 @@
 
 本清单是正式部署环境的前置核验，不是本地默认 Mock 工程的完成条件。私有 starter、凭据和内网服务只能在具备相应权限的环境中验证。
 
+## 0. 统一启动入口
+
+内网 Windows 试用机可直接运行：
+
+```powershell
+.\scripts\start-training.ps1
+```
+
+统一入口需要 PowerShell 7（`pwsh.exe`）。首次运行通过隐藏输入接收 `MODEL_API_KEY` 和登录密码，并使用 Windows DPAPI 加密保存在 `.local/internal-training/`；后续运行会自动复用配置、按需构建 `web,finxscope` 同源 JAR、启动 `internal,finxscope`、检查 `/api/health` 并打开登录页。可双击 `scripts\start-training.cmd`，也可使用 `-Stop` 停止、`-ResetKey` 更换 Key、`-Rebuild` 强制重建。该入口不把密钥写入 Git、YAML 或命令行。
+
+未注入 `DB_URL` 时会使用 `.local/` 下的 H2 数据库，仅适合试用。正式服务器仍应由内网密钥平台和发布平台注入 MySQL、`MODEL_API_KEY`、`MODEL_BASE_URL`、`MODEL_NAME` 等配置；DPAPI 文件只适用于固定 Windows 运行账号，不能跨账号或跨机器复制。
+
 ## 1. 首次构建
 
 在可访问内网 Maven 仓库的环境中进入 `Repository/backend`，先执行：
